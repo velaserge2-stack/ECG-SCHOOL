@@ -200,7 +200,7 @@ function labelInputs(s){
  $("zeroV").textContent=fmt(s.zero,1)+" cm";$("dampV").textContent=Math.round(s.damp*100)+" %";$("delayV").textContent=s.delay+" ms";
 }
 function conduction(s){
- var atrial=35, av=4/s.av, his=10, branch=4/s.branch*1000, pur=8/3*1000, vent=2/.4*1000;
+ var atrial=35, av=4/s.av, his=10, branch=40/s.branch, pur=8/3*10, vent=2/.4*10;
  var pr=atrial+av+his, qrs=clamp(20+pur+vent+40*(2/s.branch-1),70,180);
  return {atrial:atrial,av:av,his:his,branch:branch,pur:pur,vent:vent,pr:pr,qrs:qrs,tAV:atrial+av,tHis:pr,tBranch:pr+branch,tPur:pr+branch+pur,tEnd:pr+branch+pur+vent};
 }
@@ -276,7 +276,7 @@ function simulate(s,c){
  var z={vl:120*s.volume,vr:120*s.volume,la:45*s.volume,ra:45*s.volume,sa:92+(s.volume-1)*9,sv:7+(s.volume-1)*7,pa:15,pv:8};
  var samples=[],coSum=0,coN=0,meanMap=0,mapN=0,svPeak=-1e9,svTrough=1e9,lvPeak=0,paMean=0,paN=0,edv=0,esv=1e9;
  var ctrl={hr:s.hr,contract:s.contract,rvs:s.rvs,venous:1,symp:0};
- var lastCycleStart=duration-2*T;
+ var lastCycleStart=duration-2*T,pRAEnd=0,pLAEnd=0;
  for(var i=0;i<n;i++){
   var t=i*dt,phase=(t%T),beatStart=t-phase;
   var atrStart=beatStart+.01,ventStart=beatStart+c.pr/1000+.05;
@@ -287,7 +287,7 @@ function simulate(s,c){
   var qMV=Math.max((pLA-pLV)/.12,0),qAV=Math.max((pLV-z.sa)/.16,0),qTV=Math.max((pRA-pRV)/.12,0),qPV=Math.max((pRV-z.pa)/.24,0);
   var qSys=Math.max((z.sa-z.sv)/(.95*ctrl.rvs),0),qVen=Math.max((z.sv-pRA)/(.055/ctrl.venous),0);
   var qPul=Math.max((z.pa-z.pv)/(.14*s.rvp),0),qPven=Math.max((z.pv-pLA)/.035,0);
-  var dvl=qMV-qAV,dla=qPven-qMV,dvr=qTV-qPV,dra=qVen-qTV;
+  pRAEnd=pRA;pLAEnd=pLA;\n  var dvl=qMV-qAV,dla=qPven-qMV,dvr=qTV-qPV,dra=qVen-qTV;
   var dsa=(qAV-qSys)/1.35,dsv=(qSys-qVen)/85,dpa=(qPV-qPul)/4.5,dpv=(qPul-qPven)/18;
   z.vl+=dvl*dt;z.la+=dla*dt;z.vr+=dvr*dt;z.ra+=dra*dt;z.sa+=dsa*dt;z.sv+=dsv*dt;z.pa+=dpa*dt;z.pv+=dpv*dt;
   z.vl=clamp(z.vl,35,210);z.vr=clamp(z.vr,35,210);z.la=clamp(z.la,15,100);z.ra=clamp(z.ra,15,100);
@@ -309,7 +309,7 @@ function simulate(s,c){
  var co=(coSum/Math.max(coN,1))*60/1000,sv=Math.max(0,edv-esv),ef=edv>0?sv/edv*100:0;
  var map=meanMap/Math.max(mapN,1),pap=paMean/Math.max(paN,1);
  var ctrlMap={hr:ctrl.hr,contract:ctrl.contract,rvs:ctrl.rvs,venous:ctrl.venous,symp:clamp((ctrl.contract-s.contract)+.5*(ctrl.hr-s.hr)/Math.max(s.hr,1),0,1.5)};
- return {samples:samples,co:co,sv:sv,ef:ef,map:map,pap:pap,lvsp:lvPeak,edv:edv,esv:esv,ctrl:ctrlMap,sysEnd:z.sa,lvEnd:z.vl,rvEnd:z.vr,laEnd:z.la,raEnd:z.ra,paEnd:z.pa,pvEnd:z.pv};
+ return {samples:samples,co:co,sv:sv,ef:ef,map:map,pap:pap,lvsp:lvPeak,edv:edv,esv:esv,ctrl:ctrlMap,sysEnd:z.sa,lvEnd:z.vl,rvEnd:z.vr,laEnd:z.la,raEnd:z.ra,pRAEnd:pRAEnd,pLAEnd:pLAEnd,paEnd:z.pa,pvEnd:z.pv};
 }
 function drawPressures(s,r){
  var W=Math.max(300,$("pressures").parentElement.clientWidth-14),H=220,g=canvas("pressures",W,H),d=r.samples;
@@ -363,9 +363,9 @@ function renderTimeline(s,c){
  $("eventRows").innerHTML=tab.map(function(x){return "<tr><td>"+x[0]+"</td><td>"+x[1]+"</td><td style='text-align:left'>"+x[2]+"</td></tr>"}).join("");
 }
 function measurement(s,c,r){
- var zero=s.zero*.75,damp=s.damp,lvTruth=r.lvsp,artTruth=r.map,papTruth=r.pap,raTruth=r.raEnd*.0+Math.max(2,r.raEnd/20);
+ var zero=s.zero*.75,damp=s.damp,lvTruth=r.lvsp,artTruth=r.map,papTruth=r.pap,raTruth=Math.max(2,r.pRAEnd);
  var lvMeas=lvTruth+zero,artMeas=artTruth+zero,papMeas=papTruth+zero,raMeas=raTruth+zero;
- var wedgeTruth=Math.max(2,r.laEnd/18),wedgeMeas=wedgeTruth+zero;
+ var wedgeTruth=Math.max(2,r.pLAEnd),wedgeMeas=wedgeTruth+zero;
  var factor=1-damp*.6;
  var rows=[["Presión sistémica media",fmt(artTruth,1)+" mmHg",fmt(artMeas,1)+" mmHg","Desnivel del transductor"],["Presión pico VI",fmt(lvTruth,1)+" mmHg",fmt(lvTruth*factor+zero,1)+" mmHg","Amortiguación + cero"],["Presión media AP",fmt(papTruth,1)+" mmHg",fmt(papTruth*factor+zero,1)+" mmHg","Amortiguación + cero"],["AD estimada",fmt(raTruth,1)+" mmHg",fmt(raMeas,1)+" mmHg","Desnivel del transductor"],["PCP aproximada",fmt(wedgeTruth,1)+" mmHg",fmt(wedgeTruth*factor+zero,1)+" mmHg","Retardo "+s.delay+" ms y amortiguación"]];
  $("measurementRows").innerHTML=rows.map(function(x){return "<tr><td>"+x[0]+"</td><td>"+x[1]+"</td><td>"+x[2]+"</td><td style='text-align:left'>"+x[3]+"</td></tr>"}).join("");
