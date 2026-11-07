@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar · ECG School</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{--bg:#F1F4F4;--panel:#FFFFFF;--fg:#16211F;--muted:#586966;--line:#D5DEDC;--vec:#0A7C76;--vecSoft:rgba(10,124,118,.12);
+ --good:#2A7A35;--bad:#B3261E;--gridMinor:rgba(205,95,108,.13);--gridMajor:rgba(205,95,108,.28);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.14);
+ --good:#6FD07C;--bad:#FF8A80;--gridMinor:rgba(255,125,135,.09);--gridMajor:rgba(255,125,135,.2);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.14);
+ --good:#6FD07C;--bad:#FF8A80;--gridMinor:rgba(255,125,135,.09);--gridMajor:rgba(255,125,135,.2);color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 "Source Sans 3","Segoe UI",system-ui,sans-serif;min-height:100vh;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+@media (max-width:860px){body{grid-template-columns:minmax(0,1fr)}.side{display:none}}
+.side{position:relative;overflow:hidden;border-right:1px solid var(--line);background-color:var(--panel);
+ background-image:linear-gradient(var(--gridMajor) 1px,transparent 1px),linear-gradient(90deg,var(--gridMajor) 1px,transparent 1px),linear-gradient(var(--gridMinor) 1px,transparent 1px),linear-gradient(90deg,var(--gridMinor) 1px,transparent 1px);
+ background-size:50px 50px,50px 50px,10px 10px,10px 10px;display:flex;flex-direction:column;justify-content:center;padding:48px}
+.side::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,var(--panel) 25%,transparent 70%,var(--panel));pointer-events:none}
+.side>*{position:relative}
+.eyebrow{font:600 .74rem "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+.side h1{font:800 clamp(2rem,4vw,3.2rem)/1.05 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em;margin:10px 0 14px;max-width:14ch}
+.side h1 em{font-style:normal;color:var(--vec)}
+.side p{margin:0;color:var(--muted);max-width:46ch}
+.side svg{width:100%;height:120px;margin-top:28px}
+.side svg path{fill:none;stroke:var(--vec);stroke-width:2.4;stroke-linejoin:round}
+main{display:flex;align-items:center;justify-content:center;padding:32px 16px}
+.box{width:100%;max-width:400px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:center;gap:8px;font:700 1.2rem "Bricolage Grotesque",system-ui,sans-serif}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;padding:3px;background:var(--panel)}
+.tabs button{font:600 .95rem "Source Sans 3",sans-serif;border:0;background:none;color:var(--muted);padding:8px;border-radius:6px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--vecSoft);color:var(--fg)}
+form{display:flex;flex-direction:column;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+form h2{margin:0;font:700 1.3rem "Bricolage Grotesque",sans-serif}
+form p.sub{margin:-6px 0 2px;color:var(--muted);font-size:.92rem}
+label{display:flex;flex-direction:column;gap:4px;font-size:.88rem;color:var(--muted)}
+input{font:16px "Source Sans 3",sans-serif;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+input:focus{outline:2px solid var(--vec);outline-offset:1px;border-color:transparent}
+.btn{font:600 1rem "Source Sans 3",sans-serif;border-radius:6px;padding:11px 14px;border:1px solid var(--vec);background:var(--vec);color:var(--bg);cursor:pointer}
+.btn:hover{filter:brightness(1.07)}.btn[disabled]{opacity:.6;cursor:wait}
+.link{background:none;border:0;padding:0;color:var(--vec);font:600 .9rem "Source Sans 3",sans-serif;cursor:pointer;text-align:left}
+.link:hover{text-decoration:underline}
+.msg{font-size:.92rem;border-radius:6px;padding:10px 12px;display:none}
+.msg.on{display:block}.msg.err{background:rgba(179,38,30,.1);border:1px solid var(--bad)}.msg.ok{background:rgba(42,122,53,.1);border:1px solid var(--good)}
+.fine{font-size:.8rem;color:var(--muted);margin:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<aside class="side" aria-hidden="true">
+  <div class="eyebrow">Fisiología cardiovascular · ECG y hemodinamia</div>
+  <h1>Entiende el corazón, <em>no lo memorices</em>.</h1>
+  <p>24 módulos interactivos donde cada onda del ECG y cada presión se deducen de un mismo modelo causal.</p>
+  <svg viewBox="0 0 600 120" preserveAspectRatio="none"><path id="tr"/></svg>
+</aside>
+<main>
+<div class="box">
+  <div class="brand"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><path d="M1 11h6l2-3 2 3 2-10 3 16 2-6h7" fill="none" stroke="var(--vec)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>ECG School</div>
+
+  <div class="tabs" role="tablist" id="tabs">
+    <button role="tab" id="tIn" aria-selected="true">Iniciar sesión</button>
+    <button role="tab" id="tUp" aria-selected="false">Crear cuenta</button>
+  </div>
+
+  <div class="msg" id="msg" role="status" aria-live="polite"></div>
+
+  <form id="fIn" novalidate>
+    <h2>Bienvenido de vuelta</h2>
+    <label>Correo<input type="email" id="inEmail" autocomplete="email" required></label>
+    <label>Contraseña<input type="password" id="inPass" autocomplete="current-password" required></label>
+    <button class="btn" type="submit">Entrar</button>
+    <button class="link" type="button" id="toReset">¿Olvidaste tu contraseña?</button>
+  </form>
+
+  <form id="fUp" novalidate hidden>
+    <h2>Crea tu cuenta</h2>
+    <p class="sub">Solo pueden registrarse los correos autorizados. Si el tuyo no está en la lista, pide acceso al administrador.</p>
+    <label>Correo<input type="email" id="upEmail" autocomplete="email" required></label>
+    <label>Contraseña (mínimo 8 caracteres)<input type="password" id="upPass" autocomplete="new-password" minlength="8" required></label>
+    <label>Repite la contraseña<input type="password" id="upPass2" autocomplete="new-password" minlength="8" required></label>
+    <button class="btn" type="submit">Crear cuenta</button>
+  </form>
+
+  <form id="fReset" novalidate hidden>
+    <h2>Recuperar contraseña</h2>
+    <p class="sub">Te enviaremos un enlace para elegir una contraseña nueva.</p>
+    <label>Correo<input type="email" id="rsEmail" autocomplete="email" required></label>
+    <button class="btn" type="submit">Enviar enlace</button>
+    <button class="link" type="button" id="backIn">Volver a iniciar sesión</button>
+  </form>
+
+  <form id="fNew" novalidate hidden>
+    <h2>Nueva contraseña</h2>
+    <label>Contraseña nueva (mínimo 8 caracteres)<input type="password" id="nwPass" autocomplete="new-password" minlength="8" required></label>
+    <button class="btn" type="submit">Guardar y entrar</button>
+  </form>
+
+  <p class="fine">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Sin aval institucional.</p>
+</div>
+</main>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+/* trazo decorativo */
+(function(){var d='',w=600,b=3;for(var i=0;i<=w;i+=2){var t=(i/w*b)%1,g=function(c,s,a){return a*Math.exp(-Math.pow((t-c)/s,2))};
+ var v=g(.16,.03,7)-g(.30,.008,6)+g(.33,.012,48)-g(.36,.01,12)+g(.62,.05,11);d+=(i?' L':'M')+i+','+(78-v).toFixed(1)}$('tr').setAttribute('d',d)})();
+
+var msg=$('msg');
+function say(text,ok){msg.textContent=text;msg.className='msg on '+(ok?'ok':'err')}
+function hush(){msg.className='msg';msg.textContent=''}
+var FORMS=['fIn','fUp','fReset','fNew'];
+function view(id){FORMS.forEach(function(f){$(f).hidden=f!==id});$('tabs').hidden=(id==='fReset'||id==='fNew');
+  $('tIn').setAttribute('aria-selected',id==='fIn');$('tUp').setAttribute('aria-selected',id==='fUp');hush()}
+$('tIn').onclick=function(){view('fIn')};$('tUp').onclick=function(){view('fUp')};
+$('toReset').onclick=function(){$('rsEmail').value=$('inEmail').value;view('fReset')};$('backIn').onclick=function(){view('fIn')};
+
+var CFG=window.ECG_CONFIG||{};
+if(!window.supabase||!CFG.supabaseUrl||/TU-PROYECTO/.test(CFG.supabaseUrl)||/TU-ANON-KEY/.test(CFG.supabaseAnonKey||'')){
+  say('Falta configurar Supabase: edita web/config.js con la URL y la anon key de tu proyecto.');
+  document.querySelectorAll('form .btn').forEach(function(b){b.disabled=true});return}
+var SB=supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey);
+
+var params=new URLSearchParams(location.search);
+var nextUrl='index.html'+(location.hash&&location.hash!=='#'?location.hash:'');
+var here=location.href.split('#')[0].split('?')[0];
+var appUrl=new URL('index.html',here).href;
+if(params.get('e')==='noautorizado')say('Tu correo no está en la lista de acceso. Si crees que es un error, pide al administrador que lo agregue.');
+
+var recovering=false;
+SB.auth.onAuthStateChange(function(ev){if(ev==='PASSWORD_RECOVERY'){recovering=true;view('fNew')}});
+
+function busy(form,on){form.querySelectorAll('button').forEach(function(b){b.disabled=on})}
+function tr(e){var m=(e&&e.message)||String(e||'');
+  if(/not authori[sz]ed|no está autorizado|403/i.test(m))return 'Este correo no está autorizado para registrarse en ECG School.';
+  if(/invalid login credentials/i.test(m))return 'Correo o contraseña incorrectos.';
+  if(/email not confirmed/i.test(m))return 'Primero confirma tu correo con el enlace que te enviamos.';
+  if(/already registered|already been registered/i.test(m))return 'Ese correo ya tiene cuenta. Inicia sesión.';
+  if(/password should be at least/i.test(m))return 'La contraseña es demasiado corta.';
+  if(/rate limit|too many/i.test(m))return 'Demasiados intentos. Espera unos minutos y vuelve a probar.';
+  if(/failed to fetch|network/i.test(m))return 'No hay conexión con el servidor. Revisa tu internet.';
+  return m||'Ocurrió un error inesperado.'}
+function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
+
+/* Entra solo si el correo sigue en la lista; si no, cierra la sesión. */
+function enter(){return SB.rpc('is_allowed').then(function(a){
+  if(a.error||a.data!==true){return SB.auth.signOut().then(function(){view('fIn');say('Tu correo no está en la lista de acceso. Si crees que es un error, pide al administrador que lo agregue.')})}
+  location.replace(nextUrl)})}
+
+SB.auth.getSession().then(function(r){if(r.data&&r.data.session&&!recovering&&!/type=recovery/.test(location.hash)&&params.get('e')!=='noautorizado')enter()});
+
+$('fIn').onsubmit=function(ev){ev.preventDefault();var f=this,em=$('inEmail').value.trim().toLowerCase(),pw=$('inPass').value;
+  if(!validEmail(em)||!pw)return say('Escribe tu correo y tu contraseña.');
+  busy(f,true);hush();
+  SB.auth.signInWithPassword({email:em,password:pw}).then(function(r){if(r.error)throw r.error;return enter()})
+  .catch(function(e){say(tr(e))}).then(function(){busy(f,false)})};
+
+$('fUp').onsubmit=function(ev){ev.preventDefault();var f=this,em=$('upEmail').value.trim().toLowerCase(),pw=$('upPass').value;
+  if(!validEmail(em))return say('Escribe un correo válido.');
+  if(pw.length<8)return say('La contraseña debe tener al menos 8 caracteres.');
+  if(pw!==$('upPass2').value)return say('Las contraseñas no coinciden.');
+  busy(f,true);hush();
+  SB.auth.signUp({email:em,password:pw,options:{emailRedirectTo:appUrl}}).then(function(r){if(r.error)throw r.error;
+    if(r.data&&r.data.session)return enter();
+    view('fIn');$('inEmail').value=em;say('Cuenta creada. Te enviamos un correo para confirmarla; después inicia sesión.',true)})
+  .catch(function(e){say(tr(e))}).then(function(){busy(f,false)})};
+
+$('fReset').onsubmit=function(ev){ev.preventDefault();var f=this,em=$('rsEmail').value.trim().toLowerCase();
+  if(!validEmail(em))return say('Escribe un correo válido.');
+  busy(f,true);hush();
+  SB.auth.resetPasswordForEmail(em,{redirectTo:here}).then(function(r){if(r.error)throw r.error;
+    say('Si ese correo tiene cuenta, recibirás un enlace para elegir una contraseña nueva.',true)})
+  .catch(function(e){say(tr(e))}).then(function(){busy(f,false)})};
+
+$('fNew').onsubmit=function(ev){ev.preventDefault();var f=this,pw=$('nwPass').value;
+  if(pw.length<8)return say('La contraseña debe tener al menos 8 caracteres.');
+  busy(f,true);hush();
+  SB.auth.updateUser({password:pw}).then(function(r){if(r.error)throw r.error;return enter()})
+  .catch(function(e){say(tr(e))}).then(function(){busy(f,false)})};
+})();
+</script>
+</body>
+</html>

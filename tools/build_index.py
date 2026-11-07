@@ -1,4 +1,8 @@
-"""Genera index.html: página de inicio + los módulos de modulos/ sin modificar.
+"""Genera dos índices con la misma página de inicio y menú:
+
+- index.html      versión local: los módulos de modulos/ van incrustados sin modificar.
+- web/index.html  versión publicable con login: no contiene módulos; cada uno se descarga
+                  del bucket privado de Supabase Storage solo con una sesión autorizada.
 
 Uso: python3 tools/build_index.py .
 El orden y los grupos del menú se definen en G.
@@ -16,8 +20,10 @@ G = [
 ]
 
 data = {}
+mods_by = {}
 for p in mods:
     n = os.path.basename(p)[:2]
+    mods_by[n] = p
     h = open(p, encoding='utf-8').read()
     t = re.search(r'<title>([^<]*)', h).group(1)
     e = re.search(r'class="eyebrow">([^<]*)', h).group(1)
@@ -69,15 +75,20 @@ def ecg_path(w=1200, h=160, beats=5):
 
 
 trace = ecg_path()
-js = json.dumps({k: {'t': v['t'], 'h': v['h']} for k, v in data.items()}, ensure_ascii=False)
-js = js.replace('</', '<\\/').replace('<!--', '<\\!--')
+def jsdump(o):
+    return json.dumps(o, ensure_ascii=False).replace('</', '<\\/').replace('<!--', '<\\!--')
+
+
+js_local = jsdump({k: {'t': v['t'], 'h': v['h']} for k, v in data.items()})
+js_web = jsdump({k: {'t': v['t'], 'f': os.path.basename(mods_by[k])} for k, v in data.items()})
 order = json.dumps([k for g in G for k in g[3]])
 
-page = '''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+def render(js, HEADX, BODYATTR, USERBOX, LOADER, START):
+    return '''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ECG School</title>
 <meta name="description" content="Plataforma interactiva para entender el ECG y la hemodinamia como un solo sistema.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
-<style>
+''' + HEADX + '''<style>
 :root{--bg:#F1F4F4;--panel:#FFFFFF;--fg:#16211F;--muted:#586966;--line:#D5DEDC;--vec:#0A7C76;--vecSoft:rgba(10,124,118,.12);
  --blood:#B23A3A;--guess:#C2480F;--slate:#4A5D8A;--gridMinor:rgba(205,95,108,.13);--gridMajor:rgba(205,95,108,.28);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.14);
@@ -159,10 +170,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--vec);outline-offset
 .co{margin-top:auto;padding-top:6px;font:400 .72rem "JetBrains Mono",monospace;color:var(--muted)}
 .fine{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
 .fine p{margin:0}
-</style></head><body>
+</style></head><body''' + BODYATTR + '''>
 <header class="top"><button id="menu" aria-label="Mostrar módulos">☰</button>
 <a class="brand" href="#inicio"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><path d="M1 11h6l2-3 2 3 2-10 3 16 2-6h7" fill="none" stroke="var(--vec)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>ECG School</a>
-<span class="cur" id="cur"></span><button id="prev" aria-label="Módulo anterior">‹</button><button id="next" aria-label="Módulo siguiente">›</button></header>
+<span class="cur" id="cur"></span><button id="prev" aria-label="Módulo anterior">‹</button><button id="next" aria-label="Módulo siguiente">›</button>''' + USERBOX + '''</header>
 <div class="lay"><nav aria-label="Módulos">''' + nav + '''<p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Alineado con los objetivos de la Unidad 6 como referencia; sin aval institucional.</p></nav>
 <main>
 <div id="home">
@@ -222,20 +233,46 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--vec);outline-offset
 <script>
 var MODS=''' + js + ''';var ORDER=''' + order + ''';
 (function(){var fr=document.getElementById('fr'),home=document.getElementById('home'),cur=document.getElementById('cur'),ro=null,now=null;
+''' + LOADER + '''
 function fitH(){if(fr.hidden)return;try{var d=fr.contentDocument;if(!d||!d.documentElement)return;fr.style.height=Math.max(d.documentElement.scrollHeight,window.innerHeight-53)+'px'}catch(e){}}
 function mark(n){document.querySelectorAll('nav a').forEach(function(a){if(a.dataset.n===n)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
 function goHome(anchor){if(ro){ro.disconnect();ro=null}if(now!=='inicio'){now='inicio';fr.hidden=true;fr.removeAttribute('srcdoc');home.hidden=false;mark('inicio');cur.textContent='';document.title='ECG School'}
   document.body.classList.remove('open');if(anchor){var el=document.getElementById(anchor);if(el)el.scrollIntoView({behavior:'smooth'})}else window.scrollTo(0,0)}
 function show(n){if(!MODS[n])return goHome();if(n===now)return;now=n;mark(n);
   cur.textContent=n+' · '+MODS[n].t;document.title=MODS[n].t+' · ECG School';
-  if(ro){ro.disconnect();ro=null}home.hidden=true;fr.hidden=false;fr.style.height='';fr.srcdoc=MODS[n].h;window.scrollTo(0,0);document.body.classList.remove('open')}
+  if(ro){ro.disconnect();ro=null}home.hidden=true;fr.hidden=false;fr.style.height='';load(n);window.scrollTo(0,0);document.body.classList.remove('open')}
 fr.addEventListener('load',function(){fitH();try{if(window.ResizeObserver&&fr.contentDocument){ro=new ResizeObserver(fitH);ro.observe(fr.contentDocument.body)}}catch(e){}});
 function fromHash(){var h=location.hash,m=/^#m(\\d\\d)$/.exec(h);if(m&&MODS[m[1]])show(m[1]);else goHome(h==='#mapa'?'mapa':null)}
 window.addEventListener('hashchange',fromHash);window.addEventListener('resize',fitH);
 function step(d){var i=ORDER.indexOf(now);var j=i<0?(d>0?0:ORDER.length-1):(i+d+ORDER.length)%ORDER.length;location.hash='#m'+ORDER[j]}
 document.getElementById('prev').onclick=function(){step(-1)};document.getElementById('next').onclick=function(){step(1)};
 document.getElementById('menu').onclick=function(){document.body.classList.toggle('open')};
-fromHash()})();
+''' + START + '''})();
 </script></body></html>'''
-open(os.path.join(root, 'index.html'), 'w', encoding='utf-8').write(page)
-print(len(data), len(page))
+local = render(js_local, '', '', '', 'function load(n){fr.srcdoc=MODS[n].h}', 'fromHash()')
+open(os.path.join(root, 'index.html'), 'w', encoding='utf-8').write(local)
+
+WEB_HEAD = '''<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>body.gate .lay{visibility:hidden}.who{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
+@media (max-width:600px){.who{display:none}}</style>
+'''
+WEB_USER = '<span class="who" id="who"></span><button id="logout">Salir</button>'
+WEB_LOADER = r'''var CFG=window.ECG_CONFIG||{},SB=null,CACHE={};
+function msgDoc(t,d){return '<!doctype html><meta charset="utf-8"><body style="margin:0;padding:40px 20px;font:16px/1.5 system-ui,sans-serif;color:#586966;background:#F1F4F4;text-align:center"><p style="font-weight:600;color:#16211F">'+t+'</p><p>'+(d||'')+'</p></body>'}
+function load(n){var my=n;if(CACHE[n]){fr.srcdoc=CACHE[n];return}fr.srcdoc=msgDoc('Cargando «'+MODS[n].t+'»…');
+  SB.storage.from(CFG.bucket||'modulos').download(MODS[n].f).then(function(r){if(r.error)throw r.error;return r.data.text()})
+  .then(function(h){CACHE[my]=h;if(now===my)fr.srcdoc=h})
+  .catch(function(e){if(now===my)fr.srcdoc=msgDoc('No se pudo cargar el módulo.','Revisa tu conexión. Si el problema sigue, el módulo puede no estar subido al bucket o tu correo ya no está autorizado. ('+(e&&e.message||e)+')')})}'''
+WEB_START = r'''if(!CFG.supabaseUrl||/TU-PROYECTO/.test(CFG.supabaseUrl)||!window.supabase){location.replace('login.html');return}
+SB=supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey);
+function out(q){location.replace('login.html'+(q||'')+(location.hash?'#'+location.hash.slice(1):''))}
+document.getElementById('logout').onclick=function(){SB.auth.signOut().then(function(){location.replace('login.html')})};
+SB.auth.onAuthStateChange(function(ev){if(ev==='SIGNED_OUT')location.replace('login.html')});
+SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(!s)return out();
+  return SB.rpc('is_allowed').then(function(a){if(a.error||a.data!==true){return SB.auth.signOut().then(function(){location.replace('login.html?e=noautorizado')})}
+    document.getElementById('who').textContent=s.user.email;document.body.classList.remove('gate');fromHash()})})'''
+web = render(js_web, WEB_HEAD, ' class="gate"', WEB_USER, WEB_LOADER, WEB_START)
+os.makedirs(os.path.join(root, 'web'), exist_ok=True)
+open(os.path.join(root, 'web', 'index.html'), 'w', encoding='utf-8').write(web)
+print(len(data), 'módulos · index.html', len(local), 'bytes · web/index.html', len(web), 'bytes')

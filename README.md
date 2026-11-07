@@ -39,6 +39,12 @@ El módulo 24 es un laboratorio de integración fisiológica que conecta las cap
 
 Para regenerar `index.html` tras añadir o cambiar módulos: `python3 tools/build_index.py .` (el orden y los grupos del menú están al inicio del script).
 
+## Versión web con acceso (Supabase)
+
+La carpeta [`web/`](web/) es la versión publicable: tiene página de login y registro, solo admite los correos de una lista en Supabase, y los simuladores se descargan de un bucket privado únicamente con una sesión autorizada. Configuración paso a paso en [`docs/supabase.md`](docs/supabase.md).
+
+Para que el bloqueo sea real, publica solo `web/` (el `index.html` de la raíz y `modulos/` contienen los simuladores completos) y mantén el repositorio privado.
+
 ## Aviso
 
 Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Las cifras marcadas VERIFICAR deben confirmarse con el libro del curso.
