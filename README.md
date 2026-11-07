@@ -2,14 +2,14 @@
 
 Plataforma interactiva para **entender** el corazón (ECG y hemodinamia como un solo sistema), alineada con los objetivos de la Unidad 6 "Sistema cardiovascular" de la guía de Fisiología como referencia. Sin aval institucional.
 
-**Todo en uno:** abre [`index.html`](index.html). Abre con una página de inicio (presentación, cómo se aprende, las perillas y el mapa de módulos) y reúne los 23 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia y Regulación). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
+**Todo en uno:** abre [`index.html`](index.html). Abre con una página de inicio (presentación, cómo se aprende, las perillas y el mapa de módulos) y reúne los 24 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia, Regulación e Integración fisiológica). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
 
 Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 
 ## Módulos
 
-| # | Archivo | Módulos del temario | Objetivos (Unidad 6) |
-|---|---------|---------------------|----------------------|
+| # | Archivo | Módulos del temario / capa | Objetivos (Unidad 6) |
+|---|---------|----------------------------|----------------------|
 | 1 | [Cámara cardiaca](modulos/01_camara_cardiaca.html) | A1 + A2 (MVP) | 6.46–6.55, 6.67–6.75, 6.91–6.96 |
 | 2 | [Del nodo al trazo](modulos/02_del_nodo_al_trazo.html) | A3 + A4 | 6.54–6.66, 6.76–6.90 |
 | 3 | [Ritmo y conducción](modulos/03_ritmo_y_conduccion.html) | A5 + A6 | 6.97–6.111 |
@@ -33,6 +33,9 @@ Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 | 21 | [Lazo del barorreflejo](modulos/21_lazo_del_barorreflejo.html) | D2 | 6.219–6.232 |
 | 22 | [Vasos y presión](modulos/22_vasos_y_presion.html) | B17 | 6.150–6.168, 6.174–6.190 |
 | 23 | [Valvulopatías en el ciclo cardiaco](modulos/23_valvulopatias_en_el_ciclo_cardiaco.html) | B9 | 6.124, 6.145–6.149 |
+| 24 | [Modelo integrado L2–L8](modulos/24_modelo_integrado_l2_l8.html) | L2–L8: tejido, señal, excitación–contracción, hemodinamia, control, sincronía y medición | Laboratorio transversal de integración; cobertura curricular fina pendiente de asignar |
+
+El módulo 24 es un laboratorio de integración fisiológica que conecta las capas L2–L8 en un mismo estado de simulación. Es una primera implementación educativa simplificada, no un simulador clínico validado. Sus supuestos, rangos y ecuaciones requieren pruebas numéricas y revisión por especialistas.
 
 Para regenerar `index.html` tras añadir o cambiar módulos: `python3 tools/build_index.py .` (el orden y los grupos del menú están al inicio del script).
 
