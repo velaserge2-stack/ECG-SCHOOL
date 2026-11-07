@@ -2,7 +2,7 @@
 
 Plataforma interactiva para **entender** el corazón (ECG y hemodinamia como un solo sistema), alineada con los objetivos de la Unidad 6 "Sistema cardiovascular" de la guía de Fisiología como referencia. Sin aval institucional.
 
-**Todo en uno:** abre [`index.html`](index.html). Abre con una página de inicio (presentación, cómo se aprende, las perillas y el mapa de módulos) y reúne los 28 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia, Regulación e Integración fisiológica). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
+**Todo en uno:** abre [`index.html`](index.html). Abre con una página de inicio (presentación, cómo se aprende, las perillas y el mapa de módulos) y reúne los 29 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia, Regulación e Integración fisiológica). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
 
 Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 
@@ -38,6 +38,7 @@ Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 | 26 | [Edema y sistema linfático](modulos/26_edema_y_sistema_linfatico.html) | B19 | 6.198, 6.204–6.211 |
 | 27 | [Regulación local y humoral](modulos/27_regulacion_local_y_humoral.html) | D1 + D3 | 6.212–6.218, 6.233–6.235 |
 | 28 | [Las perillas del corazón](modulos/28_las_perillas_del_corazon.html) | B3 + F5 | 6.42–6.44, 6.136–6.144 |
+| 32 | [Ruidos cardiacos y soplos](modulos/32_ruidos_cardiacos_y_soplos.html) | B16 | 6.120–6.124, 6.145–6.149, 6.169–6.173 |
 
 El módulo 24 es un laboratorio de integración fisiológica que conecta las capas L2–L8 en un mismo estado de simulación. Incluye el escenario C2 de elevación pasiva de piernas, con comparación contra el estado basal y un desplazamiento venoso aproximado de 300 mL. Es una implementación educativa simplificada: no representa por separado los reservorios de piernas y abdomen ni la cinética completa de la maniobra, y no es un simulador clínico validado. Sus supuestos, rangos y ecuaciones requieren pruebas numéricas y revisión por especialistas.
 

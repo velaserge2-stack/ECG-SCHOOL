@@ -1,0 +1,444 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ruidos cardiacos y soplos</title>
+<meta name="description" content="Ruidos cardiacos y soplos sintetizados y sincronizados con el ECG, las presiones y el fonocardiograma, con focos de auscultación, maniobras y física de la turbulencia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#F1F4F4;--panel:#FFFFFF;--fg:#16211F;--muted:#586966;--line:#D5DEDC;--vec:#0A7C76;--vecSoft:rgba(10,124,118,.14);
+ --blood:#B23A3A;--bloodSoft:rgba(178,58,58,.16);--guess:#C2480F;--guessSoft:rgba(194,72,15,.14);--slate:#4A5D8A;--good:#2A7A35;--bad:#B3261E;
+ --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.16);
+ --blood:#E27A7A;--bloodSoft:rgba(226,122,122,.2);--guess:#FF9A5C;--guessSoft:rgba(255,154,92,.16);--slate:#9DB2E8;--good:#6FD07C;--bad:#FF8A80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.16);
+ --blood:#E27A7A;--bloodSoft:rgba(226,122,122,.2);--guess:#FF9A5C;--guessSoft:rgba(255,154,92,.16);--slate:#9DB2E8;--good:#6FD07C;--bad:#FF8A80;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}h2{font-size:1.25rem}h3{font-size:1rem}
+p{margin:0}.lede{max-width:64ch;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}.chip.ok{border-color:var(--good)}.chip.no{border-color:var(--bad)}.chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}.chip.ok em{color:var(--good)}.chip.no em{color:var(--bad)}.chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}.note{font-size:.85rem;color:var(--muted)}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.warn{border-left:3px solid var(--guess);padding:6px 10px;background:var(--guessSoft);font-size:.9rem}
+.formula{font:600 clamp(.92rem,2vw,1.08rem) var(--font-mono);background:var(--bg);border:1px solid var(--line);padding:10px 12px;border-radius:5px;text-align:center;overflow-wrap:anywhere}
+.ver{font-family:var(--font-mono);font-size:.68rem;color:var(--guess);border:1px solid var(--guess);border-radius:3px;padding:0 4px;white-space:nowrap}
+.ok{color:var(--good)}.no{color:var(--bad)}.fb{font-size:.92rem;min-height:2.6em}
+canvas{display:block;max-width:100%}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:.92rem}legend{font-size:.95rem;padding:0;margin-bottom:6px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.steps{display:flex;flex-direction:column;gap:8px;counter-reset:s;padding:0;list-style:none}
+.steps li{counter-increment:s;padding:6px 10px 6px 36px;position:relative;border:1px solid var(--line);border-radius:5px;background:var(--bg)}
+.steps li::before{content:counter(s);position:absolute;left:8px;top:7px;width:20px;height:20px;border-radius:50%;background:var(--vec);color:var(--bg);font:700 .72rem var(--font-mono);display:flex;align-items:center;justify-content:center}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}.sw{display:inline-block;width:12px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
+#atlas canvas{display:block;width:100%}#torso .fz:focus-visible circle{stroke:var(--guess);stroke-width:4}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B16 · ruidos cardiacos, soplos y auscultación</div>
+  <h1>Ruidos cardiacos y soplos</h1>
+  <p class="lede">Un ruido es una vibración en un instante preciso del ciclo; un soplo es el sonido de la turbulencia mientras una diferencia de presión empuja sangre por donde no debe. Escucha, mira la presión que lo causa y deduce la lesión.</p>
+  <div class="tags"><span>Unidad 6: 6.120–6.124, 6.145–6.149, 6.169–6.173</span><span>Nivel N1–N2</span><span>Perillas: lesión, gravedad, foco, respiración, maniobra, FC</span><span>Requiere B1 y B9</span></div>
+</header>
+
+<section class="panel">
+  <div class="row" style="justify-content:space-between"><h2>Escucha y mira el mismo latido</h2>
+    <div class="row"><button class="btn primary" id="play" aria-pressed="false">▶ Escuchar</button><label class="ctl" style="flex-direction:row;align-items:center;gap:6px;min-width:150px">Volumen <input type="range" id="vol" min="0" max="1" step="0.05" value="0.7" style="width:90px"></label></div></div>
+  <div class="chips" id="lesBtns" role="group" aria-label="Situación"></div>
+  <div id="stage" style="position:relative"><canvas id="main" role="img" aria-label="ECG, presiones del lado izquierdo y fonocardiograma sincronizados en un latido"></canvas><canvas id="cursor" aria-hidden="true" style="position:absolute;left:0;top:0;pointer-events:none"></canvas></div>
+  <div class="legend"><span><i class="sw" style="background:var(--vec)"></i>Ventrículo izquierdo</span><span><i class="sw" style="background:var(--blood)"></i>Aorta</span><span><i class="sw" style="background:var(--slate)"></i>Aurícula izquierda</span><span><i class="sw" style="background:var(--guessSoft);height:10px"></i>Diferencia de presión que genera el soplo</span><span><i class="sw" style="background:var(--guess)"></i>Fonocardiograma</span></div>
+  <div class="chips" id="read"></div>
+  <p class="why" id="why"></p>
+  <p class="note">El sonido se sintetiza en tu navegador a partir del modelo; el fonocardiograma dibujado es exactamente la señal que escuchas. Los ruidos son de baja frecuencia: usa audífonos. Sonido didáctico, no grabación de pacientes.</p>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>Dónde pones el estetoscopio</h2>
+    <svg id="torso" viewBox="0 0 360 400" role="img" aria-label="Tórax con los focos de auscultación" style="width:100%;max-width:420px;margin:0 auto;display:block"></svg>
+    <p class="note" id="focusTxt"></p>
+  </div>
+  <div class="panel">
+    <h2>Controles</h2>
+    <label class="ctl">Gravedad de la lesión: <span class="mono" id="sevV"></span><input type="range" id="sev" min="1" max="3" step="1" value="2"></label>
+    <label class="ctl">Frecuencia cardiaca: <span class="mono" id="hrV"></span><input type="range" id="hr" min="45" max="130" step="5" value="70"></label>
+    <div class="row"><span class="note">Fase respiratoria:</span><div class="chips" id="phBtns"></div></div>
+    <label class="ctl"><span><input type="checkbox" id="breath"> Respirar mientras escuchas (alterna espiración e inspiración cada dos latidos)</span></label>
+    <label class="ctl">Desdoblamiento de S2
+      <select id="split"><option value="fis">Fisiológico (se abre al inspirar)</option><option value="fijo">Fijo (comunicación interauricular)</option><option value="par">Paradójico (bloqueo de rama izquierda, estenosis aórtica grave)</option></select></label>
+    <label class="ctl">Maniobra
+      <select id="man"><option value="none">Ninguna</option><option value="valsalva">Valsalva (fase de esfuerzo)</option><option value="squat">Cuclillas</option><option value="grip">Esfuerzo isométrico (apretar el puño)</option></select></label>
+    <label class="ctl"><span><input type="checkbox" id="fa"> Fibrilación auricular (sin contracción auricular)</span></label>
+    <p class="note">Efecto de las maniobras sobre la intensidad: ilustrativo, <span class="ver">VERIFICAR</span>. No se incluye la miocardiopatía hipertrófica, cuyo soplo responde al revés (ver B10).</p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Atlas: la forma de cada soplo</h2>
+  <p class="note">Misma escala de tiempo, S1 y S2 marcados. Toca una forma para cargarla arriba.</p>
+  <div class="cols2" id="atlas" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))"></div>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>Por qué suena: flujo laminar contra turbulento</h2>
+    <label class="ctl">Hematocrito (viscosidad): <span class="mono" id="hctV"></span><input type="range" id="hct" min="18" max="60" step="1" value="45"></label>
+    <label class="ctl">Gasto cardiaco: <span class="mono" id="coV"></span><input type="range" id="co" min="3" max="15" step="0.5" value="5"></label>
+    <canvas id="rey" role="img" aria-label="Número de Reynolds en la aorta durante la eyección y umbral de turbulencia"></canvas>
+    <div class="chips" id="reyRead"></div>
+    <div class="formula">Re = ρ · v · D / η</div>
+    <p class="note">Velocidad media durante la eyección en una aorta de 2,5 cm; viscosidad η ≈ 1,2·(1 + 2H + 9H²) cP; umbral ilustrativo de turbulencia en la aorta ≈ 4000 <span class="ver">VERIFICAR</span>. Este panel alimenta el «Soplo funcional» de arriba.</p>
+  </div>
+  <div class="panel">
+    <h2>Los cuatro ruidos</h2>
+    <div class="tw"><table><thead><tr><th>Ruido</th><th>Qué vibra</th><th>Cuándo</th><th>Normal o no</th></tr></thead><tbody>
+      <tr><td class="n">S1</td><td>Cierre mitral (M1) y tricuspídeo (T1) y la sangre que frena contra ellos</td><td>Tras el QRS; inicia la contracción isovolumétrica</td><td>Normal. Fuerte en estenosis mitral; suave en insuficiencia mitral grave.</td></tr>
+      <tr><td class="n">S2</td><td>Cierre aórtico (A2) y pulmonar (P2)</td><td>Cerca del final de la T; inicia la relajación isovolumétrica</td><td>Normal. P2 se retrasa al inspirar (más retorno derecho).</td></tr>
+      <tr><td class="n">S3</td><td>Pared ventricular al frenarse el llenado rápido</td><td>≈ 120–150 ms tras S2</td><td>Normal en niños y jóvenes; patológico con sobrecarga de volumen o insuficiencia cardiaca.</td></tr>
+      <tr><td class="n">S4</td><td>Ventrículo rígido al recibir la contracción auricular</td><td>Justo antes de S1</td><td>Patológico (hipertrofia, isquemia). No existe en fibrilación auricular.</td></tr>
+    </tbody></table></div>
+    <p class="note">Al subir la frecuencia se acorta sobre todo la diástole: S2 se acerca al S1 siguiente y los soplos diastólicos se comprimen.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Cada lesión, de la presión al sonido</h2>
+  <div class="tw"><table><thead><tr><th>Lesión</th><th>Fase</th><th>Forma</th><th>Mejor foco · irradiación</th><th>Gradiente que lo produce</th><th>Asa presión–volumen</th></tr></thead><tbody>
+    <tr><td>Estenosis aórtica</td><td>Sístole (eyección)</td><td>Creciente–decreciente; el pico se retrasa con la gravedad</td><td>Aórtico · carótidas</td><td>VI &gt; aorta durante la eyección</td><td>Poscarga ↑: presión sistólica alta, asa más alta</td></tr>
+    <tr><td>Insuficiencia mitral</td><td>Sístole completa (holosistólico)</td><td>Meseta de S1 a S2</td><td>Mitral · axila</td><td>VI &gt; AI toda la sístole</td><td>Sin contracción isovolumétrica verdadera; asa ancha</td></tr>
+    <tr><td>Insuficiencia aórtica</td><td>Diástole temprana</td><td>Decreciente, agudo, «soplante»</td><td>Borde esternal izq. (Erb) · ápex</td><td>Aorta &gt; VI en diástole</td><td>Precarga ↑↑: asa muy ancha</td></tr>
+    <tr><td>Estenosis mitral</td><td>Diástole</td><td>Chasquido de apertura + retumbo grave; refuerzo presistólico si hay ritmo sinusal</td><td>Mitral (ápex), en decúbito lateral izquierdo</td><td>AI &gt; VI toda la diástole</td><td>Precarga ↓: asa estrecha</td></tr>
+    <tr><td>Conducto arterioso persistente</td><td>Continuo</td><td>«En maquinaria», máximo alrededor de S2</td><td>Pulmonar / infraclavicular izq.</td><td>Aorta &gt; arteria pulmonar todo el ciclo</td><td>Precarga del VI ↑</td></tr>
+    <tr><td>Funcional (anemia, fiebre, embarazo)</td><td>Sístole temprana</td><td>Corto, suave, creciente–decreciente</td><td>Pulmonar / aórtico</td><td>Ninguno anormal: alto flujo y baja viscosidad</td><td>Normal</td></tr>
+  </tbody></table></div>
+</section>
+
+<section class="panel">
+  <h2>Juego: Escucha el soplo</h2>
+  <div class="grid">
+    <div class="col">
+      <p class="note">Un caso sin nombre. Escúchalo (te ponemos en el foco donde mejor se oye), mira su fonocardiograma y decide.</p>
+      <canvas id="gm" role="img" aria-label="Fonocardiograma del caso misterioso"></canvas>
+      <div class="row"><button class="btn" id="gPlay">▶ Escuchar el caso</button><button class="btn" id="gNew">Nuevo caso</button></div>
+    </div>
+    <div class="col">
+      <select id="gSel" aria-label="Tu diagnóstico"><option value="">¿Qué escuchas?</option></select>
+      <div class="row"><label class="ctl" style="flex-direction:row;align-items:center;gap:8px">Confianza <select id="gConf"><option value="media">media</option><option value="alta">alta</option><option value="baja">baja</option></select></label><button class="btn primary" id="gGo">Comprobar</button></div>
+      <p class="fb" id="gFb" aria-live="polite"></p><p class="note" id="gStats"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <fieldset><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+  <div class="row"><label class="ctl" style="flex-direction:row;align-items:center;gap:8px">Tu confianza <select id="qConf"><option value="media">media</option><option value="alta">alta</option><option value="baja">baja</option></select></label>
+    <button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+  <p class="fb" id="qFb" aria-live="polite"></p>
+</section>
+
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>«El ruido es el golpe de la válvula»: es la vibración de válvulas, paredes y sangre al frenarse bruscamente.</li>
+    <li>«Solo hay soplo si la válvula está enferma»: con anemia, fiebre o embarazo el flujo alto y la viscosidad baja producen turbulencia sin lesión.</li>
+    <li>«El soplo se oye mejor encima de la válvula»: se oye donde su vibración llega mejor a la pared, a veces lejos (axila, carótidas, Erb).</li>
+    <li>«Un soplo sistólico es siempre estenosis aórtica»: la insuficiencia mitral también es sistólica, pero holosistólica y en el ápex.</li>
+    <li>«La intensidad mide la gravedad»: en la estenosis aórtica grave con gasto bajo el soplo puede ser suave; el pico tardío y el S2 débil dicen más.</li>
+    <li>«S3 siempre es patológico»: es normal en jóvenes; en el adulto con sobrecarga de volumen sugiere insuficiencia cardiaca.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Presiones del lado izquierdo dibujadas con curvas esquemáticas por lesión, no integradas (B1 y el módulo 24 las integran).</li>
+    <li>Ruidos como oscilaciones amortiguadas y soplos como ruido filtrado con una envolvente; frecuencias y amplitudes didácticas.</li>
+    <li>Cada foco escucha una mezcla con pesos fijos; no hay transmisión real por el tórax.</li>
+    <li>Efecto de maniobras y respiración resumido en multiplicadores de intensidad <span class="ver">VERIFICAR</span>.</li>
+    <li>No incluye soplos derechos aislados, roces pericárdicos ni prótesis valvulares.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.120–6.124, 6.145–6.149, 6.169–6.173). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro del curso.</p>
+</footer>
+</div>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fmt(x,d){var v=Math.abs(x)<Math.pow(10,-(d||0))/2?0:x;return v.toFixed(d).replace('.',',').replace(/^-0(,0*)?$/,'0$1')}
+function sgn(x,d){return (x>0?'+':'')+fmt(x,d)}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function cw(c,mx){var p=c.parentElement,s=getComputedStyle(p);return Math.max(240,Math.min(mx||940,Math.floor(p.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight))))}
+function axes(x,r,xr,yr,xt,yt,xl,yl,fy){x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.lineWidth=1;x.textAlign='right';x.textBaseline='middle';
+  yt.forEach(function(v){var y=r.y+r.h-(v-yr[0])/(yr[1]-yr[0])*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(fy?fy(v):v,r.x-4,y)});
+  x.textAlign='center';x.textBaseline='top';xt.forEach(function(v){var xx=r.x+(v-xr[0])/(xr[1]-xr[0])*r.w;x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h+3);x.stroke();x.fillText(v,xx,r.y+r.h+5)});
+  if(xl){x.textAlign='right';x.fillText(xl,r.x+r.w,r.y+r.h+18)}
+  if(yl){x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.textBaseline='middle';x.fillText(yl,0,0);x.restore()}}
+function line(x,r,xr,yr,f,col,lw,dash,n){x.strokeStyle=col;x.lineWidth=lw||2;x.setLineDash(dash||[]);x.lineJoin='round';x.beginPath();n=n||200;
+  for(var i=0;i<=n;i++){var t=xr[0]+(xr[1]-xr[0])*i/n,v=f(t),px=r.x+i/n*r.w,py=r.y+r.h-(clamp(v,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke();x.setLineDash([])}
+function dot(x,r,xr,yr,vx,vy,col,rad){x.fillStyle=col;x.beginPath();x.arc(r.x+(vx-xr[0])/(xr[1]-xr[0])*r.w,r.y+r.h-(clamp(vy,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h,rad||5,0,7);x.fill()}
+/* Reto «Predice y observa» con confianza; cada reto aplica su cambio al modelo */
+function Quiz(QS){var qi=0,tot=0,okc=0;
+  function show(){var q=QS[qi];$('qText').innerHTML='<b>Reto '+(qi+1)+' de '+QS.length+'.</b> '+q.q;
+    $('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> <span>'+t+'</span></label>'}).join('');$('qFb').textContent=''}
+  $('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+    var q=QS[qi],ok=+r.value===q.a,cf=$('qConf').value;q.ap();tot++;if(ok)okc++;
+    var cal=ok?(cf==='alta'?' Buena calibración.':cf==='baja'?' Acertaste con poca confianza: confía más en la cadena causal.':''):(cf==='alta'?' Estabas muy seguro: revisa en qué eslabón falló el razonamiento.':'');
+    $('qFb').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No era esa.</b></span> La respuesta es: '+q.o[q.a]+'. ')+q.e()+cal+' <span class="note">Aciertos: '+okc+' de '+tot+'. El modelo de arriba ya aplicó el cambio.</span>'};
+  $('qNext').onclick=function(){qi=(qi+1)%QS.length;show()};show()}
+function onRedraw(fn){var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(fn,80)});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',fn);
+  new MutationObserver(fn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fn)}
+
+/* ================= Modelo ================= */
+var SR=22050;
+var LES={
+ normal:{n:'Normal',short:'Normal'},
+ s3:{n:'S3 · sobrecarga de volumen',short:'S3'},
+ s4:{n:'S4 · ventrículo rígido',short:'S4'},
+ ea:{n:'Estenosis aórtica',short:'Estenosis aórtica'},
+ im:{n:'Insuficiencia mitral',short:'Insuficiencia mitral'},
+ ia:{n:'Insuficiencia aórtica',short:'Insuficiencia aórtica'},
+ em:{n:'Estenosis mitral',short:'Estenosis mitral'},
+ pca:{n:'Conducto arterioso persistente',short:'Conducto arterioso'},
+ fun:{n:'Soplo funcional (alto flujo)',short:'Funcional'}};
+var ORDER=['normal','s3','s4','ea','im','ia','em','pca','fun'];
+var FOCI={A:{n:'Aórtico',d:'2.º espacio intercostal, borde esternal derecho',x:150,y:122},P:{n:'Pulmonar',d:'2.º espacio intercostal, borde esternal izquierdo',x:212,y:122},E:{n:'Erb',d:'3.er espacio intercostal, borde esternal izquierdo',x:212,y:160},T:{n:'Tricuspídeo',d:'4.º–5.º espacio intercostal, borde esternal izquierdo',x:200,y:214},M:{n:'Mitral (ápex)',d:'5.º espacio intercostal, línea medioclavicular izquierda',x:262,y:236}};
+var FK=['A','P','E','T','M'];
+var W={S1:{A:.45,P:.45,E:.6,T:.85,M:1},A2:{A:1,P:.75,E:.7,T:.5,M:.45},P2:{A:.2,P:1,E:.35,T:.3,M:.1},S3:{A:.1,P:.1,E:.3,T:.45,M:1},S4:{A:.1,P:.1,E:.3,T:.45,M:1},OS:{A:.4,P:.4,E:.7,T:.8,M:.9},
+ ea:{A:1,P:.65,E:.7,T:.5,M:.55},ia:{A:.8,P:.5,E:1,T:.7,M:.45},em:{A:.05,P:.05,E:.25,T:.3,M:1},im:{A:.25,P:.2,E:.35,T:.5,M:1},pca:{A:.6,P:1,E:.6,T:.35,M:.3},fun:{A:.75,P:1,E:.6,T:.5,M:.4}};
+var BEST={normal:'M',s3:'M',s4:'M',ea:'A',im:'M',ia:'E',em:'M',pca:'P',fun:'P'};
+var S={les:'normal',sev:2,hr:70,focus:'M',ph:'exp',breath:false,split:'fis',man:'none',fa:false,hct:45,co:5,vol:.7};
+function reynolds(s){var H=s.hct/100,eta=1.2*(1+2*H+9*H*H)/100,ET=Math.max(.18,.30-.0017*(60*s.co/70*0+0)),Q=s.co*1000/60,sv=Q*60/70,ve=sv/.3,v=ve/(Math.PI*1.25*1.25),Re=1.06*v*2.5/eta;return{eta:eta*100,v:v,Re:Re,I:clamp((Re-4000)/5000,0,1)}}
+function tim(s,ph){var RR=60000/s.hr,q=160,M1=q+45,AO=M1+55,ET=clamp(300-1.7*(s.hr-70),200,340)+(s.les==='ea'?20*s.sev:0)-(s.les==='fun'?20:0),A2=AO+ET,MO=A2+75;
+  var sp=s.split==='fijo'?50:s.split==='par'?(ph==='insp'?-5:-35):(ph==='insp'?55:20);
+  return{RR:RR,q:q,M1:M1,T1:M1+25,AO:AO,ET:ET,A2:A2,P2:A2+sp,MO:MO,OS:A2+(120-25*s.sev),S3:MO+130,S4:M1-85}}
+function par(s){var p={AoD:80,AoPk:120,LVpk:122,EDP:8,LAb:7,aLA:4,vLA:5,aLV:3,LVd0:3,pk:.32,aoPk:.3},v=s.sev;
+  if(s.les==='ea'){var g=[0,25,45,75][v];p.LVpk=120+g;p.AoPk=118-8*v;p.aoPk=.45+.07*v;p.pk=.4+.05*v;p.EDP=10+3*v;p.aLV=4+3*v;p.LAb=9+2*v}
+  if(s.les==='ia'){p.AoD=[0,65,52,40][v];p.AoPk=130+8*v;p.LVpk=p.AoPk+3;p.EDP=10+5*v;p.LVd0=5+3*v}
+  if(s.les==='em'){p.LAb=[0,14,20,26][v];p.aLA=6;p.EDP=5}
+  if(s.les==='im'){p.LAb=[0,10,13,16][v];p.vLA=[0,10,22,38][v];p.EDP=10+3*v;p.AoPk=118-4*v;p.LVpk=p.AoPk+3}
+  if(s.les==='pca'){p.AoD=[0,68,58,50][v];p.AoPk=125+5*v;p.LVpk=p.AoPk+3;p.EDP=10+2*v}
+  if(s.les==='s4'){p.EDP=18;p.aLV=12;p.aLA=8;p.LAb=10}
+  if(s.les==='s3'){p.EDP=16;p.LAb=15;p.LVd0=8}
+  if(s.les==='fun'){p.AoPk=128;p.AoD=72;p.LVpk=131}
+  p.LAb=Math.max(p.LAb,p.EDP-1);p.aLA=Math.max(p.aLA,.8*p.aLV+2);
+  if(s.fa){p.aLA=0;p.aLV=0}return p}
+function gs(t,c,w){var x=(t-c)/w;return Math.exp(-x*x)}
+function cosI(pts,t){for(var i=0;i<pts.length-1;i++){var a=pts[i],b=pts[i+1];if(t>=a[0]&&t<=b[0]){var u=(t-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*(.5-.5*Math.cos(Math.PI*u))}}return pts[t<pts[0][0]?0:pts.length-1][1]}
+function curves(s,ph){var T=tim(s,ph),p=par(s),RR=T.RR,PA2=Math.max(p.AoD+8,p.AoPk-18);
+  function lvDia(tt){var st=T.MO,en=T.M1-20+RR,u=clamp((tt-st)/(en-st),0,1),k=s.les==='ia'?1.2:4,b=p.LVd0+(p.EDP-p.LVd0-.6*p.aLV)*(1-Math.exp(-u*k))/(1-Math.exp(-k));return b+p.aLV*gs(tt,T.M1-72+RR,32)}
+  function LV(t){if(t<T.M1-20)return lvDia(t+RR);if(t>T.MO)return lvDia(t);
+    return cosI([[T.M1-20,lvDia(T.M1-20+RR)],[T.AO,p.AoD],[T.AO+p.pk*T.ET,p.LVpk],[T.A2,PA2-2],[T.MO,p.LVd0]],t)}
+  function aoDia(tt){var en=T.AO+RR,tau=.55*(en-T.A2),e1=Math.exp(-(en-T.A2)/tau);return p.AoD+(PA2-p.AoD)*(Math.exp(-(tt-T.A2)/tau)-e1)/(1-e1)-5*gs(tt,T.A2+8,6)+3*gs(tt,T.A2+26,12)}
+  function Ao(t){if(t<T.AO)return aoDia(t+RR);if(t>T.A2)return aoDia(t);return cosI([[T.AO,p.AoD],[T.AO+p.aoPk*T.ET,p.AoPk],[T.A2,PA2]],t)}
+  function LA(t){var w=function(tt){return p.LAb+p.aLA*gs(tt,T.M1-90,40)+1.2*gs(tt,T.M1+15,15)+p.vLA*gs(tt,T.MO-25,s.les==='im'?95:55)-(s.les==='em'?0:2.5)*gs(tt,T.MO+90,70)};return w(t)+w(t-RR)+w(t+RR)-2*p.LAb}
+  return{T:T,p:p,LV:LV,Ao:Ao,LA:LA}}
+function ecg(t,T){var q=T.q,QT=T.A2-q-10;return .12*gs(t,45,22)-.12*gs(t,q+4,8)+gs(t,q+16,9)-.22*gs(t,q+32,9)+.28*gs(t,q+QT-80,55)+.12*gs(t,45+T.RR,22)}
+/* ---- intensidades ---- */
+function manMul(s,ph,key){var m=1,left={ea:1,ia:1,em:1,im:1,pca:1,fun:0};
+  if(ph==='insp'&&left[key])m*=.9;
+  if(s.man==='valsalva')m*=.6;else if(s.man==='squat')m*=key==='ea'?1.15:1.25;else if(s.man==='grip')m*={im:1.35,ia:1.35,em:1.1,ea:.8,pca:1.2,fun:1}[key]||1;return m}
+function sounds(s,ph){var T=tim(s,ph),L=s.les,v=s.sev,ev=[];
+  var s1=1*(L==='em'?1.6:1)*(L==='im'&&v===3?.6:1),a2=(L==='ea'?[1,.8,.55,.3][v]:1)*(L==='ia'?[1,.9,.8,.7][v]:1);
+  ev.push({k:'S1',t:T.M1,a:s1,f:72,tau:18},{k:'S1',t:T.T1,a:.55*s1,f:66,tau:16},{k:'A2',t:T.A2,a:a2,f:105,tau:13},{k:'P2',t:T.P2,a:.6,f:95,tau:12});
+  var s3=L==='s3'?.9:(L==='im'&&v===3)?.7:(L==='ia'&&v===3)?.5:0;if(s3)ev.push({k:'S3',t:T.S3,a:s3,f:46,tau:26});
+  var s4=s.fa?0:L==='s4'?.95:(L==='ea'&&v===3)?.6:0;if(s4)ev.push({k:'S4',t:T.S4,a:s4,f:42,tau:24});
+  if(L==='em')ev.push({k:'OS',t:T.OS,a:.85,f:190,tau:8});
+  return ev}
+function murmur(s,ph){var L=s.les,v=s.sev,T=tim(s,ph),RR=T.RR,D=RR-T.A2+T.M1;if(['normal','s3','s4'].indexOf(L)>=0)return null;
+  var m={ea:{band:[190,1.1],amp:[0,.35,.55,.75][v]},im:{band:[310,1.1],amp:[0,.3,.5,.7][v]},ia:{band:[430,1.3],amp:[0,.26,.4,.52][v]},em:{band:[85,1.5],amp:[0,.5,.7,.9][v]},pca:{band:[230,1],amp:[0,.3,.45,.6][v]},fun:{band:[170,1],amp:.55*reynolds(s).I}}[L];
+  m.amp*=manMul(s,ph,L);
+  m.env=function(t){var u,pf;
+    if(L==='ea'||L==='fun'){var a=T.AO+5,b=L==='fun'?T.AO+.6*T.ET:T.A2-12;u=(t-a)/(b-a);if(u<=0||u>=1)return 0;pf=L==='fun'?.35:.33+.12*v;return Math.pow(u<pf?u/pf:(1-u)/(1-pf),1.3)}
+    if(L==='im'){if(t<T.M1+3||t>T.A2+15)return 0;return clamp((t-T.M1-3)/15,0,1)*clamp((T.A2+15-t)/15,0,1)}
+    if(L==='ia'){var d=[0,.45,.6,.75][v]*D,tt=t>=T.A2?t-T.A2:t+RR-T.A2;if(tt<3||tt>d)return 0;return Math.min(1,(tt-3)/10)*Math.exp(-tt/(d*.45))*clamp((d-tt)/30,0,1)}
+    if(L==='em'){var tt2=t>=T.OS?t-T.OS:t+RR-T.OS,e=0;if(tt2>10&&tt2<D-(T.OS-T.A2)){e=Math.min(1,(tt2-10)/15)*(.25+.75*Math.exp(-(tt2-10)/120))}
+      var ps=t<T.M1?t:t-RR;if(!s.fa&&ps>T.M1-140&&ps<T.M1)e=Math.max(e,(ps-(T.M1-140))/140*1.1);return e}
+    if(L==='pca'){var c=gs(t,T.A2,230)+gs(t-RR,T.A2,230)+gs(t+RR,T.A2,230);return .3+.7*c}return 0};
+  return m}
+/* ---- síntesis ---- */
+function rng(seed){return function(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}}
+function bandNoise(n,f0,Q,seed){var r=rng(seed),x=new Float32Array(n),w0=2*Math.PI*f0/SR,al=Math.sin(w0)/(2*Q),b0=al,b2=-al,a0=1+al,a1=-2*Math.cos(w0),a2=1-al;
+  for(var pass=0;pass<2;pass++){var x1=0,x2=0,y1=0,y2=0;for(var i=0;i<n;i++){var xi=pass?x[i]:(r()*2-1),y=(b0*xi+b2*x2-a1*y1-a2*y2)/a0;x2=x1;x1=xi;y2=y1;y1=y;x[i]=y}}
+  var e=0;for(i=0;i<n;i++)e+=x[i]*x[i];e=Math.sqrt(e/n)||1;for(i=0;i<n;i++)x[i]/=e;return x}
+function synth(s,phases,focus){var RRs=60/s.hr,nb=Math.round(RRs*SR),N=nb*phases.length,out=new Float32Array(N),NZ={};
+  phases.forEach(function(ph,b){var off=b*nb,ev=sounds(s,ph),mm=murmur(s,ph);
+    ev.forEach(function(e){var w=W[e.k][focus],i0=off+Math.round(e.t/1000*SR),len=Math.round(e.tau/1000*SR*7);
+      for(var i=0;i<len;i++){var j=(i0+i)%N,dt=i/SR,env=(1-Math.exp(-dt/.003))*Math.exp(-dt/(e.tau/1000));out[j]+=.55*e.a*w*env*(Math.sin(2*Math.PI*e.f*dt)+.45*Math.sin(2*Math.PI*2.1*e.f*dt+.4)+.2*Math.sin(2*Math.PI*3.3*e.f*dt))}});
+    if(mm&&mm.amp>0){var key=mm.band.join('_');if(!NZ[key])NZ[key]=bandNoise(N,mm.band[0],mm.band[1],7);var nz=NZ[key],w=W[s.les][focus];
+      for(var i=0;i<nb;i++){var t=i/SR*1000,e=mm.env(t);if(e>0)out[off+i]+=.32*mm.amp*w*e*nz[off+i]}}});
+  for(var i=0;i<N;i++)out[i]=clamp(out[i]*.9,-1,1);return out}
+/* ================= Dibujo principal ================= */
+var GEO=null,BEAT=null;
+var SHADE={ea:['sys','LV','Ao','gradiente VI → aorta'],im:['sys','LV','LA','regurgitación VI → AI'],ia:['dia','Ao','LV','regurgitación aorta → VI'],em:['dia','LA','LV','gradiente AI → VI']};
+function drawMain(){var c=$('main'),W0=cw(c,1000),sm=W0<560,H=sm?470:540,x=fit(c,W0,H),C=curves(S,S.ph),T=C.T,RR=T.RR;x.clearRect(0,0,W0,H);
+  var X0=46,Wp=W0-58,hs=[sm?52:62,sm?210:250,sm?110:130,20],gap=8,R=[],y=6;hs.forEach(function(h){R.push({x:X0,y:y,w:Wp,h:h});y+=h+gap});
+  function px(t){return X0+t/RR*Wp}
+  GEO={X0:X0,Wp:Wp,RR:RR,top:R[0].y,bot:R[3].y+R[3].h,H:H,W:W0};
+  /* bandas sístole/diástole */
+  x.fillStyle=css('--vecSoft');x.globalAlpha=.5;x.fillRect(px(T.M1),R[0].y,px(T.A2)-px(T.M1),R[3].y+R[3].h-R[0].y);x.globalAlpha=1;
+  /* ECG */
+  var re=R[0];x.strokeStyle=css('--fg');x.lineWidth=1.6;x.beginPath();for(var i=0;i<=Wp;i++){var t=i/Wp*RR,yy=re.y+re.h*.72-ecg(t,T)*re.h*.6;i?x.lineTo(X0+i,yy):x.moveTo(X0+i,yy)}x.stroke();
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='top';x.fillText('ECG',re.x+2,re.y);
+  /* presiones */
+  var rp=R[1],pmax=Math.max(140,Math.ceil((C.p.LVpk+10)/20)*20),yP=function(v){return rp.y+rp.h-clamp(v,0,pmax)/pmax*rp.h};
+  axes(x,rp,[0,RR],[0,pmax],[],[0,40,80,120,160,200].filter(function(v){return v<=pmax}),'','mmHg');
+  var sh=SHADE[S.les];if(sh){var a=C[sh[1]],b=C[sh[2]],t0=sh[0]==='sys'?T.M1:T.A2,t1=sh[0]==='sys'?T.A2+20:T.M1+RR,pts=[],k;
+    x.fillStyle=css('--guessSoft');x.beginPath();var started=false;for(k=0;k<=400;k++){var tt=t0+(t1-t0)*k/400,tm=((tt%RR)+RR)%RR,va=a(tm),vb=b(tm);var xx=px(tm);if(va>vb+.5&&!(tt>=RR&&false)){pts.push([xx,yP(va),yP(vb)])}}
+    /* dibuja como franjas verticales para tolerar el cruce del borde del latido */
+    x.globalAlpha=.9;pts.forEach(function(q){x.fillRect(q[0]-1,q[1],2.2,q[2]-q[1])});x.globalAlpha=1;
+    var mid=pts[Math.floor(pts.length*.45)];if(mid){x.fillStyle=css('--guess');x.font='600 11px '+css('--font-body');x.textAlign='center';x.textBaseline='bottom';x.fillText(sh[3],clamp(mid[0],X0+60,X0+Wp-60),Math.min(mid[1],mid[2])-4)}}
+  [['LA','--slate',1.8],['Ao','--blood',2.2],['LV','--vec',2.4]].forEach(function(q){x.strokeStyle=css(q[1]);x.lineWidth=q[2];x.beginPath();for(var i=0;i<=Wp;i++){var t=i/Wp*RR,yy=yP(C[q[0]](t));i?x.lineTo(X0+i,yy):x.moveTo(X0+i,yy)}x.stroke()});
+  x.font='600 10px '+css('--font-body');x.textAlign='right';x.textBaseline='bottom';x.fillStyle=css('--blood');x.fillText('Aorta',px(T.A2)-6,yP(C.Ao(T.A2))-6);x.fillStyle=css('--vec');x.fillText('VI',px(T.AO+.3*T.ET)-8,yP(C.LV(T.AO+.3*T.ET))-4);x.fillStyle=css('--slate');x.textAlign='left';x.fillText('AI',X0+4,yP(C.LA(10))-4);
+  if(S.les==='pca'){x.fillStyle=css('--guess');x.font='600 11px '+css('--font-body');x.textAlign='center';x.fillText('Aorta > arteria pulmonar todo el ciclo: flujo continuo por el conducto',X0+Wp/2,rp.y+14)}
+  /* fono */
+  var rf=R[2],mid2=rf.y+rf.h/2;BEAT=synth(S,[S.ph],S.focus);var n=BEAT.length,amax=.75;
+  var mm=murmur(S,S.ph);if(mm&&mm.amp>0){x.fillStyle=css('--guessSoft');for(var i=0;i<Wp;i++){var t=i/Wp*RR,e=mm.env(t);if(e>0.02){x.fillRect(X0+i,rf.y,1.2,rf.h)}}}
+  x.strokeStyle=css('--line');x.beginPath();x.moveTo(X0,mid2);x.lineTo(X0+Wp,mid2);x.stroke();
+  x.strokeStyle=css('--guess');x.lineWidth=1;x.beginPath();for(i=0;i<Wp;i++){var a0=Math.floor(i/Wp*n),a1=Math.max(a0+1,Math.floor((i+1)/Wp*n)),mn=0,mx=0;for(var j=a0;j<a1;j++){if(BEAT[j]<mn)mn=BEAT[j];if(BEAT[j]>mx)mx=BEAT[j]}
+    x.moveTo(X0+i+.5,mid2-mx/amax*rf.h/2);x.lineTo(X0+i+.5,mid2-Math.min(mn,-.004)/amax*rf.h/2)}x.stroke();
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='top';x.fillText('Fonocardiograma · foco '+FOCI[S.focus].n.toLowerCase()+' · '+(S.ph==='insp'?'inspiración':'espiración'),rf.x+2,rf.y);
+  /* etiquetas de ruidos */
+  var ev=sounds(S,S.ph),lab={S1:'S1',A2:'A2',P2:'P2',S3:'S3',S4:'S4',OS:'CA'};x.font='700 11px '+css('--font-display');x.textAlign='center';x.textBaseline='bottom';var used={};
+  ev.forEach(function(e){if(e.k==='S1'&&used.S1)return;used[e.k]=1;var xx=px(e.t);x.fillStyle=css('--fg');x.fillText(lab[e.k],xx+(e.k==='P2'?8:e.k==='A2'?-8:0),rf.y+rf.h+0);
+    x.strokeStyle=css('--fg');x.globalAlpha=.35;x.setLineDash([2,3]);x.beginPath();x.moveTo(xx,R[0].y);x.lineTo(xx,rf.y+rf.h-12);x.stroke();x.setLineDash([]);x.globalAlpha=1});
+  /* fases */
+  var rs=R[3];[[0,T.M1,'diástole'],[T.M1,T.A2,'sístole'],[T.A2,RR,'diástole']].forEach(function(q){x.fillStyle=q[2]==='sístole'?css('--vec'):css('--muted');x.globalAlpha=q[2]==='sístole'?.75:.25;x.fillRect(px(q[0]),rs.y,px(q[1])-px(q[0]),rs.h);x.globalAlpha=1;
+    x.fillStyle=q[2]==='sístole'?css('--bg'):css('--fg');x.font='600 10px '+css('--font-body');x.textAlign='center';x.textBaseline='middle';if(px(q[1])-px(q[0])>50)x.fillText(q[2],(px(q[0])+px(q[1]))/2,rs.y+rs.h/2)});
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='center';x.textBaseline='top';for(var tm=0;tm<RR;tm+=200)x.fillText(tm,px(tm),rs.y+rs.h+3);x.textAlign='right';x.fillText('ms desde el inicio de P',X0+Wp,rs.y+rs.h+15);
+  var cc=$('cursor');fit(cc,W0,H)}
+function drawCursor(tms){var cc=$('cursor');if(!GEO)return;var x=cc.getContext('2d'),r=window.devicePixelRatio||1;x.setTransform(r,0,0,r,0,0);x.clearRect(0,0,GEO.W,GEO.H);if(tms===null)return;
+  var xx=GEO.X0+tms/GEO.RR*GEO.Wp;x.strokeStyle=css('--fg');x.lineWidth=1.5;x.beginPath();x.moveTo(xx,GEO.top);x.lineTo(xx,GEO.bot);x.stroke();x.fillStyle=css('--fg');x.beginPath();x.moveTo(xx-5,GEO.top);x.lineTo(xx+5,GEO.top);x.lineTo(xx,GEO.top+6);x.fill()}
+/* ================= Tórax ================= */
+function drawTorso(){var svg=$('torso'),L=S.les,mm=murmur(S,S.ph),I=mm?Math.min(1,mm.amp*1.4):0,h='';
+  h+='<defs><radialGradient id="glow"><stop offset="0" stop-color="var(--guess)" stop-opacity=".85"/><stop offset="1" stop-color="var(--guess)" stop-opacity="0"/></radialGradient></defs>';
+  h+='<path d="M60 40 Q180 0 300 40 L330 120 Q340 260 300 390 L60 390 Q20 260 30 120 Z" fill="var(--bg)" stroke="var(--line)" stroke-width="2"/>';
+  h+='<path d="M150 30 Q180 22 210 30 L206 0 L154 0 Z" fill="var(--bg)" stroke="var(--line)" stroke-width="2"/>';
+  h+='<path d="M70 70 Q130 60 170 92 M290 70 Q230 60 190 92" fill="none" stroke="var(--muted)" stroke-width="3" stroke-linecap="round" opacity=".55"/>';
+  for(var i=0;i<6;i++){var yy=110+i*36;h+='<path d="M170 '+yy+' Q110 '+(yy-6)+' 60 '+(yy+30)+' M190 '+yy+' Q250 '+(yy-6)+' 300 '+(yy+30)+'" fill="none" stroke="var(--line)" stroke-width="2"/>'}
+  h+='<rect x="170" y="92" width="20" height="200" rx="8" fill="var(--panel)" stroke="var(--muted)" stroke-width="1.5" opacity=".9"/>';
+  h+='<path d="M178 140 Q140 150 150 210 Q160 262 236 268 Q290 262 282 214 Q272 160 216 136 Q196 128 178 140 Z" fill="var(--bloodSoft)" stroke="var(--blood)" stroke-width="1.2" opacity=".75"/>';
+  if(mm){FK.forEach(function(k){var w=W[L][k]*I;if(w>.05){var f=FOCI[k];h+='<circle cx="'+f.x+'" cy="'+f.y+'" r="'+(20+40*w)+'" fill="url(#glow)" opacity="'+w.toFixed(2)+'"/>'}});
+    var rad={ea:'M150 122 Q150 60 168 18 M150 122 Q160 60 192 18',im:'M262 236 Q300 230 330 200',pca:'M212 122 Q236 100 262 86'}[L];if(rad)h+='<path d="'+rad+'" fill="none" stroke="var(--guess)" stroke-width="3" stroke-dasharray="6 5" marker-end="url(#ar)"/>';
+    h+='<defs><marker id="ar" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--guess)"/></marker></defs>';
+    if(rad)h+='<text x="'+({ea:178,im:300,pca:270}[L])+'" y="'+({ea:14,im:194,pca:80}[L])+'" font-size="11" font-family="Source Sans 3,sans-serif" font-weight="600" fill="var(--guess)" text-anchor="middle">'+({ea:'carótidas',im:'axila',pca:'infraclavicular'}[L])+'</text>'}
+  FK.forEach(function(k){var f=FOCI[k],on=S.focus===k;h+='<g class="fz" data-k="'+k+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="Foco '+f.n+'" style="cursor:pointer"><circle cx="'+f.x+'" cy="'+f.y+'" r="'+(on?15:12)+'" fill="'+(on?'var(--vec)':'var(--panel)')+'" stroke="var(--vec)" stroke-width="2.5"/><text x="'+f.x+'" y="'+(f.y+4)+'" text-anchor="middle" font-size="12" font-weight="700" font-family="JetBrains Mono,monospace" fill="'+(on?'var(--bg)':'var(--vec)')+'">'+k+'</text></g>'});
+  h+='<text x="180" y="384" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Source Sans 3,sans-serif">derecha del paciente ← · → izquierda del paciente</text>';
+  svg.innerHTML=h;
+  svg.querySelectorAll('.fz').forEach(function(g){var go=function(){S.focus=g.dataset.k;render()};g.onclick=go;g.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+  var f=FOCI[S.focus];$('focusTxt').innerHTML='<b>Foco '+f.n+'</b>: '+f.d+'. '+(mm?'El soplo de esta lesión se oye mejor en el foco <b>'+FOCI[BEST[L]].n.toLowerCase()+'</b>.':'S1 se oye mejor en el ápex; S2 y su desdoblamiento, en la base (pulmonar).')}
+/* ================= Atlas ================= */
+function drawAtlas(){var box=$('atlas');if(!box.children.length){ORDER.forEach(function(k){var d=document.createElement('button');d.className='btn';d.style.cssText='display:flex;flex-direction:column;gap:4px;padding:8px;text-align:left';d.dataset.k=k;d.innerHTML='<b style="font-size:.85rem">'+LES[k].short+'</b><canvas></canvas>';d.onclick=function(){S.les=k;S.focus=BEST[k];render();$('stage').scrollIntoView({behavior:'smooth',block:'start'})};box.appendChild(d)})}
+  box.querySelectorAll('button').forEach(function(d){var k=d.dataset.k,c=d.querySelector('canvas'),Wc=Math.max(160,d.clientWidth-18),H=64,x=fit(c,Wc,H),st=Object.assign({},S,{les:k,sev:2,hr:70,man:'none',fa:false}),T=tim(st,'exp'),RR=T.RR,mm=murmur(st,'exp'),ev=sounds(st,'exp'),mid=H*.55;
+    d.setAttribute('aria-pressed',k===S.les?'true':'false');x.clearRect(0,0,Wc,H);x.strokeStyle=css('--line');x.beginPath();x.moveTo(0,mid);x.lineTo(Wc,mid);x.stroke();
+    if(mm){x.fillStyle=css('--guess');x.globalAlpha=.55;x.beginPath();x.moveTo(0,mid);for(var i=0;i<=Wc;i++){var e=mm.env(i/Wc*RR)*Math.min(1,mm.amp*1.6+.15);x.lineTo(i,mid-e*H*.42)}x.lineTo(Wc,mid);for(i=Wc;i>=0;i--){var e2=mm.env(i/Wc*RR)*Math.min(1,mm.amp*1.6+.15);x.lineTo(i,mid+e2*H*.42)}x.closePath();x.fill();x.globalAlpha=1}
+    var seen={};ev.forEach(function(e){if(e.k==='S1'&&seen.S1)return;seen[e.k]=1;var xx=e.t/RR*Wc,hh=(e.k==='S1'||e.k==='A2'?.42:e.k==='P2'?.28:.25)*H;x.fillStyle=css('--fg');x.fillRect(xx-1.2,mid-hh,2.4,2*hh);
+      if(e.k==='S1'||e.k==='A2'||e.k==='S3'||e.k==='S4'||e.k==='OS'){x.font='600 9px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';x.fillText({S1:'S1',A2:'S2',S3:'S3',S4:'S4',OS:'CA'}[e.k],xx,0)}})})}
+/* ================= Reynolds ================= */
+function drawRey(){var c=$('rey'),Wc=cw(c,470),H=120,x=fit(c,Wc,H),r=reynolds(S),r0=reynolds(Object.assign({},S,{hct:45,co:5})),mx=12000,px=function(v){return 14+clamp(v,0,mx)/mx*(Wc-28)};x.clearRect(0,0,Wc,H);
+  var y=44;x.fillStyle=css('--vecSoft');x.fillRect(px(0),y,px(4000)-px(0),22);x.fillStyle=css('--guessSoft');x.fillRect(px(4000),y,px(mx)-px(4000),22);
+  x.font='600 10px '+css('--font-body');x.fillStyle=css('--vec');x.textAlign='left';x.textBaseline='bottom';x.fillText('laminar (silencioso)',px(0)+4,y-3);x.fillStyle=css('--guess');x.fillText('turbulento (soplo)',px(4000)+4,y-3);
+  x.strokeStyle=css('--muted');x.setLineDash([3,3]);x.beginPath();x.moveTo(px(r0.Re),y-6);x.lineTo(px(r0.Re),y+28);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--fg');x.beginPath();x.moveTo(px(r.Re),y+24);x.lineTo(px(r.Re)-7,y+38);x.lineTo(px(r.Re)+7,y+38);x.closePath();x.fill();
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='center';x.textBaseline='top';[0,4000,8000,12000].forEach(function(v){x.fillText(v,px(v),y+42)});x.fillText('referencia',px(r0.Re),y+56);
+  $('reyRead').innerHTML=chip('Viscosidad',fmt(r.eta,1)+' cP','ok')+chip('Velocidad media de eyección',fmt(r.v,0)+' cm/s','ok')+chip('Reynolds',fmt(r.Re,0),r.Re>4000?'wn':'ok',r.Re>4000?'turbulento':'laminar')+chip('Soplo funcional',r.I>0?'audible':'no',r.I>0?'wn':'ok');
+  $('hctV').textContent=S.hct+' %';$('coV').textContent=fmt(S.co,1)+' L/min'}
+/* ================= Lectura ================= */
+var WHY={normal:'Corazón normal: S1 al cerrarse las válvulas AV cuando la presión del VI supera a la de la AI; S2 al cerrarse las semilunares cuando cae por debajo de la aórtica. Entre ellos, silencio: el flujo es laminar.',
+ s3:'Presiones de llenado altas y llenado rápido brusco: la pared se frena al final del llenado rápido y vibra (S3). Normal en jóvenes; en el adulto sugiere sobrecarga de volumen o insuficiencia cardiaca.',
+ s4:'Un ventrículo rígido recibe la contracción auricular con una subida brusca de presión (onda a del VI alta): vibra justo antes de S1 (S4). Desaparece en fibrilación auricular.',
+ ea:'Durante la eyección la presión del VI supera mucho a la aórtica: el chorro por un orificio estrecho es turbulento. El soplo sigue al flujo (creciente–decreciente); con más gravedad el pico se retrasa, la eyección se alarga y A2 se debilita.',
+ im:'Toda la sístole el VI empuja sangre hacia la AI, que tiene mucha menos presión: soplo holosistólico, de S1 a S2, con onda v grande en la AI.',
+ ia:'En diástole la aorta tiene más presión que el VI y la sangre regresa: soplo decreciente desde A2. La diastólica aórtica cae y la presión de pulso se ensancha.',
+ em:'Toda la diástole la AI tiene más presión que el VI: la válvula se abre con un chasquido (CA) y el llenado es turbulento (retumbo grave), con refuerzo presistólico por la contracción auricular. Con más gravedad, el chasquido se acerca a S2.',
+ pca:'La aorta tiene más presión que la arteria pulmonar en sístole y en diástole: el flujo por el conducto nunca se detiene y el soplo es continuo, máximo alrededor de S2.',
+ fun:'No hay lesión: la viscosidad baja o el flujo alto suben el número de Reynolds y el flujo de eyección se vuelve turbulento. Ajusta el hematocrito y el gasto en el panel de Reynolds.'};
+function read(){var C=curves(S,S.ph),T=C.T,mm=murmur(S,S.ph),sp=Math.round(T.P2-T.A2),L=S.les;
+  var grad=L==='ea'?Math.round(C.p.LVpk-C.p.AoPk):L==='em'?Math.round(C.LA(T.MO+60)-C.LV(T.MO+60)):null;
+  $('read').innerHTML=chip('Fase del soplo',mm&&mm.amp>0?({ea:'sistólico',im:'sistólico',fun:'sistólico',ia:'diastólico',em:'diastólico',pca:'continuo'}[L]):'sin soplo',mm&&mm.amp>0?'wn':'ok')+
+    chip('Desdoblamiento de S2',(sp>=0?'A2 → P2 ':'P2 → A2 ')+Math.abs(sp)+' ms',S.split==='fis'?'ok':'wn',S.ph==='insp'?'inspiración':'espiración')+
+    (grad!==null?chip(L==='ea'?'Gradiente VI–Ao pico':'Gradiente AI–VI diastólico',grad+' mmHg','no'):'')+
+    chip('PA aórtica',Math.round(C.p.AoPk)+'/'+Math.round(C.p.AoD)+' mmHg',C.p.AoPk-C.p.AoD>60?'wn':'ok','pulso '+Math.round(C.p.AoPk-C.p.AoD))+
+    chip('PTD del VI',Math.round(C.p.EDP)+' mmHg',C.p.EDP>12?'wn':'ok')+chip('FC',S.hr+' lpm','ok','sístole '+Math.round(T.A2-T.M1)+' · diástole '+Math.round(T.RR-T.A2+T.M1)+' ms');
+  var extra=[];if(S.man!=='none'&&mm)extra.push({valsalva:'La maniobra de Valsalva reduce el retorno venoso y el llenado: casi todos los soplos se hacen más suaves.',squat:'En cuclillas sube el retorno venoso y la resistencia: los soplos se intensifican.',grip:'El esfuerzo isométrico sube la poscarga: aumentan los soplos regurgitantes (insuficiencia mitral y aórtica) y se suaviza el de estenosis aórtica.'}[S.man]);
+  if(S.split==='par')extra.push('Desdoblamiento paradójico: A2 se retrasa tanto (eyección izquierda prolongada) que P2 va primero; al inspirar P2 se retrasa y el desdoblamiento se cierra.');
+  if(S.split==='fijo')extra.push('Desdoblamiento fijo: con una comunicación interauricular el lado derecho recibe flujo extra en ambas fases respiratorias, así que P2 va tarde siempre.');
+  $('why').textContent=WHY[L]+(extra.length?' '+extra.join(' '):'');
+  $('sevV').textContent=['','leve','moderada','grave'][S.sev];$('hrV').textContent=S.hr+' lpm';
+  document.querySelectorAll('#lesBtns .btn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===L?'true':'false')});
+  document.querySelectorAll('#phBtns .btn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===S.ph?'true':'false')})}
+/* ================= Audio ================= */
+var AC=null,SRC=null,GAIN=null,T0=0,DUR=0,PLAY=null,RAF=0,PH=[];
+function phasesFor(s){return s.breath?['exp','exp','insp','insp','exp','exp','insp','insp']:[s.ph,s.ph,s.ph,s.ph,s.ph,s.ph]}
+function start(state,which,offset){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();stopSrc();
+  PH=phasesFor(state);var data=synth(state,PH,state.focus),buf=AC.createBuffer(1,data.length,SR);buf.copyToChannel?buf.copyToChannel(data,0):buf.getChannelData(0).set(data);
+  SRC=AC.createBufferSource();SRC.buffer=buf;SRC.loop=true;GAIN=GAIN||AC.createGain();GAIN.gain.value=S.vol;SRC.connect(GAIN);GAIN.connect(AC.destination);
+  DUR=data.length/SR;var off=(offset||0)%DUR;SRC.start(0,off);T0=AC.currentTime-off;PLAY=which;
+  $('play').textContent=which==='main'?'⏸ Detener':'▶ Escuchar';$('play').setAttribute('aria-pressed',which==='main');$('gPlay').textContent=which==='game'?'⏸ Detener':'▶ Escuchar el caso';
+  cancelAnimationFrame(RAF);if(which==='main')tick()}
+function stopSrc(){if(SRC){try{SRC.stop()}catch(e){}SRC.disconnect();SRC=null}}
+function stop(){stopSrc();PLAY=null;cancelAnimationFrame(RAF);drawCursor(null);$('play').textContent='▶ Escuchar';$('play').setAttribute('aria-pressed','false');$('gPlay').textContent='▶ Escuchar el caso'}
+var lastBeat=-1;
+function tick(){if(PLAY!=='main')return;var pos=(AC.currentTime-T0)%DUR,RRs=60/S.hr,b=Math.floor(pos/RRs),t=(pos-b*RRs)*1000;
+  if(S.breath&&PH[b]&&PH[b]!==S.ph){S.ph=PH[b];read();drawMain();drawTorso()}
+  drawCursor(t);RAF=requestAnimationFrame(tick)}
+function refreshAudio(){if(PLAY==='main'){var off=(AC.currentTime-T0);start(S,'main',off)}}
+/* ================= Juego ================= */
+var G=null,GS={n:0,ok:0,hi:0,hiOk:0};
+ORDER.forEach(function(k){if(k==='normal')return;var o=document.createElement('option');o.value=k;o.textContent=LES[k].n;$('gSel').appendChild(o)});
+function newG(){var pool=ORDER.filter(function(k){return k!=='normal'&&(!G||k!==G.les)}),k=pool[Math.floor(Math.random()*pool.length)];G={les:k,sev:1+Math.floor(Math.random()*3),hr:60+5*Math.floor(Math.random()*5),ph:'exp',breath:false,split:'fis',man:'none',fa:k==='em'&&Math.random()<.3,hct:k==='fun'?24:45,co:k==='fun'?9:5,vol:S.vol,focus:BEST[k]};
+  $('gSel').value='';$('gFb').textContent='';if(PLAY==='game')start(G,'game');drawG()}
+function drawG(){var c=$('gm'),Wc=cw(c,470),H=110,x=fit(c,Wc,H);if(!G)return;var d=synth(G,['exp','exp'],G.focus),n=d.length,mid=H/2;x.clearRect(0,0,Wc,H);x.strokeStyle=css('--line');x.beginPath();x.moveTo(0,mid);x.lineTo(Wc,mid);x.stroke();
+  x.strokeStyle=css('--guess');x.beginPath();for(var i=0;i<Wc;i++){var a0=Math.floor(i/Wc*n),a1=Math.max(a0+1,Math.floor((i+1)/Wc*n)),mn=0,mx=0;for(var j=a0;j<a1;j++){if(d[j]<mn)mn=d[j];if(d[j]>mx)mx=d[j]}x.moveTo(i+.5,mid-mx/.75*H/2);x.lineTo(i+.5,mid-Math.min(mn,-.004)/.75*H/2)}x.stroke();
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='top';x.fillText('2 latidos · foco '+FOCI[G.focus].n.toLowerCase(),4,2)}
+$('gPlay').onclick=function(){if(PLAY==='game')stop();else{if(!G)newG();start(G,'game')}};
+$('gNew').onclick=newG;
+$('gGo').onclick=function(){var v=$('gSel').value;if(!v){$('gFb').textContent='Elige primero lo que escuchas.';return}var ok=v===G.les,cf=$('gConf').value;GS.n++;if(ok)GS.ok++;if(cf==='alta'){GS.hi++;if(ok)GS.hiOk++}
+  var clue={ea:'sistólico creciente–decreciente, mejor en el foco aórtico, con S2 débil si es grave',im:'sistólico en meseta de S1 a S2, en el ápex',ia:'diastólico decreciente agudo que arranca en S2, en el borde esternal izquierdo',em:'chasquido tras S2 y retumbo grave diastólico en el ápex',pca:'continuo, sin pausa en S2, en el foco pulmonar',fun:'sistólico temprano y corto, sin lesión: flujo alto con viscosidad baja',s3:'un ruido grave extra después de S2: galope protodiastólico',s4:'un ruido grave extra justo antes de S1: galope presistólico'}[G.les];
+  $('gFb').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No.</b></span> Era <b>'+LES[G.les].n.toLowerCase()+'</b> ('+['','leve','moderada','grave'][G.sev]+'). ')+'Pista para la próxima: '+clue+'.'+(!ok&&cf==='alta'?' <span class="no">Estabas muy seguro: compara la fase del soplo con S1 y S2.</span>':'')+' <button class="btn" id="gLoad">Verlo arriba con presiones</button>';
+  $('gStats').textContent='Aciertos: '+GS.ok+' de '+GS.n+(GS.hi?' · con confianza alta: '+GS.hiOk+' de '+GS.hi:'');
+  $('gLoad').onclick=function(){Object.assign(S,{les:G.les,sev:G.sev,hr:G.hr,focus:G.focus,fa:G.fa,hct:G.hct,co:G.co});sync();render();$('stage').scrollIntoView({behavior:'smooth'})}};
+/* ================= UI ================= */
+ORDER.forEach(function(k){var b=document.createElement('button');b.className='btn';b.dataset.k=k;b.textContent=LES[k].short;b.onclick=function(){S.les=k;S.focus=BEST[k];if(k==='fun'&&reynolds(S).I===0){S.hct=26;S.co=9}render()};$('lesBtns').appendChild(b)});
+[['exp','Espiración'],['insp','Inspiración']].forEach(function(p){var b=document.createElement('button');b.className='btn';b.dataset.k=p[0];b.textContent=p[1];b.onclick=function(){S.ph=p[0];render()};$('phBtns').appendChild(b)});
+function sync(){$('sev').value=S.sev;$('hr').value=S.hr;$('split').value=S.split;$('man').value=S.man;$('fa').checked=S.fa;$('breath').checked=S.breath;$('hct').value=S.hct;$('co').value=S.co}
+function render(){read();drawMain();drawTorso();drawAtlas();drawRey();refreshAudio()}
+$('sev').oninput=function(){S.sev=+this.value;render()};$('hr').oninput=function(){S.hr=+this.value;render()};
+$('split').onchange=function(){S.split=this.value;render()};$('man').onchange=function(){S.man=this.value;render()};$('fa').onchange=function(){S.fa=this.checked;render()};
+$('breath').onchange=function(){S.breath=this.checked;render()};
+$('hct').oninput=function(){S.hct=+this.value;render()};$('co').oninput=function(){S.co=+this.value;render()};
+$('vol').oninput=function(){S.vol=+this.value;if(GAIN)GAIN.gain.value=S.vol};
+$('play').onclick=function(){if(PLAY==='main')stop();else start(S,'main')};
+function set(o){Object.assign(S,{les:'normal',sev:2,hr:70,ph:'exp',split:'fis',man:'none',fa:false,hct:45,co:5},o);sync();render()}
+Quiz([
+ {q:'Un adulto mayor tiene un soplo sistólico creciente–decreciente en el foco aórtico que irradia a las carótidas. Al empeorar la estenosis, ¿qué cambia en el soplo y en S2?',o:['El pico del soplo se retrasa y A2 se debilita','El soplo se vuelve holosistólico y S2 se refuerza','Aparece un soplo continuo'],a:0,ap:function(){set({les:'ea',sev:3,focus:'A'})},e:function(){var C=curves(S,'exp');return 'Con la estenosis grave el gradiente VI–aorta llega a ≈ '+Math.round(C.p.LVpk-C.p.AoPk)+' mmHg, la eyección dura más y el flujo máximo llega tarde: el soplo alcanza su pico tarde y A2 casi no se oye.'}},
+ {q:'Una paciente con anemia (hematocrito 22 %) y gasto alto tiene un soplo sistólico suave. ¿Por qué suena si sus válvulas son normales?',o:['Porque la viscosidad baja y el flujo alto suben el número de Reynolds y el flujo se vuelve turbulento','Porque la anemia estrecha la válvula aórtica','Porque baja la presión arterial'],a:0,ap:function(){set({les:'fun',focus:'P',hct:22,co:9})},e:function(){var r=reynolds(S);return 'Re ≈ '+fmt(r.Re,0)+' frente a ≈ '+fmt(reynolds(Object.assign({},S,{hct:45,co:5})).Re,0)+' en reposo: pasa el umbral de turbulencia sin ninguna lesión.'}},
+ {q:'Con el estetoscopio en el foco pulmonar, la persona inspira. ¿Qué pasa con S2 normal?',o:['Se desdobla más: P2 se retrasa porque llega más sangre al lado derecho','Se fusiona en un solo ruido','A2 se retrasa y P2 se adelanta'],a:0,ap:function(){set({les:'normal',focus:'P',ph:'insp'})},e:function(){var T=tim(S,'insp'),E=tim(S,'exp');return 'El desdoblamiento pasa de '+Math.round(E.P2-E.A2)+' ms en espiración a '+Math.round(T.P2-T.A2)+' ms en inspiración. Escúchalo con «Respirar mientras escuchas».'}}]);
+set({});newG();onRedraw(function(){drawMain();drawTorso();drawAtlas();drawRey();drawG()});
+})();
+</script>
+</body></html>
