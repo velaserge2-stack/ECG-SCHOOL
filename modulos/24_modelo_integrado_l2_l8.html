@@ -303,7 +303,7 @@ function simulate(s,c){
   Csa:1.4,Csv:90,Cpa:4.5,Cpv:16,Rsys:.95*s.rvs,Rpul:.09*s.rvp,Rven:.05,Rpven:.02,Rav:.005,Rmv:.004,Rpv:.004,Rtv:.004,
   Usv:2700,Upv:300,Usa:600,Upa:100};
  // volumen total (mL) escalado por la perilla de volumen; reparto inicial aproximado
- var tot=5000*s.volume;P.Usv+=.5*(tot-5000);if(s.plr)P.Usv=Math.max(2100,P.Usv-300);
+ var tot=5000*s.volume;P.Usv+=.5*(tot-5000);if(s.plr)P.Usv-=300;
  var z={lv:120,rv:120,la:55,ra:55,sa:P.Usa+P.Csa*90,pa:P.Upa+P.Cpa*14,pv:P.Upv+P.Cpv*8};
  z.sv=tot-(z.lv+z.rv+z.la+z.ra+z.sa+z.pa+z.pv);
  var ctrl={hr:s.hr,ces:1,rs:1,u:1},mapF=null,beat=0,T=60/s.hr,qrsT=c.pr/1000,Ts=.30;
