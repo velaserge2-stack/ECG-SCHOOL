@@ -4,15 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Laboratorio integrado de fisiología cardiovascular: tejido, señal, excitación-contracción, hemodinamia, control, sincronía y medición.">
-<title>Modelo integrado L2–L8 · ECG School</title>
+<title>Modelo integrado L2–L8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-:root{color-scheme:light;--bg:#f1f4f4;--panel:#fff;--ink:#172421;--muted:#5d706b;--line:#d5dfdc;--teal:#087e78;--teal-soft:#e2f2ef;--red:#b74242;--orange:#b95d22;--blue:#456a9a;--good:#287a49;--shadow:0 8px 24px rgba(24,50,44,.07}
+:root{color-scheme:light;--bg:#f1f4f4;--panel:#fff;--ink:#172421;--muted:#5d706b;--line:#d5dfdc;--teal:#087e78;--teal-soft:#e2f2ef;--red:#b74242;--orange:#b95d22;--blue:#456a9a;--good:#287a49;--shadow:0 8px 24px rgba(24,50,44,.07)}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0d1715;--panel:#14221f;--ink:#e8f0ed;--muted:#9bada7;--line:#2b403a;--teal:#54d2c5;--teal-soft:#193a35;--red:#f08080;--orange:#ffad72;--blue:#91b4e5;--good:#80d39a;--shadow:0 8px 24px rgba(0,0,0,.2)}}
 :root[data-theme=dark]{color-scheme:dark;--bg:#0d1715;--panel:#14221f;--ink:#e8f0ed;--muted:#9bada7;--line:#2b403a;--teal:#54d2c5;--teal-soft:#193a35;--red:#f08080;--orange:#ffad72;--blue:#91b4e5;--good:#80d39a;--shadow:0 8px 24px rgba(0,0,0,.2)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:18px clamp(12px,3vw,30px) 60px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Source Sans 3","Segoe UI",system-ui,sans-serif;padding:18px clamp(12px,3vw,30px) 60px}
 .wrap{max-width:1240px;margin:auto;display:flex;flex-direction:column;gap:18px}
-header{display:flex;flex-direction:column;gap:8px;padding:10px 2px 14px}.eyebrow{font:700 .72rem ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--teal)}
-h1,h2,h3,h4,p{margin:0}h1{font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.035em}h2{font-size:1.35rem;line-height:1.2}h3{font-size:1.02rem}h4{font-size:.92rem}.lede{max-width:78ch;color:var(--muted);font-size:1.03rem}
+header{display:flex;flex-direction:column;gap:8px;padding:10px 2px 14px}.eyebrow{font:700 .72rem 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--teal)}
+h1,h2,h3,h4,p{margin:0}h1,h2,h3{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}h1{font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.035em}h2{font-size:1.35rem;line-height:1.2}h3{font-size:1.02rem}h4{font-size:.92rem}.lede{max-width:78ch;color:var(--muted);font-size:1.03rem}
 .pills{display:flex;gap:7px;flex-wrap:wrap}.pill{border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--muted);font-size:.75rem}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);min-width:0}
 .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
@@ -21,13 +24,13 @@ h1,h2,h3,h4,p{margin:0}h1{font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;lett
 .controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 @media(max-width:760px){.controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.controls{grid-template-columns:1fr}}
-.control{display:flex;flex-direction:column;gap:4px;min-width:0}.control label{font-size:.82rem;color:var(--muted);display:flex;justify-content:space-between;gap:8px}.control output{font:600 .8rem ui-monospace,monospace;color:var(--ink)}input[type=range]{width:100%;accent-color:var(--teal)}
+.control{display:flex;flex-direction:column;gap:4px;min-width:0}.control label{font-size:.82rem;color:var(--muted);display:flex;justify-content:space-between;gap:8px}.control output{font:600 .8rem 'JetBrains Mono',ui-monospace,monospace;color:var(--ink)}input[type=range]{width:100%;accent-color:var(--teal)}
 button{font:600 .86rem inherit;border:1px solid var(--line);border-radius:7px;padding:8px 11px;background:var(--panel);color:var(--ink);cursor:pointer}button:hover{border-color:var(--teal)}button.primary{background:var(--teal);border-color:var(--teal);color:#fff}button:focus-visible,input:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 .switch{display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}input[type=checkbox]{accent-color:var(--teal)}
 .metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
 @media(max-width:780px){.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:430px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.metric{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}.metric small{display:block;color:var(--muted);font-size:.72rem}.metric strong{font:700 1.35rem ui-monospace,monospace;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric em{font-style:normal;color:var(--muted);font-size:.7rem}
+.metric{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}.metric small{display:block;color:var(--muted);font-size:.72rem}.metric strong{font:700 1.35rem 'JetBrains Mono',ui-monospace,monospace;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric em{font-style:normal;color:var(--muted);font-size:.7rem}
 canvas{width:100%;display:block;max-width:100%}.chart-wrap{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px;overflow:hidden}
 canvas.ecg{height:260px}.chart{height:220px}.smallchart{height:150px}
 .legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.75rem;margin-top:8px}.legend span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--c);margin-right:5px}
@@ -41,13 +44,13 @@ table{border-collapse:collapse;width:100%;font-size:.82rem}th,td{text-align:righ
 .timeline{display:grid;grid-template-columns:120px 1fr;gap:7px 10px;align-items:center}.tlname{color:var(--muted);font-size:.78rem}.track{height:24px;background:var(--bg);border:1px solid var(--line);border-radius:5px;position:relative;overflow:hidden}.event{position:absolute;top:3px;height:16px;border-radius:3px;background:var(--teal);min-width:3px}.event.orange{background:var(--orange)}.event.red{background:var(--red)}.event.blue{background:var(--blue)}
 details{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}summary{cursor:pointer;font-weight:650;font-size:.85rem}
 footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);padding-top:15px}
-.kv{display:flex;flex-wrap:wrap;gap:6px}.tag{font:600 .72rem ui-monospace,monospace;background:var(--teal-soft);padding:3px 7px;border-radius:5px;color:var(--teal)}
+.kv{display:flex;flex-wrap:wrap;gap:6px}.tag{font:600 .72rem 'JetBrains Mono',ui-monospace,monospace;background:var(--teal-soft);padding:3px 7px;border-radius:5px;color:var(--teal)}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
- <div class="eyebrow">ECG School · Laboratorio de integración · L2–L8</div>
+ <div class="eyebrow">Módulo 24 · laboratorio de integración L2–L8</div>
  <h1>Un corazón, un solo modelo.</h1>
  <p class="lede">Modifica una variable y observa cómo viaja el cambio desde el tejido eléctrico hasta la contracción, las cuatro cámaras, la circulación, los reflejos y la medición. Este laboratorio es una primera implementación integrada de las capas L2–L8; conserva modelos simplificados y declara sus límites.</p>
  <div class="pills"><span class="pill">L2 · Tejido</span><span class="pill">L3 · Señal</span><span class="pill">L4 · Excitación–contracción</span><span class="pill">L5 · Hemodinamia</span><span class="pill">L6 · Control</span><span class="pill">L7 · Acople</span><span class="pill">L8 · Medición</span></div>
@@ -70,7 +73,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
 </section>
 
 <section class="card">
- <div class="topline"><div><h2>Estado del sistema</h2><p class="desc">Valores derivados del mismo ciclo simulado. Los resultados son aproximaciones del modelo, no mediciones clínicas.</p></div><span class="tag" id="engineStatus">motor actualizado</span></div>
+ <div class="topline"><div><h2>Estado del sistema</h2><p class="desc">Valores del último latido en estado estable, después de que actúa el barorreflejo (si está activo). El ECG y la línea temporal usan esa misma FC. Son aproximaciones del modelo, no mediciones clínicas.</p></div><span class="tag" id="engineStatus">motor actualizado</span></div>
  <div class="metrics">
   <div class="metric"><small>Gasto cardiaco</small><strong id="co">—</strong><em>L/min · modelo</em></div>
   <div class="metric"><small>Volumen sistólico VI</small><strong id="sv">—</strong><em>mL/latido</em></div>
@@ -118,7 +121,8 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
   <div class="metric"><small>Calcio máximo relativo</small><strong id="caPeak">—</strong><em>unidades normalizadas</em></div>
   <div class="metric"><small>Elastancia VI máx.</small><strong id="emax">—</strong><em>mmHg/mL · modelo</em></div>
  </div>
- <p class="note">La curva de calcio es un pulso fenomenológico, no una simulación de canales, retículo sarcoplásmico ni unión a troponina. La escala de elastancia está simplificada.</p>
+ <div class="legend"><span style="--c:var(--blue)">Activación eléctrica</span><span style="--c:var(--orange)">Calcio relativo</span><span style="--c:var(--teal)">Elastancia del VI (la que usa el motor)</span></div>
+ <p class="note">La curva de calcio es un pulso fenomenológico, no una simulación de canales, retículo sarcoplásmico ni unión a troponina. La elastancia sigue al calcio tras el retraso electromecánico; su forma es una doble función de Hill, simplificada.</p>
 </section>
 
 <section class="card span-6" id="L5">
@@ -151,16 +155,16 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
 <section class="card span-6" id="L8">
  <div class="topline"><div><div class="eyebrow">L8 · Medición</div><h2>Lo que el modelo sabe vs. lo que mide el laboratorio</h2><p class="desc">La verdad interna se compara con un registro que incluye desplazamiento de cero, amortiguación y retraso de enclavamiento.</p></div></div>
  <div class="controls" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-  <div class="control"><label for="zero">Error de nivelación <output id="zeroV">0 cm</output></label><input id="zero" type="range" min="-5" max="5" step=".5" value="0"></div>
+  <div class="control"><label for="zero">Transductor bajo el corazón (+) / sobre (−) <output id="zeroV">0 cm</output></label><input id="zero" type="range" min="-5" max="5" step=".5" value="0"></div>
   <div class="control"><label for="damp">Amortiguación <output id="dampV">0 %</output></label><input id="damp" type="range" min="0" max="70" step="5" value="0"></div>
   <div class="control"><label for="delay">Retraso PCP <output id="delayV">200 ms</output></label><input id="delay" type="range" min="80" max="400" step="20" value="200"></div>
  </div>
  <div class="scroll" style="margin-top:12px"><table><thead><tr><th>Variable</th><th>Modelo (verdad)</th><th>Medición simulada</th><th>Origen de diferencia</th></tr></thead><tbody id="measurementRows"></tbody></table></div>
  <div class="metrics" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px">
-  <div class="metric"><small>Gasto por Fick ilustrativo</small><strong id="fick">—</strong><em>L/min · VO₂ asumido</em></div>
-  <div class="metric"><small>Termodilución ilustrativa</small><strong id="thermo">—</strong><em>L/min · error simulado</em></div>
+  <div class="metric"><small>Gasto por Fick ilustrativo</small><strong id="fick">—</strong><em>L/min · VO₂ supuesto 125 mL/min/m²</em></div>
+  <div class="metric"><small>Termodilución ilustrativa</small><strong id="thermo">—</strong><em>L/min · inyectado tibio: sobreestima</em></div>
  </div>
- <p class="note">La presión de enclavamiento se representa como señal retrasada y amortiguada respecto de la presión auricular izquierda. Fick requiere VO₂ y contenido arterial/venoso de O₂; aquí VO₂ y Hb son supuestos. No se emulan completamente catéter, respiración, artefactos ni calibración.</p>
+ <p class="note">La presión de enclavamiento se representa como señal retrasada y amortiguada respecto de la presión auricular izquierda. Fick requiere VO₂ y contenido arterial/venoso de O₂; aquí VO₂ y Hb son supuestos. Fick usa un VO₂ supuesto (el real del modelo es 250 mL/min): de ahí su error. La termodilución ilustra un sesgo de +8 % por inyectado tibio (VERIFICAR). No se emulan completamente catéter, respiración ni artefactos.</p>
 </section>
 </div>
 
@@ -174,13 +178,13 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
  <div class="topline"><div><h2>Supuestos, limitaciones y próxima integración</h2><p class="desc">Qué representa esta versión y qué no debe interpretarse como fisiología completamente resuelta.</p></div></div>
  <div class="grid">
   <div class="span-4"><h3>Implementado aquí</h3><ul><li>Conducción secuencial con tiempos por distancia/velocidad.</li><li>Vector común proyectado a 12 derivaciones.</li><li>Activación eléctrica → calcio → elastancia temporal.</li><li>Cuatro cámaras, válvulas unidireccionales y circuitos lumped.</li><li>Barorreflejo rápido y curva lenta ilustrativa.</li><li>Comparación de verdad del modelo y señal medida.</li></ul></div>
-  <div class="span-4"><h3>Simplificaciones explícitas</h3><ul><li>Tejido espacial 2D esquemático, no malla 3D.</li><li>Vectorcardiograma sintético, no torso conductor individual.</li><li>Calcio fenomenológico, no cinética iónica.</li><li>Resistencias y compliancias constantes; sin Windkessel completo.</li><li>Sin intercambio capilar, lechos regionales, embarazo ni circulación fetal.</li><li>Control renal ilustrativo, no modelo renal cuantitativo.</li></ul></div>
+  <div class="span-4"><h3>Simplificaciones explícitas</h3><ul><li>Tejido espacial 2D esquemático, no malla 3D.</li><li>Vectorcardiograma sintético, no torso conductor individual.</li><li>Calcio fenomenológico, no cinética iónica.</li><li>Resistencias y compliancias constantes; compartimentos tipo Windkessel de un elemento.</li><li>Cambiar el volumen circulante reparte la mitad del cambio en volumen no estresado venoso.</li><li>Sin intercambio capilar, lechos regionales, embarazo ni circulación fetal.</li><li>Control renal ilustrativo, no modelo renal cuantitativo.</li></ul></div>
   <div class="span-4"><h3>Validación pendiente</h3><ul><li>Calibrar rangos y constantes con fisiología del curso y fuentes vigentes.</li><li>Pruebas de conservación de volumen y balance de flujos.</li><li>Golden tests del ECG y de las relaciones presión–volumen.</li><li>Verificación de estabilidad numérica a todos los extremos.</li><li>Revisión por fisiólogo cardiovascular y cardiólogo.</li></ul></div>
  </div>
  <p class="warning" style="margin-top:12px">Aviso: prototipo educativo. Los valores numéricos son salidas de un modelo simplificado y no deben utilizarse para interpretar pacientes reales, tomar decisiones clínicas ni orientar tratamientos.</p>
 </section>
 
-<footer>ECG School · Nuevo laboratorio de integración L2–L8. Se conserva la independencia de los otros módulos. Los contenidos y constantes requieren validación académica antes de presentarse como modelo fisiológico validado.</footer>
+<footer><p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p><p>Laboratorio de integración L2–L8, alineado con los objetivos de la Unidad 6 de Fisiología como referencia; cobertura fina pendiente de asignar. Sin aval institucional. Constantes y rangos ilustrativos: VERIFICAR con el libro del curso.</p></footer>
 </div>
 
 <script>
@@ -218,7 +222,7 @@ function vec(t,c,s){
  add(g(beat,.075,.026,.15),g(beat,.075,.026,.18),g(beat,.075,.026,.025));
  var q0=pr;
  add(g(beat,q0+.012,.010,-.16),g(beat,q0+.012,.010,.10),g(beat,q0+.012,.010,.08));
- add(g(beat,q0+qrs*.43,qrs*.24,1.0*s.contract),g(beat,q0+qrs*.43,qrs*.24,.42*s.contract),g(beat,q0+qrs*.43,qrs*.24,.20*s.contract));
+ add(g(beat,q0+qrs*.43,qrs*.24,1.0),g(beat,q0+qrs*.43,qrs*.24,.42),g(beat,q0+qrs*.43,qrs*.24,.20)); /* amplitud = masa (fija aquí), no contractilidad */
  add(g(beat,q0+qrs*.86,.018,-.20),g(beat,q0+qrs*.86,.018,-.13),g(beat,q0+qrs*.86,.018,-.12));
  add(g(beat,q0+.34,.065,.26),g(beat,q0+.34,.065,.15),g(beat,q0+.34,.065,.07));
  return v;
@@ -239,7 +243,7 @@ function drawECG(s,c){
   g.strokeStyle=major;g.globalAlpha=.42;g.beginPath();g.moveTo(x0,y0+ch/5);g.lineTo(x0+cw,y0+ch/5);g.moveTo(x0,y0+ch*3/5);g.lineTo(x0+cw,y0+ch*3/5);g.stroke();g.globalAlpha=1;
   g.strokeStyle=trace;g.lineWidth=1.5;g.beginPath();
   for(var p=0;p<=N;p++){var t=total*p/N,v=L[1](vec(t,c,s)),xx=x0+cw*p/N,yy=mid-v*ch*.26;if(p===0)g.moveTo(xx,yy);else g.lineTo(xx,yy)}g.stroke();
-  g.fillStyle=ink;g.font="600 10px ui-monospace,monospace";g.textBaseline="top";g.fillText(L[0],x0+5,y0+3);
+  g.fillStyle=ink;g.font="600 10px 'JetBrains Mono',ui-monospace,monospace";g.textBaseline="top";g.fillText(L[0],x0+5,y0+3);
  });
 }
 function calciumAt(t,start,T,tau){
@@ -259,57 +263,52 @@ function plot(g,data,x0,y0,w,h,min,max,color,width){
 }
 function drawCalcium(s,c){
  var W=Math.max(300,$("calcium").parentElement.clientWidth-14),H=220,g=canvas("calcium",W,H),T=60/s.hr,pr=c.pr/1000,mech=pr+.05,vals=[],ca=[],ela=[],N=180;
- var em=1.3*s.contract*s.contract,peak=0;
- for(var i=0;i<=N;i++){var t=i/N*Math.min(T,0.9),v=calciumAt(t,mech,T,.22),a=calciumAt(t,.01,T,.12);ca.push(v);ela.push(.04+(em-.04)*v);vals.push(a);peak=Math.max(peak,v)}
+ var em=2.6*s.contract,peak=0,TsE=.30*Math.sqrt(T/.8);
+ for(var i=0;i<=N;i++){var t=i/N*Math.min(T,0.9),v=calciumAt(t,mech,T,.22),a=calciumAt(t,.01,T,.12);ca.push(v);ela.push(.075*s.stiff+(em-.075*s.stiff)*eAct(t-mech,TsE));vals.push(a);peak=Math.max(peak,v)}
  chartAxes(g,W,H,"Calcio relativo y elastancia VI",em);var x0=42,y0=25,w=W-54,h=H-55;
  plot(g,ca,x0,y0,w,h,0,1,getComputedStyle(document.documentElement).getPropertyValue("--orange"),2);
  plot(g,ela,x0,y0,w,h,0,em,getComputedStyle(document.documentElement).getPropertyValue("--teal"),2.2);
  plot(g,vals,x0,y0,w,h,0,1,getComputedStyle(document.documentElement).getPropertyValue("--blue"),1.8);
  $("caPeak").textContent=fmt(peak,2);$("emax").textContent=fmt(em,2);
 }
-function chamberP(V,E,V0){return E*(V-V0)}
-function active(t,start,T,tau){
- return calciumAt(t,start,T,tau);
-}
+/* Núcleo hemodinámico: 4 cámaras con elastancia variable, 4 válvulas, compartimentos arteriales y venosos
+   sistémicos y pulmonares en circuito cerrado (el volumen total se conserva). Constantes ilustrativas: VERIFICAR. */
+function eAct(u,Ts){if(u<0||u>Ts*1.5)return 0;var n1=1.32,n2=21.9,t1=.269*Ts,t2=.452*Ts;function raw(x){var a=Math.pow(x/t1,n1),b=Math.pow(x/t2,n2);return a/(1+a)/(1+b)}
+ if(!eAct.c||eAct.k!==Ts){var m=0;for(var i=0;i<300;i++)m=Math.max(m,raw(i/300*Ts*1.5));eAct.c=m;eAct.k=Ts}return raw(u)/eAct.c}
+function aAct(u){return u>=0&&u<.11?Math.pow(Math.sin(Math.PI*u/.11),2):0}
 function simulate(s,c){
- var dt=.005,duration=10,T=60/s.hr,n=Math.floor(duration/dt);
- var z={vl:120*s.volume,vr:120*s.volume,la:45*s.volume,ra:45*s.volume,sa:92+(s.volume-1)*9,sv:7+(s.volume-1)*7,pa:15,pv:8};
- var samples=[],coSum=0,coN=0,meanMap=0,mapN=0,svPeak=-1e9,svTrough=1e9,lvPeak=0,paMean=0,paN=0,edv=0,esv=1e9;
- var ctrl={hr:s.hr,contract:s.contract,rvs:s.rvs,venous:1,symp:0};
- var lastCycleStart=duration-2*T,pRAEnd=0,pLAEnd=0;
- for(var i=0;i<n;i++){
-  var t=i*dt,phase=(t%T),beatStart=t-phase;
-  var atrStart=beatStart+.01,ventStart=beatStart+c.pr/1000+.05;
-  var cLV=active(t,ventStart,T,.22),cRV=active(t,ventStart+.012,T,.22),cLA=active(t,atrStart+.02,T,.12),cRA=active(t,atrStart,T,.12);
-  var E_lv=.04*s.stiff+(1.3*ctrl.contract-.04*s.stiff)*cLV;
-  var E_rv=.03+(.25-.03)*cRV,E_la=.08+(.35-.08)*cLA,E_ra=.07+(.28-.07)*cRA;
-  var pLV=chamberP(z.vl,E_lv,30),pRV=chamberP(z.vr,E_rv,25),pLA=chamberP(z.la,E_la,20),pRA=chamberP(z.ra,E_ra,20);
-  var qMV=Math.max((pLA-pLV)/.12,0),qAV=Math.max((pLV-z.sa)/.16,0),qTV=Math.max((pRA-pRV)/.12,0),qPV=Math.max((pRV-z.pa)/.24,0);
-  var qSys=Math.max((z.sa-z.sv)/(.95*ctrl.rvs),0),qVen=Math.max((z.sv-pRA)/(.055/ctrl.venous),0);
-  var qPul=Math.max((z.pa-z.pv)/(.14*s.rvp),0),qPven=Math.max((z.pv-pLA)/.035,0);
-  pRAEnd=pRA;pLAEnd=pLA;\n  var dvl=qMV-qAV,dla=qPven-qMV,dvr=qTV-qPV,dra=qVen-qTV;
-  var dsa=(qAV-qSys)/1.35,dsv=(qSys-qVen)/85,dpa=(qPV-qPul)/4.5,dpv=(qPul-qPven)/18;
-  z.vl+=dvl*dt;z.la+=dla*dt;z.vr+=dvr*dt;z.ra+=dra*dt;z.sa+=dsa*dt;z.sv+=dsv*dt;z.pa+=dpa*dt;z.pv+=dpv*dt;
-  z.vl=clamp(z.vl,35,210);z.vr=clamp(z.vr,35,210);z.la=clamp(z.la,15,100);z.ra=clamp(z.ra,15,100);
-  z.sa=clamp(z.sa,35,180);z.sv=clamp(z.sv,1,30);z.pa=clamp(z.pa,3,60);z.pv=clamp(z.pv,2,30);
-  if(s.baro&& !s.blockBaro){
-   var err=92-z.sa,alpha=dt/3.0;
-   var hrTarget=clamp(s.hr+err*.38,45,150);
-   var conTarget=clamp(s.contract+err*.004,0.45,2);
-   var rTarget=clamp(s.rvs+err*.009,.45,2);
-   ctrl.hr+=(hrTarget-ctrl.hr)*alpha;ctrl.contract+=(conTarget-ctrl.contract)*alpha;ctrl.rvs+=(rTarget-ctrl.rvs)*alpha;
-   ctrl.venous+=(clamp(1+err*.003,.7,1.4)-ctrl.venous)*alpha;
-  }
-  if(t>=lastCycleStart){
-   var lvflow=qAV;coSum+=lvflow;coN++;meanMap+=z.sa;mapN++;paMean+=z.pa;paN++;
-   svPeak=Math.max(svPeak,z.vl);svTrough=Math.min(svTrough,z.vl);edv=Math.max(edv,z.vl);esv=Math.min(esv,z.vl);lvPeak=Math.max(lvPeak,pLV);
-   if(i%4===0)samples.push({t:t-lastCycleStart,pLV:pLV,pRV:pRV,pLA:pLA,pRA:pRA,sa:z.sa,pa:z.pa,vl:z.vl,qAV:qAV,calcium:cLV});
-  }
+ var dt=.0005,dur=16,n=Math.round(dur/dt);
+ var P={lvEs:2.6*s.contract,lvEd:.075*s.stiff,lvV0:10,rvEs:.6,rvEd:.035,rvV0:10,laEs:.30,laEd:.16,raEs:.25,raEd:.12,aV0:10,
+  Csa:1.4,Csv:90,Cpa:4.5,Cpv:16,Rsys:.95*s.rvs,Rpul:.09*s.rvp,Rven:.05,Rpven:.02,Rav:.005,Rmv:.004,Rpv:.004,Rtv:.004,
+  Usv:2700,Upv:300,Usa:600,Upa:100};
+ // volumen total (mL) escalado por la perilla de volumen; reparto inicial aproximado
+ var tot=5000*s.volume;P.Usv+=.5*(tot-5000);
+ var z={lv:120,rv:120,la:55,ra:55,sa:P.Usa+P.Csa*90,pa:P.Upa+P.Cpa*14,pv:P.Upv+P.Cpv*8};
+ z.sv=tot-(z.lv+z.rv+z.la+z.ra+z.sa+z.pa+z.pv);
+ var ctrl={hr:s.hr,ces:1,rs:1,u:1},mapF=null,beat=0,T=60/s.hr,qrsT=c.pr/1000,Ts=.30;
+ var out={samples:[],},rec=null,cycles=[];
+ var t,i,acc=null;
+ for(i=0;i<n;i++){t=i*dt;
+  var tb=t-beat;if(tb>=T){beat+=T;tb-=T;if(acc){cycles.push(acc)}acc={t0:beat,T:T,sumQ:0,sumP:0,sumPa:0,k:0,edv:0,esv:1e9,lvp:0,s:[]};
+    T=60/ctrl.hr;Ts=.30*Math.sqrt(T/.8)+0*.0}
+  if(!acc)acc={t0:beat,T:T,sumQ:0,sumP:0,sumPa:0,k:0,edv:0,esv:1e9,lvp:0,s:[]};
+  var em=c.pr/1000+.05,ev=eAct(tb-em,Ts),evr=eAct(tb-em-.012,Ts),ea=aAct(tb-.08);
+  var Elv=P.lvEd+(P.lvEs*ctrl.ces-P.lvEd)*ev,Erv=P.rvEd+(P.rvEs*ctrl.ces-P.rvEd)*evr,Ela=P.laEd+(P.laEs-P.laEd)*ea,Era=P.raEd+(P.raEs-P.raEd)*ea;
+  var pLV=Elv*(z.lv-P.lvV0),pRV=Erv*(z.rv-P.rvV0),pLA=Ela*(z.la-P.aV0),pRA=Era*(z.ra-P.aV0);
+  var Usv=P.Usv*ctrl.u,pSA=(z.sa-P.Usa)/P.Csa,pSV=(z.sv-Usv)/P.Csv,pPA=(z.pa-P.Upa)/P.Cpa,pPV=(z.pv-P.Upv)/P.Cpv;
+  var qMV=Math.max(pLA-pLV,0)/P.Rmv,qAV=Math.max(pLV-pSA,0)/P.Rav,qTV=Math.max(pRA-pRV,0)/P.Rtv,qPV=Math.max(pRV-pPA,0)/P.Rpv;
+  var qS=(pSA-pSV)/(P.Rsys*ctrl.rs),qV=(pSV-pRA)/P.Rven,qP=(pPA-pPV)/P.Rpul,qPv=(pPV-pLA)/P.Rpven;
+  z.lv+=(qMV-qAV)*dt;z.la+=(qPv-qMV)*dt;z.rv+=(qTV-qPV)*dt;z.ra+=(qV-qTV)*dt;z.sa+=(qAV-qS)*dt;z.sv+=(qS-qV)*dt;z.pa+=(qPV-qP)*dt;z.pv+=(qP-qPv)*dt;
+  mapF=mapF===null?pSA:mapF+(pSA-mapF)*dt/2;
+  if(s.baro&&!s.blockBaro&&t>1){var e=clamp((s.mapRef-mapF)/s.mapRef,-.5,.5),a=dt/4;
+   ctrl.hr+=(clamp(s.hr*(1+1.5*e),40,170)-ctrl.hr)*a;ctrl.ces+=(clamp(1+.8*e,.6,1.6)-ctrl.ces)*a;ctrl.rs+=(clamp(1+1.2*e,.6,1.8)-ctrl.rs)*a;ctrl.u+=(clamp(1-.6*e,.75,1.15)-ctrl.u)*a}
+  acc.sumQ+=qAV;acc.sumP+=pSA;acc.sumPa+=pPA;acc.k++;acc.edv=Math.max(acc.edv,z.lv);acc.esv=Math.min(acc.esv,z.lv);acc.lvp=Math.max(acc.lvp,pLV);
+  acc.pra=(acc.pra||0)+pRA;acc.pla=(acc.pla||0)+pLA;
+  if(i%4===0)acc.s.push({t:tb,pLV:pLV,pRV:pRV,pLA:pLA,pRA:pRA,sa:pSA,pa:pPA,vl:z.lv,qAV:qAV});
  }
- var co=(coSum/Math.max(coN,1))*60/1000,sv=Math.max(0,edv-esv),ef=edv>0?sv/edv*100:0;
- var map=meanMap/Math.max(mapN,1),pap=paMean/Math.max(paN,1);
- var ctrlMap={hr:ctrl.hr,contract:ctrl.contract,rvs:ctrl.rvs,venous:ctrl.venous,symp:clamp((ctrl.contract-s.contract)+.5*(ctrl.hr-s.hr)/Math.max(s.hr,1),0,1.5)};
- return {samples:samples,co:co,sv:sv,ef:ef,map:map,pap:pap,lvsp:lvPeak,edv:edv,esv:esv,ctrl:ctrlMap,sysEnd:z.sa,lvEnd:z.vl,rvEnd:z.vr,laEnd:z.la,raEnd:z.ra,pRAEnd:pRAEnd,pLAEnd:pLAEnd,paEnd:z.pa,pvEnd:z.pv};
+ var L=cycles[cycles.length-1];
+ var sym=clamp((ctrl.ces-1)+.5*(ctrl.hr-s.hr)/s.hr+(ctrl.rs-1),0,1.5);
+ return {symp:sym,co:L.sumQ/L.k*60/1000,sv:L.edv-L.esv,ef:(L.edv-L.esv)/L.edv*100,map:L.sumP/L.k,pap:L.sumPa/L.k,lvsp:L.lvp,edv:L.edv,esv:L.esv,pRA:L.pra/L.k,pLA:L.pla/L.k,hr:60/L.T,ctrl:ctrl,samples:L.s,tot:Object.keys(z).reduce(function(a,k){return a+z[k]},0)};
 }
 function drawPressures(s,r){
  var W=Math.max(300,$("pressures").parentElement.clientWidth-14),H=220,g=canvas("pressures",W,H),d=r.samples;
@@ -333,7 +332,7 @@ function slowResponse(s,r){
  var error=(92-r.map),times=[0,1,2,3,4,5,6,7,8,9,10],fast=[],slow=[];
  times.forEach(function(m){fast.push(error*(1-Math.exp(-m/0.08)));slow.push(s.slow?error*(1-Math.exp(-m/250)):0)});
  var renal=s.slow?clamp((error/30)*(1-Math.exp(-180/240)),0,1.5):0;
- $("hrComp").textContent=fmt(r.ctrl.hr,0);$("symp").textContent=fmt(r.ctrl.symp,2);$("renal").textContent=fmt(renal,2);
+ $("hrComp").textContent=fmt(r.hr,0);$("symp").textContent=fmt(r.symp,2);$("renal").textContent=fmt(renal,2);
  var W=Math.max(300,$("controlChart").parentElement.clientWidth-14),H=150,g=canvas("controlChart",W,H);chartAxes(g,W,H,"Cambio relativo de compensación · escala conceptual",1.5);var x0=42,y0=25,w=W-54,h=H-55;
  plot(g,fast,x0,y0,w,h,-1.5,1.5,getComputedStyle(document.documentElement).getPropertyValue("--orange"),2);
  plot(g,slow,x0,y0,w,h,-1.5,1.5,getComputedStyle(document.documentElement).getPropertyValue("--teal"),2);
@@ -350,7 +349,7 @@ function drawCausal(s,c,r){
  msgs.push("PR calculado "+fmt(c.pr,0)+" ms y QRS sintético "+fmt(c.qrs,0)+" ms.");
  msgs.push("La activación ventricular se retrasa "+fmt(c.tEnd,0)+" ms desde el nodo SA; tras el retraso electromecánico de 50 ms, aumenta el calcio y la elastancia.");
  msgs.push("El modelo de cuatro cámaras produce GC "+fmt(r.co,2)+" L/min, VS "+fmt(r.sv,0)+" mL y PAM "+fmt(r.map,0)+" mmHg.");
- if(s.baro&&!s.blockBaro)msgs.push("El barorreflejo modifica lentamente FC, contractilidad y resistencia sistémica para acercar la presión arterial al objetivo interno.");else msgs.push("El barorreflejo está desactivado o bloqueado: no compensa el cambio de presión durante la simulación.");
+ if(s.baro&&!s.blockBaro)msgs.push("El barorreflejo (constante de segundos) ajusta FC (ahora "+fmt(r.hr,0)+" lpm), contractilidad, resistencia sistémica y tono venoso para acercar la PAM a su valor de referencia (93 mmHg); compensa en parte, no por completo.");else msgs.push("El barorreflejo está desactivado o bloqueado: no compensa el cambio de presión durante la simulación.");
  $("causalText").textContent=msgs.join(" ");
 }
 function renderTimeline(s,c){
@@ -363,21 +362,22 @@ function renderTimeline(s,c){
  $("eventRows").innerHTML=tab.map(function(x){return "<tr><td>"+x[0]+"</td><td>"+x[1]+"</td><td style='text-align:left'>"+x[2]+"</td></tr>"}).join("");
 }
 function measurement(s,c,r){
- var zero=s.zero*.75,damp=s.damp,lvTruth=r.lvsp,artTruth=r.map,papTruth=r.pap,raTruth=Math.max(2,r.pRAEnd);
+ var zero=s.zero*.75,damp=s.damp,lvTruth=r.lvsp,artTruth=r.map,papTruth=r.pap,raTruth=r.pRA;
  var lvMeas=lvTruth+zero,artMeas=artTruth+zero,papMeas=papTruth+zero,raMeas=raTruth+zero;
- var wedgeTruth=Math.max(2,r.pLAEnd),wedgeMeas=wedgeTruth+zero;
- var factor=1-damp*.6;
- var rows=[["Presión sistémica media",fmt(artTruth,1)+" mmHg",fmt(artMeas,1)+" mmHg","Desnivel del transductor"],["Presión pico VI",fmt(lvTruth,1)+" mmHg",fmt(lvTruth*factor+zero,1)+" mmHg","Amortiguación + cero"],["Presión media AP",fmt(papTruth,1)+" mmHg",fmt(papTruth*factor+zero,1)+" mmHg","Amortiguación + cero"],["AD estimada",fmt(raTruth,1)+" mmHg",fmt(raMeas,1)+" mmHg","Desnivel del transductor"],["PCP aproximada",fmt(wedgeTruth,1)+" mmHg",fmt(wedgeTruth*factor+zero,1)+" mmHg","Retardo "+s.delay+" ms y amortiguación"]];
+ var wedgeTruth=r.pLA,wedgeMeas=wedgeTruth+zero;
+ var pp=Math.max(r.lvsp-8,0),lvDamped=8+pp*(1-.5*damp);
+ var rows=[["Presión sistémica media",fmt(artTruth,1)+" mmHg",fmt(artMeas,1)+" mmHg","Desnivel del transductor (≈ 0,75 mmHg/cm); la amortiguación no cambia la media"],["Presión pico VI",fmt(lvTruth,1)+" mmHg",fmt(lvDamped+zero,1)+" mmHg","La amortiguación recorta el pico; más el error de cero"],["Presión media AP",fmt(papTruth,1)+" mmHg",fmt(papMeas,1)+" mmHg","Desnivel del transductor"],["AD media",fmt(raTruth,1)+" mmHg",fmt(raMeas,1)+" mmHg","Desnivel del transductor"],["PCP media (≈ AI media)",fmt(wedgeTruth,1)+" mmHg",fmt(wedgeMeas,1)+" mmHg","Las ondas llegan "+s.delay+" ms tarde y amortiguadas; la media casi no cambia"]];
  $("measurementRows").innerHTML=rows.map(function(x){return "<tr><td>"+x[0]+"</td><td>"+x[1]+"</td><td>"+x[2]+"</td><td style='text-align:left'>"+x[3]+"</td></tr>"}).join("");
- var VO2=250,Hb=15,Sa=.98,Sv=clamp(.98-VO2/(Math.max(.5,r.co)*Hb*1.36*10),.45,.9);
- var fick=VO2/((Sa-Sv)*Hb*1.36*10),thermo=r.co*(1+(s.damp-.25)*.08);
+ /* Fick: el VO2 real del modelo es 250 mL/min, pero el laboratorio supone 125 mL/min/m² × 1,9 m² */
+ var VO2=250,VO2sup=125*1.9,Hb=15,Sa=.98,Sv=clamp(.98-VO2/(Math.max(.5,r.co)*Hb*1.36*10),.3,.9);
+ var fick=VO2sup/((Sa-Sv)*Hb*1.36*10),thermo=r.co*1.08;
  $("fick").textContent=fmt(fick,2);$("thermo").textContent=fmt(thermo,2);
 }
 function render(){
  var s=inputs();labelInputs(s);var c=conduction(s);updateConduction(s,c);
- var r=simulate(s,c);last={s:s,c:c,r:r};
+ var r=simulate(Object.assign({mapRef:93},s),c),sh=Object.assign({},s,{hr:Math.round(r.hr)});last={s:sh,c:c,r:r};
  $("co").textContent=fmt(r.co,2);$("sv").textContent=fmt(r.sv,0);$("ef").textContent=fmt(r.ef,0);$("map").textContent=fmt(r.map,0);$("lvsp").textContent=fmt(r.lvsp,0);$("pap").textContent=fmt(r.pap,1);
- drawECG(s,c);drawCalcium(s,c);drawPressures(s,r);drawPV(s,r);slowResponse(s,r);renderTimeline(s,c);measurement(s,c,r);drawCausal(s,c);
+ drawECG(sh,c);drawCalcium(sh,c);drawPressures(sh,r);drawPV(sh,r);slowResponse(s,r);renderTimeline(sh,c);measurement(s,c,r);drawCausal(s,c,r);
  $("engineStatus").textContent="actualizado · "+new Date().toLocaleTimeString();
 }
 function bind(id){$(id).addEventListener("input",render);$(id).addEventListener("change",render)}
