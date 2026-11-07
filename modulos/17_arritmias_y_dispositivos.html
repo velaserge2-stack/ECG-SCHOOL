@@ -1,0 +1,746 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Arritmias y dispositivos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: una tira de monitor donde el ritmo (ECG) se alinea con lo que cuesta: presión arterial, pulso auricular y el volumen de cada latido. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+.chips{font-size:.8rem}
+.seg{flex-wrap:wrap}
+.opt input{margin-top:3px}
+.tags span{white-space:normal}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B14 · arritmias y dispositivos</div>
+  <h1>Arritmias y dispositivos</h1>
+  <p class="lede">Un ritmo no se juzga solo por su forma en el ECG sino por lo que cuesta al gasto cardiaco. Elige un ritmo, mueve la rigidez del ventrículo o la frecuencia y mira cómo cambian el llenado, cada volumen sistólico, la presión arterial y las ondas A en cañón.</p>
+  <div class="tags"><span>Unidad 6: 6.109–6.111 (con A5/A6: 6.97–6.108)</span><span>Acople ECG–hemodinamia: capa L7</span><span>Nivel N1–N2 (extensiones avanzadas)</span><span>Perillas: ritmo, FC, rigidez, contractilidad, RVS, precarga, retraso AV</span></div>
+</header>
+
+<section class="panel" id="bank">
+  <h2>Banco de ritmos</h2>
+  <div class="row">
+    <label class="ctl" style="flex:2 1 260px">Ritmo
+      <select id="rhy"></select></label>
+    <button class="btn" id="reset">Valores de reposo</button>
+  </div>
+  <canvas id="tr" role="img" aria-label="ECG, presión arterial, pulso auricular y volumen sistólico por latido"></canvas>
+  <div class="chips" id="legend" style="font-size:.78rem"></div>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none" id="hrW"><span><span id="hrL">Frecuencia</span>: <span class="mono" id="hrV"></span></span><input type="range" id="hr" min="40" max="180" step="1" value="70"></label>
+      <label class="ctl" style="flex:none">Rigidez del ventrículo (1 = normal): <span class="mono" id="stV"></span><input type="range" id="stf" min="1" max="3" step="0.1" value="1"></label>
+      <label class="ctl" style="flex:none">Contractilidad: <span class="mono" id="conV"></span><input type="range" id="con" min="0.5" max="1.5" step="0.05" value="1"></label>
+      <label class="ctl" style="flex:none">Resistencia vascular sistémica: <span class="mono" id="rvsV"></span><input type="range" id="rvs" min="0.6" max="1.6" step="0.05" value="1"></label>
+      <label class="ctl" style="flex:none">Precarga (presión venosa de llenado): <span class="mono" id="preV"></span><input type="range" id="pre" min="6" max="18" step="1" value="12"></label>
+    </div>
+    <div class="col" id="ctx">
+      <label class="ctl" style="flex:none" data-c="pr">Intervalo PR: <span class="mono" id="prV"></span><input type="range" id="pr" min="120" max="420" step="10" value="160"></label>
+      <label class="ctl" style="flex:none" data-c="ratio">Razón de conducción AV (auriculares : ventriculares):
+        <select id="ratio"><option value="2">2 : 1</option><option value="3">3 : 1</option><option value="4">4 : 1</option></select></label>
+      <label class="ctl" style="flex:none" data-c="pvc">Patrón de extrasístoles
+        <select id="pvcN"><option value="1">Bigeminismo (tras cada latido)</option><option value="2" selected>Trigeminismo (cada 3.er latido)</option><option value="5">Esporádicas (1 de cada 6)</option></select></label>
+      <label class="ctl" style="flex:none" data-c="pvc">Acoplamiento de la extrasístole: <span class="mono" id="pvcCV"></span><input type="range" id="pvcC" min="40" max="75" step="1" value="55"></label>
+      <label class="ctl" style="flex:none" data-c="avd">Retraso AV programado: <span class="mono" id="avdV"></span><input type="range" id="avd" min="30" max="360" step="10" value="150"></label>
+      <label class="ctl" style="flex:none" data-c="site">Sitio de estimulación ventricular
+        <select id="site"><option value="apical">Ápex del VD (activación desincronizada)</option><option value="biv">Biventricular (resincronización)</option></select></label>
+      <label class="ctl" style="flex:none" data-c="esc">Origen del escape
+        <select id="esc"><option value="junc">Unión AV (QRS estrecho, ≈ 45 lpm)</option><option value="vent">Ventricular (QRS ancho, ≈ 32 lpm)</option></select></label>
+      <label class="lab" data-c="retro"><input type="checkbox" id="retro"> Con conducción retrógrada ventrículo-auricular</label>
+      <p class="note" id="ctxNote"></p>
+    </div>
+  </div>
+  <div class="chips" id="met"></div>
+  <p class="why" id="why"></p>
+  <p class="note">Escala: modelo latido a latido (llenado dependiente del intervalo previo, aporte auricular, restitución y potenciación) acoplado a una ventana arterial. Referencia de reposo del modelo: GC ≈ 5,0 L/min, PAM ≈ 95 mmHg, 71 mL por latido. Las cifras son del modelo, no de un paciente.</p>
+</section>
+
+<section class="cols2">
+  <div class="panel" id="worked">
+    <h3>Ejemplo trabajado: la fibrilación auricular y el ventrículo que se llena mal</h3>
+    <p class="note">Nivel intermedio · perillas: ritmo y rigidez ventricular · objetivos 6.109–6.110</p>
+    <div class="tw"><table id="wkT"></table></div>
+    <ol id="wkChain"></ol>
+    <button class="btn" id="wkApply">Ver el caso rígido en el banco</button>
+  </div>
+  <div class="panel" id="counter">
+    <h3>Contraejemplo: la misma frecuencia de 150 lpm no cuesta lo mismo</h3>
+    <p class="note">Nivel intermedio · perilla: ritmo · corazón con rigidez ×1,5 y contractilidad 0,9</p>
+    <div class="tw"><table id="ctT"></table></div>
+    <p id="ctTxt" class="why"></p>
+    <button class="btn" id="ctApply">Ver la taquicardia ventricular en el banco</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <p class="note">Elige tu respuesta y tu nivel de confianza. Al comprobar, el banco de ritmos se pone en el escenario del reto y el modelo calcula los números.</p>
+  <div class="cols2">
+    <div class="col">
+      <div class="row"><span class="mono note" id="qNo"></span><span class="tags" id="qTag"></span></div>
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <fieldset><legend>Confianza</legend>
+        <label class="lab"><input type="radio" name="conf" value="baja"> baja</label>
+        <label class="lab"><input type="radio" name="conf" value="media" checked> media</label>
+        <label class="lab"><input type="radio" name="conf" value="alta"> alta</label></fieldset>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="note" id="qCal"></p>
+    </div>
+    <div class="col"><p class="fb" id="qFb" aria-live="polite"></p><div class="tw" id="qTbW" hidden><table id="qTb"></table></div></div>
+  </div>
+</section>
+
+<section class="panel" id="shock">
+  <h2>Desfibrilación y cardioversión: qué rompen y cuándo</h2>
+  <p class="note">Nivel intermedio · perillas: ritmo, modo de descarga y momento del ciclo · objetivo 6.109. Conceptual: no se dan energías (VERIFICAR contra la guía de reanimación vigente).</p>
+  <div class="row">
+    <label class="ctl" style="flex:1 1 220px">Ritmo del paciente
+      <select id="shK"><option value="fv">Fibrilación ventricular (sin pulso)</option><option value="vtnp">Taquicardia ventricular sin pulso</option><option value="vtp">Taquicardia ventricular con pulso, inestable</option><option value="af">Fibrilación auricular con respuesta rápida</option><option value="flt">Flúter auricular 2 : 1</option><option value="stach">Taquicardia sinusal por fiebre (150 lpm)</option></select></label>
+    <div class="seg" role="group" aria-label="Modo"><button class="btn" id="shM1" aria-pressed="true">Descarga no sincronizada</button><button class="btn" id="shM2" aria-pressed="false">Cardioversión sincronizada</button></div>
+  </div>
+  <label class="ctl" id="shPW" style="flex:none">Momento de la descarga dentro del ciclo (solo modo no sincronizado en ritmos organizados): <span class="mono" id="shPV"></span><input type="range" id="shP" min="0" max="100" step="1" value="30"></label>
+  <canvas id="shc" role="img" aria-label="Tira de ECG antes y después de la descarga"></canvas>
+  <div class="row"><button class="btn primary" id="shGo">Dar la descarga</button><span class="note" id="shWhere"></span></div>
+  <p class="why" id="shFb" aria-live="polite"></p>
+</section>
+
+<section class="panel" id="iabp">
+  <h2>Contrapulsación intraaórtica: el balón y su sincronía</h2>
+  <p class="note">Nivel avanzado · perillas: gatillo, momento de inflado y de desinflado, ritmo · liga con B5 y B9. Corazón del ejemplo: insuficiencia cardiaca (contractilidad 0,6, rigidez ×1,6).</p>
+  <div class="row">
+    <label class="ctl" style="flex:1 1 200px">Ritmo
+      <select id="iaR"><option value="sinus">Sinusal 70 lpm</option><option value="af">Fibrilación auricular, media de 90 lpm</option><option value="pvc">Extrasístoles frecuentes</option></select></label>
+    <div class="seg" role="group" aria-label="Gatillo"><button class="btn" id="iaG1" aria-pressed="true">Gatillo por ECG (onda R)</button><button class="btn" id="iaG2" aria-pressed="false">Gatillo por presión (muesca)</button></div>
+  </div>
+  <canvas id="iac" role="img" aria-label="ECG y presión aórtica con el balón de contrapulsación"></canvas>
+  <div class="grid">
+    <label class="ctl" style="flex:none">Inflado respecto a la muesca dicrótica (cierre aórtico): <span class="mono" id="iaIV"></span><input type="range" id="iaI" min="-100" max="140" step="5" value="10"></label>
+    <label class="ctl" style="flex:none">Desinflado antes de la siguiente onda R: <span class="mono" id="iaDV"></span><input type="range" id="iaD" min="-80" max="140" step="5" value="40"></label>
+  </div>
+  <div class="chips" id="iaMet"></div>
+  <p class="why" id="iaWhy"></p>
+</section>
+
+<section class="panel">
+  <h2>Juegos</h2>
+  <div class="cols2">
+    <div class="col">
+      <h3>Ritmo misterioso</h3>
+      <p class="note">Sin ECG: solo la presión arterial, el pulso auricular y el volumen de cada latido. ¿Qué ritmo es?</p>
+      <canvas id="g1c" role="img" aria-label="Trazo hemodinámico sin ECG"></canvas>
+      <div class="row" id="g1Opts"></div>
+      <div class="row"><button class="btn" id="g1New">Nuevo ritmo</button><span class="mono note" id="g1Sc"></span></div>
+      <p class="fb" id="g1Fb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>¿Descarga o cardioversión?</h3>
+      <p class="note" id="g2Case"></p>
+      <div class="col" style="gap:6px" id="g2Opts"></div>
+      <div class="row"><button class="btn" id="g2New">Nuevo caso</button><span class="mono note" id="g2Sc"></span></div>
+      <p class="fb" id="g2Fb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="caso">
+  <h2>Caso clínico de cierre</h2>
+  <p class="note">Nivel avanzado · objetivos 6.109–6.111 · todos los números salen del modelo.</p>
+  <p id="csTxt"></p>
+  <div class="chips" id="csMet"></div>
+  <div id="csS1"><h3>1. ¿Qué explica que tolere tan mal esta arritmia?</h3><div class="col" id="csO1" style="gap:6px"></div><p class="fb" id="csF1"></p></div>
+  <div id="csS2" hidden><h3>2. ¿Qué haces ahora?</h3><div class="col" id="csO2" style="gap:6px"></div><p class="fb" id="csF2"></p><div class="chips" id="csAfter"></div></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"Una taquicardia siempre sube el gasto": a frecuencias altas la diástole se acorta más que la sístole y el llenado cae; el límite depende de la rigidez y del ritmo.</li>
+    <li>"El ECG normal implica gasto normal" y su inverso: un ritmo regular (TV, bloqueo completo) puede dar poco gasto; un ritmo irregular puede conservar la presión media.</li>
+    <li>"La contracción auricular pesa igual en todos los ventrículos": aporta cerca de una quinta parte del llenado en reposo y mucho más si el ventrículo es rígido.</li>
+    <li>"Cada complejo del monitor es un pulso": las extrasístoles y los latidos cortos de la FA pueden no generar pulso (déficit de pulso).</li>
+    <li>"Ritmo de marcapasos es ritmo normal": con VVI y nodo sinusal intacto se pierde la sincronía AV y aparecen ondas A en cañón.</li>
+    <li>"Desfibrilar y cardiovertir es lo mismo": la primera no necesita sincronía; la segunda se dispara sobre la R para no caer en la T.</li>
+    <li>"Los latidos tras la extrasístole son débiles": el latido después de la pausa compensadora es más fuerte (potenciación postextrasistólica).</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Un ventrículo y un sistema arterial de un solo compartimento; no hay circulación pulmonar ni interacción interventricular.</li>
+    <li>Sin reflejos: no hay barorreflejo ni respuesta simpática. En la persona real la presión y la resistencia se ajustan en segundos.</li>
+    <li>El aporte auricular máximo (≈ 12 mL en reposo) y su dependencia del retraso AV son una curva elegida para enseñar (VERIFICAR contra el libro del curso).</li>
+    <li>La potenciación postextrasistólica y la restitución mecánica son curvas simples; las magnitudes son ilustrativas.</li>
+    <li>Un latido con volumen sistólico menor de 20 mL se considera no palpable (umbral ilustrativo, VERIFICAR).</li>
+    <li>El ECG es esquemático; el QRS ancho se dibuja igual para extrasístole, TV, escape ventricular y estimulación.</li>
+    <li>Con conducción retrógrada el nodo sinusal no se reinicia; el pulso auricular es una forma de onda aproximada, sin valores de la presión de AI.</li>
+    <li>El balón desplaza 30 mL y actúa de forma instantánea; no se modelan el gas ni la latencia del equipo.</li>
+    <li>La desfibrilación se explica de forma conceptual: sin energías ni formas de onda.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.97–6.111). Sin aval institucional.</p>
+</footer>
+</div>
+<script>
+(function(){
+/* ===== Modelo B14: generador de ritmos + hemodinámica latido a latido ===== */
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function rnd(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var TT=26, TW=14; /* duración simulada y comienzo de la ventana de medición (s) */
+var DEF={rhy:'sinus',hr:70,pr:160,stiff:1,con:1,rvs:1,pre:12,ratio:2,pvcN:2,pvcC:55,avd:150,site:'apical',retro:false,esc:'junc',ia:null};
+var RH={
+ sinus:{n:'Ritmo sinusal',lo:40,hi:180,def:70,lab:'Frecuencia sinusal',ctl:['pr']},
+ tsv:{n:'Taquicardia supraventricular por reentrada',lo:120,hi:220,def:170,lab:'Frecuencia ventricular',ctl:[]},
+ pvc:{n:'Extrasístoles ventriculares',lo:50,hi:110,def:70,lab:'Frecuencia sinusal',ctl:['pvc']},
+ flutter:{n:'Flúter auricular',lo:0,hi:0,def:0,lab:'',ctl:['ratio']},
+ af:{n:'Fibrilación auricular',lo:50,hi:180,def:75,lab:'Frecuencia ventricular media',ctl:[]},
+ vt:{n:'Taquicardia ventricular',lo:110,hi:220,def:170,lab:'Frecuencia ventricular',ctl:['retro']},
+ av1:{n:'Bloqueo AV de 1.er grado',lo:50,hi:110,def:70,lab:'Frecuencia sinusal',ctl:['pr']},
+ wen:{n:'Bloqueo AV Mobitz I (Wenckebach 4:3)',lo:55,hi:110,def:80,lab:'Frecuencia sinusal',ctl:[]},
+ mob2:{n:'Bloqueo AV Mobitz II (conducción fija)',lo:55,hi:110,def:80,lab:'Frecuencia sinusal',ctl:['ratio']},
+ avc:{n:'Bloqueo AV completo con ritmo de escape',lo:25,hi:60,def:45,lab:'Frecuencia del escape',ctl:['esc']},
+ vvi_avc:{n:'Marcapasos VVI en bloqueo AV completo',lo:40,hi:110,def:70,lab:'Frecuencia del marcapasos',ctl:['site']},
+ ddd_avc:{n:'Marcapasos DDD en bloqueo AV completo',lo:50,hi:110,def:78,lab:'Frecuencia sinusal (seguida por el marcapasos)',ctl:['avd','site']},
+ vvi_sn:{n:'Marcapasos VVI a 70 con nodo sinusal intacto',lo:45,hi:95,def:62,lab:'Frecuencia sinusal propia',ctl:['retro','site']}
+};
+function gauss(r){var u=Math.max(1e-9,r()),v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+/* Eventos: A = contracciones auriculares {t (inicio mecánico), k:'S' sinusal,'F' flúter,'R' retrógrada, p:inicio de P};
+   V = activaciones ventriculares {t, o:'S' conducido,'F' FA,'V' ventricular,'J' unión,'P' estimulado} */
+function gen(c,T){
+ T=T||TT;var A=[],V=[],rr=60/Math.max(c.hr||70,20),pr=Math.min(c.pr/1000*(rr<.857?clamp(Math.sqrt(rr/.857),.7,1):1),rr*.7),r=rnd(7),t,i,k;
+ function vb(t,o){if(t<T)V.push({t:t,o:o})}
+ function sP(t,pp){A.push({t:t+.04,k:'S',p:t})}
+ switch(c.rhy){
+ case 'sinus':case 'av1':for(t=.4;t<T;t+=rr){sP(t);vb(t+pr,'S')}break;
+ case 'tsv':rr=60/c.hr;for(t=.4;t<T;t+=rr){vb(t,'S');A.push({t:t+.09,k:'R',p:t+.07})}break;
+ case 'pvc':{var lastV=-9,lastPVC=-9,cnt=0;
+  for(t=.4;t<T;t+=rr){sP(t);var tc=t+pr;
+   if(t-lastPVC>.45&&tc-lastV>.35){vb(tc,'S');lastV=tc;cnt++;
+    if(cnt>=c.pvcN){cnt=0;var tp=tc+c.pvcC/100*rr;vb(tp,'V');lastPVC=tp;lastV=tp}}}
+  break}
+ case 'flutter':for(t=.4;t<T;t+=.2)A.push({t:t,k:'F',p:t});
+  for(t=.5;t<T;t+=.2*c.ratio)vb(t,'S');break;
+ case 'af':{t=.4;while(t<T){vb(t,'F');t+=Math.max(.3,rr*(1+.30*gauss(r)))}break}
+ case 'vt':rr=60/c.hr;for(t=.4;t<T;t+=rr){vb(t,'V');if(c.retro)A.push({t:t+.1,k:'R',p:t+.08})}
+  if(!c.retro)for(t=.3;t<T;t+=.77)sP(t);break;
+ case 'wen':{var seq=[.16,.24,.32,null];i=0;for(t=.4;t<T;t+=rr){sP(t);var q=seq[i%4];i++;if(q!==null)vb(t+q,'S')}break}
+ case 'mob2':i=0;for(t=.4;t<T;t+=rr){sP(t);if(i%c.ratio===0)vb(t+.16,'S');i++}break;
+ case 'avc':for(t=.3;t<T;t+=.77)sP(t);for(t=.55;t<T;t+=60/c.hr)vb(t,c.esc==='vent'?'V':'J');break;
+ case 'vvi_avc':for(t=.3;t<T;t+=.77)sP(t);for(t=.55;t<T;t+=60/c.hr)vb(t,'P');break;
+ case 'ddd_avc':for(t=.4;t<T;t+=rr){sP(t);vb(t+.04+c.avd/1000,'P')}break;
+ case 'vvi_sn':{var Ps=[];for(t=.4;t<T;t+=rr){sP(t);Ps.push(t)}
+  var lv=.1,pi=0,pace=60/70,cur=lv;
+  while(true){var pt=lv+pace,tcand=null;
+   while(pi<Ps.length&&Ps[pi]+pr<=lv+.42)pi++;
+   if(pi<Ps.length)tcand=Ps[pi]+pr;
+   if(tcand!==null&&tcand<pt){if(tcand>=T)break;vb(tcand,'S');lv=tcand;pi++}
+   else{if(pt>=T)break;vb(pt,'P');lv=pt;if(c.retro)A.push({t:pt+.12,k:'R',p:pt+.1})}}
+  break}
+ }
+ A.sort(function(a,b){return a.t-b.t});V.sort(function(a,b){return a.t-b.t});
+ return{A:A,V:V}}
+
+function rest(x){return x>.2?1-.6*Math.exp(-(x-.2)/.22):.4}
+function gfun(av){var rise=clamp((av-.03)/.07,0,1);rise=rise*rise*(3-2*rise);var fall=av<=.22?1:Math.max(.35,1-(av-.22)/.3*.65);return rise*fall}
+var PALP=20,C0=1.4,R0=1.08,PV=5,V0=10,KICK=12,CAF=1.5,EES=3.2;
+function hemo(c,ev){
+ var dt=.002,N=Math.round(TT/dt),Pa=new Float32Array(Math.ceil(N/2)),
+  st=c.stiff,C=C0,R=R0*c.rvs,Va=90*C,ESVp=52,beats=[],ejs=[],bal=[],bi=0,V=ev.V,A=ev.A,rrs=[.857,.857,.857,.857],ia=c.ia,Vb=ia&&ia.on?30:0;
+ function Vbal(t){var s=0;for(var i=0;i<bal.length;i++){var b=bal[i];if(t>b.ti-.02&&t<b.td+.02)s+=Math.min(1,Math.max(0,(t-b.ti)/.02+0))*Math.min(1,Math.max(0,(b.td-t)/.02+0))}return Math.min(1,s)*Vb}
+ var dysSite=c.site==='biv'?.97:.88;
+ function proc(b){
+  var prev=beats.length?beats[beats.length-1]:null,RRp=prev?b.t-prev.t:.857;
+  var avgPrev=(rrs[0]+rrs[1]+rrs[2]+rrs[3])/4;
+  var sysEnd=prev?prev.sysEnd:b.t-.55,Td=Math.max(.02,b.t-sysEnd);
+  var kA=null;for(var i=0;i<A.length;i++){if(A[i].t>sysEnd&&A[i].t<b.t)kA=A[i];if(A[i].t>=b.t)break}
+  var av=kA?b.t-kA.t:0,eff=kA?(kA.k==='F'?.35:1):0,kick=KICK*Math.pow(st,.55)*eff*(kA?gfun(av):0);
+  var Vcap=115.1*(1+.035*(c.pre-12))*Math.pow(st,-.35),tau=.25*Math.pow(st,.3);var ffr0=clamp(1+.08*(1/((rrs[0]+rrs[1]+rrs[2]+rrs[3])/4)-70/60),.9,1.3);tau/=ffr0;
+  var EDV=Vcap-(Vcap-ESVp)*Math.exp(-Td/tau)+kick,fill=EDV-kick-ESVp+kick;
+  var rf=rest(RRp)/rest(avgPrev),pot=RRp>avgPrev?1+.3*(1-Math.exp(-(RRp-avgPrev)/.3)):1,
+   ffr=clamp(1+.08*(1/avgPrev-70/60),.9,1.3);
+  var dys=(b.o==='P')?dysSite:(b.o==='V'?.85:1);
+  var Ees=EES*c.con*ffr*rf*pot*dys,Tej=.29*Math.pow(clamp(RRp,.3,1.2)/.857,.6),tAO=b.t+.04,tAC=tAO+Tej,sysE=tAC+.05;
+  var pen=0,Pon=(Va+Vbal(b.t))/C;
+  if(ia&&ia.on){var tI,avgNow=(rrs[1]+rrs[2]+rrs[3]+RRp)/4;
+   tI=ia.trig==='pres'?tAC+ia.inf/1000:tAO+.29*Math.pow(clamp(avgNow,.3,1.2)/.857,.6)+ia.inf/1000;
+   var tD=b.t+avgNow-ia.def/1000;
+   if(tD>tI+.05){bal.push({ti:tI,td:tD});
+    var ov=Math.max(0,Math.min(tAC,tD)-Math.max(tAO,tI))/Tej;pen+=Vb/C*ov}}
+  var Ca=C*CAF,ESV=(Ees*V0+Pon+pen+EDV/Ca)/(Ees+1/Ca),VS=EDV-ESV;
+  if(VS<3){VS=0;ESV=EDV}
+  var cn=0,dn=0;for(i=0;i<A.length;i++){var a=A[i];if(a.t>sysE)break;if(a.t>=b.t-.03&&(a.k==='S'||a.k==='R'))cn++}
+  var be={t:b.t,o:b.o,EDV:EDV,ESV:ESV,VS:VS,kick:kick,fill:Math.max(1,EDV-ESVp),Td:Td,Pon:Pon,tAO:tAO,tAC:tAC,sysEnd:sysE,cannon:cn,Ees:Ees,RRp:RRp,pen:pen,psys:0,tEndAC:0};
+  beats.push(be);ejs.push({t0:tAO,d:Tej,vs:VS});ESVp=ESV;rrs.shift();rrs.push(RRp)}
+ for(var n=0;n<N;n++){var t=n*dt;
+  while(bi<V.length&&V[bi].t<=t){proc(V[bi]);bi++}
+  var q=0;for(var j=ejs.length-1;j>=0&&j>ejs.length-4;j--){var e=ejs[j];if(t>=e.t0&&t<e.t0+e.d)q+=e.vs*Math.PI/(2*e.d)*Math.sin(Math.PI*(t-e.t0)/e.d)}
+  var Pt=(Va+Vbal(t))/C;Va+=(q-(Pt-PV)/R)*dt;
+  if(n%2===0)Pa[n/2]=Pt}
+ /* presión sistólica de cada latido y aumento diastólico */
+ for(var i2=0;i2<beats.length;i2++){var b=beats[i2],nx=i2+1<beats.length?beats[i2+1].t:TT,m=0,md=0,i0=Math.round(b.tAO/.004),i1=Math.round(b.tAC/.004)+3,id1=Math.round(nx/.004);
+  for(var k=i0;k<=i1&&k<Pa.length;k++)m=Math.max(m,Pa[k]);
+  for(k=i1;k<id1&&k<Pa.length;k++)md=Math.max(md,Pa[k]);
+  b.psys=m;b.pdm=md;b.pend=Pa[Math.min(Pa.length-1,Math.max(0,id1-1))]}
+ return{Pa:Pa,beats:beats,bal:bal}}
+
+/* presión auricular derecha: onda a normal, A en cañón, v */
+function atrialP(t,c,ev,hm){
+ var p=.35*c.pre,i;
+ for(i=0;i<ev.A.length;i++){var a=ev.A[i];if(Math.abs(t-a.t)>.3)continue;
+  var amp=a.k==='F'?2:(a.cn?15+4*(c.stiff-1):4+1.5*c.stiff);
+  p+=amp*Math.exp(-Math.pow((t-a.t-.02)/.035,2))}
+ for(i=0;i<hm.beats.length;i++){var b=hm.beats[i];if(Math.abs(t-b.sysEnd)<.3)p+=3*Math.exp(-Math.pow((t-b.sysEnd+.03)/.06,2));
+  if(Math.abs(t-b.t-.07)<.2)p-=1.5*Math.exp(-Math.pow((t-b.t-.12)/.07,2))}
+ return p}
+function markCannon(ev,hm){
+ /* un evento auricular sinusal o retrógrado en [t-0.03, fin de sístole] es una A en cañón */
+ ev.A.forEach(function(a){a.cn=false});
+ hm.beats.forEach(function(b){ev.A.forEach(function(a){if((a.k==='S'||a.k==='R')&&a.t>=b.t-.03&&a.t<=b.sysEnd)a.cn=true})})}
+
+function run(c0){
+ var c=Object.assign({},DEF,c0||{});var ev=gen(c),hm=hemo(c,ev);markCannon(ev,hm);return metrics(c,ev,hm)}
+function metrics(c,ev,hm){
+ var bs=hm.beats.filter(function(b){return b.t>=TW}),dur=TT-TW,sv=0,sp=0,sd=0,mn=1e9,mx=0,palp=0,kk=0,kn=0,cn=0,ca=0,sq=0,ts=0,wide=0;
+ bs.forEach(function(b){sv+=b.VS;sp+=b.psys;sd+=b.Pon;mn=Math.min(mn,b.VS);mx=Math.max(mx,b.VS);if(b.VS>=PALP)palp++;kk+=b.kick/b.fill;kn++;ts+=b.Td;if(b.o==='V'||b.o==='P')wide++});
+ var m=sv/Math.max(1,bs.length);bs.forEach(function(b){sq+=Math.pow(b.VS-m,2)});
+ var at=ev.A.filter(function(a){return a.t>=TW&&(a.k==='S'||a.k==='R')});
+ at.forEach(function(a){if(a.cn)cn++});
+ var i0=Math.round(TW/.004),s=0,n=0;for(var i=i0;i<hm.Pa.length;i++){s+=hm.Pa[i];n++}
+ var pad=0,np=0;for(var t=TW;t<TT;t+=.02){pad+=atrialP(t,c,ev,hm);np++}
+ var hrv=bs.length/dur*60;
+ return{c:c,ev:ev,hm:hm,GC:sv/dur/1000*60,HR:hrv,VS:m,VSmin:mn,VSmax:mx,VScv:Math.sqrt(sq/Math.max(1,bs.length))/Math.max(1,m),
+  PAM:s/n,PAS:sp/Math.max(1,bs.length),PAD_:sd/Math.max(1,bs.length),PADm:pad/np,kick:bs.length?kk/kn*100:0,
+  cannon:at.length?cn/at.length*100:0,cannonN:cn,def:Math.max(0,(bs.length-palp)/dur*60),palp:palp,Td:ts/Math.max(1,bs.length)*1000,
+  wide:wide/Math.max(1,bs.length),nb:bs.length}}
+var REFC={};
+function ref(c){var k=[c.stiff,c.con,c.rvs,c.pre].join('|');if(!REFC[k])REFC[k]=run({rhy:'sinus',hr:70,stiff:c.stiff,con:c.con,rvs:c.rvs,pre:c.pre});return REFC[k]}
+/* ===== Interfaz B14 ===== */
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function cw(c){return Math.max(280,Math.min(940,Math.floor(c.parentElement.clientWidth-(c.parentElement.classList.contains('panel')?30:0))))}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function g(t,c,w){var x=(t-c)/w;return x*x>16?0:Math.exp(-x*x)}
+function esc(s){return s}
+
+/* ---------- ECG sintético ---------- */
+function ecgAt(t,R){
+ var v=0,V=R.ev.V,A=R.ev.A,rhy=R.c.rhy,i;
+ for(i=0;i<V.length;i++){var b=V[i],d=t-b.t;if(d<-.05)break;if(d>.62)continue;
+  if(b.o==='V'||b.o==='P')v+=1.0*g(d,.075,.042)-.22*g(d,.15,.03)-.36*g(d,.31,.075);
+  else v+=-.1*g(d,.004,.006)+1.0*g(d,.017,.007)-.2*g(d,.032,.007)+.28*g(d,.26,.06)}
+ if(rhy==='flutter'){var ph=(((t-.4)%.2)+.2)%.2/.2;v+=.13*(1-2*ph)}
+ else if(rhy==='af'){v+=.03*(Math.sin(6.28*6.3*t)+.8*Math.sin(6.28*8.1*t+1)+.6*Math.sin(6.28*5.1*t+2.2))}
+ else for(i=0;i<A.length;i++){var a=A[i];if(Math.abs(t-a.t)>.1)continue;v+=(a.k==='R'?-.1:.12)*g(t,a.t+.003,.022)}
+ return v}
+function fvAt(t){return .35*(Math.sin(6.28*4.1*t)+.8*Math.sin(6.28*5.7*t+1.3)+.6*Math.sin(6.28*3.2*t+.4))*(1+.4*Math.sin(6.28*.7*t))}
+
+/* ---------- dibujo de trazos hemodinámicos ---------- */
+var LANES={ecg:'ECG',pa:'Presión arterial',pad:'Pulso auricular derecho',vs:'Volumen sistólico por latido'};
+function drawTrace(cv,R,o){
+ o=o||{};var W=cw(cv),small=W<520,lanes=o.lanes||['ecg','pa','pad','vs'],H={ecg:small?58:70,pa:small?104:132,pad:small?56:66,vs:small?62:74};
+ if(o.hideEcg)lanes=lanes.filter(function(k){return k!=='ecg'});
+ var gap=6,tot=lanes.reduce(function(a,k){return a+H[k]+gap},0)+16,x=fit(cv,W,tot),X0=34,Wp=W-X0-8,t1=TT,t0=TT-(o.span||6);
+ function px(t){return X0+(t-t0)/(t1-t0)*Wp}
+ x.clearRect(0,0,W,tot);var y=2,c=R.c,hm=R.hm,ev=R.ev,col={ecg:css('--fg'),pa:css('--blood'),pad:css('--guess'),vs:css('--vec')};
+ x.font='10px '+css('--font-mono');
+ lanes.forEach(function(k){
+  var h=H[k],yy=y;x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(X0+.5,yy+.5,Wp,h);
+  x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='top';x.fillText(LANES[k],X0+4,yy+2);
+  function ly(v,lo,hi){return yy+h-(Math.max(lo,Math.min(hi,v))-lo)/(hi-lo)*h}
+  if(k==='ecg'){x.strokeStyle=col.ecg;x.lineWidth=1.6;x.beginPath();for(var i=0;i<=Wp;i++){var t=t0+i/Wp*(t1-t0),e=o.fv?fvAt(t):ecgAt(t,R),yv=yy+h*.68-e*h*.5;i?x.lineTo(X0+i,yv):x.moveTo(X0+i,yv)}x.stroke();
+   hm.beats.forEach(function(b){if(b.o==='P'&&b.t>t0&&b.t<t1){x.strokeStyle=css('--bad');x.lineWidth=1.3;x.beginPath();x.moveTo(px(b.t-.004),yy+h*.15);x.lineTo(px(b.t-.004),yy+h*.8);x.stroke()}})}
+  if(k==='pa'){var lo=40,hi=o.hi||160;x.fillStyle=css('--muted');x.textAlign='right';x.textBaseline='middle';
+   [60,100,140].forEach(function(v){var y2=ly(v,lo,hi);x.strokeStyle=css('--line');x.beginPath();x.moveTo(X0,y2);x.lineTo(X0+Wp,y2);x.stroke();x.fillText(v,X0-4,y2)});
+   if(hm.bal&&c.ia&&c.ia.on){x.fillStyle=css('--vecSoft');hm.bal.forEach(function(b){var a=Math.max(t0,b.ti),z=Math.min(t1,b.td);if(z>a)x.fillRect(px(a),yy+1,px(z)-px(a),h-2)})}
+   x.strokeStyle=col.pa;x.lineWidth=2;x.beginPath();var f=true;
+   for(var n=Math.floor(t0/.004);n<=Math.floor(t1/.004)&&n<hm.Pa.length;n++){var tt=n*.004,v=hm.Pa[n];
+    hm.beats.forEach(function(b){});
+    var yv2=ly(v,lo,hi);f?x.moveTo(px(tt),yv2):x.lineTo(px(tt),yv2);f=false}x.stroke();
+   if(R.PAM){x.strokeStyle=col.pa;x.globalAlpha=.55;x.setLineDash([4,4]);var ym=ly(R.PAM,lo,hi);x.beginPath();x.moveTo(X0,ym);x.lineTo(X0+Wp,ym);x.stroke();x.setLineDash([]);x.globalAlpha=1;
+    x.fillStyle=col.pa;x.textAlign='right';x.textBaseline='bottom';x.fillText('PAM '+Math.round(R.PAM),X0+Wp-3,ym-1)}
+   x.fillStyle=css('--muted');x.textAlign='right';x.textBaseline='top';x.fillText('mmHg',X0-4,yy+2)}
+  if(k==='pad'){var lo2=0,hi2=24;x.strokeStyle=col.pad;x.lineWidth=1.8;x.beginPath();for(var j=0;j<=Wp;j+=1){var t3=t0+j/Wp*(t1-t0),pv=atrialP(t3,c,ev,hm),y3=ly(pv,lo2,hi2);j?x.lineTo(X0+j,y3):x.moveTo(X0+j,y3)}x.stroke();
+   x.font='700 11px '+css('--font-display');x.textAlign='center';x.textBaseline='bottom';
+   ev.A.forEach(function(a){if(a.t<t0+.05||a.t>t1-.05||a.k==='F')return;var pv2=atrialP(a.t+.02,c,ev,hm),y4=ly(pv2,lo2,hi2)-2;x.fillStyle=a.cn?css('--bad'):css('--guess');x.fillText(a.cn?'A':'a',px(a.t+.02),Math.max(yy+22,y4))});
+   x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='right';x.textBaseline='top';x.fillText('A roja = en cañón',X0+Wp-3,yy+2)}
+  if(k==='vs'){var hi3=110,rv=o.refVS||ref(c).VS,yr=ly(rv,0,hi3);x.strokeStyle=css('--muted');x.setLineDash([3,4]);x.beginPath();x.moveTo(X0,yr);x.lineTo(X0+Wp,yr);x.stroke();x.setLineDash([]);
+   x.textAlign='left';x.textBaseline='bottom';x.fillStyle=css('--muted');x.fillText('reposo '+Math.round(rv)+' mL',X0+90,yr-1);
+   var lastX=-99;hm.beats.forEach(function(b){if(b.t<t0||b.t>t1)return;var bx=px(b.tAO),bw=Math.max(5,Math.min(18,px(b.tAC)-px(b.tAO)+4)),bh=b.VS/hi3*h,r=b.VS/rv;
+    x.fillStyle=r>=.75?col.vs:(r>=.4?css('--guess'):css('--bad'));x.fillRect(bx,yy+h-bh,bw,Math.max(1,bh));
+    if(b.VS<1){x.fillStyle=css('--bad');x.fillRect(bx,yy+h-3,bw,3)}
+    if(bx-lastX>24){x.fillStyle=css('--fg');x.textAlign='center';x.textBaseline='bottom';x.font='600 10px '+css('--font-mono');x.fillText(Math.round(b.VS),bx+bw/2,yy+h-bh-1);lastX=bx}});
+   x.font='10px '+css('--font-mono')}
+  y+=h+gap});
+ x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';
+ for(var s=Math.ceil(t0);s<=t1;s++){var xs=px(s);x.strokeStyle=css('--line');x.beginPath();x.moveTo(xs,y-gap);x.lineTo(xs,y-gap+4);x.stroke();x.fillText((s-Math.ceil(t0))+' s',xs,y-gap+4)}
+}
+
+/* ---------- banco de ritmos ---------- */
+var S=Object.assign({},DEF),RES=null;
+function readUI(){
+ S.rhy=$('rhy').value;S.hr=+$('hr').value;S.stiff=+$('stf').value;S.con=+$('con').value;S.rvs=+$('rvs').value;S.pre=+$('pre').value;
+ S.pr=+$('pr').value;S.ratio=+$('ratio').value;S.pvcN=+$('pvcN').value;S.pvcC=+$('pvcC').value;S.avd=+$('avd').value;S.site=$('site').value;S.esc=$('esc').value;S.retro=$('retro').checked}
+function writeUI(){
+ $('rhy').value=S.rhy;$('hr').value=S.hr;$('stf').value=S.stiff;$('con').value=S.con;$('rvs').value=S.rvs;$('pre').value=S.pre;
+ $('pr').value=S.pr;$('ratio').value=S.ratio;$('pvcN').value=S.pvcN;$('pvcC').value=S.pvcC;$('avd').value=S.avd;$('site').value=S.site;$('esc').value=S.esc;$('retro').checked=S.retro;layoutCtl()}
+function layoutCtl(){
+ var h=RH[S.rhy],hrw=$('hrW');hrw.hidden=!h.lo;
+ if(h.lo){$('hr').min=h.lo;$('hr').max=h.hi;$('hrL').textContent=h.lab}
+ var show=h.ctl;document.querySelectorAll('#ctx [data-c]').forEach(function(e){e.hidden=show.indexOf(e.getAttribute('data-c'))<0});
+ var notes={sinus:'Con el PR largo y el ritmo rápido, la aurícula se contrae cuando la válvula AV todavía está cerrada. Con ritmo rápido el PR se acorta solo.',tsv:'Cada latido arrastra una activación auricular retrógrada casi simultánea: la aurícula se contrae contra la válvula cerrada.',
+  pvc:'La extrasístole llega antes de que el ventrículo se llene; el latido siguiente al descanso largo llena más y se contrae con más fuerza.',flutter:'Flúter: ondas auriculares a 300 por minuto, la aurícula casi no aporta; el ventrículo sigue una de cada 2, 3 o 4.',
+  af:'Sin contracción auricular efectiva; el intervalo RR cambia latido a latido y el volumen sistólico lo sigue.',vt:'QRS ancho y regular; las aurículas siguen su propio ritmo (disociación) salvo que la activación retrógrada las capture.',
+  av1:'Todas las P conducen, pero tarde: la aurícula se contrae antes y su aporte se desaprovecha en parte.',wen:'El PR se alarga latido a latido hasta que una P no conduce; la pausa deja un latido siguiente más lleno.',
+  mob2:'Una P conduce y las otras no; con 2 : 1 la frecuencia ventricular es la mitad de la sinusal.',avc:'Aurículas y ventrículos no se comunican: las P caen al azar, a veces en la sístole (onda A en cañón).',
+  vvi_avc:'El marcapasos asegura la frecuencia, pero no sabe cuándo se contrae la aurícula.',ddd_avc:'El marcapasos sigue a la aurícula y dispara el ventrículo después del retraso AV que programes.',vvi_sn:'El marcapasos compite con el nodo sinusal sano; con conducción retrógrada la aurícula se contrae contra válvulas cerradas en cada latido (síndrome de marcapasos).'};
+ $('ctxNote').textContent=notes[S.rhy]||''}
+function compute(){RES=run(S)}
+function why(R){
+ var c=R.c,r=ref(c),h=[],d=(R.GC/r.GC-1)*100,gcTxt='Gasto cardiaco '+fmt(R.GC,1)+' L/min ('+(d>=0?'+':'')+Math.round(d)+' % respecto del ritmo sinusal de 70 lpm con esta misma rigidez, contractilidad y precarga: '+fmt(r.GC,1)+' L/min).';
+ if(R.HR>110)h.push('A '+Math.round(R.HR)+' lpm la diástole dura ≈ '+Math.round(R.Td)+' ms por latido y el ventrículo se llena menos (volumen sistólico '+Math.round(R.VS)+' mL, reposo '+Math.round(r.VS)+' mL).');
+ if(R.HR<55)h.push('A '+Math.round(R.HR)+' lpm cada latido es más grande ('+Math.round(R.VS)+' mL) pero no alcanza a compensar la frecuencia.');
+ var hasAtr=c.rhy!=='af'&&c.rhy!=='flutter';
+ if(c.rhy==='af')h.push('Sin aporte auricular: el ventrículo pierde ≈ '+Math.round(r.kick)+' % del llenado que tenía en ritmo sinusal'+(c.stiff>1.4?' y, al ser rígido, lo siente más':'')+'. El intervalo previo manda: los RR cortos dan volúmenes de '+Math.round(R.VSmin)+' mL y los largos de '+Math.round(R.VSmax)+' mL.');
+ else if(R.kick<r.kick*.6&&c.rhy!=='sinus')h.push('El aporte auricular baja a '+Math.round(R.kick)+' % del llenado (reposo '+Math.round(r.kick)+' %).');
+ if(R.cannon>20)h.push('Hay ondas A en cañón en '+Math.round(R.cannon)+' % de las contracciones auriculares: la aurícula se contrae con la válvula AV cerrada, la sangre refluye a las venas y la presión auricular media sube a '+fmt(R.PADm,1)+' mmHg (reposo '+fmt(r.PADm,1)+').');
+ if(R.VScv>.18&&R.VSmax-R.VSmin>20)h.push('El volumen sistólico va de '+Math.round(R.VSmin)+' a '+Math.round(R.VSmax)+' mL; ≈ '+Math.round(R.def)+' latidos por minuto no se palpan (déficit de pulso).');
+ if(R.wide>.3)h.push('Los complejos anchos activan el ventrículo de forma desincronizada y su contractilidad efectiva baja.');
+ if(c.rhy==='ddd_avc'&&(c.avd<70||c.avd>280))h.push('Un retraso AV de '+c.avd+' ms deja la contracción auricular demasiado cerca de la ventricular o demasiado temprana: el aporte queda en '+Math.round(R.kick)+' %.');
+ $('why').innerHTML='<b>'+gcTxt+'</b> '+h.join(' ')}
+function metrics_(R){
+ var r=ref(R.c),dgc=R.GC/r.GC;
+ $('met').innerHTML=chip('Gasto cardiaco',fmt(R.GC,1)+' L/min',dgc>.85?'ok':(dgc>.65?'wn':'no'),Math.round((dgc-1)*100)+' %')+
+  chip('FC ventricular',Math.round(R.HR)+' lpm','ok')+
+  chip('VS',Math.round(R.VS)+' mL','ok',Math.round(R.VSmin)+'–'+Math.round(R.VSmax))+
+  chip('PA',Math.round(R.PAS)+'/'+Math.round(R.PAD_),R.PAM>=70?'ok':(R.PAM>=60?'wn':'no'),'PAM '+Math.round(R.PAM))+
+  chip('PAD media',fmt(R.PADm,1)+' mmHg',R.PADm<7?'ok':'wn')+
+  chip('Aporte auricular',Math.round(R.kick)+' %',R.kick>8?'ok':'wn','del llenado')+
+  chip('A en cañón',Math.round(R.cannon)+' %',R.cannon<15?'ok':'no')+
+  chip('Déficit de pulso',Math.round(R.def)+'/min',R.def<5?'ok':'no')}
+function legend(){
+ $('legend').innerHTML='<span><i class="sw" style="background:var(--vec)"></i>VS ≥ 75 % del reposo</span><span><i class="sw" style="background:var(--guess)"></i>40–75 %</span><span><i class="sw" style="background:var(--bad)"></i>&lt; 40 %</span><span>raya roja en el ECG = espiga del marcapasos</span>'}
+function renderBank(){compute();metrics_(RES);why(RES);drawTrace($('tr'),RES,{})}
+function onRhy(){
+ var h=RH[S.rhy=$('rhy').value];S.hr=h.def||70;S.pr=S.rhy==='av1'?360:160;S.retro=S.rhy==='vt'?false:S.retro;
+ if(S.rhy==='mob2')S.ratio=2;if(S.rhy==='flutter')S.ratio=2;
+ if(S.rhy==='avc'){S.esc='junc';S.hr=45}
+ writeUI();bump();renderBank()}
+function bump(){['hr','stf','con','rvs','pre','pr','pvcC','avd'].forEach(function(id){var v=$(id).value;if(id==='stf')$('stV').textContent='×'+fmt(+v,1);if(id==='con')$('conV').textContent=fmt(+v,2);if(id==='rvs')$('rvsV').textContent=fmt(+v,2)+'×';if(id==='pre')$('preV').textContent=v+' mmHg';if(id==='hr')$('hrV').textContent=v+' lpm';if(id==='pr')$('prV').textContent=v+' ms';if(id==='pvcC')$('pvcCV').textContent=v+' % del RR';if(id==='avd')$('avdV').textContent=v+' ms'})}
+function applyCfg(c){S=Object.assign({},DEF,c);writeUI();bump();renderBank()}
+
+/* ---------- ejemplo trabajado y contraejemplo ---------- */
+function buildWorked(){
+ var rows=[['Ventrículo normal (×1)',1],['Ventrículo rígido (×2,5)',2.5]],h='<thead><tr><th>Ventrículo</th><th>GC sinusal 75</th><th>GC en FA 75</th><th>Pérdida</th><th>Aporte auricular (sinusal)</th></tr></thead><tbody>',out=[];
+ rows.forEach(function(r){var a=run({hr:75,stiff:r[1]}),b=run({rhy:'af',hr:75,stiff:r[1]});out.push([a,b]);
+  h+='<tr><td>'+r[0]+'</td><td class="n">'+fmt(a.GC,1)+'</td><td class="n">'+fmt(b.GC,1)+'</td><td class="n"><b>'+Math.round((b.GC/a.GC-1)*100)+' %</b></td><td class="n">'+Math.round(a.kick)+' %</td></tr>'});
+ $('wkT').innerHTML=h+'</tbody>';
+ $('wkChain').innerHTML='<li>La FA quita la contracción auricular organizada: se pierde el aporte que, por la rigidez, era de '+Math.round(out[1][0].kick)+' % del llenado en el ventrículo rígido y de '+Math.round(out[0][0].kick)+' % en el normal, <i>porque</i> una cámara poco distensible depende más del empujón final.</li>'+
+  '<li>El ventrículo rígido llena menos <i>porque</i> su presión sube rápido con poco volumen: la pérdida llega a '+Math.round(-(out[1][1].GC/out[1][0].GC-1)*100)+' % frente a '+Math.round(-(out[0][1].GC/out[0][0].GC-1)*100)+' %.</li>'+
+  '<li>Los RR irregulares hacen que el volumen sistólico oscile ('+Math.round(out[1][1].VSmin)+'–'+Math.round(out[1][1].VSmax)+' mL en el rígido), <i>porque</i> el llenado depende del intervalo previo y la contractilidad, de la restitución.</li>'+
+  '<li>Con volúmenes pequeños algunos latidos no se palpan: ≈ '+Math.round(out[1][1].def)+' por minuto de déficit de pulso.</li>'}
+function buildCounter(){
+ var k={stiff:1.5,con:.9,pre:12},cfgs=[['Taquicardia sinusal',{rhy:'sinus',hr:150}],['Taquicardia supraventricular',{rhy:'tsv',hr:150}],['Flúter 2 : 1',{rhy:'flutter',ratio:2}],['Fibrilación auricular',{rhy:'af',hr:150}],['Taquicardia ventricular',{rhy:'vt',hr:150}]],
+  h='<thead><tr><th>Ritmo a ≈ 150</th><th>GC</th><th>VS (mL)</th><th>PAM</th><th>PAD</th><th>A cañón</th></tr></thead><tbody>',res=[];
+ cfgs.forEach(function(c){var r=run(Object.assign({},k,c[1]));res.push(r);h+='<tr><td>'+c[0]+'</td><td class="n">'+fmt(r.GC,1)+'</td><td class="n">'+Math.round(r.VS)+'</td><td class="n">'+Math.round(r.PAM)+'</td><td class="n">'+fmt(r.PADm,1)+'</td><td class="n">'+Math.round(r.cannon)+' %</td></tr>'});
+ $('ctT').innerHTML=h+'</tbody>';
+ $('ctTxt').innerHTML='Con la misma frecuencia, el gasto va de '+fmt(Math.min.apply(null,res.map(function(r){return r.GC})),1)+' a '+fmt(Math.max.apply(null,res.map(function(r){return r.GC})),1)+' L/min. La taquicardia sinusal conserva la sincronía AV; la supraventricular y la ventricular la pierden y suben la presión auricular por las ondas A en cañón; la FA añade irregularidad. La frecuencia sola no explica el costo.'}
+
+/* ---------- retos ---------- */
+function argmax(a){var m=0;a.forEach(function(v,i){if(v>a[m])m=i});return m}
+var RETOS=[
+{lv:'intermedio',k:'ritmo, rigidez',obj:'6.109',q:'Un paciente tiene fibrilación auricular con respuesta ventricular de 75 lpm. Compara su gasto con el de ritmo sinusal a 75 lpm. ¿En qué ventrículo es mayor la pérdida?',
+ opts:['En el ventrículo normal','En el ventrículo rígido (rigidez ×2,5)','La pérdida es la misma'],
+ calc:function(){var a=run({hr:75}),b=run({rhy:'af',hr:75}),c=run({hr:75,stiff:2.5}),d=run({rhy:'af',hr:75,stiff:2.5}),p1=(b.GC/a.GC-1)*100,p2=(d.GC/c.GC-1)*100;
+  return{ok:Math.abs(p2)>Math.abs(p1)+3?1:2,rows:[['Normal: sinusal → FA',fmt(a.GC,1)+' → '+fmt(b.GC,1),Math.round(p1)+' %'],['Rígido: sinusal → FA',fmt(c.GC,1)+' → '+fmt(d.GC,1),Math.round(p2)+' %']],
+  txt:'El ventrículo rígido pierde '+Math.round(-p2)+' % y el normal '+Math.round(-p1)+' %. El aporte auricular era de '+Math.round(c.kick)+' % del llenado en el rígido y de '+Math.round(a.kick)+' % en el normal: cuanto menos distensible, más depende del empujón final. Además la FA añade irregularidad (VS de '+Math.round(d.VSmin)+' a '+Math.round(d.VSmax)+' mL en el rígido).',cfg:{rhy:'af',hr:75,stiff:2.5}}}},
+{lv:'intermedio',k:'dispositivo, retraso AV',obj:'6.111',q:'Bloqueo AV completo; el nodo sinusal late a 70 lpm. ¿Qué configuración da el mayor gasto cardiaco?',
+ opts:['Escape propio de la unión AV (≈ 45 lpm)','Marcapasos VVI a 70 lpm','Marcapasos DDD con retraso AV de 150 ms (sigue la aurícula a 70)'],
+ calc:function(){var a=run({rhy:'avc',hr:45}),b=run({rhy:'vvi_avc',hr:70}),c=run({rhy:'ddd_avc',hr:70,avd:150}),gs=[a.GC,b.GC,c.GC];
+  return{ok:argmax(gs),rows:[['Escape ≈ 45',fmt(a.GC,1)+' L/min','aporte aur. '+Math.round(a.kick)+' %, A cañón '+Math.round(a.cannon)+' %'],['VVI 70',fmt(b.GC,1)+' L/min','aporte aur. '+Math.round(b.kick)+' %, A cañón '+Math.round(b.cannon)+' %'],['DDD 70, AV 150',fmt(c.GC,1)+' L/min','aporte aur. '+Math.round(c.kick)+' %, A cañón '+Math.round(c.cannon)+' %']],
+  txt:'El VVI sube la frecuencia (GC '+fmt(b.GC,1)+' contra '+fmt(a.GC,1)+' del escape) pero no sabe cuándo se contrae la aurícula: A en cañón en '+Math.round(b.cannon)+' % de los latidos. El DDD las sincroniza con el retraso de 150 ms y llega a '+fmt(c.GC,1)+' L/min.',cfg:{rhy:'ddd_avc',hr:70,avd:150}}}},
+{lv:'básico',k:'ritmo (extrasístoles)',obj:'6.109',q:'En un paciente con extrasístoles ventriculares esporádicas, ¿qué latido tiene el mayor volumen sistólico?',
+ opts:['La extrasístole','El latido normal previo a la extrasístole','El primer latido normal después de la pausa compensadora'],
+ calc:function(){var R=run({rhy:'pvc',pvcN:5,pvcC:55}),bs=R.hm.beats.filter(function(b){return b.t>=TW}),pre=[],ect=[],post=[];
+  for(var i=1;i<bs.length;i++){if(bs[i].o==='V'){ect.push(bs[i].VS);if(bs[i-1].o==='S')pre.push(bs[i-1].VS);if(bs[i+1])post.push(bs[i+1].VS)}}
+  var av=function(a){return a.reduce(function(s,v){return s+v},0)/Math.max(1,a.length)},m=[av(ect),av(pre),av(post)];
+  return{ok:argmax(m),rows:[['Extrasístole',Math.round(m[0])+' mL','no se palpa'],['Normal previo',Math.round(m[1])+' mL',''],['Normal tras la pausa',Math.round(m[2])+' mL','pulso fuerte']],
+  txt:'La extrasístole llega con el ventrículo casi sin llenar ('+Math.round(m[0])+' mL), el latido previo es de '+Math.round(m[1])+' mL y el que sigue a la pausa compensadora llega a '+Math.round(m[2])+' mL: llena más tiempo y además se contrae con más fuerza (potenciación postextrasistólica).',cfg:{rhy:'pvc',pvcN:5,pvcC:55}}}},
+{lv:'avanzado',k:'ritmo (TV vs sinusal)',obj:'6.109–6.110',q:'En un corazón con rigidez ×1,5 y contractilidad 0,9, ¿qué tolera peor a 170 lpm?',
+ opts:['Taquicardia sinusal','Taquicardia ventricular con disociación AV','Se toleran igual: lo que cuenta es la frecuencia'],
+ calc:function(){var k={stiff:1.5,con:.9},a=run(Object.assign({rhy:'sinus',hr:170},k)),b=run(Object.assign({rhy:'vt',hr:170},k));
+  return{ok:b.GC<a.GC-.3?1:2,rows:[['Sinusal 170',fmt(a.GC,1)+' L/min','VS '+Math.round(a.VS)+' mL, PAM '+Math.round(a.PAM)],['TV 170',fmt(b.GC,1)+' L/min','VS '+Math.round(b.VS)+' mL, PAM '+Math.round(b.PAM)+', A cañón '+Math.round(b.cannon)+' %']],
+  txt:'A igual frecuencia la TV baja el gasto a '+fmt(b.GC,1)+' L/min contra '+fmt(a.GC,1)+' de la sinusal: pierde el aporte auricular ('+Math.round(a.kick)+' % → '+Math.round(b.kick)+' %), activa el ventrículo con QRS ancho y suma ondas A en cañón.',cfg:{rhy:'vt',hr:170,stiff:1.5,con:.9}}}},
+{lv:'avanzado',k:'dispositivo, conducción retrógrada',obj:'6.111',q:'Marcapasos VVI a 70 lpm en un paciente con nodo sinusal sano a 62 lpm y conducción retrógrada. Respecto al ritmo sinusal normal, ¿qué esperas?',
+ opts:['Presión auricular media más alta y menor gasto','Presión auricular media más baja y mayor gasto','Sin cambios: el marcapasos asegura la frecuencia'],
+ calc:function(){var a=run({}),b=run({rhy:'vvi_sn',hr:62,retro:true}),ok=(b.PADm>a.PADm+.5&&b.GC<a.GC-.2)?0:2;
+  return{ok:ok,rows:[['Sinusal 70',fmt(a.GC,1)+' L/min','PAD '+fmt(a.PADm,1)],['VVI + retrógrada',fmt(b.GC,1)+' L/min','PAD '+fmt(b.PADm,1)+', A cañón '+Math.round(b.cannon)+' %']],
+  txt:'El síndrome de marcapasos del modelo: GC '+fmt(b.GC,1)+' contra '+fmt(a.GC,1)+' y presión auricular media '+fmt(b.PADm,1)+' contra '+fmt(a.PADm,1)+' mmHg, <i>porque</i> la aurícula se contrae contra válvulas cerradas ('+Math.round(b.cannon)+' % de las veces).',cfg:{rhy:'vvi_sn',hr:62,retro:true}}}},
+{lv:'avanzado',k:'sitio de estimulación',obj:'6.111',q:'Bloqueo AV completo con marcapasos DDD a 70 lpm y retraso AV de 150 ms. Pasas de estimular el ápex del VD a estimular los dos ventrículos. ¿Qué cambia en el modelo?',
+ opts:['El gasto sube de forma modesta; la sincronía AV ya estaba','El gasto no cambia: solo importa la frecuencia y la sincronía AV','El gasto sube mucho, más que al pasar de VVI a DDD'],
+ calc:function(){var a=run({rhy:'ddd_avc',hr:70,avd:150,site:'apical'}),b=run({rhy:'ddd_avc',hr:70,avd:150,site:'biv'}),v=run({rhy:'vvi_avc',hr:70,site:'apical'}),d=(b.GC/a.GC-1)*100,d2=(a.GC/v.GC-1)*100;
+  return{ok:(d>1&&d<Math.abs(d2))?0:(d<1?1:2),rows:[['DDD apical',fmt(a.GC,2)+' L/min','VS '+fmt(a.VS,1)],['DDD biventricular',fmt(b.GC,2)+' L/min','VS '+fmt(b.VS,1)],['VVI apical (referencia)',fmt(v.GC,2)+' L/min','']],
+  txt:'La resincronización eleva el gasto '+fmt(d,1)+' % (la desincronía del ápex del VD resta eficacia de contracción), menos que el '+fmt(d2,1)+' % que ganó la sincronía AV al pasar de VVI a DDD. En la clínica el beneficio de la resincronización depende además del QRS y de la insuficiencia cardiaca (VERIFICAR).',cfg:{rhy:'ddd_avc',hr:70,avd:150,site:'biv'}}}}
+];
+var rq=0,cal={baja:[0,0],media:[0,0],alta:[0,0]},answered=false;
+function showReto(){var r=RETOS[rq];answered=false;$('qNo').textContent='Reto '+(rq+1)+' de '+RETOS.length;$('qTag').innerHTML='<span>nivel '+r.lv+'</span><span>perillas: '+r.k+'</span><span>objetivo '+r.obj+'</span>';
+ $('qText').textContent=r.q;$('qOpts').innerHTML=r.opts.map(function(o,i){return '<label class="opt"><input type="radio" name="qo" value="'+i+'"> <span>'+o+'</span></label>'}).join('');$('qFb').innerHTML='';$('qTbW').hidden=true}
+function checkReto(){
+ var sel=document.querySelector('input[name=qo]:checked');if(!sel){$('qFb').textContent='Elige una respuesta primero.';return}
+ var r=RETOS[rq],o=r.calc(),conf=document.querySelector('input[name=conf]:checked').value,ok=+sel.value===o.ok;
+ if(!answered){cal[conf][1]++;if(ok)cal[conf][0]++;answered=true}
+ applyCfg(o.cfg);
+ $('qFb').innerHTML='<b class="'+(ok?'ok':'no')+'">'+(ok?'Correcto.':'No coincide con el modelo.')+'</b> Lo esperado: «'+r.opts[o.ok]+'». '+o.txt+(ok&&conf==='baja'?' Acertaste con confianza baja: ya tenías la intuición.':'')+(!ok&&conf==='alta'?' Acierto esperado con confianza alta no se dio: revisa el eslabón de la cadena que supusiste.':'');
+ $('qTb').innerHTML='<tbody>'+o.rows.map(function(x){return '<tr><td>'+x[0]+'</td><td class="n">'+x[1]+'</td><td>'+x[2]+'</td></tr>'}).join('')+'</tbody>';$('qTbW').hidden=false;
+ $('qCal').textContent='Calibración: confianza alta '+cal.alta[0]+'/'+cal.alta[1]+', media '+cal.media[0]+'/'+cal.media[1]+', baja '+cal.baja[0]+'/'+cal.baja[1]+'.'}
+
+/* ---------- desfibrilación / cardioversión ---------- */
+var SH={mode:'unsync',done:null};
+var SHK={fv:{n:'fibrilación ventricular',org:false,pulse:false},vtnp:{n:'taquicardia ventricular sin pulso',org:true,pulse:false,cfg:{rhy:'vt',hr:210}},vtp:{n:'taquicardia ventricular con pulso',org:true,pulse:true,cfg:{rhy:'vt',hr:170}},
+ af:{n:'fibrilación auricular rápida',org:true,pulse:true,cfg:{rhy:'af',hr:140}},flt:{n:'flúter 2 : 1',org:true,pulse:true,cfg:{rhy:'flutter',ratio:2}},stach:{n:'taquicardia sinusal',org:true,pulse:true,cfg:{rhy:'sinus',hr:150}}};
+function shockBase(){var k=$('shK').value,d=SHK[k],obj={k:k};
+ if(!d.org){obj.fv=true;obj.V=[];return obj}
+ var c=Object.assign({},DEF,d.cfg),ev=gen(c,9);obj.R={c:c,ev:ev};obj.V=ev.V;return obj}
+function vulnWin(b){return b.o==='V'?[b.t+.22,b.t+.36]:[b.t+.19,b.t+.32]}
+function shockTime(base){
+ if(base.fv)return 1.6;
+ var V=base.V,k=0;while(k<V.length-2&&V[k].t<1.0)k++;
+ if(SH.mode==='sync')return V[k].t+.02;
+ var ph=+$('shP').value/100;return V[k].t+ph*(V[k+1].t-V[k].t)}
+function whereIs(base,t){if(base.fv)return 'fibrilación: no hay ciclo';for(var i=0;i<base.V.length;i++){var b=base.V[i];if(t>=b.t-.01&&t<=b.t+.09)return 'en el QRS';var w=vulnWin(b);if(t>=w[0]&&t<=w[1])return 'en el periodo vulnerable (T)'}return 'en otra parte del ciclo'}
+var AFTER=null;
+function drawShock(){
+ var cv=$('shc'),W=cw(cv),H=W<520?130:160,x=fit(cv,W,H),base=shockBase(),tS=shockTime(base),T0=0,T1=6,X0=8,Wp=W-16;
+ function px(t){return X0+(t-T0)/(T1-T0)*Wp}
+ x.clearRect(0,0,W,H);x.fillStyle=css('--panel');
+ /* ventanas vulnerables */
+ if(!base.fv){x.fillStyle=css('--guessSoft');base.V.forEach(function(b){var w=vulnWin(b);if(w[1]>T0&&w[0]<T1)x.fillRect(px(w[0]),2,px(w[1])-px(w[0]),H-4)})}
+ var pause=.9,sinR={c:{rhy:'sinus'},ev:gen({rhy:'sinus',hr:72,pr:160},9)};
+ var out=AFTER,fn=function(t){
+  if(t<tS)return base.fv?fvAt(t):ecgAt(t,base.R);
+  if(!out)return base.fv?fvAt(t):ecgAt(t,base.R);
+  if(out==='same')return base.fv?fvAt(t):ecgAt(t,base.R);
+  if(out==='fv')return t>tS+.15?fvAt(t):0;
+  if(t<tS+pause)return .015*Math.sin(t*40);
+  return ecgAt(t-tS-pause+.15,sinR)}
+ x.strokeStyle=css('--fg');x.lineWidth=1.6;x.beginPath();for(var i=0;i<=Wp;i++){var t=T0+i/Wp*(T1-T0),v=fn(t),y=H*.6-v*H*.4;i?x.lineTo(X0+i,y):x.moveTo(X0+i,y)}x.stroke();
+ if(!base.fv)base.V.forEach(function(b){if(b.t<T1&&b.t>T0&&b.t<tS+.01||(!out&&b.t<T1)){x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='center';x.fillText('R',px(b.t+.017),10)}});
+ var drawn=AFTER!==null||SH.preview;
+ x.strokeStyle=css('--bad');x.lineWidth=2;x.setLineDash([4,3]);x.beginPath();x.moveTo(px(tS),0);x.lineTo(px(tS),H);x.stroke();x.setLineDash([]);
+ x.fillStyle=css('--bad');x.font='600 11px '+css('--font-body');x.textAlign=px(tS)>W-90?'right':'left';x.fillText(AFTER==='nosend'?'sin descarga':(AFTER?'descarga':'momento elegido'),px(tS)+(px(tS)>W-90?-4:4),H-6);
+ x.fillStyle=css('--guess');x.textAlign='left';if(!base.fv)x.fillText('zona vulnerable',X0+2,H-6);
+ $('shWhere').textContent=base.fv?'No hay ondas R que sincronizar.':'La descarga cae '+whereIs(base,tS)+'.'}
+function doShock(){
+ var k=$('shK').value,d=SHK[k],base=shockBase(),tS=shockTime(base),w=whereIs(base,tS),sync=SH.mode==='sync',txt,cls='ok';
+ var rupt='La descarga despolariza a la vez todo el miocardio excitable: se interrumpe la reentrada o los múltiples frentes, queda un instante refractario y el marcapasos de mayor jerarquía (normalmente el nodo sinusal) retoma el mando; suele haber una pausa breve.';
+ if(k==='fv'){
+  if(sync){AFTER='nosend';txt='<b class="no">No se descarga.</b> En la fibrilación ventricular no hay complejos QRS que el equipo pueda reconocer, así que en modo sincronizado espera una R que no llega. Aquí no hay pulso y no se puede esperar: se usa descarga no sincronizada.'}
+  else{AFTER='sinus';txt='<b class="ok">Descarga efectiva.</b> '+rupt+' No hay QRS que respetar: la sincronía no importa porque ya no hay ciclo normal que proteger.'}}
+ else if(k==='stach'){AFTER='same';cls='no';txt='<b class="no">Sin efecto útil.</b> La taquicardia sinusal nace del automatismo normal del nodo sinusal, no de una reentrada: la descarga no la corrige y se trata la causa (fiebre, dolor, hipovolemia). '+(sync?'':(w.indexOf('vulnerable')>=0?'Además la descarga cayó en el periodo vulnerable: riesgo de inducir fibrilación ventricular.':''))}
+ else if(!sync&&w.indexOf('vulnerable')>=0){AFTER='fv';txt='<b class="no">Descarga en el periodo vulnerable.</b> Cayó sobre la rama ascendente y pico de la T, cuando el miocardio repolariza de forma desigual: puede inducir fibrilación ventricular. Por eso en ritmos con pulso la descarga se sincroniza con la R.'}
+ else if(d.org&&k==='vtnp'&&sync){AFTER='same';txt='<b class="wn">Retraso o fallo de sincronía.</b> En una TV sin pulso el QRS ancho puede no detectarse bien y no se debe perder tiempo esperando: se usa descarga no sincronizada (VERIFICAR el comportamiento del equipo).'}
+ else{AFTER='sinus';txt='<b class="ok">Ritmo organizado interrumpido.</b> '+(sync?'El equipo esperó la onda R y descargó dentro del QRS, lejos de la T. ':'La descarga cayó fuera del periodo vulnerable (suerte, no criterio). ')+rupt+(k==='af'||k==='flt'?' En la FA y el flúter la recaída es frecuente y la aurícula queda aturdida; el riesgo embólico exige anticoagulación (VERIFICAR el manejo vigente).':'')}
+ $('shFb').innerHTML=txt;drawShock()}
+
+/* ---------- IABP ---------- */
+var IA={trig:'ecg'};
+function iaCfg(on){var r=$('iaR').value,c=Object.assign({},DEF,{stiff:1.6,con:.6},r==='af'?{rhy:'af',hr:90}:(r==='pvc'?{rhy:'pvc',pvcN:2}:{rhy:'sinus',hr:70}));
+ c.ia={on:on,trig:IA.trig,inf:+$('iaI').value,def:+$('iaD').value};return c}
+function renderIA(){
+ $('iaIV').textContent=($('iaI').value>0?'+':'')+$('iaI').value+' ms';$('iaDV').textContent=$('iaD').value+' ms';
+ var off=run(iaCfg(false)),on=run(iaCfg(true));
+ drawTrace($('iac'),on,{lanes:['ecg','pa'],hi:170,span:6});
+ function st(R){var bs=R.hm.beats.filter(function(b){return b.t>=TW}),n=bs.length,a=0,b2=0,c=0;bs.forEach(function(b){a+=b.psys;b2+=b.pdm;c+=b.pend});return{sys:a/n,aug:b2/n,end:c/n}}
+ var s0=st(off),s1=st(on);
+ $('iaMet').innerHTML=chip('GC sin balón → con balón',fmt(off.GC,1)+' → '+fmt(on.GC,1)+' L/min',on.GC>off.GC+.05?'ok':(on.GC<off.GC-.05?'no':'wn'))+
+  chip('Pico diastólico',Math.round(s0.aug)+' → '+Math.round(s1.aug)+' mmHg',s1.aug>s0.aug+8?'ok':'wn','aumento diastólico')+
+  chip('Telediastólica',Math.round(s0.end)+' → '+Math.round(s1.end)+' mmHg',s1.end<s0.end-4?'ok':'wn','poscarga')+
+  chip('PAS',Math.round(s0.sys)+' → '+Math.round(s1.sys)+' mmHg','ok')+chip('PAM',Math.round(off.PAM)+' → '+Math.round(on.PAM)+' mmHg','ok');
+ var inf=+$('iaI').value,df=+$('iaD').value,m=[];
+ if(inf<-25)m.push('<b class="no">Inflado temprano</b> ('+inf+' ms): el balón se llena antes del cierre aórtico y se opone a la eyección; el VS baja y el gasto cae.');
+ else if(inf>90)m.push('<b class="wn">Inflado tardío</b> (+'+inf+' ms): el aumento diastólico llega tarde y se pierde parte de la perfusión coronaria.');
+ else m.push('<b class="ok">Inflado en la muesca</b>: el pico diastólico sube a '+Math.round(s1.aug)+' mmHg (sin balón '+Math.round(s0.aug)+').');
+ if(df<0)m.push('<b class="no">Desinflado tardío</b> ('+df+' ms): el ventrículo eyecta contra el balón inflado y la poscarga sube.');
+ else if(df<15)m.push('<b class="wn">Desinflado casi tardío</b>: con una R que llega antes de lo previsto el balón sigue inflado en la sístole.');
+ else if(df>110)m.push('<b class="wn">Desinflado demasiado temprano</b>: se pierde parte de la descarga de poscarga.');
+ else m.push('<b class="ok">Desinflado antes de la sístole</b>: la presión telediastólica baja a '+Math.round(s1.end)+' mmHg (sin balón '+Math.round(s0.end)+') y el ventrículo eyecta con menos poscarga.');
+ if($('iaR').value!=='sinus')m.push('El ritmo irregular rompe la predicción: el gatillo por ECG calcula el inflado con el ciclo medio y el desinflado con el RR esperado, por eso fallan los latidos cortos y largos. El gatillo por presión corrige el inflado, pero el desinflado sigue siendo una predicción.');
+ $('iaWhy').innerHTML=m.join(' ')}
+
+/* ---------- juego 1: ritmo misterioso ---------- */
+var G1={list:[
+ {id:'af',n:'Fibrilación auricular',cfg:{rhy:'af',hr:110,stiff:1.3},cue:'Los volúmenes cambian latido a latido y no hay onda a. En el ECG sería un RR irregular sin P.'},
+ {id:'pvc',n:'Extrasístoles ventriculares',cfg:{rhy:'pvc',pvcN:2},cue:'Un latido pequeño (sin pulso) y, tras la pausa, un latido grande: extrasístole y potenciación.'},
+ {id:'vt',n:'Taquicardia ventricular',cfg:{rhy:'vt',hr:180,stiff:1.3},cue:'Muy rápido y regular, VS pequeños y ondas A en cañón al azar (disociación AV). El ECG muestra QRS ancho.'},
+ {id:'avc',n:'Bloqueo AV completo',cfg:{rhy:'avc',hr:42},cue:'Lento y regular con VS grandes; las ondas a caen al azar, a veces en cañón (disociación AV).'},
+ {id:'vvi_sn',n:'Síndrome de marcapasos (VVI con retrógrada)',cfg:{rhy:'vvi_sn',hr:62,retro:true},cue:'Frecuencia normal pero VS variables y A en cañón en casi cada latido: se perdió la sincronía AV.'},
+ {id:'flutter',n:'Flúter auricular 2 : 1',cfg:{rhy:'flutter',ratio:2},cue:'Regular a ≈ 150 con ondas auriculares pequeñas y rápidas; el ECG muestra dientes de sierra.'},
+ {id:'sinus',n:'Ritmo sinusal normal',cfg:{rhy:'sinus',hr:70},cue:'Regular, onda a antes de cada eyección y VS iguales.'}],cur:null,ok:0,n:0};
+function g1New(){
+ var l=G1.list,c=l[Math.floor(Math.random()*l.length)],o=[c],r;
+ while(o.length<4){r=l[Math.floor(Math.random()*l.length)];if(o.indexOf(r)<0)o.push(r)}
+ o.sort(function(){return Math.random()-.5});G1.cur=c;G1.res=run(c.cfg);G1.done=false;
+ $('g1Opts').innerHTML=o.map(function(e){return '<button class="btn" data-id="'+e.id+'">'+e.n+'</button>'}).join('');
+ $('g1Fb').textContent='';drawTrace($('g1c'),G1.res,{hideEcg:true,lanes:['pa','pad','vs'],refVS:71})}
+function g1Pick(id){
+ if(G1.done)return;G1.done=true;G1.n++;var ok=id===G1.cur.id;if(ok)G1.ok++;
+ drawTrace($('g1c'),G1.res,{lanes:['ecg','pa','pad','vs'],refVS:71});
+ $('g1Fb').innerHTML='<b class="'+(ok?'ok':'no')+'">'+(ok?'Correcto.':'Era: '+G1.cur.n+'.')+'</b> '+G1.cur.cue;$('g1Sc').textContent=G1.ok+' / '+G1.n}
+
+/* ---------- juego 2 ---------- */
+var G2={cases:[
+ {t:'Hombre inconsciente, sin pulso; el monitor muestra una línea irregular sin complejos reconocibles.',a:'unsync',why:'Es fibrilación ventricular: no hay R que sincronizar y no hay pulso. Descarga no sincronizada inmediata.'},
+ {t:'Mujer de 60 años con palpitaciones, PA 78/50, confusa. Monitor: taquicardia regular de QRS ancho a 170 lpm, con pulso.',a:'sync',why:'TV con pulso e inestabilidad hemodinámica: cardioversión sincronizada para disparar sobre la R y evitar la T.'},
+ {t:'Hombre de 70 años en fibrilación auricular a 150 lpm, hipotenso y con dolor torácico anginoso.',a:'sync',why:'FA rápida inestable: cardioversión sincronizada. Un choque no sincronizado podría caer en la T.'},
+ {t:'Niña de 8 años con fiebre de 40 °C; monitor: taquicardia sinusal a 160 lpm, regular, con onda P antes de cada QRS.',a:'none',why:'La taquicardia sinusal es una respuesta fisiológica a la fiebre; no hay reentrada que cortar. Se trata la causa.'},
+ {t:'Paciente en el quirófano sin pulso; el monitor muestra un complejo ancho muy rápido a 220 lpm.',a:'unsync',why:'TV sin pulso se trata como fibrilación ventricular: descarga no sincronizada sin esperar a que el equipo sincronice.'}],cur:null,ok:0,n:0,done:false};
+function g2New(){var c=G2.cases[Math.floor(Math.random()*G2.cases.length)];G2.cur=c;G2.done=false;$('g2Case').textContent=c.t;
+ var o=[['unsync','Descarga no sincronizada (desfibrilación)'],['sync','Cardioversión sincronizada'],['none','Ninguna de las dos']];
+ $('g2Opts').innerHTML=o.map(function(e){return '<button class="btn" data-a="'+e[0]+'" style="text-align:left">'+e[1]+'</button>'}).join('');$('g2Fb').textContent=''}
+
+/* ---------- caso clínico ---------- */
+var CS={};
+function buildCase(){
+ var k={stiff:2,con:1,pre:12},af=run(Object.assign({rhy:'af',hr:140},k)),sn=run(Object.assign({rhy:'sinus',hr:80},k)),rate=run(Object.assign({rhy:'af',hr:85},k)),tach=run(Object.assign({rhy:'sinus',hr:140},k));
+ CS={af:af,sn:sn,rate:rate,tach:tach};
+ $('csTxt').innerHTML='Hombre de 72 años con hipertensión de larga evolución e hipertrofia del ventrículo izquierdo (rigidez ×2 en el modelo). Hace dos horas inició palpitaciones, disnea y mareo. En el monitor: ritmo irregularmente irregular, sin ondas P, ≈ '+Math.round(af.HR)+' lpm.';
+ $('csMet').innerHTML=chip('PA (modelo)',Math.round(af.PAS)+'/'+Math.round(af.PAD_),'no','PAM '+Math.round(af.PAM))+chip('GC (modelo)',fmt(af.GC,1)+' L/min','no')+chip('VS',Math.round(af.VS)+' mL','wn',Math.round(af.VSmin)+'–'+Math.round(af.VSmax))+chip('Déficit de pulso',Math.round(af.def)+'/min','no');
+ var o1=[['a','Solo la frecuencia alta: acorta la diástole y el llenado.'],['b','La frecuencia alta, la pérdida del aporte auricular en un ventrículo rígido y la irregularidad de los RR, sumadas.'],['c','La fibrilación auricular reduce la contractilidad del miocardio.']];
+ $('csO1').innerHTML=o1.map(function(e){return '<button class="btn" data-k="'+e[0]+'" style="text-align:left">'+e[1]+'</button>'}).join('')}
+function csAns1(a){
+ var gA=CS.tach.GC,gB=CS.af.GC,gK=CS.rate.GC;
+ $('csF1').innerHTML=(a==='b'?'<b class="ok">Correcto.</b> ':(a==='a'?'<b class="wn">Incompleto.</b> ':'<b class="no">No.</b> '))+'Con el mismo ventrículo: sinusal a 140 lpm da '+fmt(gA,1)+' L/min (solo la frecuencia); fibrilación a 140 da '+fmt(gB,1)+' L/min; la fibrilación bien controlada a 85 da '+fmt(gK,1)+' L/min, y el sinusal de 80 mantiene '+fmt(CS.sn.GC,1)+'. La contractilidad del modelo no se tocó: el costo viene del llenado ('+Math.round(CS.sn.kick)+' % de aporte auricular perdido, Td ≈ '+Math.round(CS.af.Td)+' ms).';
+ $('csS2').hidden=false;
+ var o2=[['sync','Cardioversión eléctrica sincronizada'],['rate','Control de frecuencia con fármacos y vigilancia, sin cardiovertir'],['unsync','Descarga no sincronizada'],['wait','Observar: la presión se corregirá sola']];
+ $('csO2').innerHTML=o2.map(function(e){return '<button class="btn" data-k="'+e[0]+'" style="text-align:left">'+e[1]+'</button>'}).join('')}
+function csAns2(a){
+ var m={sync:['ok','<b class="ok">Razonable.</b> Con hipotensión y disnea hay inestabilidad atribuida a la arritmia: la cardioversión sincronizada busca restaurar el ritmo sinusal y con él la sincronía AV. Restaurar el sinusal a 80 devuelve el gasto a '+fmt(CS.sn.GC,1)+' L/min en el modelo. Riesgo embólico y anticoagulación quedan fuera de este modelo (VERIFICAR el manejo vigente).',CS.sn],
+  rate:['wn','<b class="wn">Parcial.</b> Bajar la frecuencia a 85 mejora el llenado, pero en el modelo el gasto sigue en '+fmt(CS.rate.GC,1)+' L/min con la presión baja: sin aporte auricular el ventrículo rígido no se recupera del todo. En un paciente estable sería una opción; aquí hay inestabilidad.',CS.rate],
+  unsync:['no','<b class="no">No.</b> Con pulso, una descarga no sincronizada puede caer en la T e inducir fibrilación ventricular. Se sincroniza con la R.',CS.af],
+  wait:['no','<b class="no">No.</b> El modelo no se corrige solo: sigue en '+fmt(CS.af.GC,1)+' L/min con PAM de '+Math.round(CS.af.PAM)+' mmHg mientras persista la FA rápida.',CS.af]}[a];
+ $('csF2').innerHTML=m[1];var r=m[2];
+ $('csAfter').innerHTML=chip('GC',fmt(r.GC,1)+' L/min',r.GC>4?'ok':'no')+chip('PAM',Math.round(r.PAM)+' mmHg',r.PAM>70?'ok':'no')+chip('FC',Math.round(r.HR)+' lpm','ok')+chip('Déficit de pulso',Math.round(r.def)+'/min',r.def<5?'ok':'no')}
+
+/* ---------- arranque ---------- */
+function init(){
+ $('rhy').innerHTML=Object.keys(RH).map(function(k){return '<option value="'+k+'">'+RH[k].n+'</option>'}).join('');
+ writeUI();bump();legend();renderBank();buildWorked();buildCounter();showReto();buildCase();
+ $('rhy').addEventListener('change',onRhy);
+ ['hr','stf','con','rvs','pre','pr','ratio','pvcN','pvcC','avd','site','esc','retro'].forEach(function(id){$(id).addEventListener('input',function(){
+  if(id==='esc'){S.esc=$('esc').value;S.hr=S.esc==='vent'?32:45;$('hr').value=S.hr}
+  readUI();bump();renderBank()})});
+ $('reset').addEventListener('click',function(){applyCfg({})});
+ $('wkApply').addEventListener('click',function(){applyCfg({rhy:'af',hr:75,stiff:2.5});$('bank').scrollIntoView({behavior:'smooth',block:'start'})});
+ $('ctApply').addEventListener('click',function(){applyCfg({rhy:'vt',hr:150,stiff:1.5,con:.9});$('bank').scrollIntoView({behavior:'smooth',block:'start'})});
+ $('qGo').addEventListener('click',checkReto);$('qNext').addEventListener('click',function(){rq=(rq+1)%RETOS.length;showReto()});
+ /* shock */
+ function setMode(m){SH.mode=m;$('shM1').setAttribute('aria-pressed',m==='unsync');$('shM2').setAttribute('aria-pressed',m==='sync');$('shPW').hidden=m==='sync';AFTER=null;$('shFb').textContent='';drawShock()}
+ $('shM1').addEventListener('click',function(){setMode('unsync')});$('shM2').addEventListener('click',function(){setMode('sync')});
+ $('shK').addEventListener('change',function(){AFTER=null;$('shFb').textContent='';$('shPW').hidden=SH.mode==='sync'||!SHK[$('shK').value].org;drawShock()});
+ $('shP').addEventListener('input',function(){$('shPV').textContent=$('shP').value+' % del ciclo';AFTER=null;$('shFb').textContent='';drawShock()});$('shPV').textContent='30 % del ciclo';
+ $('shGo').addEventListener('click',doShock);
+ /* IABP */
+ $('iaG1').addEventListener('click',function(){IA.trig='ecg';$('iaG1').setAttribute('aria-pressed',true);$('iaG2').setAttribute('aria-pressed',false);renderIA()});
+ $('iaG2').addEventListener('click',function(){IA.trig='pres';$('iaG2').setAttribute('aria-pressed',true);$('iaG1').setAttribute('aria-pressed',false);renderIA()});
+ ['iaI','iaD','iaR'].forEach(function(id){$(id).addEventListener('input',renderIA)});
+ /* juegos */
+ $('g1Opts').addEventListener('click',function(e){var b=e.target.closest('button');if(b)g1Pick(b.getAttribute('data-id'))});$('g1New').addEventListener('click',g1New);
+ $('g2Opts').addEventListener('click',function(e){var b=e.target.closest('button');if(!b||G2.done)return;G2.done=true;G2.n++;var a=b.getAttribute('data-a'),ok=a===G2.cur.a;if(ok)G2.ok++;$('g2Fb').innerHTML='<b class="'+(ok?'ok':'no')+'">'+(ok?'Correcto.':'No.')+'</b> '+G2.cur.why;$('g2Sc').textContent=G2.ok+' / '+G2.n});
+ $('g2New').addEventListener('click',g2New);
+ $('csO1').addEventListener('click',function(e){var b=e.target.closest('button');if(b)csAns1(b.getAttribute('data-k'))});$('csO2').addEventListener('click',function(e){var b=e.target.closest('button');if(b)csAns2(b.getAttribute('data-k'))});
+ g1New();g2New();setMode('unsync');renderIA();
+ var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){renderBank();drawShock();renderIA();drawTrace($('g1c'),G1.res,G1.done?{lanes:['ecg','pa','pad','vs'],refVS:71}:{hideEcg:true,lanes:['pa','pad','vs'],refVS:71})},120)});
+ if(window.matchMedia)window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){renderBank();drawShock();renderIA()})}
+window.__dbg={run:run,gen:gen,RH:RH,DEF:DEF,RETOS:RETOS,get S(){return S}};
+init();
+})();
+</script>
+
+</body></html>

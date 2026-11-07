@@ -1,0 +1,614 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lazo del barorreflejo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el gráfico de Wiggers como una partitura: ECG, fases, presiones, volumen y ruidos alineados en un mismo eje de tiempo, con un cursor que lee el instante. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+.dgm{width:100%;max-width:440px;height:auto;display:block;margin:0 auto}
+.dgm text{font-family:var(--font-body);fill:var(--fg)}
+.dgm .t{font-weight:600;font-size:12.5px}.dgm .v{font-family:var(--font-mono);font-size:11px;fill:var(--muted)}
+.dgm .bx{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+.dgm .ar{stroke:var(--muted);stroke-width:1.4;fill:none}
+.dgm .cap{font-size:10.5px;fill:var(--muted)}
+.dgm .warn{fill:var(--bad);font-weight:700;font-size:12px}
+.sw1{background:var(--vec)}.sw2{background:var(--guess)}.sw3{background:var(--blood)}.sw4{background:var(--muted)}
+.bandrow{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.8rem;color:var(--muted)}
+.chain-item{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:5px;padding:6px 8px;background:var(--panel);font-size:.9rem;cursor:pointer;text-align:left;color:var(--fg);font-family:var(--font-body);width:100%}
+.chain-item:hover{border-color:var(--vec)}
+.chain-item[disabled]{opacity:.45;cursor:default}
+.slot{border:1px dashed var(--line);border-radius:5px;padding:6px 8px;font-size:.9rem;min-height:2.2em;display:flex;gap:8px}
+.slot.ok{border-style:solid;border-color:var(--good)}.slot.no{border-style:solid;border-color:var(--bad)}
+.slot b{font-family:var(--font-mono);color:var(--muted);font-weight:600}
+.tag3{display:inline-block;font-family:var(--font-mono);font-size:.7rem;border:1px solid var(--line);border-radius:3px;padding:0 5px;color:var(--muted)}
+table.cmp td,table.cmp th{white-space:normal}
+.big{font-family:var(--font-display);font-size:1.5rem;font-weight:700}
+.ncase{border-left:3px solid var(--guess);padding:6px 10px;background:var(--guessSoft);font-size:.92rem}
+.step{display:flex;flex-direction:column;gap:8px}
+select,input,button{max-width:100%}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo D2 · control nervioso de la presión arterial</div>
+  <h1>Lazo del barorreflejo</h1>
+  <p class="lede">Abre y cierra el lazo de control de la presión sobre un modelo de circulación. Lanza una hemorragia, ponte de pie o infunde un vasoconstrictor y separa tres cosas: el efecto inmediato, la compensación en segundos y la compensación en minutos.</p>
+  <div class="tags"><span>Unidad 6: 6.219–6.232</span><span>Nivel N4 (usa F5, B4; caso C1)</span><span>Capa L6: control</span><span>Interactivo + 6 retos + 2 juegos + caso</span></div>
+</header>
+
+<section class="panel" id="secLoop">
+  <h2>El lazo, con números en vivo</h2>
+  <p class="note">Diagrama del reflejo barorreceptor. Los valores corresponden al instante del cursor (debajo de las gráficas). Naranja: vía simpática; verde azulado: vía vagal. Flecha con barra (⊣): inhibe. La línea del borde izquierdo devuelve la PAM resultante a los receptores.</p>
+  <div class="grid">
+    <div class="col">
+      <svg id="dgm" class="dgm" viewBox="0 0 420 650" role="img" aria-label="Diagrama del reflejo barorreceptor: aferentes IX y X, núcleo del tracto solitario, centros del tallo, eferentes simpáticos y vagales, efectores"></svg>
+    </div>
+    <div class="col">
+      <h3>Experimento</h3>
+      <label class="ctl" style="flex:none">Perturbación (ocurre a los 10 s)
+        <select id="chal">
+          <option value="none">Ninguna (reposo)</option>
+          <option value="hem500">Hemorragia de 500 mL (10 % de la volemia)</option>
+          <option value="hem1000">Hemorragia de 1000 mL (20 %)</option>
+          <option value="hem1500">Hemorragia de 1500 mL (30 %)</option>
+          <option value="stand">Ponerse de pie</option>
+          <option value="fenil">Infusión de fenilefrina (agonista α1, vasoconstrictor)</option>
+          <option value="vaso">Vasodilatación periférica (RPT −30 %)</option>
+          <option value="fluid">Infusión de 500 mL de solución salina</option>
+          <option value="hipox">Hipoxia (PaO₂ 45 mmHg)</option>
+        </select></label>
+      <fieldset style="flex-direction:column"><legend>Estado del lazo</legend>
+        <label class="opt"><input type="radio" name="loop" value="closed" checked> Cerrado (normal)</label>
+        <label class="opt"><input type="radio" name="loop" value="open"> Abierto: presión del seno aislado y fijada</label>
+        <label class="opt"><input type="radio" name="loop" value="den"> Denervación sinoaórtica (sin aferencias)</label>
+      </fieldset>
+      <label class="ctl" style="flex:none" id="pfixW">Presión fijada en el seno carotídeo: <span class="mono" id="pfixV"></span><input type="range" id="pfix" min="40" max="200" step="1" value="93"></label>
+      <label class="ctl" style="flex:none">Ganancia central del reflejo: <span class="mono" id="gainV"></span><input type="range" id="gain" min="0" max="150" step="5" value="100"></label>
+      <div class="row">
+        <label class="lab"><input type="checkbox" id="dAtr"> Atropina</label>
+        <label class="lab"><input type="checkbox" id="dPro"> Propranolol</label>
+        <label class="lab"><input type="checkbox" id="dPra"> Prazosina</label>
+        <label class="lab"><input type="checkbox" id="resp"> Respiración (5 s)</label>
+        <label class="lab"><input type="checkbox" id="refill" checked> Reabsorción capilar</label>
+      </div>
+      <label class="ctl" style="flex:none">Ventana de tiempo
+        <select id="win"><option value="120">120 s (segundos)</option><option value="600">10 min</option><option value="1800">30 min</option></select></label>
+      <div class="row"><button class="btn" id="rest">Valores de reposo</button></div>
+      <div id="gainBox" class="why"></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Lo que ocurre en el tiempo</h2>
+  <div class="bandrow"><span><i class="sw sw1"></i>con la configuración actual</span><span><i class="sw sw4"></i>línea punteada: mismo experimento con el lazo abierto (sin barorreflejo)</span><span><i class="sw sw2"></i>simpático</span><span><i class="sw sw1"></i>vago</span></div>
+  <canvas id="cv" role="img" aria-label="Series temporales de PAM, FC, eferencias autonómicas, gasto cardiaco y RPT"></canvas>
+  <label class="ctl" style="flex:none">Cursor: <span class="mono" id="tcV"></span><input type="range" id="tc" min="0" max="120" step="0.5" value="40"></label>
+  <div class="chips" id="cur"></div>
+  <h3>Tres escalas de tiempo del mismo experimento</h3>
+  <div class="tw"><table class="cmp" id="scales"></table></div>
+  <p class="note" id="scalesNote"></p>
+</section>
+
+<section class="panel">
+  <h2>Tablero autonómico: simpático frente a vago</h2>
+  <p class="note">Lazo abierto: tú fijas la descarga. Cambia solo una vía a la vez y predice antes de mirar la tabla.</p>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Descarga simpática (100 % = máximo del barorreflejo): <span class="mono" id="mSV"></span><input type="range" id="mS" min="0" max="100" step="5" value="46"></label>
+      <label class="ctl" style="flex:none">Descarga vagal: <span class="mono" id="mVV"></span><input type="range" id="mV" min="0" max="100" step="5" value="60"></label>
+      <div class="row"><button class="btn" id="mR">Reposo</button><button class="btn" id="mSm">Simpático máximo</button><button class="btn" id="mVm">Vago máximo</button><button class="btn" id="mAt">Sin vago (atropina)</button><button class="btn" id="mPr">Sin simpático cardiaco (propranolol)</button></div>
+      <div class="chips" id="mChips"></div>
+      <p class="note">Contractilidad en múltiplos del reposo; capacitancia venosa como volumen sin tensión (unstressed): al subir el simpático las venas se contraen, ese volumen baja y vuelve a la circulación central.</p>
+    </div>
+    <div class="col">
+      <div class="tw"><table class="cmp"><thead><tr><th>Estructura</th><th>Simpático</th><th>Parasimpático (vago)</th></tr></thead><tbody>
+        <tr><td>Nodo SA</td><td>β1 (Gs): ↑ FC</td><td>M2 (Gi): ↓ FC</td></tr>
+        <tr><td>Nodo AV</td><td>β1: ↑ conducción</td><td>M2: ↓ conducción</td></tr>
+        <tr><td>Ventrículos</td><td>β1: ↑ contractilidad y relajación más rápida</td><td>Casi sin efecto directo</td></tr>
+        <tr><td>Arteriolas</td><td>α1 (Gq): vasoconstricción; β2 (Gs) en músculo y corazón: vasodilatación</td><td>Sin inervación relevante</td></tr>
+        <tr><td>Vénulas y venas</td><td>α1: venoconstricción, ↓ capacitancia</td><td>Sin inervación relevante</td></tr>
+      </tbody></table></div>
+      <div class="tw"><table class="cmp"><thead><tr><th>Hormona</th><th>Receptor y vía</th><th>Efecto circulatorio</th></tr></thead><tbody>
+        <tr><td>Adrenalina</td><td>β1, β2, α1 (afinidad por β a dosis bajas)</td><td>↑ GC; RPT variable (β2 dilata el músculo, α1 contrae la piel)</td></tr>
+        <tr><td>Noradrenalina</td><td>α1 &gt; β1</td><td>↑ RPT y ↑ PAM; la FC puede bajar por el barorreflejo</td></tr>
+        <tr><td>Angiotensina II</td><td>AT1 (Gq)</td><td>Vasoconstricción; ver D3 para aldosterona y sed</td></tr>
+        <tr><td>Vasopresina</td><td>V1 (Gq) vasos; V2 (Gs) riñón</td><td>V2 retiene agua; V1 contrae a dosis altas</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <label class="ctl" style="flex:none">Confianza en tu respuesta<select id="qConf"><option value="baja">Baja</option><option value="media" selected>Media</option><option value="alta">Alta</option></select></label>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Contraejemplo: la misma PAM, dos situaciones</h3>
+      <p class="note">Casi igual, pero distinto: una PAM de ≈ 70 mmHg por hemorragia y otra por vasodilatación. El reflejo empuja en la misma dirección, pero el gasto y la resistencia son opuestos.</p>
+      <div class="tw"><table class="cmp" id="cexT"></table></div>
+      <p class="why" id="cexWhy"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Juegos</h2>
+  <div class="cols2">
+    <div class="col">
+      <h3>Reflejo en cadena</h3>
+      <p class="note">Una persona se pone de pie. Toca los eslabones en el orden causal correcto (el más temprano primero).</p>
+      <div id="chPool" class="col" style="gap:6px"></div>
+      <div id="chSlots" class="col" style="gap:6px"></div>
+      <div class="row"><button class="btn primary" id="chGo">Comprobar</button><button class="btn" id="chReset">Reiniciar</button></div>
+      <p class="fb" id="chFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>¿Qué receptor es?</h3>
+      <p class="note" id="rqTxt"></p>
+      <div class="chips" id="rqOpts"></div>
+      <p class="fb" id="rqFb" aria-live="polite"></p>
+      <div class="row"><span class="mono" id="rqScore"></span><button class="btn" id="rqNew">Otra pregunta</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="caso">
+  <h2>Caso clínico de cierre: mareo al levantarse</h2>
+  <div class="ncase">Mujer de 71 años, diabetes tipo 2 de 20 años de evolución. Refiere mareo y visión borrosa al pararse. Acostada: PA 130/76 mmHg (PAM ≈ 94), FC 74 /min. De pie a los 3 min: PA 92/58 mmHg (PAM ≈ 69), FC 76 /min.</div>
+  <div class="step" id="casoBody"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"El barorreflejo controla la presión a largo plazo": actúa en segundos y se adapta (se reajusta) en horas a días; el control sostenido es renal (D3).</li>
+    <li>"El vago inerva con fuerza al ventrículo": regula nodos y aurículas; sobre el ventrículo su efecto directo es pequeño.</li>
+    <li>"La FC siempre sube cuando baja la PAM": con fallo autonómico, β-bloqueo o un lazo abierto no sube, y ese dato es diagnóstico.</li>
+    <li>"La presión arterial normal implica gasto normal": la PAM se sostiene con más RPT mientras el GC cae.</li>
+    <li>"Fenilefrina y bradicardia: el fármaco frena el corazón": es el barorreflejo respondiendo al aumento de la PAM.</li>
+    <li>"El reflejo corrige toda la perturbación": con ganancia G corrige G/(1+G); queda un error residual.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Modelo de promedios por latido (sin pulsatilidad): PAM = GC × RPT + PVC, con curva de retorno venoso de Guyton y curva de función cardiaca.</li>
+    <li>Un solo reflejo "simpático" activa FC, contractilidad, RPT y venas con ganancias fijas; las ganancias relativas y las constantes de tiempo (2,5 s corazón, 5 s arteriolas, 12 s venas, 0,5 s vago) son aproximadas: VERIFICAR.</li>
+    <li>Ganancia del lazo ≈ 2,5 en reposo (valores publicados varían, ≈ 1,5 a 3: VERIFICAR con el curso). Barorreceptor sigmoideo con centro en 93 mmHg, sin adaptación en esta escala.</li>
+    <li>Quimiorreflejo e isquemia del SNC se representan como suma de impulsos simpáticos (la isquemia solo por debajo de ≈ 45 mmHg); el efecto de la hipoxia sobre la FC depende de la ventilación y aquí no se modela.</li>
+    <li>Bainbridge y reflejos cardiopulmonares de baja presión no se incluyen; el peso de Bainbridge en humanos es discutido.</li>
+    <li>La reabsorción capilar usa una constante de ≈ 15 min (VERIFICAR); los sistemas hormonales lentos se cubren en D3.</li>
+    <li>Los fármacos son interruptores: no se modelan dosis ni receptores individuales.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Las cifras del modelo son ilustrativas y varias están marcadas VERIFICAR.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.219–6.232). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return (+x).toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c){return Math.min(940,Math.floor(c.parentElement.clientWidth-30))}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+// Predice y observa generico: QS = [{q,opts,ans,run:function()->html}]
+function setupQ(QS){
+  var qi=0;
+  function show(){var q=QS[qi];$('qText').textContent='Reto '+(qi+1)+' de '+QS.length+' · '+q.name+'. '+q.q;
+    $('qOpts').innerHTML=q.opts.map(function(t,k){return '<label class="opt"><input type="radio" name="qr" value="'+k+'"> <span>'+t+'</span></label>'}).join('');
+    $('qFb').innerHTML='';}
+  $('qGo').onclick=function(){var r=document.querySelector('input[name=qr]:checked');if(!r){$('qFb').textContent='Elige una respuesta y tu nivel de confianza antes de simular.';return}
+    var q=QS[qi],ok=+r.value===q.ans,conf=$('qConf').value;
+    var html=q.run();
+    var cal=ok?(conf==='alta'?' Confianza alta y acierto: bien calibrado.':(conf==='baja'?' Acertaste con poca confianza: confía más en tu cadena causal.':'')):(conf==='alta'?' Confianza alta y error: revisa en qué eslabón de la cadena dudaste.':'');
+    $('qFb').innerHTML=(ok?'<b class="ok">Correcto.</b> ':'<b class="no">Incorrecto.</b> La respuesta era: '+q.opts[q.ans]+'. ')+html+'<br><span class="note">'+cal+'</span>'};
+  $('qNext').onclick=function(){qi=(qi+1)%QS.length;show()};
+  show();}
+
+var CV={C:250,Vu0:3250,Rv:1.0,R0:18.3};
+function sig(x){return 1/(1+Math.exp(-x))}
+function cl(x,a,b){return Math.max(a,Math.min(b,x))}
+function heartSV(Pra,contr,HR){var x=Math.max(0,(Pra+3)/4.5);var fh=1/(1+Math.exp((HR-170)/10))/0.9996;return 71*contr*(1-Math.exp(-x))/0.6708*fh}
+function solveCO(Pmsf,HR,contr){
+  if(Pmsf<=-3)return{Pra:-3,CO:0};
+  var lo=-3,hi=Math.max(Pmsf,-2.99),m,f;
+  for(var i=0;i<40;i++){m=(lo+hi)/2;f=HR*heartSV(m,contr,HR)/1000-(Pmsf-m)/CV.Rv;if(f<0)lo=m;else hi=m}
+  m=(lo+hi)/2;return{Pra:m,CO:Math.max(0,(Pmsf-m)/CV.Rv)}}
+// o: sh, sr, sv, v (efectores 0..1.2), Vb mL, pool mL, Rext (factor RPT)
+function hemo(o){
+  var HR=Math.max(30,100+60*o.sh-80*o.v), contr=Math.max(.3,1+1.0*(o.sh-.3));
+  var Vu=CV.Vu0-800*(o.sv-.3)+(o.pool||0), Pmsf=(o.Vb-Vu)/CV.C;
+  var h=solveCO(Pmsf,HR,contr);
+  var TPR=Math.max(.35,1+1.6*(o.sr-.3))*CV.R0*(o.Rext||1);
+  var MAP=h.CO*TPR+h.Pra;
+  return{HR:HR,contr:contr,Pmsf:Pmsf,Pra:h.Pra,CO:h.CO,SV:h.CO*1000/HR,TPR:TPR,MAP:Math.max(0,MAP)}}
+
+/* ===== D2: simulador del lazo ===== */
+var TCH=10,DT=.5,TT=1800;
+function reflexT(Psens,MAPa,c,t){
+  var gf=c.gain/100,nf=c.loop==='den'?.35:sig((Psens-93)/28),G=.7*gf;
+  var sb=cl(.3+G*(.5-nf),0,.65),vb=cl(.6+1.5*G*(nf-.5),0,1);
+  var PaO2=(c.chal==='hipox'&&t>=c.tch)?45:95;
+  var cm=.5*sig((65-MAPa)/6)+.09*sig((60-PaO2)/8)/.5*.5;
+  var isch=.6*sig((45-MAPa)/5);
+  var s=cl(sb+cm+isch,0,1.2),sh=cl(.3+1.5*(s-.3),0,1.5);
+  var v=vb-(c.resp?.12*Math.sin(2*Math.PI*t/5):0);
+  return{nf:nf,s:s,sh:sh,v:cl(v,0,1),cm:cm,isch:isch}}
+function simD2(c){
+  c=Object.assign({chal:'none',loop:'closed',pfix:93,gain:100,atr:false,pro:false,pra:false,resp:false,refill:true,tch:TCH,Vb0:5000,poolMax:500,T:TT},c);
+  var N=Math.round(c.T/DT)+1,o={t:[],MAP:[],HR:[],CO:[],TPR:[],Pra:[],SV:[],contr:[],Pmsf:[],s:[],sh:[],v:[],nf:[],st:[],vt:[],Vb:[],pool:[]};
+  var r0=reflexT(93,93,c,0),sh=.3,sr=.3,sv=.3,v=.6,Vb=c.Vb0,pool=0,Psens=93,MAPa=93,vol=0;
+  var hemML={hem500:500,hem1000:1000,hem1500:1500}[c.chal]||0;
+  for(var i=0;i<N;i++){
+    var t=i*DT,on=t>=c.tch,dr=on;
+    if(on&&!vol){vol=1;if(hemML)Vb-=hemML;if(c.chal==='fluid')Vb+=500}
+    var Rext=1;
+    if(on&&c.chal==='fenil')Rext=1+.3*(1-Math.exp(-(t-c.tch)/5));
+    if(on&&c.chal==='vaso')Rext=1-.3*(1-Math.exp(-(t-c.tch)/5));
+    if(on&&c.chal==='stand')pool=c.poolMax*(1-Math.exp(-(t-c.tch)/8));
+    var srE=(dr&&c.pra)?.3+.3*(sr-.3):sr, Rx=Rext*((dr&&c.pra)?.75:1);
+    var shE=(dr&&c.pro)?0:sh, vE=(dr&&c.atr)?0:v;
+    var h=hemo({sh:shE,sr:srE,sv:sv,v:vE,Vb:Vb,pool:pool,Rext:Rx});
+    MAPa=h.MAP;
+    Psens=(c.loop==='open')?c.pfix:Psens+(h.MAP-Psens)*(1-Math.exp(-DT/2));
+    var rt=reflexT(Psens,MAPa,c,t);
+    o.t.push(t);o.MAP.push(h.MAP);o.HR.push(h.HR);o.CO.push(h.CO);o.TPR.push(h.TPR);o.Pra.push(h.Pra);o.SV.push(h.SV);o.contr.push(h.contr);o.Pmsf.push(h.Pmsf);
+    o.s.push(srE);o.sh.push(shE);o.v.push(vE);o.nf.push(rt.nf);o.st.push(rt.s);o.vt.push(rt.v);o.Vb.push(Vb);o.pool.push(pool);
+    sh+=(rt.sh-sh)*(1-Math.exp(-DT/2.5));sr+=(rt.s-sr)*(1-Math.exp(-DT/5));sv+=(rt.s-sv)*(1-Math.exp(-DT/12));v+=(rt.v-v)*(1-Math.exp(-DT/1));
+    if(on&&hemML&&c.refill)Vb+=(5000-Vb)/900*(.5+2*Math.max(0,sr-.3)/.35)*DT;
+    if(on&&c.chal==='fluid')Vb+=(5000-Vb)/1800*DT;
+    if(on&&c.chal==='stand')Vb-=250/300*Math.exp(-(t-c.tch)/300)*DT;
+  }
+  return o}
+function atT(o,t){return Math.min(o.t.length-1,Math.max(0,Math.round(t/DT)))}
+function openGain(c){ // ganancia del lazo medida abriendo el seno (algebraica, sin quimio)
+  function out(P){var G=.7*c.gain/100,nf=sig((P-93)/28),s=cl(.3+G*(.5-nf),0,.65),sh=cl(.3+1.5*(s-.3),0,1.5),v=cl(.6+1.5*G*(nf-.5),0,1);
+    return hemo({sh:c.pro?0:sh,sr:s,sv:s,v:c.atr?0:v,Vb:5000,pool:0,Rext:c.pra?.75:1}).MAP}
+  return (out(93)-out(103))/10}
+
+/* ===== estado de la interfaz ===== */
+var UI={win:120};
+function readCfg(){
+  var lp=document.querySelector('input[name=loop]:checked').value;
+  return{chal:$('chal').value,loop:lp,pfix:+$('pfix').value,gain:+$('gain').value,atr:$('dAtr').checked,pro:$('dPro').checked,pra:$('dPra').checked,resp:$('resp').checked,refill:$('refill').checked}}
+function setCfg(o){
+  if(o.chal!==undefined)$('chal').value=o.chal;
+  if(o.loop!==undefined)document.querySelector('input[name=loop][value='+o.loop+']').checked=true;
+  if(o.pfix!==undefined)$('pfix').value=o.pfix;
+  if(o.gain!==undefined)$('gain').value=o.gain;
+  ['atr:dAtr','pro:dPro','pra:dPra','resp:resp','refill:refill'].forEach(function(p){var k=p.split(':');if(o[k[0]]!==undefined)$(k[1]).checked=o[k[0]]});
+  run()}
+var A,B,cfg;
+function run(){
+  cfg=readCfg();
+  A=simD2(cfg);
+  B=simD2(Object.assign({},cfg,{loop:'open',pfix:93,gain:cfg.gain}));
+  $('pfixW').hidden=cfg.loop!=='open';$('pfixV').textContent=cfg.pfix+' mmHg';$('gainV').textContent=cfg.gain+' %';
+  var G=openGain(cfg);
+  if(cfg.loop==='closed'){$('gainBox').innerHTML='Ganancia del lazo (abriendo el seno y midiendo la salida): <b class="mono">G = '+fmt(G,1)+'</b>. Un error de la presión se corrige en una fracción G/(1+G) = <b class="mono">'+fmt(100*G/(1+G),0)+' %</b> y queda un error residual del '+fmt(100/(1+G),0)+' %. VERIFICAR: la literatura da ≈ 1,5 a 3.'}
+  else if(cfg.loop==='open'){$('gainBox').innerHTML='Lazo abierto: el seno ve siempre '+cfg.pfix+' mmHg, así que el centro vasomotor no se entera de lo que hace la PAM real. Con el seno a 93 mmHg la salida es la de reposo, y subiendo o bajando esa presión dibujas la curva del reflejo. El quimiorreflejo y la isquemia del SNC siguen activos.'}
+  else{$('gainBox').innerHTML='Sin aferencias: el centro vasomotor recibe "presión nula" y descarga como si la PAM fuera muy baja (↑ simpático, ↓ vago). Se pierde además el amortiguamiento de los cambios de presión.'}
+  var W=UI.win;$('tc').max=W;if(+$('tc').value>W)$('tc').value=W;
+  draw();scalesTable();
+}
+function scalesTable(){
+  var rows=[['Antes (5 s)',5],['Inmediato (+1 s)',TCH+1],['Segundos (+30 s)',TCH+30],['Minutos (+10 min)',TCH+600]];
+  var h='<thead><tr><th>Escala</th><th>PAM, mmHg</th><th>FC, /min</th><th>GC, L/min</th><th>RPT, mmHg·min/L</th></tr></thead><tbody>';
+  rows.forEach(function(r){var i=atT(A,r[1]);
+    function cell(k,d){return '<td class="n">'+fmt(A[k][i],d)+' <span class="note">('+fmt(B[k][i],d)+')</span></td>'}
+    h+='<tr><td>'+r[0]+'</td>'+cell('MAP',0)+cell('HR',0)+cell('CO',1)+cell('TPR',1)+'</tr>'});
+  $('scales').innerHTML=h+'</tbody>';
+  var msg={none:'Sin perturbación: todo queda en reposo.',hem500:'La hemorragia reduce el retorno venoso al instante (efecto inmediato); en segundos el barorreflejo sube FC, RPT y tono venoso; en minutos la reabsorción capilar repone volumen.',hem1000:'Igual que la de 500 mL, con una caída inicial mayor y una compensación que ya no alcanza la PAM de reposo.',hem1500:'Con 30 % de pérdida el reflejo llega a su límite: la PAM se sostiene a costa de una RPT alta y una FC alta; el margen que queda es corto.',stand:'De pie: el acúmulo venoso baja el retorno al instante; el reflejo corrige en segundos; la filtración capilar de las piernas pierde algo de plasma en minutos.',fenil:'Fenilefrina: la RPT sube de inmediato; el reflejo responde en segundos con más vago y menos simpático cardiaco (la FC baja).',vaso:'Vasodilatación: la PAM cae por la RPT, no por el volumen; el reflejo sube FC y contractilidad.',fluid:'Líquidos: más retorno y más PAM al instante; el reflejo la frena en segundos; los líquidos salen del plasma en minutos a horas.',hipox:'Hipoxia: los quimiorreceptores activan el simpático (vasoconstricción); la ventilación no se modela.'}[cfg.chal];
+  $('scalesNote').innerHTML='Entre paréntesis: el mismo experimento con el lazo abierto (sin barorreflejo). '+msg+' La renina, la ADH y el riñón actúan en horas a días: ver D3.'}
+
+/* ===== gráficas ===== */
+var STR=[{k:'MAP',lab:'PAM, mmHg',lo:20,hi:130,cmp:true},{k:'HR',lab:'FC, /min',lo:40,hi:180,cmp:true},{k:'ef',lab:'Eferencias (0–1,2)',lo:0,hi:1.25},{k:'CO',lab:'GC, L/min',lo:0,hi:8,cmp:true},{k:'TPR',lab:'RPT, mmHg·min/L',lo:10,hi:40,cmp:true}];
+function draw(){
+  var c=$('cv'),Wd=cw(c),sh=88,gap=16,H=STR.length*(sh+gap)+30,x=fit(c,Wd,H),L=46,R=8;
+  x.clearRect(0,0,Wd,H);
+  var W=UI.win,px=function(t){return L+t/W*(Wd-L-R)};
+  x.font='11px '+css('--font-mono');
+  STR.forEach(function(S,n){
+    var y0=8+n*(sh+gap),y1=y0+sh,lo=S.lo,hi=S.hi;
+    var ser=S.k==='ef'?[{a:A.s,col:css('--guess'),lw:2},{a:A.v,col:css('--vec'),lw:2}]:[{a:A[S.k],col:css('--vec'),lw:2}];
+    if(S.k==='ef'){}else{var m=Math.min.apply(null,A[S.k].concat(B[S.k])),M=Math.max.apply(null,A[S.k].concat(B[S.k]));var ms={MAP:30,HR:30,CO:2,TPR:6}[S.k],ctr=(m+M)/2,sp=Math.max(M-m+ (M-m)*.2,ms);lo=Math.floor((ctr-sp/2)/1)*1;hi=Math.ceil(ctr+sp/2);if(S.k==='CO'||S.k==='TPR'){lo=Math.max(0,lo)}}
+    var py=function(v){return y1-(v-lo)/(hi-lo)*sh};
+    // bandas
+    var bx=[[TCH,TCH+2,null],[TCH+2,Math.min(W,TCH+120),'--vecSoft'],[TCH+120,W,'--guessSoft']];
+    bx.forEach(function(b){if(b[2]&&b[1]>b[0]){x.fillStyle=css(b[2]);x.fillRect(px(b[0]),y0,px(Math.min(b[1],W))-px(b[0]),sh)}});
+    x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(L,y0,Wd-L-R,sh);
+    x.fillStyle=css('--muted');x.textAlign='right';x.fillText(Math.round(hi),L-4,y0+9);x.fillText(Math.round(lo),L-4,y1);
+    x.save();x.textAlign='left';x.fillText(S.lab,L+4,y0+11);x.restore();
+    if(S.k==='MAP'||S.k==='HR'||S.k==='CO'||S.k==='TPR'){x.setLineDash([3,4]);x.strokeStyle=css('--muted');x.beginPath();var rv=A[S.k][0];x.moveTo(L,py(rv));x.lineTo(Wd-R,py(rv));x.stroke();x.setLineDash([])}
+    if(S.cmp){x.strokeStyle=css('--muted');x.lineWidth=1.4;x.setLineDash([5,4]);x.beginPath();B[S.k].forEach(function(v,i){var t=B.t[i];if(t>W)return;var X=px(t),Y=py(cl(v,lo,hi));i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();x.setLineDash([])}
+    ser.forEach(function(s){x.strokeStyle=s.col;x.lineWidth=s.lw;x.beginPath();var first=true;s.a.forEach(function(v,i){var t=A.t[i];if(t>W)return;var X=px(t),Y=py(cl(v,lo,hi));if(first){x.moveTo(X,Y);first=false}else x.lineTo(X,Y)});x.stroke()});
+    // linea de perturbacion y cursor
+    x.strokeStyle=css('--fg');x.lineWidth=1;x.setLineDash([2,3]);x.beginPath();x.moveTo(px(TCH),y0);x.lineTo(px(TCH),y1);x.stroke();x.setLineDash([]);
+    var tcv=+$('tc').value;x.strokeStyle=css('--blood');x.lineWidth=1.5;x.beginPath();x.moveTo(px(tcv),y0);x.lineTo(px(tcv),y1);x.stroke();
+    if(n===0){x.textAlign='left';x.fillStyle=css('--fg');x.font='600 10.5px '+css('--font-body');
+      var lab=[['perturbación',TCH,TCH+2.0],['segundos',TCH+2,Math.min(W,TCH+120)],['minutos',TCH+120,W]];
+      lab.forEach(function(l,ii){var wpx=px(l[2])-px(l[1]);var tx=l[0];if(ii===0){x.fillText('↓ inmediato',px(TCH)+3,y0+sh-5)}else if(wpx>58){x.textAlign='center';x.fillText(tx,px(l[1])+wpx/2,y0+sh-5);x.textAlign='left'}});
+      x.font='11px '+css('--font-mono')}
+  });
+  var ya=8+STR.length*(sh+gap)-6;x.fillStyle=css('--muted');x.textAlign='center';
+  var step=W===120?20:(W===600?120:300);
+  for(var t=0;t<=W;t+=step){x.fillText(W===120?t+' s':(t/60)+' min',px(t),ya+14)}
+  curChips();dgm();
+}
+function curChips(){
+  var i=atT(A,+$('tc').value);$('tcV').textContent=fmt(A.t[i],1)+' s';
+  $('cur').innerHTML=chip('PAM',fmt(A.MAP[i],0),'ok','mmHg')+chip('FC',fmt(A.HR[i],0),'ok','/min')+chip('VS',fmt(A.SV[i],0),'ok','mL')+chip('GC',fmt(A.CO[i],2),'ok','L/min')+chip('RPT',fmt(A.TPR[i],1),'ok')+chip('PVC',fmt(A.Pra[i],1),'ok','mmHg')+chip('Pmsf',fmt(A.Pmsf[i],1),'ok','mmHg')+chip('Descarga barorreceptora',fmt(A.nf[i]*100,0),'wn','%')+chip('simpático',fmt(A.s[i],2),'wn')+chip('vago',fmt(A.v[i],2),'wn')}
+
+/* ===== diagrama SVG ===== */
+var NODES=[
+ {id:'pam',x:110,y:6,w:200,h:40,t:'Presión arterial media',k:'n'},
+ {id:'car',x:14,y:76,w:186,h:46,t:'Seno carotídeo (nervio IX)',k:'a'},
+ {id:'aor',x:220,y:76,w:186,h:46,t:'Arco aórtico (nervio X)',k:'a'},
+ {id:'nts',x:14,y:150,w:236,h:44,t:'Núcleo del tracto solitario',k:'n'},
+ {id:'hip',x:270,y:150,w:142,h:44,t:'Hipotálamo y corteza',k:'n'},
+ {id:'ci',x:10,y:224,w:124,h:50,t:'Cardioinhibidor',k:'v'},
+ {id:'vd',x:148,y:224,w:124,h:50,t:'Vasodilatador',k:'n'},
+ {id:'vc',x:286,y:224,w:124,h:50,t:'Vasoconstrictor',k:'s'},
+ {id:'vag',x:14,y:308,w:156,h:46,t:'Eferente vagal',k:'v'},
+ {id:'sim',x:190,y:308,w:216,h:46,t:'Eferentes simpáticos',k:'s'},
+ {id:'sa',x:10,y:392,w:96,h:50,t:'Nodo SA',k:'n'},
+ {id:'ven',x:112,y:392,w:96,h:50,t:'Ventrículos',k:'s'},
+ {id:'art',x:214,y:392,w:96,h:50,t:'Arteriolas',k:'s'},
+ {id:'vnl',x:316,y:392,w:96,h:50,t:'Vénulas',k:'s'},
+ {id:'res',x:40,y:484,w:340,h:52,t:'GC × RPT + PVC = PAM',k:'n'}];
+var ARR=[[160,46,107,76],[260,46,313,76],[107,122,130,150],[313,122,235,150],[72,194,72,224,'p'],[132,194,210,224,'p'],[200,194,348,224,'i'],[72,274,92,308],[210,274,260,308,'i'],[348,274,348,308],[60,354,58,392],[200,354,100,392],[240,354,160,392],[300,354,262,392],[370,354,364,392],[58,442,110,484],[160,442,160,484],[262,442,260,484],[364,442,320,484]];
+function buildDgm(){
+  var s='<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker><marker id="ib" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M6,0 L6,8" stroke="var(--muted)" stroke-width="2"/></marker></defs>';
+  ARR.forEach(function(a){s+='<line class="ar" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+a[2]+'" y2="'+a[3]+'" marker-end="url(#'+(a[4]==='i'?'ib':'ah')+')"/>'});
+  s+='<path class="ar" d="M250,172 L270,172" stroke-dasharray="3 3" marker-end="url(#ah)"/>';
+  s+='<path class="ar" d="M40,510 L4,510 L4,26 L108,26" marker-end="url(#ah)"/>';
+  s+='<text class="cap" id="capSt" x="210" y="68" text-anchor="middle">estiramiento de la pared</text><text class="warn" id="warnOpen" x="210" y="66" text-anchor="middle" hidden>LAZO ABIERTO</text>';
+  NODES.forEach(function(n){s+='<rect class="bx" id="r_'+n.id+'" x="'+n.x+'" y="'+n.y+'" width="'+n.w+'" height="'+n.h+'" rx="5"/><text class="t" x="'+(n.x+n.w/2)+'" y="'+(n.y+17)+'" text-anchor="middle">'+n.t+'</text><text class="v" id="v_'+n.id+'" x="'+(n.x+n.w/2)+'" y="'+(n.y+n.h-9)+'" text-anchor="middle"></text>'});
+  $('dgm').innerHTML=s}
+function dgm(){
+  var i=atT(A,+$('tc').value),col={s:'--guess',v:'--vec',a:'--blood',n:'--muted'};
+  function set(id,txt,act,k){$('v_'+id).textContent=txt;var cc=col[k||NODES.filter(function(n){return n.id===id})[0].k];$('r_'+id).style.fill='color-mix(in srgb, var('+cc+') '+Math.round(10+55*cl(act,0,1))+'%, var(--panel))'}
+  var nf=A.nf[i],o=cfg.loop==='open',d=cfg.loop==='den';
+  $('warnOpen').hidden=!(o||d);$('capSt').hidden=(o||d);$('warnOpen').textContent=d?'SIN AFERENCIAS':'LAZO ABIERTO';
+  set('pam','PAM '+fmt(A.MAP[i],0)+' mmHg',(A.MAP[i]-40)/100,'n');
+  var d1=d?'sin señal':(o?'presión fijada '+cfg.pfix:'descarga '+fmt(nf*100,0)+' %');
+  set('car',d1,nf,'a');set('aor',d1,nf,'a');
+  set('nts','aferencia '+fmt(nf*100,0)+' % del máximo',nf,'n');
+  set('hip','modula el reflejo',.3,'n');
+  set('ci','actividad '+fmt(A.vt[i]*100,0)+' %',A.vt[i],'v');
+  set('vd','actividad '+fmt(nf*100,0)+' %',nf,'n');
+  set('vc','actividad '+fmt(A.st[i]/.65*100,0)+' %',A.st[i]/.65,'s');
+  set('vag','v = '+fmt(A.v[i],2),A.v[i],'v');set('sim','s = '+fmt(A.s[i],2),A.s[i]/1.2,'s');
+  set('sa','FC '+fmt(A.HR[i],0)+' /min',(A.HR[i]-40)/130,'n');
+  set('ven','contr. '+fmt(A.contr[i],2)+' ×',(A.contr[i]-.3)/1.2,'s');
+  set('art','RPT '+fmt(A.TPR[i],1),(A.TPR[i]-10)/30,'s');
+  set('vnl','Pmsf '+fmt(A.Pmsf[i],1)+' mmHg',(A.Pmsf[i]-1)/12,'s');
+  set('res',fmt(A.CO[i],2)+' × '+fmt(A.TPR[i],1)+' + '+fmt(A.Pra[i],1)+' = '+fmt(A.MAP[i],0),.4,'n')}
+
+/* ===== tablero manual ===== */
+var mPro=false;
+function board(){
+  var xs=+$('mS').value,xv=+$('mV').value,s=xs/100*.65,v=xv/100,sh=mPro?0:cl(.3+1.5*(s-.3),0,1.5);
+  var h=hemo({sh:sh,sr:s,sv:s,v:v,Vb:5000,pool:0});
+  $('mSV').textContent=xs+' %';$('mVV').textContent=xv+' %';
+  var Vu=CV.Vu0-800*(s-.3);
+  $('mChips').innerHTML=chip('FC',fmt(h.HR,0),'ok','/min')+chip('Contractilidad',fmt(h.contr,2),'ok','×')+chip('VS',fmt(h.SV,0),'ok','mL')+chip('GC',fmt(h.CO,2),'ok','L/min')+chip('RPT',fmt(h.TPR,1),'ok')+chip('Vol. sin tensión',fmt(Vu,0),'wn','mL')+chip('PAM',fmt(h.MAP,0),'ok','mmHg')+(mPro?chip('β1','bloqueado','wn'):'')}
+['mS','mV'].forEach(function(id){$(id).oninput=function(){mPro=false;board()}});
+$('mR').onclick=function(){mPro=false;$('mS').value=46;$('mV').value=60;board()};
+$('mSm').onclick=function(){mPro=false;$('mS').value=100;$('mV').value=0;board()};
+$('mVm').onclick=function(){mPro=false;$('mS').value=0;$('mV').value=100;board()};
+$('mAt').onclick=function(){mPro=false;$('mS').value=46;$('mV').value=0;board()};
+$('mPr').onclick=function(){mPro=true;$('mS').value=46;$('mV').value=60;board()};
+
+/* ===== retos ===== */
+function row(label,A_,i,B_,j,key,d,u){return label+' '+fmt(A_[key][i],d)+(u||'')+' (lazo abierto '+fmt(B_[key][j],d)+')'}
+var QS=[
+ {name:'Apaga el barorreflejo',q:'Hemorragia de 500 mL con el lazo cerrado frente a abierto. A los 30 s, ¿qué diferencia hay?',opts:['Sin barorreflejo la PAM cae más y la FC no sube','La PAM cae igual; el reflejo solo cambia la FC','Sin barorreflejo la PAM cae menos, porque no hay vasoconstricción excesiva'],ans:0,
+  run:function(){setCfg({chal:'hem500',loop:'closed',gain:100,atr:false,pro:false,pra:false,resp:false});$('win').value=120;UI.win=120;run();var i=atT(A,TCH+30),i1=atT(A,TCH+1);
+   return 'A +1 s la caída es casi la misma (PAM '+fmt(A.MAP[i1],0)+' con reflejo y '+fmt(B.MAP[i1],0)+' sin él): el efecto inmediato es hemodinámico, el reflejo apenas empieza. A +30 s: PAM '+fmt(A.MAP[i],0)+' con reflejo frente a '+fmt(B.MAP[i],0)+' sin él; FC '+fmt(A.HR[i],0)+' frente a '+fmt(B.HR[i],0)+'; RPT '+fmt(A.TPR[i],1)+' frente a '+fmt(B.TPR[i],1)+'. La línea punteada de las gráficas es el lazo abierto.'}},
+ {name:'Reflejo de la fenilefrina',q:'Infundes fenilefrina (sube la RPT). ¿Qué hace la FC a los 30 s?',opts:['Sube, porque hay más simpático','Baja: el aumento de la PAM reduce la descarga simpática y sube la vagal','No cambia, porque la fenilefrina no actúa en el corazón'],ans:1,
+  run:function(){setCfg({chal:'fenil',loop:'closed',gain:100,atr:false,pro:false,pra:false,resp:false});$('win').value=120;UI.win=120;run();var i=atT(A,TCH+30),i1=atT(A,TCH+1);
+   return 'La RPT sube de '+fmt(A.TPR[0],1)+' a '+fmt(A.TPR[i],1)+' y la PAM llega a '+fmt(A.MAP[atT(A,TCH+8)],0)+' mmHg; el centro responde con vago '+fmt(A.v[0],2)+' → '+fmt(A.v[i],2)+' y FC '+fmt(A.HR[0],0)+' → '+fmt(A.HR[i],0)+'. Con el lazo abierto la FC se queda en '+fmt(B.HR[i],0)+' y la PAM en '+fmt(B.MAP[i],0)+' mmHg: la bradicardia es el barorreflejo, no un efecto de la fenilefrina en el corazón.'}},
+ {name:'Fallo autonómico',q:'Una persona se pone de pie con una ganancia central de solo 10 %. Comparada con una persona sana, ¿qué esperas a los 2 min?',opts:['PAM más baja y FC casi sin aumento','PAM igual, pero con una FC mucho más alta','PAM más alta, porque no hay vasodilatación refleja'],ans:0,
+  run:function(){setCfg({chal:'stand',loop:'closed',gain:10,atr:false,pro:false,pra:false,resp:false});$('win').value=600;UI.win=600;run();var h=simD2({chal:'stand',gain:100}),i=atT(A,TCH+120);
+   return 'A +2 min, con ganancia 10 %: PAM '+fmt(A.MAP[i],0)+' mmHg y FC '+fmt(A.HR[i],0)+'. Con ganancia 100 %: PAM '+fmt(h.MAP[i],0)+' y FC '+fmt(h.HR[i],0)+'. El acúmulo venoso (+500 mL en las piernas) baja el retorno en el mismo instante; lo que cambia es la compensación en segundos. Este es el patrón de C1: caída de la PAM sin taquicardia.'}},
+ {name:'¿Quién ayuda sin barorreflejo?',q:'Hemorragia de 1500 mL con el lazo abierto (barorreflejo apagado). ¿Qué pasa con la eferencia simpática?',opts:['No cambia: sin barorreflejo no hay respuesta simpática','Sube igual, por quimiorreceptores y por la respuesta isquémica del SNC (último recurso)','Baja, porque la PAM cae'],ans:1,
+  run:function(){setCfg({chal:'hem1500',loop:'open',pfix:93,gain:100,atr:false,pro:false,pra:false,resp:false});$('win').value=600;UI.win=600;run();var i=atT(A,TCH+60);var mn=Math.min.apply(null,A.MAP);
+   return 'Con el seno fijado en 93 mmHg el barorreflejo no ve la caída, pero la PAM llega a '+fmt(A.MAP[atT(A,TCH+20)],0)+' mmHg y el simpático sube de '+fmt(A.s[0],2)+' a '+fmt(A.s[i],2)+' (mínimo de PAM '+fmt(mn,0)+'). Los quimiorreceptores se activan por el flujo bajo y, bajo ≈ 45 mmHg, la isquemia del SNC es la respuesta simpática más intensa. Es un reflejo de emergencia, no un control fino.'}},
+ {name:'Atropina',q:'Bloqueas los receptores M2 con atropina en reposo. ¿Qué cambia más?',opts:['La FC sube bastante y la RPT apenas cambia','La RPT cae mucho, porque el vago dilata las arteriolas','La contractilidad ventricular sube mucho'],ans:0,
+  run:function(){setCfg({chal:'none',loop:'closed',gain:100,atr:true,pro:false,pra:false,resp:false});$('win').value=120;UI.win=120;run();var i=atT(A,TCH+30);
+   return 'FC '+fmt(A.HR[0],0)+' → '+fmt(A.HR[i],0)+' /min; RPT '+fmt(A.TPR[0],1)+' → '+fmt(A.TPR[i],1)+'; contractilidad '+fmt(A.contr[0],2)+' → '+fmt(A.contr[i],2)+' ×. El vago inerva sobre todo nodos y aurículas; no hay inervación parasimpática relevante en las arteriolas ni efecto directo fuerte en el ventrículo. La PAM sube poco ('+fmt(A.MAP[0],0)+' → '+fmt(A.MAP[i],0)+') y el barorreflejo la recorta.'}},
+ {name:'Arritmia sinusal respiratoria',q:'Activas la respiración (ciclo de 5 s). ¿Cómo se comporta la FC?',opts:['Oscila con la respiración: sube en inspiración y baja en espiración','Queda fija: la respiración no llega al nodo SA','Sube de forma sostenida'],ans:0,
+  run:function(){setCfg({chal:'none',loop:'closed',gain:100,atr:false,pro:false,pra:false,resp:true});$('win').value=120;UI.win=120;run();var a=A.HR.slice(atT(A,30),atT(A,90));var mx=Math.max.apply(null,a),mn=Math.min.apply(null,a);
+   return 'La FC oscila entre '+fmt(mn,0)+' y '+fmt(mx,0)+' /min (amplitud ≈ '+fmt(mx-mn,0)+'). En el modelo la inspiración retira vago (ver B4 para el efecto de la presión intratorácica en el retorno). Si activas atropina, la oscilación desaparece porque la vía es vagal.'}}];
+setupQ(QS);
+
+/* ===== contraejemplo ===== */
+function cex(){
+  var hm=simD2({chal:'hem1500',tch:10,T:90}),ti=atT(hm,70),target=hm.MAP[ti],lo=.3,hi=1,v;
+  for(var k=0;k<12;k++){var m=(lo+hi)/2;var s=simD2Rext(m);if(s.MAP[ti]>target)hi=m;else lo=m}
+  var m2=(lo+hi)/2,vs=simD2Rext(m2);
+  function r(n,o){return '<tr><td>'+n+'</td><td class="n">'+fmt(o.MAP[ti],0)+'</td><td class="n">'+fmt(o.CO[ti],2)+'</td><td class="n">'+fmt(o.TPR[ti],1)+'</td><td class="n">'+fmt(o.HR[ti],0)+'</td><td class="n">'+fmt(o.Pra[ti],1)+'</td></tr>'}
+  $('cexT').innerHTML='<thead><tr><th>A los 60 s</th><th>PAM</th><th>GC</th><th>RPT</th><th>FC</th><th>PVC</th></tr></thead><tbody>'+r('Hemorragia de 1500 mL',hm)+r('Vasodilatación (RPT ×'+fmt(m2,2)+')',vs)+'</tbody>';
+  $('cexWhy').innerHTML='Con la misma PAM ≈ '+fmt(target,0)+' mmHg, la hemorragia tiene el GC bajo ('+fmt(hm.CO[ti],1)+' L/min), la RPT alta y la PVC baja; la vasodilatación tiene el GC alto ('+fmt(vs.CO[ti],1)+') y la RPT baja. "La PAM normal implica gasto normal" falla en los dos sentidos.'}
+function simD2Rext(f){ // vasodilatacion con factor constante a partir de 10 s
+  return simD2R({chal:'none',T:90,tch:10},f)}
+function simD2R(c,f){ // copia ligera de simD2 con Rext fijo desde tch
+  var N=Math.round(c.T/DT)+1,o={MAP:[],CO:[],TPR:[],HR:[],Pra:[]},sh=.3,sr=.3,sv=.3,v=.6,Psens=93;
+  var cc=Object.assign({chal:'none',loop:'closed',gain:100,tch:10,resp:false},c);
+  for(var i=0;i<N;i++){var t=i*DT,Rext=t>=cc.tch?f:1;var h=hemo({sh:sh,sr:sr,sv:sv,v:v,Vb:5000,pool:0,Rext:Rext});
+    o.MAP.push(h.MAP);o.CO.push(h.CO);o.TPR.push(h.TPR);o.HR.push(h.HR);o.Pra.push(h.Pra);
+    Psens+=(h.MAP-Psens)*(1-Math.exp(-DT));var rt=reflexT(Psens,h.MAP,cc,t);
+    sh+=(rt.sh-sh)*(1-Math.exp(-DT/2.5));sr+=(rt.s-sr)*(1-Math.exp(-DT/5));sv+=(rt.s-sv)*(1-Math.exp(-DT/12));v+=(rt.v-v)*(1-Math.exp(-DT/1))}
+  return o}
+
+/* ===== juegos ===== */
+var CHAIN=[
+ 'De pie, la sangre se acumula en las venas de las piernas y baja el retorno venoso.',
+ 'Baja el llenado ventricular: menor volumen sistólico y menor GC (Starling del corazón).',
+ 'Baja la PAM.',
+ 'Los barorreceptores del seno carotídeo y del arco aórtico se estiran menos: baja la descarga por IX y X.',
+ 'En el núcleo del tracto solitario disminuye la señal: se libera el centro vasoconstrictor y baja la actividad cardioinhibidora.',
+ 'Sube el simpático (FC, contractilidad, RPT, venoconstricción) y baja el vago.',
+ 'Suben el GC y el retorno venoso, y la PAM vuelve hacia su valor previo (sin llegar exacto: error residual).'];
+var chOrder=[],chPick=[];
+function chBuild(){chOrder=shuffle(CHAIN.map(function(_,i){return i}));chPick=[];chDraw();$('chFb').textContent=''}
+function chDraw(){
+  $('chPool').innerHTML=chOrder.map(function(i){var used=chPick.indexOf(i)>=0;return '<button class="chain-item" data-i="'+i+'" '+(used?'disabled':'')+'>'+CHAIN[i]+'</button>'}).join('');
+  $('chSlots').innerHTML=CHAIN.map(function(_,k){var i=chPick[k];return '<div class="slot" id="sl'+k+'"><b>'+(k+1)+'</b><span>'+(i===undefined?'':CHAIN[i])+'</span></div>'}).join('');
+  Array.prototype.forEach.call($('chPool').querySelectorAll('button'),function(b){b.onclick=function(){if(chPick.length<CHAIN.length){chPick.push(+b.dataset.i);chDraw()}}})}
+$('chReset').onclick=chBuild;
+$('chGo').onclick=function(){
+  if(chPick.length<CHAIN.length){$('chFb').textContent='Coloca los '+CHAIN.length+' eslabones antes de comprobar.';return}
+  var bad=-1;chPick.forEach(function(v,k){var s=$('sl'+k);s.className='slot '+(v===k?'ok':'no');if(v!==k&&bad<0)bad=k});
+  var why=['Se empieza por el hecho físico: la gravedad y la capacitancia venosa.','El retorno venoso fija el llenado antes de que cambie la presión.','La caída de presión es consecuencia del GC menor.','La presión es el estímulo que los barorreceptores leen; sin ese paso la señal no existe.','El centro integrador responde a lo que llega por IX y X.','El reflejo se ve en los efectores solo después de la integración central.','La corrección va al final, y parcial.'];
+  $('chFb').innerHTML=bad<0?'<b class="ok">Cadena correcta.</b> Cada eslabón causa el siguiente, y el reflejo no restituye la PAM por completo.':'<b class="no">Falla en el paso '+(bad+1)+'.</b> '+why[bad]};
+chBuild();
+var RQ=[
+ ['La noradrenalina acelera el nodo SA','β1','Gs: ↑ AMPc → ↑ corriente "funny" y de Ca²⁺'],
+ ['El vago frena el nodo SA','M2','Gi: ↓ AMPc y abre canales de K⁺'],
+ ['Vasoconstricción de arteriolas cutáneas por simpático','α1','Gq: ↑ IP₃ y Ca²⁺ intracelular'],
+ ['Vasodilatación del músculo esquelético con adrenalina en dosis bajas','β2','Gs: ↑ AMPc, relajación del músculo liso'],
+ ['Vasoconstricción por angiotensina II','AT1','Gq'],
+ ['Vasoconstricción por vasopresina en dosis altas','V1','Gq'],
+ ['Mayor contractilidad ventricular con el simpático','β1','Gs → PKA, más corriente de Ca²⁺'],
+ ['La fenilefrina sube la RPT','α1','Gq'],
+ ['Venoconstricción simpática','α1','Gq: baja la capacitancia']];
+var rq=null,rsc=[0,0];
+function rqNew(){var p=RQ.filter(function(q){return q!==rq});rq=p[Math.floor(Math.random()*p.length)];$('rqTxt').textContent=rq[0]+'. ¿Qué receptor interviene?';
+  $('rqOpts').innerHTML=['α1','β1','β2','M2','AT1','V1'].map(function(o){return '<button class="btn" data-o="'+o+'">'+o+'</button>'}).join('');
+  Array.prototype.forEach.call($('rqOpts').querySelectorAll('button'),function(b){b.onclick=function(){var ok=b.dataset.o===rq[1];rsc[1]++;if(ok)rsc[0]++;$('rqFb').innerHTML=(ok?'<b class="ok">Correcto.</b> ':'<b class="no">Era '+rq[1]+'.</b> ')+rq[2]+'.';$('rqScore').textContent=rsc[0]+' de '+rsc[1]}});
+  $('rqFb').textContent=''}
+$('rqNew').onclick=rqNew;rqNew();
+
+/* ===== caso clínico ===== */
+var CS={step:0};
+function caseRender(){
+  var h='';
+  function opts(name,arr){return arr.map(function(t,k){return '<label class="opt"><input type="radio" name="'+name+'" value="'+k+'"> <span>'+t+'</span></label>'}).join('')}
+  h+='<div class="col"><h3>1. ¿Qué dato de las cifras orienta más?</h3>'+opts('c1',['La PAM bajó 25 mmHg al pararse','La PAM bajó y la FC casi no subió (74 → 76 /min)','La PA acostada es normal'])+'<div class="row"><button class="btn primary" id="c1go">Responder</button></div><p class="fb" id="c1fb"></p></div>';
+  if(CS.step>=1){h+='<div class="col"><h3>2. Simula la misma maniobra en tres personas</h3><p class="note">Maniobra: ponerse de pie y esperar 3 min (+500 mL en piernas; filtración capilar en minutos).</p><div class="row"><button class="btn primary" id="c2go">Simular</button></div><div class="tw"><table class="cmp" id="c2t">'+(CS.tbl||'')+'</table></div></div>'}
+  if(CS.step>=2){h+='<div class="col"><h3>3. ¿Cuál es el mecanismo más probable de esta paciente?</h3>'+opts('c3',['Hipovolemia (deshidratación): el reflejo está intacto','Fallo de la respuesta autonómica (neuropatía diabética): el reflejo no compensa','Hiperactividad vagal en reposo'])+'<div class="row"><button class="btn primary" id="c3go">Responder</button></div><p class="fb" id="c3fb"></p></div>'}
+  if(CS.step>=3){h+='<div class="col"><h3>4. Elige una medida y mira qué hace el modelo con ganancia 10 %</h3><p class="note">Educativo: no es una pauta de tratamiento (VERIFICAR con guías vigentes).</p>'+opts('c4',['Medias de compresión (menos acúmulo en las piernas)','Expansión de volumen (+500 mL)','Propranolol para "proteger" el corazón','No hacer nada: el reflejo se adaptará'])+'<div class="row"><button class="btn primary" id="c4go">Aplicar</button></div><p class="fb" id="c4fb"></p></div>'}
+  $('casoBody').innerHTML=h;
+  var g=function(id,f){var e=$(id);if(e)e.onclick=f};
+  g('c1go',function(){var r=document.querySelector('input[name=c1]:checked');if(!r)return;var ok=+r.value===1;$('c1fb').innerHTML=ok?'<b class="ok">Sí.</b> Con una PAM que cae, el barorreflejo intacto subiría la FC unos 10–20 /min. Que no suba sugiere que el arco o los efectores no responden.':'<b class="no">Mira de nuevo.</b> Una caída de PAM al pararse es esperable y el reflejo normal la limita; lo llamativo es la FC casi fija.';if(ok&&CS.step<1){CS.step=1;var f1=$('c1fb').innerHTML;caseRender();$('c1fb').innerHTML=f1}});
+  g('c2go',function(){var P=[['Persona sana',{gain:100,Vb0:5000}],['Hipovolemia (−800 mL)',{gain:100,Vb0:4200}],['Neuropatía autonómica (ganancia 10 %)',{gain:10,Vb0:5000}]];
+    var t='<thead><tr><th>Persona</th><th>PAM acostada → de pie 3 min</th><th>FC acostada → de pie</th></tr></thead><tbody>';
+    P.forEach(function(p){var s=simD2(Object.assign({chal:'stand',tch:60,T:300},p[1]));var a=atT(s,55),b=atT(s,240);t+='<tr><td>'+p[0]+'</td><td class="n">'+fmt(s.MAP[a],0)+' → '+fmt(s.MAP[b],0)+'</td><td class="n">'+fmt(s.HR[a],0)+' → '+fmt(s.HR[b],0)+'</td></tr>'});
+    CS.tbl=t+'</tbody>';$('c2t').innerHTML=CS.tbl;if(CS.step<2){CS.step=2;caseRender()}});
+  g('c3go',function(){var r=document.querySelector('input[name=c3]:checked');if(!r)return;var ok=+r.value===1;$('c3fb').innerHTML=ok?'<b class="ok">Es lo más coherente.</b> En la hipovolemia la FC sí sube (tabla); aquí la FC fija y la historia de diabetes larga apuntan a la neuropatía autonómica. En la vida real se confirmaría con pruebas y se descartarían fármacos y volumen (C1).':r.value==='0'?'<b class="no">No.</b> En la hipovolemia el reflejo sí sube la FC (mira la fila 2 de la tabla). Esta paciente no taquicarda.':'<b class="no">No.</b> El exceso vagal no explica la caída ortostática de la PAM con una FC fija; el problema es que el reflejo no compensa.';if(ok&&CS.step<3){CS.step=3;var f=$('c3fb').innerHTML;caseRender();$('c3fb').innerHTML=f}});
+  g('c4go',function(){var r=document.querySelector('input[name=c4]:checked');if(!r)return;var k=+r.value;
+    var base=simD2({chal:'stand',tch:60,T:300,gain:10});var opt=[{poolMax:250},{Vb0:5500},{pro:true},{}][k];var s=simD2(Object.assign({chal:'stand',tch:60,T:300,gain:10},opt));
+    var b=atT(s,240),b0=atT(base,240);var txt=['Reducir el acúmulo reduce la caída: es una medida mecánica que no depende del reflejo.','Más volumen eleva la presión media de llenado y el retorno: ayuda, con costo (supino hipertenso, edema).','El β-bloqueo quita el poco simpático cardiaco que queda; el modelo no mejora la PAM.','La adaptación del reflejo no repara un arco lesionado; el problema persiste.'][k];
+    var ok=k<2;$('c4fb').innerHTML=(ok?'<b class="ok">Razonable.</b> ':'<b class="no">No ayuda.</b> ')+'PAM de pie a los 3 min: '+fmt(s.MAP[b],0)+' mmHg (sin medida: '+fmt(base.MAP[b0],0)+'). '+txt}); }
+caseRender();
+
+/* ===== eventos ===== */
+['chal','pfix','gain','dAtr','dPro','dPra','resp','refill'].forEach(function(id){$(id).oninput=run;$(id).onchange=run});
+Array.prototype.forEach.call(document.querySelectorAll('input[name=loop]'),function(e){e.onchange=run});
+$('win').onchange=function(){UI.win=+this.value;var d={120:40,600:130,1800:600}[UI.win];$('tc').value=d;run()};
+$('tc').oninput=function(){curChips();draw()};
+$('rest').onclick=function(){setCfg({chal:'none',loop:'closed',pfix:93,gain:100,atr:false,pro:false,pra:false,resp:false,refill:true});$('win').value=120;UI.win=120;$('tc').value=40;run()};
+window.addEventListener('resize',function(){draw()});
+buildDgm();$('chal').value='hem500';run();cex();board();
+window.__dbg={simD2:simD2,hemo:hemo,openGain:openGain,atT:atT,get A(){return A},get B(){return B},setCfg:setCfg,run:run,QS:QS,UI:UI};
+
+})();
+</script>
+
+</body></html>

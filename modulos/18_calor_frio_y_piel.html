@@ -1,0 +1,382 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Calor, frío y piel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el pulso venoso como un trazo que se lee por ondas (a, c, v) y descensos (x, y), alineado con el ECG y con el flujo venoso. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+:root{--ven:#2F6DB5;--art:#C0392B;--satl:46%}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ven:#6FA8F0;--art:#F0806F;--satl:62%}}
+:root[data-theme="dark"]{--ven:#6FA8F0;--art:#F0806F;--satl:62%}
+.sec-h{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;justify-content:space-between}
+.lvl{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
+.case-data{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px}
+.case-data div{border:1px solid var(--line);border-radius:4px;padding:5px 8px;font-size:.85rem}
+.case-data b{display:block;font-family:var(--font-mono);font-weight:600;font-size:.95rem}
+.ver{font-family:var(--font-mono);font-size:.68rem;color:var(--guess);border:1px solid var(--guess);border-radius:3px;padding:0 4px;white-space:nowrap}
+.cmp td.n{white-space:normal}
+.ord{display:flex;flex-direction:column;gap:6px}
+.ord .btn{text-align:left}
+.ord .btn[disabled]{opacity:.45;cursor:default}
+select.wide{width:100%}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo D8 · circulación cutánea y termorregulación</div>
+  <h1>Calor, frío y piel</h1>
+  <p class="lede">La piel es un radiador con flujo ajustable: de unos 20 a más de 6000 mL/min. Cambia la temperatura ambiental, la temperatura central y el punto de ajuste, y mira cómo el calor roba volumen central y por qué la palidez puede significar frío, miedo o choque.</p>
+  <div class="tags"><span>Unidad 6: 6.265–6.271</span><span>Prioridad N5 · dificultad intermedia (N2)</span><span>Requiere D1 y B17</span><span>Perillas: T ambiente, T central, punto de ajuste, postura, hemorragia, miedo</span></div>
+</header>
+
+<section class="panel">
+  <div class="sec-h"><h2>Termostato y radiador</h2><span class="lvl">cubre 6.265–6.267 (anatomía, control, termorregulación) · 6.270 (palidez) · asignación fina: VERIFICAR</span></div>
+  <div class="chips" id="pre"></div>
+  <div class="grid"><canvas id="c1" role="img" aria-label="Flujo cutáneo según la temperatura central"></canvas><canvas id="c2" role="img" aria-label="Presión arterial media y gasto cardiaco según la temperatura central"></canvas></div>
+  <div class="chips" id="read"></div>
+  <p class="why" id="why"></p>
+</section>
+
+<section class="panel">
+  <h2>Controles</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Temperatura ambiental: <span class="mono" id="taV"></span><input type="range" id="ta" min="0" max="45" step="1" value="25"></label>
+      <label class="ctl" style="flex:none">Temperatura central: <span class="mono" id="tcV"></span><input type="range" id="tc" min="35" max="41" step="0.1" value="37"></label>
+      <label class="ctl" style="flex:none">Punto de ajuste hipotalámico: <span class="mono" id="tsV"></span><input type="range" id="ts" min="36" max="40" step="0.1" value="37"></label>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Postura
+        <select id="pos" class="wide"><option value="lie">Acostado fuera del agua</option><option value="bath">Sentado en el agua (la presión del agua empuja sangre al centro)</option><option value="stand">De pie, fuera del agua</option></select></label>
+      <label class="ctl" style="flex:none">Pérdida de sangre: <span class="mono" id="hmV"></span><input type="range" id="hm" min="0" max="40" step="1" value="0"></label>
+      <label class="ctl" style="flex:none">Miedo o dolor (descarga simpática): <span class="mono" id="frV"></span><input type="range" id="fr" min="0" max="1" step="0.05" value="0"></label>
+    </div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Estado</th><th>Qué ocurre en la piel</th><th>Quién lo ordena</th></tr></thead><tbody>
+    <tr><td>Calor</td><td>Vasodilatación activa, más flujo, sudor</td><td>Se retira el tono noradrenérgico y las fibras sudomotoras liberan acetilcolina, con vasodilatación asociada</td></tr>
+    <tr><td>Frío</td><td>Vasoconstricción de arteriolas y anastomosis arteriovenosas acrales</td><td>Simpático noradrenérgico</td></tr>
+    <tr><td>Hemorragia, miedo</td><td>Palidez, a veces sudor frío</td><td>Reflejo barorreceptor y emoción</td></tr></tbody></table></div>
+  <p class="note">Los plexos subpapilares y las anastomosis arteriovenosas de manos, pies, orejas y nariz permiten pasar de casi nada a un flujo enorme sin pasar por capilares. Las magnitudes son ilustrativas <span class="ver">VERIFICAR</span>.</p>
+</section>
+
+<section class="cols2">
+  <div class="panel">
+    <h3>Triple respuesta de Lewis</h3>
+    <p class="note">Una línea trazada con firmeza sobre la piel. Tres fenómenos, tres mecanismos.</p>
+    <canvas id="lw" role="img" aria-label="Triple respuesta de Lewis: línea roja, halo y roncha"></canvas>
+    <label class="ctl" style="flex:none">Intensidad del estímulo: <span class="mono" id="lsV"></span><input type="range" id="ls" min="0.2" max="1" step="0.05" value="0.7"></label>
+    <label class="ctl" style="flex:none">Tiempo: <span class="mono" id="ltV"></span><input type="range" id="lt" min="0" max="240" step="5" value="150"></label>
+    <div class="row"><label class="lab"><input type="checkbox" id="lan"> Anestesia local (bloquea las fibras sensitivas)</label><label class="lab"><input type="checkbox" id="lah"> Antihistamínico</label></div>
+    <div class="chips" id="lread"></div>
+    <p class="why" id="lwhy"></p>
+  </div>
+  <div class="panel">
+    <h3>Hiperemia reactiva (liga con D1)</h3>
+    <p class="note">Se ocluye el flujo y se suelta. Los metabolitos acumulados dilatan el lecho y el flujo sube por encima del basal.</p>
+    <canvas id="hr" role="img" aria-label="Flujo relativo tras una oclusión"></canvas>
+    <label class="ctl" style="flex:none">Duración de la oclusión: <span class="mono" id="hoV"></span><input type="range" id="ho" min="10" max="300" step="5" value="60"></label>
+    <div class="chips" id="hread"></div>
+    <p class="why" id="hwhy"></p>
+  </div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Ejemplo trabajado: calor ambiental de 35 °C</h3><div id="work" class="col" style="gap:6px"></div><button class="btn" id="wApply">Aplicar este ejemplo al modelo</button></div>
+  <div class="panel"><h3>Contraejemplo: piel pálida y fría</h3><p class="note">Casi igual, pero distinto: frío intenso de 5 °C frente a una pérdida de sangre del 30 %.</p><div class="tw"><table class="cmp" id="cx"></table></div><p class="why" id="cxW"></p></div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <label class="lab">Confianza: <select id="qConf"><option value="media">media</option><option value="alta">alta</option><option value="baja">baja</option></select></label>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Juego: Piel misteriosa</h3>
+      <p class="note">Mira la piel y los signos del paciente. Elige qué la produjo.</p>
+      <div class="chips" id="gChips"></div>
+      <select id="gSel" aria-label="Causa"><option value="">¿Qué le pasa a esta piel?</option></select>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><button class="btn" id="gNew">Nuevo paciente</button></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="sec-h"><h2>Caso clínico de cierre</h2><span class="lvl">integra 6.266–6.270 · C28</span></div>
+  <div id="case" class="col"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"La piel enrojecida significa que el paciente está bien perfundido": en el calor el flujo cutáneo sube a costa del volumen central.</li>
+    <li>"La palidez es siempre por frío": también aparece con miedo, hipovolemia y choque, y la FC y la PAM los distinguen.</li>
+    <li>"El sudor es solo pérdida de agua": acompaña una vasodilatación asociada que aumenta el flujo cutáneo.</li>
+    <li>"La fiebre es calor": en el ascenso la piel está fría y pálida, con escalofríos, porque el punto de ajuste subió y el cuerpo conserva calor.</li>
+    <li>"La vasodilatación cutánea no afecta la presión": roba volumen central y baja la resistencia total; el corazón y los reflejos lo compensan solo en parte.</li>
+    <li>"La roncha y el halo de Lewis son lo mismo": la roncha es permeabilidad y el halo es un reflejo axónico.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>La temperatura central y el punto de ajuste son perillas; no hay balance de energía ni dinámica temporal.</li>
+    <li>El flujo cutáneo sigue una curva logística de una señal combinada (central, piel, reflejo de volumen), con topes de 20 y 7000 mL/min.</li>
+    <li>El reflejo barorreceptor se resuelve en equilibrio y nunca claudica; no hay choque descompensado ni acidosis.</li>
+    <li>La sudoración solo pierde agua en L/h; no se acumula la deshidratación.</li>
+    <li>El retorno venoso depende del volumen central desplazado con pendientes ilustrativas (VERIFICAR); la hemorragia se cuenta como 34 mL por cada 1 %.</li>
+    <li>La triple respuesta y la hiperemia reactiva son relaciones cualitativas con constantes de tiempo didácticas.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.265–6.271). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro del curso.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,mx){return Math.max(260,Math.min(mx||940,Math.floor(c.parentElement.clientWidth-2)))}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function mkQuiz(QS,redraw){
+  var qi=0;
+  function show(){var q=QS[qi];$('qText').textContent='Reto '+(qi+1)+' de '+QS.length+(q.name?' · «'+q.name+'»':'')+'. '+q.q;
+    $('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> '+t+'</label>'}).join('');$('qFb').textContent=''}
+  $('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+    var q=QS[qi],ok=+r.value===q.a,conf=$('qConf').value;q.ap();
+    var cal=ok?(conf==='alta'?' Buena calibración: confianza alta y acierto.':conf==='baja'?' Acertaste con confianza baja: confía un poco más en tu razonamiento.':''):(conf==='alta'?' Ojo: confianza alta y fallo; revisa la cadena causal paso a paso.':'');
+    $('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> La respuesta es: <b>'+q.o[q.a]+'</b>. ')+q.e()+cal+' Mira el modelo arriba: ya aplicó el cambio.';if(redraw)redraw()};
+  $('qNext').onclick=function(){qi=(qi+1)%QS.length;show()};
+  show()}
+function mkCase(C){
+  var si=0,root=$('case');
+  function render(){
+    var s=C.steps[si];
+    var h='<p>'+C.intro+'</p><div class="case-data">'+C.data.map(function(d){return '<div>'+d[0]+'<b>'+d[1]+'</b></div>'}).join('')+'</div>';
+    if(C.load)h+='<div class="row"><button class="btn" id="cLoad">'+C.loadTxt+'</button></div>';
+    h+='<h3>Decisión '+(si+1)+' de '+C.steps.length+'</h3><fieldset style="flex-direction:column"><legend>'+s.q+'</legend>'+s.opts.map(function(o,k){return '<label class="opt"><input type="radio" name="co" value="'+k+'"> '+o.t+'</label>'}).join('')+'</fieldset><div class="row"><button class="btn primary" id="cGo">Decidir</button><button class="btn" id="cNx" hidden>'+(si<C.steps.length-1?'Siguiente decisión':'Ver cierre')+'</button></div><p class="fb" id="cFb" aria-live="polite"></p>';
+    root.innerHTML=h;
+    if(C.load)$('cLoad').onclick=C.load;
+    $('cGo').onclick=function(){var r=root.querySelector('input[name=co]:checked');if(!r){$('cFb').textContent='Elige una opción.';return}var o=s.opts[+r.value];$('cFb').innerHTML=(o.ok?'<span class="ok">Bien razonado.</span> ':'<span class="no">Revisa este paso.</span> ')+(typeof o.fb==='function'?o.fb():o.fb);if(o.ok){$('cNx').hidden=false}};
+    $('cNx').onclick=function(){if(si<C.steps.length-1){si++;render()}else{root.innerHTML='<div class="why">'+C.end+'</div><div class="row"><button class="btn" id="cRe">Repetir el caso</button></div>';$('cRe').onclick=function(){si=0;render()}}}}
+  render()}
+
+function thermo(o){
+  var Fmin=20,Fmax=7000,posV0={lie:0,bath:250,stand:-500}[o.pos],bw=o.bw||12;
+  function at(b){
+    var Tsk=33,sk=250,i,x;
+    for(i=0;i<30;i++){x=(o.Tc-o.Tset)+.15*(Tsk-33)-1.4*b-1.6*o.fear;sk=Fmin+(Fmax-Fmin)/(1+Math.exp(-(x-1.86)/.55));Tsk=o.Tamb+(o.Tc-o.Tamb)*(sk+60)/(sk+215)}
+    var posV=o.pos==='stand'?posV0*(1+Math.max(sk-250,0)/4000):posV0,dV=-.10*(sk-250)-34*o.hem+posV,fh=1-.4*clamp((o.Tc-37)/1.5,0,1),dVe=dV+300*b*fh;
+    var HR=70+10*Math.max(o.Tc-37,0)+50*b+25*o.fear;
+    var SV=Math.max((71.4+.06*dVe)*(1+.10*Math.max(b,0)+.05*Math.max(o.Tc-37,0)),20);
+    var GC=HR*SV,Gs=sk/90,Go=52.78*(1+.25*o.fear)/(b>=0?1+.6*fh*b:1+.4*b);
+    var PAM=3+GC/(Gs+Go);
+    return {x:x,sk:sk,Tsk:Tsk,HR:HR,SV:SV,GC:GC,PAM:PAM,b:b,dV:dV,dVe:dVe,Gs:Gs,Go:Go,
+     sweat:1.8*(1-Math.exp(-Math.max(x-.3,0)/.8))+.25*clamp(Math.max(b,o.fear),0,1),RVS:(PAM-3)*80/(GC/1000)}}
+  function g(b){return clamp((93-at(b).PAM)/bw,-.6,1)-b}
+  var lo=-.6,hi=1,m;
+  if(g(lo)<=0)m=lo;else if(g(hi)>=0)m=hi;else{for(var k=0;k<40;k++){m=(lo+hi)/2;if(g(m)>0)lo=m;else hi=m}m=(lo+hi)/2}
+  var r=at(m);r.head=r.PAM-22*(o.pos==='stand'?1:0);return r}
+
+var BASE={Tamb:25,Tc:37,Tset:37,pos:'lie',hem:0,fear:0},S=Object.assign({},BASE);
+var PRES=[
+ {id:'n',n:'Reposo',o:{},w:'En reposo y a 25 °C con ropa ligera la piel recibe unos 250 mL/min (≈ 5 % del gasto), la temperatura de la piel es ≈ 33 °C y no hay sudor.'},
+ {id:'ca',n:'Calor ambiental (35 °C)',o:{Tamb:35,Tc:38},w:'Al subir la temperatura central, la piel se vasodilata y suda: el flujo cutáneo se multiplica, la resistencia total baja, la FC sube y parte de la sangre se almacena en las venas de la piel, de modo que el volumen central cae.'},
+ {id:'bs',n:'Sentado en agua caliente',o:{Tamb:40,Tc:38.3,pos:'bath'},w:'En el agua la presión hidrostática empuja sangre al centro y compensa el almacenamiento cutáneo: la presión se sostiene aunque la piel esté muy dilatada.'},
+ {id:'bp',n:'Sale del agua y se pone de pie',o:{Tamb:40,Tc:38.3,pos:'stand'},w:'Desaparece la presión del agua, la gravedad acumula sangre en piernas ya dilatadas y el retorno cae: baja el gasto y baja mucho la presión en la cabeza.'},
+ {id:'fr',n:'Frío (5 °C)',o:{Tamb:5},w:'El simpático noradrenérgico cierra arteriolas y anastomosis: el flujo cutáneo cae a unos 20 mL/min, la piel se enfría y conserva calor. La presión sube un poco porque aumenta la resistencia.'},
+ {id:'fa',n:'Fiebre: fase de ascenso',o:{Tset:39},w:'El punto de ajuste subió a 39 °C pero la temperatura central sigue en 37: el cuerpo se siente frío, constriñe la piel y tirita hasta alcanzar el nuevo punto. La piel está pálida y fría aunque se esté calentando.'},
+ {id:'fd',n:'Fiebre: fase de descenso',o:{Tc:39,Tset:37},w:'El punto de ajuste vuelve a 37 °C con la temperatura central en 39 °C: el cuerpo se siente caliente, vasodilata y suda para perder calor.'},
+ {id:'hm',n:'Hemorragia (30 %)',o:{hem:30},w:'El reflejo barorreceptor aumenta el simpático: se constriñe la piel (palidez fría), sube la FC y baja el gasto. La piel se sacrifica para proteger cerebro y corazón.'},
+ {id:'mi',n:'Miedo o dolor',o:{fear:1},w:'La descarga simpática emocional contrae la piel (palidez) y acelera el corazón sin pérdida de volumen.'}];
+function stateOf(p){return Object.assign({},BASE,p.o)}
+function curP(){return PRES.filter(function(p){var t=stateOf(p);return Object.keys(t).every(function(k){return t[k]===S[k]})})[0]}
+var D=null;
+function skinCol(sk){var t=clamp(Math.log(sk/20)/Math.log(350),0,1),a,b,u;
+  var st=[[236,228,220],[232,176,164],[208,72,62]];if(t<.5){a=st[0];b=st[1];u=t/.5}else{a=st[1];b=st[2];u=(t-.5)/.5}
+  return 'rgb('+a.map(function(v,i){return Math.round(v+(b[i]-v)*u)}).join(',')+')'}
+function skinTxt(r){return r.sk<60?'pálida y fría':r.sk<500?'normal, tibia':r.sk<2500?'rosada y caliente':'enrojecida y sudorosa'}
+function axes(x,r,xl,xh,yl,yh,xt,yt,yfmt,xlabel){x.strokeStyle=css('--line');x.lineWidth=1;x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='right';x.textBaseline='middle';
+  yt.forEach(function(v){var y=r.y+r.h-(v-yl)/(yh-yl)*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(yfmt?yfmt(v):v,r.x-4,y)});
+  x.textAlign='center';x.textBaseline='top';xt.forEach(function(v){var xx=r.x+(v-xl)/(xh-xl)*r.w;x.fillText(v,xx,r.y+r.h+3)});x.textAlign='right';x.fillText(xlabel,r.x+r.w,r.y+r.h+15)}
+function sweep(){var o=[],t;for(t=35;t<=41.001;t+=.25)o.push([t,thermo(Object.assign({},S,{Tc:t}))]);return o}
+function draw(){
+  var c1=$('c1'),c2=$('c2'),W=Math.min(cw(c1,520),520),H=210,sw=sweep(),x=fit(c1,W,H),r={x:46,y:22,w:W-60,h:H-62};
+  x.clearRect(0,0,W,H);x.fillStyle=css('--fg');x.font='600 11px '+css('--font-body');x.textAlign='left';x.textBaseline='top';x.fillText('Flujo cutáneo (mL/min) frente a temperatura central',4,2);
+  axes(x,r,35,41,0,7500,[35,36,37,38,39,40,41],[0,2500,5000,7500],null,'T central °C');
+  x.strokeStyle=css('--guess');x.lineWidth=2.4;x.beginPath();sw.forEach(function(p,i){var xx=r.x+(p[0]-35)/6*r.w,yy=r.y+r.h-p[1].sk/7500*r.h;i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke();
+  var px=r.x+(S.Tc-35)/6*r.w,py=r.y+r.h-clamp(D.sk,0,7500)/7500*r.h;x.fillStyle=css('--fg');x.beginPath();x.arc(px,py,5,0,6.3);x.fill();
+  x.strokeStyle=css('--muted');x.setLineDash([3,3]);var ps=r.x+(S.Tset-35)/6*r.w;x.beginPath();x.moveTo(ps,r.y);x.lineTo(ps,r.y+r.h);x.stroke();x.setLineDash([]);x.fillStyle=css('--muted');x.textAlign='left';x.fillText('punto de ajuste',ps+3,r.y+2);
+  var W2=Math.min(cw(c2,520),520),x2=fit(c2,W2,H),q={x:40,y:22,w:W2-86,h:H-62};x2.clearRect(0,0,W2,H);x2.fillStyle=css('--fg');x2.font='600 11px '+css('--font-body');x2.textAlign='left';x2.textBaseline='top';x2.fillText('PAM (mmHg) y gasto cardiaco (L/min)',4,2);
+  axes(x2,q,35,41,40,120,[35,36,37,38,39,40,41],[40,60,80,100,120],null,'T central °C');
+  x2.fillStyle=css('--vec');x2.textAlign='left';x2.textBaseline='middle';x2.font='10px '+css('--font-mono');[0,4,8,12].forEach(function(v){x2.fillText(v,q.x+q.w+4,q.y+q.h-v/12*q.h)});
+  function line(f,lo,hi,col){x2.strokeStyle=col;x2.lineWidth=2.4;x2.beginPath();sw.forEach(function(p,i){var xx=q.x+(p[0]-35)/6*q.w,yy=q.y+q.h-(clamp(f(p[1]),lo,hi)-lo)/(hi-lo)*q.h;i?x2.lineTo(xx,yy):x2.moveTo(xx,yy)});x2.stroke()}
+  line(function(r){return r.PAM},40,120,css('--blood'));line(function(r){return r.GC/1000},0,12,css('--vec'));
+  var pxx=q.x+(S.Tc-35)/6*q.w;x2.fillStyle=css('--blood');x2.beginPath();x2.arc(pxx,q.y+q.h-(clamp(D.PAM,40,120)-40)/80*q.h,4.5,0,6.3);x2.fill();x2.fillStyle=css('--vec');x2.beginPath();x2.arc(pxx,q.y+q.h-clamp(D.GC/1000,0,12)/12*q.h,4.5,0,6.3);x2.fill();
+  x2.font='600 10px '+css('--font-body');x2.textAlign='left';x2.textBaseline='bottom';x2.fillStyle=css('--blood');x2.fillText('PAM',q.x+4,q.y+q.h-4);x2.fillStyle=css('--vec');x2.fillText('GC',q.x+30,q.y+q.h-4)}
+function read(){var r=D,k=curP();
+  var sy=r.head<65;
+  $('read').innerHTML='<span class="chip" style="background:'+skinCol(r.sk)+';color:#16211F;border-color:var(--line)">Piel <b>'+skinTxt(r)+'</b></span>'+chip('Flujo cutáneo',Math.round(r.sk)+' mL/min',r.sk>=100&&r.sk<=500?'ok':'wn',fmt(r.sk/(r.GC)*100,1)+' % del GC')+chip('T piel',fmt(r.Tsk,1)+' °C','ok')+chip('Sudor',fmt(r.sweat,1)+' L/h',r.sweat<.05?'ok':'wn')+chip('FC / VS',Math.round(r.HR)+' / '+Math.round(r.SV),'ok','lpm / mL')+chip('GC',fmt(r.GC/1000,1)+' L/min',r.GC>4000&&r.GC<7000?'ok':'wn')+chip('PAM',Math.round(r.PAM)+' mmHg',r.PAM>=80?'ok':'no')+chip('RVS',Math.round(r.RVS)+' dyn·s/cm⁵',r.RVS>700&&r.RVS<1600?'ok':'wn')+chip('Volumen central',(r.dVe>=0?'+':'')+Math.round(r.dVe)+' mL',Math.abs(r.dVe)<150?'ok':'wn','desplazado')+chip('PAM en la cabeza',Math.round(r.head)+' mmHg',sy?'no':'ok',sy?'riesgo de síncope':'perfusión cerebral ok');
+  $('why').textContent=k?k.n+': '+k.w:'Combinación libre de perillas. Pregunta siempre: ¿sube o baja la señal de calor, y qué pasa con el volumen central?';
+  $('taV').textContent=S.Tamb+' °C';$('tcV').textContent=fmt(S.Tc,1)+' °C';$('tsV').textContent=fmt(S.Tset,1)+' °C';$('hmV').textContent=S.hem+' %';$('frV').textContent=fmt(S.fear,2);
+  document.querySelectorAll('#pre .btn').forEach(function(b){b.setAttribute('aria-pressed',k&&k.id===b.dataset.k?'true':'false')})}
+function sync(){$('ta').value=S.Tamb;$('tc').value=S.Tc;$('ts').value=S.Tset;$('pos').value=S.pos;$('hm').value=S.hem;$('fr').value=S.fear}
+function render(){D=thermo(S);read();draw()}
+function setPre(id){S=stateOf(PRES.filter(function(p){return p.id===id})[0]);sync();render()}
+PRES.forEach(function(p){var b=document.createElement('button');b.className='btn';b.dataset.k=p.id;b.textContent=p.n;b.setAttribute('aria-pressed','false');b.onclick=function(){setPre(p.id)};$('pre').appendChild(b)});
+[['ta','Tamb'],['tc','Tc'],['ts','Tset'],['hm','hem'],['fr','fear']].forEach(function(a){$(a[0]).oninput=function(){S[a[1]]=+this.value;render()}});$('pos').onchange=function(){S.pos=this.value;render()};
+/* Lewis */
+function lewis(){var s=+$('ls').value,t=+$('lt').value,an=$('lan').checked,ah=$('lah').checked,hf=ah?.3:1,nf=an?0:1;
+  var red=(1+1.5*s*hf)*(1-Math.exp(-t/8)),flare=2*15*s*(1-Math.exp(-t/25))*nf*(ah?.75:1),wheal=3*s*hf*(1-Math.exp(-t/70));
+  $('lsV').textContent=fmt(s,2);$('ltV').textContent=t+' s';
+  var c=$('lw'),W=cw(c,520),H=150,x=fit(c,W,H);x.clearRect(0,0,W,H);
+  x.fillStyle=css('--bg');x.fillRect(0,0,W,H);var cy=H/2,x0=30,x1=W-30,mm=3;
+  if(flare>0.2){var g=x.createLinearGradient(0,cy-flare/2*mm,0,cy+flare/2*mm);g.addColorStop(0,'rgba(200,60,50,0)');g.addColorStop(.5,'rgba(200,60,50,.38)');g.addColorStop(1,'rgba(200,60,50,0)');x.fillStyle=g;x.fillRect(x0-12,cy-flare/2*mm,x1-x0+24,flare*mm)}
+  x.strokeStyle='rgb(196,52,44)';x.lineCap='round';x.lineWidth=Math.max(red*mm,.5);x.beginPath();x.moveTo(x0,cy);x.lineTo(x1,cy);x.stroke();
+  if(wheal>.15){x.strokeStyle='rgba(250,240,232,.9)';x.lineWidth=wheal*mm*1.4;x.beginPath();x.moveTo(x0+4,cy);x.lineTo(x1-4,cy);x.stroke();x.strokeStyle='rgba(120,80,60,.5)';x.lineWidth=1;x.strokeRect(x0+4,cy-wheal*mm*.7,x1-x0-8,wheal*mm*1.4)}
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='left';x.textBaseline='top';x.fillText('1 mm = '+mm+' px',4,2);
+  $('lread').innerHTML=chip('Línea roja',fmt(red,1)+' mm','ok','vasodilatación local')+chip('Halo',fmt(flare,0)+' mm',flare>1?'ok':'no','reflejo axónico')+chip('Roncha',fmt(wheal,1)+' mm',wheal>.3?'ok':'wn','↑ permeabilidad');
+  $('lwhy').textContent=an?'Con anestesia local queda la línea roja y la roncha (mediadores locales) pero desaparece el halo, porque necesita las fibras sensitivas.':ah?'El antihistamínico reduce la línea roja y la roncha, que dependen sobre todo de la histamina; el halo, que usa el axón, cambia menos.':'La línea roja aparece en segundos por vasodilatación local, el halo en medio minuto por un reflejo axónico (la fibra libera mediadores en las ramas vecinas) y la roncha en 1–3 minutos por aumento de la permeabilidad de las vénulas.'}
+['ls','lt'].forEach(function(i){$(i).oninput=lewis});$('lan').onchange=lewis;$('lah').onchange=lewis;
+/* hiperemia */
+function hip(){var to=+$('ho').value,peak=1+3*(1-Math.exp(-to/60)),I=to,tau=I/(peak-1),dur=tau*Math.log((peak-1)/.1);
+  $('hoV').textContent=to+' s';var c=$('hr'),W=cw(c,520),H=150,x=fit(c,W,H),tot=to+Math.max(dur*1.25,60),r={x:34,y:10,w:W-44,h:H-40};x.clearRect(0,0,W,H);
+  axes(x,r,0,tot,0,4.2,[0,Math.round(tot/2),Math.round(tot)],[0,1,2,3,4],null,'s');
+  x.strokeStyle=css('--muted');x.setLineDash([3,3]);var yb=r.y+r.h-1/4.2*r.h;x.beginPath();x.moveTo(r.x,yb);x.lineTo(r.x+r.w,yb);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--bloodSoft');x.fillRect(r.x,r.y,to/tot*r.w,r.h);
+  x.strokeStyle=css('--guess');x.lineWidth=2.4;x.beginPath();x.moveTo(r.x,yb);x.lineTo(r.x,r.y+r.h);x.lineTo(r.x+to/tot*r.w,r.y+r.h);var n=120,i;for(i=0;i<=n;i++){var tt=i/n*(tot-to),f=1+(peak-1)*Math.exp(-tt/tau);x.lineTo(r.x+(to+tt)/tot*r.w,r.y+r.h-f/4.2*r.h)}x.stroke();
+  $('hread').innerHTML=chip('Flujo máximo','× '+fmt(peak,1),'ok','del basal')+chip('Duración de la hiperemia',Math.round(dur)+' s','ok','hasta +10 %')+chip('Exceso de flujo repagado',fmt(I*1,0)+' unidades·s','ok','≈ deuda');
+  $('hwhy').textContent='Más tiempo de oclusión, más metabolitos y más deuda: el flujo máximo se acerca a un tope ('+fmt(peak,1)+' veces el basal en este modelo) y la hiperemia dura más. Magnitudes: VERIFICAR.'}
+$('ho').oninput=hip;
+/* ejemplo trabajado */
+function work(){var a=thermo(BASE),b=thermo(Object.assign({},BASE,PRES[1].o));
+  var st=[['El calor sube la temperatura central a 38 °C','porque el ambiente a 35 °C no deja disipar calor'],['El hipotálamo retira el tono vasoconstrictor y activa el sudor: el flujo cutáneo pasa de '+Math.round(a.sk)+' a '+Math.round(b.sk)+' mL/min','porque más flujo acerca la sangre a la superficie para perder calor'],['La RVS baja de '+Math.round(a.RVS)+' a '+Math.round(b.RVS)+' dyn·s/cm⁵','porque se abre un lecho enorme en paralelo'],['El volumen central cae '+Math.round(-b.dVe)+' mL (tras la movilización esplácnica)','porque las venas de la piel almacenan sangre'],['La FC pasa de '+Math.round(a.HR)+' a '+Math.round(b.HR)+' y el GC de '+fmt(a.GC/1000,1)+' a '+fmt(b.GC/1000,1)+' L/min; la PAM queda en '+Math.round(b.PAM)+' mmHg','porque el corazón compensa la menor resistencia con más gasto']];
+  $('work').innerHTML=st.map(function(s,i){return '<div class="why"><b>'+(i+1)+'.</b> '+s[0]+', <i>porque '+s[1].replace(/^porque /,'')+'.</i></div>'}).join('')}
+$('wApply').onclick=function(){setPre('ca')};
+function cx(){var A=thermo(Object.assign({},BASE,{Tamb:5})),B=thermo(Object.assign({},BASE,{hem:30}));
+  function r(l,a,b){return '<tr><td>'+l+'</td><td class="n">'+a+'</td><td class="n">'+b+'</td></tr>'}
+  $('cx').innerHTML='<thead><tr><th>Medida</th><th>Frío (5 °C)</th><th>Pérdida de sangre 30 %</th></tr></thead><tbody>'+r('Flujo cutáneo (mL/min)',Math.round(A.sk),Math.round(B.sk))+r('FC (lpm)',Math.round(A.HR),Math.round(B.HR))+r('Volumen sistólico (mL)',Math.round(A.SV),Math.round(B.SV))+r('GC (L/min)',fmt(A.GC/1000,1),fmt(B.GC/1000,1))+r('PAM (mmHg)',Math.round(A.PAM),Math.round(B.PAM))+r('Sudor (L/h)',fmt(A.sweat,1),fmt(B.sweat,1))+'</tbody>';
+  $('cxW').textContent='Las dos pieles están pálidas (≈ '+Math.round(A.sk)+' y '+Math.round(B.sk)+' mL/min), pero solo en la pérdida de sangre cae el gasto a '+fmt(B.GC/1000,1)+' L/min, sube la FC a '+Math.round(B.HR)+' y aparece sudor frío. La piel sola no distingue; los signos centrales sí.'}
+/* retos */
+var QS=[
+ {name:'¿Por qué se desmaya en un baño caliente?',q:'Una persona sale de una bañera muy caliente y se pone de pie de golpe. ¿Cuál es la mejor explicación del desmayo?',o:['La piel dilatada acumula sangre, y de pie sin la presión del agua cae el retorno, el gasto y la presión en la cabeza','El calor deprime directamente el músculo cardiaco','Perdió tanto sudor en minutos que quedó sin volumen plasmático'],a:0,ap:function(){setPre('bs');setPre('bp')},e:function(){var a=thermo(stateOf(PRES[2])),b=D;return 'Sentado en el agua el GC era '+fmt(a.GC/1000,1)+' L/min y la PAM '+Math.round(a.PAM)+'. De pie, el volumen central desplazado pasa de '+(a.dVe>=0?'+':'')+Math.round(a.dVe)+' a '+Math.round(b.dVe)+' mL, el VS cae a '+Math.round(b.SV)+' mL, el GC a '+fmt(b.GC/1000,1)+' L/min y la PAM en la cabeza a '+Math.round(b.head)+' mmHg (riesgo de síncope por debajo de ≈ 65, VERIFICAR).'}},
+ {q:'Estás a 5 °C. ¿Qué pasa con el flujo de la piel, la temperatura de la piel y la presión?',o:['Flujo cutáneo muy bajo, piel fría y PAM igual o un poco mayor','Flujo cutáneo alto para calentarse, y PAM menor','El flujo no cambia: la piel no regula la temperatura'],a:0,ap:function(){setPre('fr')},e:function(){var b=D;return 'El flujo baja a '+Math.round(b.sk)+' mL/min, la piel queda a '+fmt(b.Tsk,1)+' °C y la PAM sube a '+Math.round(b.PAM)+' mmHg. Conservar calor significa no llevar sangre caliente a la superficie.'}},
+ {q:'Un niño empieza a tener fiebre: el punto de ajuste sube a 39 °C y la temperatura central sigue en 37 °C. ¿Cómo está la piel?',o:['Pálida y fría, con escalofríos','Roja y sudorosa','Igual que en reposo'],a:0,ap:function(){setPre('fa')},e:function(){var b=D;return 'La señal (Tc − punto de ajuste) es negativa: el flujo cutáneo cae a '+Math.round(b.sk)+' mL/min y la piel baja a '+fmt(b.Tsk,1)+' °C, aunque la temperatura central todavía es normal. Al bajar la fiebre, el sentido se invierte: vasodilatación y sudor.'}},
+ {q:'Una pérdida de sangre del 30 % hace que la piel se ponga pálida y fría. ¿Por qué?',o:['El reflejo barorreceptor aumenta el simpático y constriñe la piel para proteger órganos vitales','El cuerpo ya no tiene sangre en la piel porque se la llevó el sudor','La temperatura central bajó 3 °C'],a:0,ap:function(){setPre('hm')},e:function(){var b=D;return 'Con el volumen central desplazado '+Math.round(b.dVe)+' mL, el VS cae a '+Math.round(b.SV)+' mL y el reflejo sube la FC a '+Math.round(b.HR)+'; la piel queda en '+Math.round(b.sk)+' mL/min y la RVS sube a '+Math.round(b.RVS)+' dyn·s/cm⁵. La PAM se sostiene en '+Math.round(b.PAM)+' mmHg a costa de la piel.'}}];
+mkQuiz(QS,function(){});
+/* juego */
+var gcur=null,GL=[['fr','Frío ambiental'],['ca','Calor ambiental'],['fa','Fiebre en ascenso (escalofrío)'],['fd','Fiebre en descenso'],['hm','Hemorragia o choque'],['mi','Miedo o dolor'],['bp','Calor y de pie']];
+GL.forEach(function(g){var o=document.createElement('option');o.value=g[0];o.textContent=g[1];$('gSel').appendChild(o)});
+function newG(){var pool=GL.filter(function(g){return g[0]!==gcur});gcur=pool[Math.floor(Math.random()*pool.length)][0];var p=PRES.filter(function(q){return q.id===gcur})[0],r=thermo(stateOf(p));
+  $('gChips').innerHTML='<span class="chip" style="background:'+skinCol(r.sk)+';color:#16211F;border-color:var(--line)">Piel <b>'+skinTxt(r)+'</b></span>'+chip('T piel',fmt(r.Tsk,1)+' °C','wn')+chip('Sudor',fmt(r.sweat,1)+' L/h','wn')+chip('FC',Math.round(r.HR),'wn')+chip('PAM',Math.round(r.PAM),'wn')+chip('GC',fmt(r.GC/1000,1),'wn')+chip('T central',fmt(p.o.Tc||37,1)+' °C','wn');$('gSel').value='';$('gFb').textContent=''}
+$('gNew').onclick=newG;$('gGo').onclick=function(){var v=$('gSel').value;if(!v){$('gFb').textContent='Elige una causa.';return}var p=PRES.filter(function(q){return q.id===gcur})[0];
+  if(v===gcur)$('gFb').innerHTML='<span class="ok">Correcto.</span> '+p.w;else $('gFb').innerHTML='<span class="no">No.</span> Pista: la piel sola no basta; mira la temperatura central, la FC, la PAM y el sudor. Era: <b>'+GL.filter(function(g){return g[0]===gcur})[0][1]+'</b>. '+p.w};
+/* caso */
+mkCase({intro:'Hombre de 22 años: tras 15 minutos en un jacuzzi a 41 °C se levanta rápido, se desmaya y recupera la conciencia en el suelo en menos de un minuto.',
+ data:[['Temperatura central','38,3 °C'],['Piel','roja, sudorosa'],['FC','116 lpm'],['PA al despertar','90/55 mmHg'],['Sin dolor torácico','ni déficit focal']],
+ loadTxt:'Cargar el escenario en el modelo (de pie, Tamb 40 °C, Tc 38,3 °C)',load:function(){S=stateOf(PRES[3]);sync();render()},
+ steps:[{q:'¿Cuál es el mecanismo más probable?',opts:[{t:'Vasodilatación cutánea con acumulación venosa; al pararse sin la presión del agua cae el retorno y la perfusión cerebral',ok:true,fb:function(){var r=thermo(stateOf(PRES[3]));return 'El modelo reproduce el cuadro: FC '+Math.round(r.HR)+', VS '+Math.round(r.SV)+' mL, PAM '+Math.round(r.PAM)+' y PAM en la cabeza '+Math.round(r.head)+' mmHg.'}},{t:'Arritmia primaria por el calor',ok:false,fb:'Es posible en otros contextos, pero el modelo explica el síncope sin arritmia: la causa es el volumen central.'},{t:'Fiebre por infección',ok:false,fb:'La piel roja y sudorosa con la temperatura central subiendo por el ambiente es hipertermia; en la fiebre el punto de ajuste cambia.'}]},
+  {q:'¿Qué maniobra restablece mejor la perfusión cerebral mientras llega la ayuda?',opts:[{t:'Acostarlo, elevar las piernas y sacarlo del calor',ok:true,fb:function(){var r=thermo(Object.assign(stateOf(PRES[3]),{pos:'lie'}));return 'Al acostarlo desaparece el estrés gravitacional: el modelo da PAM '+Math.round(r.PAM)+' mmHg y GC '+fmt(r.GC/1000,1)+' L/min; elevar las piernas devuelve sangre al centro.'}},{t:'Sentarlo con las piernas colgando',ok:false,fb:'Mantiene el almacenamiento venoso en las piernas.'},{t:'Abrigarlo para que deje de sudar',ok:false,fb:'Retiene calor y mantiene la vasodilatación.'}]},
+  {q:'Más tarde llega otra paciente con piel pálida, fría y sudorosa, FC 125 y PAM 70 tras un accidente, en una sala a 24 °C. ¿Palidez por frío?',opts:[{t:'No: la palidez con taquicardia e hipotensión sugiere choque con vasoconstricción refleja',ok:true,fb:function(){var r=thermo(Object.assign({},BASE,{hem:40}));return 'En el modelo, una pérdida del 40 % da FC '+Math.round(r.HR)+', PAM '+Math.round(r.PAM)+' y GC '+fmt(r.GC/1000,1)+' L/min con piel de '+Math.round(r.sk)+' mL/min: la piel se parece a la del frío, el resto no.'}},{t:'Sí: es solo frío ambiental',ok:false,fb:'El frío no baja el gasto ni sube la FC de esa forma en una sala tibia.'},{t:'Sí: es vasodilatación por calor',ok:false,fb:'La vasodilatación da piel caliente y enrojecida.'}]}],
+ end:'Cadena causal: calor → vasodilatación cutánea → más almacenamiento venoso y menos RVS → de pie, menos retorno, menos GC y menos presión en la cabeza → síncope. Contrasta con el choque, donde la palidez es consecuencia de la vasoconstricción refleja. Educativo; no sustituye el juicio clínico.'});
+sync();render();work();cx();lewis();hip();newG();
+var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){draw();lewis();hip()},100)});
+window.__dbg={thermo:thermo,PRES:PRES,stateOf:stateOf,BASE:BASE};
+
+})();
+</script>
+
+</body></html>

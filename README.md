@@ -2,7 +2,9 @@
 
 Plataforma interactiva para **entender** el corazón (ECG y hemodinamia como un solo sistema), alineada con los objetivos de la Unidad 6 "Sistema cardiovascular" de la guía de Fisiología como referencia. Sin aval institucional.
 
-Cada módulo es un archivo HTML autocontenido: ábrelo directo en el navegador.
+**Todo en uno:** abre [`index.html`](index.html). Reúne los 23 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia y Regulación). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
+
+Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 
 ## Módulos
 
@@ -24,6 +26,15 @@ Cada módulo es un archivo HTML autocontenido: ábrelo directo en el navegador.
 | 14 | [Curvas de Guyton](modulos/14_curvas_de_guyton.html) | B4 | 6.139–6.144, 6.219–6.232 (parcial) |
 | 15 | [Hígado y vena porta](modulos/15_higado_y_vena_porta.html) | D7 | 6.256–6.264 |
 | 16 | [Catéter derecho virtual](modulos/16_cateter_derecho_virtual.html) | B7 | capa L8; apoya 6.136 y 6.189 |
+| 17 | [Arritmias y dispositivos](modulos/17_arritmias_y_dispositivos.html) | B14 | 6.109–6.111 (con A5/A6: 6.97–6.108) |
+| 18 | [Calor, frío y piel](modulos/18_calor_frio_y_piel.html) | D8 | 6.265–6.271 |
+| 19 | [Pericardio, tres formas](modulos/19_pericardio_tres_formas.html) | B11 | apoyo a 6.145–6.149 y 6.189 (VERIFICAR) |
+| 20 | [Flujo coronario](modulos/20_flujo_coronario.html) | D5 (complementa B13) | 6.241–6.252 |
+| 21 | [Lazo del barorreflejo](modulos/21_lazo_del_barorreflejo.html) | D2 | 6.219–6.232 |
+| 22 | [Vasos y presión](modulos/22_vasos_y_presion.html) | B17 | 6.150–6.168, 6.174–6.190 |
+| 23 | [Valvulopatías en el ciclo cardiaco](modulos/23_valvulopatias_en_el_ciclo_cardiaco.html) | B9 | 6.124, 6.145–6.149 |
+
+Para regenerar `index.html` tras añadir o cambiar módulos: `python3 tools/build_index.py .` (el orden y los grupos del menú están al inicio del script).
 
 ## Aviso
 

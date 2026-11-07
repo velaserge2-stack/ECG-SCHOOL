@@ -1,0 +1,912 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Valvulopatías en el ciclo cardiaco</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: cada valvulopatía como una partitura: asa, trazos, pulso, ECG y soplo salen del mismo modelo de elastancia con válvulas de orificio variable. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+
+.wrapseg{flex-wrap:wrap;gap:6px}.wrapseg .btn{border-radius:5px!important}
+ol{padding-left:1.3rem}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B9 · valvulopatías</div>
+  <h1>Valvulopatías en el ciclo cardiaco</h1>
+  <p class="lede">Ocho lesiones, cada una con su asa presión–volumen, sus trazos de presión, su pulso, su ECG y su soplo, generados por el mismo modelo. Elige una lesión, ajusta la gravedad y la etapa de adaptación, haz ejercicio y mira qué cambia primero y por qué.</p>
+  <div class="tags"><span>Unidad 6: 6.124 y 6.145–6.149 (con B16 y B12)</span><span>Prioridad N1</span><span>Nivel: intermedio a avanzado</span><span>Perilla 5 (estructura), con 1, 2 y 3</span></div>
+</header>
+
+<section class="panel" id="lab">
+  <h2>Laboratorio de valvulopatías</h2>
+  <div class="row"><div class="seg wrapseg" role="group" aria-label="Lesión" id="lesSeg"></div></div>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Gravedad: <span class="mono" id="sevV"></span><input type="range" id="sev" min="0" max="100" step="1" value="75"></label>
+      <label class="ctl" style="flex:none">Etapa o adaptación de las cámaras<select id="stage"></select></label>
+      <label class="ctl" style="flex:none">Esfuerzo: <span class="mono" id="ejV"></span><input type="range" id="ej" min="0" max="100" step="5" value="0"></label>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Frecuencia cardiaca en reposo: <span class="mono" id="hrV"></span><input type="range" id="hr" min="50" max="130" step="5" value="70"></label>
+      <label class="ctl" style="flex:none">Contractilidad: <span class="mono" id="conV"></span><input type="range" id="con" min="40" max="160" step="5" value="100"></label>
+      <label class="ctl" style="flex:none" id="pvrBox" hidden>Resistencia pulmonar (hipertensión pulmonar): <span class="mono" id="pvrV"></span><input type="range" id="pvr" min="100" max="400" step="10" value="100"></label>
+    </div>
+  </div>
+  <div class="row">
+    <label class="lab"><input type="checkbox" id="fa"> Fibrilación auricular (sin onda P ni contracción auricular)</label>
+    <label class="lab"><input type="checkbox" id="ret" checked> Retención de sal y agua (compensa en días)</label>
+    <label class="lab"><input type="checkbox" id="refl" checked> Reflejo que mantiene la presión (solo lado izquierdo)</label>
+    <label class="lab"><input type="checkbox" id="showRef" checked> Superponer corazón normal</label>
+    <button class="btn" id="reset">Valores de reposo</button>
+  </div>
+  <div class="chips" id="key"></div>
+  <p class="why" id="why"></p>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>Asa presión–volumen</h2>
+    <canvas id="loop" role="img" aria-label="Asa presión–volumen del ventrículo afectado frente al normal"></canvas>
+    <div class="chips" id="loopChips"></div>
+    <p class="note" id="loopNote"></p>
+  </div>
+  <div class="panel">
+    <h2 id="pulseT">Pulso</h2>
+    <canvas id="pulse" role="img" aria-label="Pulso arterial o venoso de la lesión frente al normal"></canvas>
+    <div class="chips" id="pulseChips"></div>
+    <p class="note" id="pulseNote"></p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Trazos simplificados tipo Wiggers</h2>
+  <canvas id="wig" role="img" aria-label="ECG, presiones, presión auricular, volumen ventricular y fonocardiograma del ciclo afectado"></canvas>
+  <div class="row"><button class="btn primary" id="play">Escuchar el soplo</button><span class="note" id="playNote"></span></div>
+  <div class="chips" id="legend" style="font-size:.8rem"></div>
+  <p class="note" id="ecgNote"></p>
+</section>
+
+<section class="panel">
+  <h2>Lo que el modelo sabe y lo que mide el catéter</h2>
+  <p class="note">El modelo conoce la verdad (área, fuga, presiones). El laboratorio o el eco la estiman con fórmulas que suponen cosas. Compara ambas columnas y mira cuándo se separan.</p>
+  <div class="tw"><table id="meas"><thead><tr><th>Magnitud</th><th>Verdad del modelo</th><th>Medición típica</th><th>Comentario</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="panel">
+  <h2>Esquema de cargas por valvulopatía</h2>
+  <p class="note">Cómo describe el libro cada lesión (VERIFICAR) frente a lo que da el modelo en este momento, respecto al corazón normal. Poscarga se muestra de dos maneras, para que no se confunda con la presión arterial.</p>
+  <div class="tw"><table id="book"><thead><tr><th>Lesión</th><th>Precarga (libro)</th><th>Poscarga (libro)</th><th>Contractilidad (libro)</th></tr></thead><tbody></tbody></table></div>
+  <div class="chips" id="loads"></div>
+  <p class="why" id="loadsWhy"></p>
+</section>
+
+<section class="panel" id="worked">
+  <h2>Ejemplo trabajado: por qué el gradiente de la estenosis aórtica depende del gasto</h2>
+  <div class="tags"><span>Nivel intermedio</span><span>Perillas: gravedad, esfuerzo</span><span>Objetivos 6.145–6.149</span></div>
+  <ol id="wkSteps"></ol>
+  <div class="row"><button class="btn primary" id="wkLoad">Cargar este caso en el laboratorio</button></div>
+</section>
+
+<section class="panel" id="counter">
+  <h2>Contraejemplos: casi igual, pero distinto</h2>
+  <div class="tags"><span>Nivel avanzado</span><span>Cambia una sola variable por vez</span></div>
+  <div class="cols2">
+    <div class="col"><h3>1. Misma área aórtica, otro gradiente</h3><div class="tw"><table id="ce1"></table></div><p class="note" id="ce1n"></p></div>
+    <div class="col"><h3>2. Contribución auricular: estenosis mitral leve frente a grave</h3><div class="tw"><table id="ce2"></table></div><p class="note" id="ce2n"></p></div>
+    <div class="col"><h3>3. Onda V grande sin insuficiencia mitral</h3><div class="tw"><table id="ce3"></table></div><p class="note" id="ce3n"></p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <h3 id="qName"></h3>
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <label class="lab">Confianza: <select id="qConf"><option value="">sin indicar</option><option value="baja">baja</option><option value="media">media</option><option value="alta">alta</option></select></label>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Juego: Desconocidos, ¿qué válvula soy?</h3>
+      <p class="note">Se genera una lesión al azar. Empieza solo con el pulso y pide más pistas; cada pista extra resta puntos.</p>
+      <canvas id="gc" role="img" aria-label="Trazos de la lesión desconocida"></canvas>
+      <div class="row"><button class="btn" id="gHint">Más pistas</button><button class="btn" id="gAud">Escuchar</button><button class="btn" id="gNew">Nuevo caso</button></div>
+      <select id="gSel" aria-label="Lesión"><option value="">Elige la lesión…</option></select>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><span class="mono" id="gScore"></span></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="case">
+  <h2>Caso clínico de cierre</h2>
+  <div class="tags"><span>Nivel avanzado</span><span>Estenosis aórtica con bajo flujo</span><span>Perillas: contractilidad, gradiente</span></div>
+  <div id="caseData"></div>
+  <div id="caseSteps"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"El gradiente valvular depende solo del área": a área fija crece con el cuadrado del flujo, así que el esfuerzo lo aumenta y el bajo gasto lo oculta.</li>
+    <li>"La contracción auricular pesa igual en todas las valvulopatías": en la estenosis mitral grave pesa menos, y la taquicardia daña más que perder la contracción.</li>
+    <li>"Toda onda V grande es insuficiencia mitral": una aurícula rígida con volumen alto también la produce.</li>
+    <li>"Insuficiencia aguda y crónica son la misma lesión": la cámara que no pudo adaptarse sube su presión de golpe; la que se dilató la tolera.</li>
+    <li>"Una FE normal en la insuficiencia mitral es buena señal": parte del volumen se va a la aurícula, por eso la FE "normal" puede ocultar un ventrículo que falla.</li>
+    <li>"Poscarga = presión arterial": en la insuficiencia mitral la presión de salida no sube, pero el estrés de pared sí por la dilatación.</li>
+    <li>"Solo hay soplo si la válvula está enferma": el flujo alto (anemia, fiebre, embarazo, esfuerzo) hace soplos con válvulas normales.</li>
+    <li>"La presión de enclavamiento es la presión de la aurícula izquierda": llega retrasada y amortiguada, y subestima la onda V.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Cada lado se simula por separado con una presión de entrada y un lecho distal fijos; no hay circuito pulmonar ni acople entre ventrículos. Las presiones derechas por estenosis mitral se infieren de la aurícula izquierda, no se simulan.</li>
+    <li>Las válvulas son ideales: sin inercia, sin soplos funcionales y sin regurgitación de cierre. El orificio estenótico es fijo y sigue la relación Q = c·A·√ΔP de Gorlin (c = 44,3 en las semilunares y 38 en las AV).</li>
+    <li>Las etapas "aguda" y "crónica" son conjuntos de parámetros (rigidez de la aurícula, desplazamiento de las curvas del VI, retención de volumen), no una evolución en el tiempo. Los valores son aproximados (VERIFICAR).</li>
+    <li>El pulso bisferiens y el soplo de Austin Flint no se reproducen. El pulso saltón se aprecia solo como presión de pulso ancha con subida rápida.</li>
+    <li>La contribución auricular que da el modelo tiene el sentido correcto (cae con la gravedad de la estenosis mitral) pero cifras menores que las del libro (≈ 29 % leve y ≈ 9 % grave; VERIFICAR).</li>
+    <li>El ECG es esquemático y de ritmo regular, también en fibrilación auricular. El soplo se sintetiza con ruido filtrado a partir de la velocidad del chorro; no es un fonocardiograma real.</li>
+    <li>Los umbrales de gravedad (áreas, orificio regurgitante efectivo) y el "esquema del libro" son de partida: VERIFICAR contra el libro del curso y las guías vigentes.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos 6.124 y 6.145–6.149 de la Unidad 6 de Fisiología como referencia. Sin aval institucional. Redactado con palabras propias; los valores marcados VERIFICAR deben confirmarse con el libro del curso.</p>
+</footer>
+</div>
+<script>
+/* ===== MOTOR HEMODINAMICO (copiado/extendido de wiggers.html y asa-presion-volumen.html) ===== */
+function eFn(u,Ts){
+  if(u<0)return 0;var n1=1.32,n2=21.9,t1=.269*Ts,t2=.452*Ts;
+  function raw(x){var a=Math.pow(x/t1,n1),b=Math.pow(x/t2,n2);return a/(1+a)/(1+b)}
+  if(!eFn.mx||eFn.k!==Ts){var m=0;for(var i=0;i<400;i++)m=Math.max(m,raw(i/400*Ts*1.5));eFn.mx=m;eFn.k=Ts}
+  return raw(u)/eFn.mx}
+var BASE={
+ L:{Es:2.9,V0:10,AE:.4,BE:.026,Eas:1.0,Ead:.25,Va0:10,Rin:.05,C:1.15,Rd:1.0,Pd:5,Pin:12,dEM:.025,Ain:4.5,Aout:5.0,Vv:130,Va:50,Vo:140,pinMax:38},
+ R:{Es:.85,V0:10,AE:.2,BE:.026,Eas:.35,Ead:.15,Va0:8,Rin:.04,C:4,Rd:.09,Pd:7,Pin:6,dEM:.04,Ain:7,Aout:4.0,Vv:120,Va:35,Vo:30,pinMax:24}};
+var CIN=38,COUT=44.3,DLT=.25,KP=.22,KR=.22;
+function qf(dp,A,c){return c*A*dp/Math.sqrt(Math.abs(dp)+DLT)}
+/* o: side,hr,pr,con,st,dED,dES,ast,fa,Ain,Arin,Aout,Arout,Pin,rdm,comp,COt,MAPt,ob,Vl,Vh,dys,seq,nW,Ts */
+function sim(o){
+  var p=Object.assign({},BASE[o.side]),L=o.side==='L';
+  var hr=o.hr,RR=60/hr,PR=Math.min((o.pr||160)/1000,RR*.55),QT=.38*Math.sqrt(RR),Ts=QT*2.3;
+  var Es=p.Es*(o.con==null?1:o.con)*(1-.18*(o.dys||0)),st=o.st||1,dED=o.dED||0,dES=o.dES||0,ast=o.ast||1;
+  var Ain=o.Ain==null?p.Ain:o.Ain,Arin=o.Arin||0,Aout=o.Aout==null?p.Aout:o.Aout,Arout=o.Arout||0;
+  var Pin=o.Pin==null?p.Pin:o.Pin,Rd=p.Rd*(o.rdm||1);
+  var Vv=p.Vv+(dED?dED*.9:0),Va=p.Va,Vo=p.Vo,dt=.0004,tAc=.12;
+  var ob=o.ob||0,Vl=o.Vl||25,Vh=o.Vh||110,fa=!!o.fa;
+  var nW=o.nW==null?((o.comp||o.reflex)?50:24):o.nW;
+  var seq=o.seq||[{dt:RR,con:1,atrial:!fa}];
+  var COt=o.COt||5,MAPt=o.MAPt||93;
+  var out={t:[],Pv:[],Pa:[],Po:[],V:[],Va:[],qi:[],qo:[],qper:[],Aeff:[],bt:[]};
+  var t=0,stage=0,beatsDone=0;
+  var t0s=[],pStart=[],cons=[],Tss=[];
+  function addBeat(dtb,con,atrial,Tsb){var tn=t0s.length?t0s[t0s.length-1]+dtb:.35;t0s.push(tn);cons.push(con);Tss.push(Tsb||Ts);pStart.push(atrial?tn-PR+.09:-1e9)}
+  for(var w=0;w<nW;w++)addBeat(RR,1,!fa);
+  var recStartBeat=nW;
+  seq.forEach(function(s,k){addBeat(s.dt,s.con==null?1:s.con,s.atrial==null?!fa:s.atrial,s.Ts)});
+  var tEnd=t0s[t0s.length-1]+ (seq[seq.length-1].dt) ;
+  var tRec0=t0s[recStartBeat]-RR*0.0;
+  var gs=0,ib=0,sumQ=0,sumP=0,nB=0,nextB=1;
+  var N=Math.ceil(tEnd/dt);
+  for(var i=0;i<N;i++){
+    t=i*dt;
+    while(ib+1<t0s.length&&t>=t0s[ib+1]+p.dEM)ib++;
+    var tau=t-(t0s[ib]+p.dEM),e=tau>=0?eFn(tau,Tss[ib]):0;
+    var Esb=Es*cons[ib];
+    /* aurícula: la sístole auricular más cercana */
+    var ea=0;for(var k=Math.max(0,ib-1);k<Math.min(t0s.length,ib+2);k++){var ua=t-pStart[k];if(ua>=0&&ua<tAc)ea=Math.pow(Math.sin(Math.PI*ua/tAc),2)}
+    var V0s=p.V0+dES,V0d=p.V0+dED;
+    var Ped=p.AE*st*(Math.exp(p.BE*(Vv-V0d))-1);if(Ped<0)Ped=Ped*.5;
+    var Pes=Math.max(Esb*(Vv-V0s),0);
+    var Pv=e*Pes+(1-e)*Math.max(Ped,0);
+    var Ea=(p.Ead+(p.Eas-p.Ead)*ea)*ast,Pa=Math.max(Ea*(Va-p.Va0),0),Po=Vo/p.C;
+    var Ao=Aout;if(ob>0){var gx=gs/(o.P0||25)*Math.pow(cons[ib],o.kk||0),vr=Math.pow(Math.min(1.6,Math.max(.6,(o.Vref||100)/Math.max(Vv,30))),2);var fl=o.fl==null?.12:o.fl;Ao=Aout*(fl+(1-fl)/(1+ob*vr*Math.pow(gx,o.nG||1)))}
+    var dpi=Pa-Pv,qin=dpi>=0?qf(dpi,Ain,CIN):(Arin>0?qf(dpi,Arin,CIN):0);
+    var dpo=Pv-Po,qout=dpo>=0?qf(dpo,Ao,COUT):(Arout>0?qf(dpo,Arout,COUT):0);
+    if(ob>0){var tg=dpo>0?dpo:0;gs+=(tg-gs)*Math.min(1,dt/(o.tauG||.015))}
+    var qven=(Pin-Pa)/p.Rin,qper=(Po-p.Pd)/Rd;
+    Va+=(qven-qin)*dt;Vv+=(qin-qout)*dt;Vo+=(qout-qper)*dt;
+    sumQ+=qper;sumP+=Po;nB++;
+    /* fin de latido (calentamiento): compensación */
+    if(nextB<=nW&&t>=t0s[nextB]){
+      if((o.comp||o.reflex)&&nB>10){var CO=sumQ/nB*60/1000,MAP=sumP/nB,cur=sumQ/nB;
+        if(o.comp&&o.compPin!==false)Pin*=1+KP*Math.max(-.4,Math.min(.4,(COt-CO)/COt));if(o.comp&&o.compPin!==false)Pin=Math.max(2,Math.min(p.pinMax,Pin));
+        if(L&&!o.noRd){var Rw=(MAPt-p.Pd)/cur;Rd=Rd+KR*(Rw-Rd);Rd=Math.max(.3*p.Rd,Math.min(2.4*p.Rd,Rd))}}
+      sumQ=0;sumP=0;nB=0;nextB++}
+    if(t>=t0s[recStartBeat]-.4){
+      if((i&1)===0){out.t.push(t-t0s[recStartBeat]);out.Pv.push(Pv);out.Pa.push(Pa);out.Po.push(Po);out.V.push(Vv);out.Va.push(Va);out.qi.push(qin);out.qo.push(qout);out.qper.push(qper);out.Aeff.push(Ao)}}
+  }
+  out.par={Es:Es,V0s:p.V0+dES,V0d:p.V0+dED,AE:p.AE,BE:p.BE,st:st};out.RR=RR;out.PR=PR;out.QT=QT;out.Ts=Ts;out.p=p;out.Pin=Pin;out.Rd=Rd;out.dtS=dt*2;
+  out.t0=t0s.slice(recStartBeat).map(function(x){return x-t0s[recStartBeat]});
+  out.o=o;out.side=o.side;return out}
+/* ---- análisis ---- */
+function mean(a,i0,i1){var s=0;for(var i=i0;i<i1;i++)s+=a[i];return s/Math.max(1,i1-i0)}
+function analyze(r,beat){
+  /* beat: índice dentro de la secuencia registrada (por defecto 0) */
+  beat=beat||0;var o=r.o,T=r.t,n=T.length;
+  var tA=r.t0[beat]-.0,tB=beat+1<r.t0.length?r.t0[beat+1]:r.t0[beat]+r.RR;
+  var i0=0;while(i0<n&&T[i0]<tA)i0++;var i1=i0;while(i1<n&&T[i1]<tB)i1++;
+  var m={i0:i0,i1:i1,tA:tA,tB:tB,len:i1-i0};
+  var Vmax=-1e9,Vmin=1e9,Pmax=0,Pamin=1e9,Pamax=0,PoMax=0,PoMin=1e9,gMax=0,gSum=0,gN=0,qoMax=0,qiMax=0,regO=0,regI=0,fwdO=0,fwdI=0,sumAo=0;
+  var ao=-1,ac=-1,mc=-1,mo=-1,dts=r.dtS,giSum=0,giN=0,giMax=-1e9;
+  for(var i=i0;i<i1;i++){
+    Vmax=Math.max(Vmax,r.V[i]);Vmin=Math.min(Vmin,r.V[i]);Pmax=Math.max(Pmax,r.Pv[i]);PoMax=Math.max(PoMax,r.Po[i]);PoMin=Math.min(PoMin,r.Po[i]);
+    Pamax=Math.max(Pamax,r.Pa[i]);Pamin=Math.min(Pamin,r.Pa[i]);
+    if(r.qo[i]>0){fwdO+=r.qo[i]*dts;var g=r.Pv[i]-r.Po[i];if(r.qo[i]>1){gMax=Math.max(gMax,g);gSum+=g;gN++}qoMax=Math.max(qoMax,r.qo[i])}else regO+=-r.qo[i]*dts;
+    if(r.qi[i]>0){fwdI+=r.qi[i]*dts;qiMax=Math.max(qiMax,r.qi[i]);if(r.qi[i]>1){var gi=r.Pa[i]-r.Pv[i];giSum+=gi;giN++;giMax=Math.max(giMax,gi)}}else regI+=-r.qi[i]*dts;
+    sumAo+=r.Po[i]}
+  m.EDV=Vmax;m.ESV=Vmin;m.SVtot=Vmax-Vmin;m.FE=m.SVtot/Vmax*100;
+  m.gInMean=giN?giSum/giN:0;m.gInPeak=giN?giMax:0;m.fwdO=fwdO;m.regO=regO;m.fwdI=fwdI;m.regI=regI;
+  m.SVfwd=fwdO-regO;/* anterógrado neto sistémico */
+  m.PAS=PoMax;m.PAD=PoMin;m.PP=PoMax-PoMin;m.MAP=mean(r.Po,i0,i1);m.Pmax=Pmax;
+  m.gPeak=gMax;m.gMean=gN?gSum/gN:0;m.qoMax=qoMax;m.qiMax=qiMax;
+  /* PTD VI: presión al inicio del QRS (justo antes de que el VI empiece a subir) */
+  var k0=i0;m.LVEDP=r.Pv[Math.max(i0,Math.round((tA-r.t[0])/dts)+0)]||r.Pv[i0];
+  m.LVEDP=r.Pv[Math.min(i1-1,i0+Math.round(.018/dts))];
+  m.Pamean=mean(r.Pa,i0,i1);m.Pamax=Pamax;m.Pamin=Pamin;
+  m.CO=mean(r.qper,i0,i1)*60/1000;
+  m.HR=60/(tB-tA);m.SV=m.CO*1000/m.HR;
+  /* eventos */
+  var thr=1;for(var j=i0;j<i1;j++){if(ao<0&&r.qo[j]>thr&&r.Pv[j]>r.Po[j])ao=j}
+  if(ao>=0){for(var j2=ao;j2<i1;j2++){if(r.qo[j2]<thr){ac=j2;break}}}
+  m.iAO=ao;m.iAC=ac;
+  /* apertura mitral */
+  if(ac>=0){for(var j3=ac;j3<i1;j3++){if(r.qi[j3]>thr){mo=j3;break}}}
+  m.iMO=mo;
+  /* cierre mitral: antes de AO, último qi>thr */
+  if(ao>=0){for(var j4=ao;j4>=i0;j4--){if(r.qi[j4]>thr){mc=j4;break}}}m.iMC=mc;
+  /* pico de VI vs pico de Ao */
+  m.gPP=Pmax-PoMax;
+  /* tiempo al pico de PAs desde AO */
+  var ip=i0;for(var q=i0;q<i1;q++)if(r.Po[q]>=PoMax-1e-9){ip=q;break}
+  m.tPeakAo=ao>=0?(ip-ao)*dts*1000:null;
+  /* upstroke dP/dt aórtico */
+  var mxs=0;for(q=i0+1;q<i1;q++)mxs=Math.max(mxs,(r.Po[q]-r.Po[q-1])/dts);m.dPdtAo=mxs;
+  /* tiempo de eyección */
+  m.tEj=(ao>=0&&ac>=0)?(ac-ao)*dts*1000:null;
+  /* contribución auricular: llenado desde inicio sístole auricular hasta cierre mitral */
+  var tot=0,kick=0,pS=r.t0[beat]-r.PR+.09;
+  for(q=i0;q<i1;q++){if(r.qi[q]>0){tot+=r.qi[q]*dts;var tt=r.t[q];if(tt>=pS&&tt<r.t0[beat]+.03&&!o.fa)kick+=r.qi[q]*dts}}
+  /* ventana: de pS a MC */
+  m.atrialFrac=tot>0?kick/tot*100:0;
+  /* onda V: máximo de Pa durante sístole; A: máximo antes de t0 */
+  var vmax=0,amax=0,aT=null;for(q=i0;q<i1;q++){var tt2=r.t[q]-tA;if(tt2>.06&&tt2<.60&&r.Pa[q]>vmax)vmax=r.Pa[q];if(r.t[q]>=pS-.01&&r.t[q]<tA+.03&&r.Pa[q]>amax)amax=r.Pa[q]}
+  m.V=vmax;m.A=amax;
+  /* jet Doppler */
+  m.vJet=qoMax/Math.max(r.Aeff?minA(r.Aeff,i0,i1):1,.05)/100; /* m/s */
+  return m}
+function minA(a,i0,i1){var m=1e9;for(var i=i0;i<i1;i++)m=Math.min(m,a[i]);return m}
+/* contribución auricular por diferencia: mismo estado sin sístole auricular */
+function kickPair(o){var r1=sim(Object.assign({},o,{comp:false,nW:30,seq:undefined,fa:false})),r0=sim(Object.assign({},o,{comp:false,nW:30,seq:undefined,fa:true}));
+  var a=analyze(r1),b=analyze(r0);return{kick:Math.max(0,(a.SVtot-b.SVtot)/a.SVtot*100),a:a,b:b}}
+if(typeof module!=='undefined')module.exports={kickPair:kickPair,sim:sim,analyze:analyze,BASE:BASE,eFn:eFn};
+
+/* ===== utilidades comunes ===== */
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,mx){var p=c.parentElement;return Math.max(240,Math.min(mx||940,Math.floor(p.clientWidth-(p.classList.contains('panel')?30:2))))}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function arrow(v,ref,tol,inv){var d=v/ref-1;if(Math.abs(d)<tol)return '≈';var up=d>0;if(inv)up=!up;var big=Math.abs(d)>3*tol;return (d>0?'↑':'↓')+(big?'↑':'')}
+function redrawAll(fn){
+  if(window.ResizeObserver)new ResizeObserver(fn).observe(document.body);else window.addEventListener('resize',fn);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',fn);
+  new MutationObserver(fn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fn)}
+/* eje y cuadrícula */
+function gridY(x,r,lo,hi,ticks,unit){x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.lineWidth=1;x.textAlign='right';x.textBaseline='middle';
+  ticks.forEach(function(v){var y=r.y+r.h-(v-lo)/(hi-lo)*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(v,r.x-4,y)})}
+function linePlot(x,xs,ys,mapx,mapy,col,lw,dash){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();for(var i=0;i<xs.length;i++){var px=mapx(xs[i]),py=mapy(ys[i]);i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke();x.setLineDash([])}
+/* ===== ECG esquemático (gaussianas) ===== */
+function g(ph,mu,sg,a){return a*Math.exp(-Math.pow((ph-mu)/sg,2)/2)}
+function ecgAt(t,E,lead){
+  /* t en ms desde el inicio de la P. E: PR,QT,pAmp,pDur,pNotch,fa,qrsW,L:{r,s,q,rp,st,t}, R:{...} */
+  var q=E.PR,W=E.qrsW||1,L=E[lead],v=0,tT=q+E.QT*.82;
+  if(!E.fa){var pa=E.pAmp*(lead==='V1'?.55:1),sd=16*(E.pDur||1);
+    if(E.pNotch>0)v+=g(t,45-18*E.pNotch,sd*.7,pa*.9)+g(t,45+22*E.pNotch,sd*.7,pa*.85);else v+=g(t,45,sd,pa)}
+  else v+=.02*Math.sin(t*.55)+.015*Math.sin(t*.93+1);
+  v+=g(t,q+3*W,5*W,L.q||0)+g(t,q+14*W,6*W,L.r)+g(t,q+30*W,6.5*W,-L.s)+(L.rp?g(t,q+48*W,6*W,L.rp):0);
+  /* ST: meseta suave entre fin del QRS y la T */
+  var st0=q+40*W,st1=tT-70,u=(t-st0)/(st1-st0);if(u>0&&u<1)v+=L.st*Math.sin(Math.PI*Math.min(1,u*1.0))*1;else if(u>=1&&t<tT+40)v+=L.st*Math.max(0,1-(t-st1)/110);
+  v+=g(t,tT-12,52,L.t);
+  return v}
+function drawEcg(x,r,E,lead,RR,px,label){
+  x.strokeStyle=css('--fg');x.lineWidth=1.5;x.beginPath();
+  var n=Math.max(120,Math.round(r.w*1.2));
+  for(var i=0;i<=n;i++){var t=RR*i/n,yy=r.y+r.h*.66-ecgAt(t,E,lead)*r.h*.34;i?x.lineTo(px(t),yy):x.moveTo(px(t),yy)}x.stroke();
+  x.fillStyle=css('--muted');x.font='600 10px '+css('--font-mono');x.textAlign='left';x.textBaseline='top';x.fillText(label,r.x+3,r.y)}
+/* ===== soplos: envolvente a partir del flujo ===== */
+function murmurEnv(r,kind){
+  /* devuelve arreglo env[i] (0..~1.5) y tipo por muestra a partir de velocidades de chorro (cm/s) */
+  var n=r.t.length,env=new Array(n),Aef=r.o;
+  var Ain=r.o.Ain==null?r.p.Ain:r.o.Ain,Aout=r.o.Aout==null?r.p.Aout:r.o.Aout,Ari=r.o.Arin||0,Aro=r.o.Arout||0;
+  for(var i=0;i<n;i++){var e=0,qo=r.qo[i],qi=r.qi[i];
+    var Ao=r.Aeff?r.Aeff[i]:Aout;
+    if(qo>0){var v=qo/Math.max(Ao,.05);e=Math.max(e,Math.max(0,(v-230)/420))}
+    else if(qo<0&&Aro>0){var v2=-qo/Aro;e=Math.max(e,Math.max(0,(v2-170)/400)*(r.side==='R'?.6:1))}
+    if(qi>0){var v3=qi/Math.max(Ain,.05);e=Math.max(e,Math.max(0,(v3-95)/260)*.8)}
+    else if(qi<0&&Ari>0){var v4=-qi/Ari;e=Math.max(e,Math.max(0,(v4-170)/400))}
+    env[i]=e}
+  return env}
+/* ===== síntesis de audio (solo tras un clic) ===== */
+var AUD={ctx:null,src:null};
+function buildAudio(r,env,m,opts){
+  var sr=8000,RR=r.RR,beats=3,len=Math.round(RR*beats*sr),buf=new Float32Array(len);
+  var seed=12345;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff*2-1}
+  var dts=r.dtS,t0=r.t0[0],i0=m.i0,i1=m.i1;
+  var lp1=0,lp2=0,a1=1-Math.exp(-2*Math.PI*(opts.fc||300)/sr),a2=1-Math.exp(-2*Math.PI*(opts.fc||300)/4/sr);
+  function envAt(tt){var k=Math.round((tt-r.t[0])/dts);if(k<i0||k>=i1)return 0;return env[k]}
+  function burst(ts,f,amp,dur){var s0=Math.round(ts*sr),nn=Math.round(dur*sr);for(var i=0;i<nn&&s0+i<len;i++){if(s0+i>=0)buf[s0+i]+=amp*Math.exp(-i/(nn*.28))*Math.sin(2*Math.PI*f*i/sr)}}
+  var tAO=m.iAO>=0?r.t[m.iAO]-t0:.12,tAC=m.iAC>=0?r.t[m.iAC]-t0:.38,tMO=m.iMO>=0?r.t[m.iMO]-t0:tAC+.08;
+  var tMC=m.iMC>=0?r.t[m.iMC]-t0:0;
+  for(var b=0;b<beats;b++){
+    var off=b*RR;
+    burst(off+tMC,55,opts.s1||.55,.09);burst(off+tAC,85,.45*(opts.s2||1),.08);
+    if(opts.snap)burst(off+tMO,190,.28,.05);
+    for(var i=0;i<Math.round(RR*sr);i++){var tt=i/sr,e=envAt(t0+tt);var nz=rnd();lp1+=a1*(nz-lp1);lp2+=a2*(nz-lp2);var band=(opts.hp?nz-lp1:(lp1-lp2));buf[b*Math.round(RR*sr)+i]+=e*(opts.gain||1.6)*band*(opts.hp?.55:1.6)}}
+  var mx=0;for(var k=0;k<len;k++)mx=Math.max(mx,Math.abs(buf[k]));if(mx>0)for(k=0;k<len;k++)buf[k]=buf[k]/mx*.85;
+  return {buf:buf,sr:sr}}
+function playBuf(a){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;if(!AUD.ctx)AUD.ctx=new C();stopBuf();var ab=AUD.ctx.createBuffer(1,a.buf.length,a.sr);ab.copyToChannel(a.buf,0);var s=AUD.ctx.createBufferSource();s.buffer=ab;s.loop=true;s.connect(AUD.ctx.destination);s.start();AUD.src=s;return true}catch(e){return false}}
+function stopBuf(){try{if(AUD.src){AUD.src.stop();AUD.src.disconnect()}}catch(e){}AUD.src=null}
+/* ===== motor de retos «Predice y observa» ===== */
+function quiz(cfg){
+  /* cfg: ids {text,opts,go,next,fb,name,conf}, QS */
+  var qi=0;
+  function show(){var q=cfg.QS[qi];$(cfg.name).textContent=q.name||'';$(cfg.text).textContent=q.q;
+    $(cfg.opts).innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="'+cfg.opts+'" value="'+k+'"> '+t+'</label>'}).join('');$(cfg.fb).textContent=''}
+  $(cfg.go).onclick=function(){var r=document.querySelector('input[name='+cfg.opts+']:checked');if(!r){$(cfg.fb).textContent='Elige primero una respuesta.';return}
+    var q=cfg.QS[qi],ok=+r.value===q.a,cf=$(cfg.conf)?$(cfg.conf).value:'';q.ap();
+    $(cfg.fb).innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+(cf==='alta'&&!ok?'Tu confianza era alta: revisa el eslabón que fallaste. ':'')+q.e(ok)+' <span class="note">Mira los gráficos de arriba.</span>'};
+  $(cfg.next).onclick=function(){qi=(qi+1)%cfg.QS.length;show()};
+  show();return{show:show,set:function(k){qi=k;show()}}}
+/* clasificación por umbrales */
+function cls(v,th,names){for(var i=0;i<th.length;i++)if(v<th[i])return names[i];return names[th.length]}
+
+/* ===== modelo de valvulopatías: lesión + gravedad + etapa → parámetros del motor ===== */
+var LES={
+ N:{n:'Normal',side:'L',t:'none'},
+ AS:{n:'Estenosis aórtica',side:'L',t:'outS',aN:5,aMin:.45,valve:'aórtica',cls:[1.0,1.5],clsN:['grave','moderada','leve'],clsDir:-1},
+ AR:{n:'Insuficiencia aórtica',side:'L',t:'outR',eMax:.55,valve:'aórtica',cls:[.1,.3],clsN:['leve','moderada','grave'],clsDir:1},
+ MS:{n:'Estenosis mitral',side:'L',t:'inS',aN:4.5,aMin:.75,valve:'mitral',cls:[1.0,1.5],clsN:['grave','moderada','leve'],clsDir:-1},
+ MR:{n:'Insuficiencia mitral',side:'L',t:'inR',eMax:.65,valve:'mitral',cls:[.2,.4],clsN:['leve','moderada','grave'],clsDir:1},
+ TS:{n:'Estenosis tricuspídea',side:'R',t:'inS',aN:7,aMin:1.0,valve:'tricúspide',cls:[1.0,1.5],clsN:['grave','moderada','leve'],clsDir:-1},
+ TR:{n:'Insuficiencia tricuspídea',side:'R',t:'inR',eMax:1.0,valve:'tricúspide',cls:[.2,.4],clsN:['leve','moderada','grave'],clsDir:1},
+ PS:{n:'Estenosis pulmonar',side:'R',t:'outS',aN:5,aMin:.45,valve:'pulmonar',cls:[1.0,1.5],clsN:['grave','moderada','leve'],clsDir:-1},
+ PR:{n:'Insuficiencia pulmonar',side:'R',t:'outR',eMax:.6,valve:'pulmonar',cls:[.1,.3],clsN:['leve','moderada','grave'],clsDir:1}
+};
+var STAGES={
+ N:['Sin lesión'],
+ AS:['Sin adaptación (solo el obstáculo)','Hipertrofia concéntrica compensada','Etapa tardía: disfunción diastólica y falla sistólica'],
+ AR:['Aguda (VI no dilatado)','Crónica compensada (VI dilatado)','Crónica descompensada'],
+ MS:['AI poco dilatada','AI muy dilatada (crónica)'],
+ MR:['Aguda (AI no distensible)','Crónica compensada (AI y VI dilatados)','Crónica descompensada'],
+ TS:['AD poco dilatada','AD muy dilatada (crónica)'],
+ TR:['Aguda (AD no distensible)','Crónica (AD y VD dilatados)','Crónica con hipertensión pulmonar'],
+ PS:['Sin adaptación (solo el obstáculo)','Hipertrofia del VD compensada','VD en falla'],
+ PR:['Aguda (VD no dilatado)','Crónica (VD dilatado)']
+};
+function lesSize(k,s){var L=LES[k];if(L.t==='outS'||L.t==='inS')return L.aN*Math.exp(-s*Math.log(L.aN/L.aMin));if(L.t==='outR'||L.t==='inR')return L.eMax*s;return 0}
+function lesClass(k,v){var L=LES[k];if(L.t==='none')return 'sin lesión';if(L.clsDir<0)return v<L.cls[0]?'grave':v<L.cls[1]?'moderada':'leve';return v<L.cls[0]?'leve':v<L.cls[1]?'moderada':'grave'}
+/* valores iniciales de FC y de las casillas al cambiar de etapa */
+function stageDefaults(k,st){
+  var acute=((k==='AR'||k==='MR'||k==='TR'||k==='PR')&&st===0);
+  return{hr:acute?100:70,ret:!acute}}
+/* masa miocárdica relativa (solo para el índice de estrés de pared) */
+function stageMass(k,st,s){
+  if(k==='AS')return st===0?1:st===1?1+.5*s:1+.35*s;
+  if(k==='AR')return st===0?1:st===1?1+.8*s:1+.8*s;
+  if(k==='MR')return st===0?1:1+.4*s;
+  if(k==='PS')return st===0?1:st===1?1+.5*s:1+.3*s;
+  return 1}
+/* estado → opciones del motor */
+function buildOpts(S){
+  /* S: les,sev,stage,hr,ej,con,fa,ret,refl,pvr */
+  var L=LES[S.les],side=L.side,sz=lesSize(S.les,S.sev),st=S.stage,s=S.sev,o={side:side};
+  var ej=S.ej;
+  o.hr=Math.min(175,S.hr+55*ej);o.con=S.con*(1+.5*ej);o.pr=160;o.fa=!!S.fa;
+  o.COt=5*(1+1.0*ej);o.MAPt=93+10*ej;o.nW=50;
+  o.rdm=1;o.st=1;o.dED=0;o.dES=0;o.ast=1;
+  if(L.t==='outS')o.Aout=sz;else if(L.t==='outR')o.Arout=sz;else if(L.t==='inS')o.Ain=sz;else if(L.t==='inR')o.Arin=sz;
+  var k=S.les;
+  if(k==='AS'){if(st>=1){o.st=1+1.0*s;o.con*=(1+.15*s)}if(st===2){o.con*=(1-.55*s)/(1+.15*s);o.dED=14*s;o.dES=0;o.pinFix=18}}
+  if(k==='AR'){if(st===0)o.pinFix=15;if(st===1){o.dED=100*s;o.dES=40*s;o.st=1-.2*s;o.con*=1-.1*s}if(st===2){o.dED=105*s;o.dES=50*s;o.st=1-.15*s;o.con*=1-.5*s;o.pinFix=15}}
+  if(k==='MR'){if(st===0){o.ast=1+2.7*s;o.pinFix=22}if(st>=1){o.ast=1-.65*s;o.dED=50*s;o.dES=15*s}if(st===2){o.con*=1-.5*s;o.pinFix=14}}
+  if(k==='MS'){if(st===1)o.ast=1-.5*s}
+  if(k==='TS'){if(st===1)o.ast=1-.5*s}
+  if(k==='TR'){if(st===0){o.ast=1+1.5*s;o.pinFix=10}if(st>=1){o.ast=1-.6*s;o.dED=30*s}if(st===2)o.rdm=3}
+  if(k==='PS'){if(st>=1){o.st=1+.5*s;o.con*=1+.2*s}if(st===2){o.con*=(1-.6*s)/(1+.2*s);o.dED=40*s;o.pinFix=10}}
+  if(k==='PR'){if(st===0)o.pinFix=8;if(st===1){o.dED=30*s}}
+  if(side==='R'&&S.pvr>1)o.rdm=Math.max(o.rdm,S.pvr);
+  /* compensación */
+  var base=BASE[side].Pin;
+  if(S.ret){o.comp=true;if(side==='L'&&!S.refl)o.noRd=true;if(side==='R')o.noRd=true}
+  else{o.Pin=o.pinFix||base;if(side==='L'&&S.refl)o.reflex=true;if(side==='R')o.reflex=false}
+  if(o.pinFix&&S.ret){/* etapas descompensadas: la retención ya no alcanza */o.comp=false;o.Pin=o.pinFix;if(side==='L'&&S.refl)o.reflex=true}
+  return o}
+var CACHE={};
+function runState(S){
+  var key=JSON.stringify(S);if(CACHE[key])return CACHE[key];
+  var o=buildOpts(S),r=sim(o),m=analyze(r);
+  var Sn=Object.assign({},S,{les:'N',sev:0,stage:0,ret:true,refl:true});
+  var kn=JSON.stringify(Sn),ref=CACHE[kn];
+  if(!ref){var on=buildOpts(Sn),rn=sim(on);ref={r:rn,m:analyze(rn),o:on};CACHE[kn]=ref}
+  var out={r:r,m:m,o:o,ref:ref};
+  var keys=Object.keys(CACHE);if(keys.length>40)delete CACHE[keys[0]];
+  CACHE[key]=out;return out}
+/* medidas derivadas de la lesión */
+function derived(S,res){
+  var L=LES[S.les],m=res.m,r=res.r,o=res.o,d={},dts=r.dtS;
+  var HRv=m.HR;
+  /* tiempo de eyección y flujo medio durante la eyección */
+  var tEj=(m.tEj||280)/1000;d.qEj=m.fwdO/Math.max(tEj,.05);
+  if(L.t==='outS'){
+    var Ptot=m.gMean;d.gPeak=m.gPeak;d.gMean=m.gMean;d.gPP=m.Pmax-m.PAS;
+    var Amin=Infinity;for(var i=m.i0;i<m.i1;i++)Amin=Math.min(Amin,r.Aeff[i]);
+    d.vmax=m.qoMax/Amin/100;d.dopp=4*d.vmax*d.vmax;
+    d.gorlin=d.qEj/(COUT*Math.sqrt(Math.max(m.gMean,.5)));
+    d.hakki=m.CO/Math.sqrt(Math.max(m.Pmax-m.PAS,m.gMean*.8,1));
+    d.areaTrue=lesSize(S.les,S.sev)}
+  if(L.t==='inS'){
+    d.gMean=m.gInMean;d.gPeak=m.gInPeak;
+    var tF=0;for(i=m.i0;i<m.i1;i++)if(r.qi[i]>1)tF+=dts;
+    d.tFill=tF;d.qFill=m.fwdI/Math.max(tF,.05);
+    d.gorlin=d.qFill/(CIN*Math.sqrt(Math.max(m.gInMean,.3)));
+    d.areaTrue=lesSize(S.les,S.sev);d.pht=220/Math.max(d.areaTrue,.1)}
+  if(L.t==='outR'){d.rvol=m.regO;d.rf=m.regO/Math.max(m.fwdO,1)*100;d.eroa=lesSize(S.les,S.sev)}
+  if(L.t==='inR'){d.rvol=m.regI;d.rf=m.regI/Math.max(m.fwdI,1)*100;d.eroa=lesSize(S.les,S.sev)}
+  /* estrés de pared relativo: sigma ∝ P·V / masa */
+  var mass=stageMass(S.les,S.stage,S.sev),ref=res.ref;
+  var pk=0,vk=0;for(i=m.i0;i<m.i1;i++)if(r.Pv[i]>pk){pk=r.Pv[i];vk=r.V[i]}
+  var pk0=0,vk0=0,rm=ref.m,rr=ref.r;for(i=rm.i0;i<rm.i1;i++)if(rr.Pv[i]>pk0){pk0=rr.Pv[i];vk0=rr.V[i]}
+  d.wall=(pk*vk/mass)/(pk0*vk0);d.mass=mass;d.pk=pk;d.vk=vk;
+  d.coroPerf=m.PAD-m.LVEDP;d.coroRef=rm.PAD-rm.LVEDP;
+  d.Ees=o.con*BASE[L.side].Es;d.EesRef=BASE[L.side].Es;
+  return d}
+
+(function(){
+var ORDER=['N','AS','AR','MS','MR','TS','TR','PS','PR'];
+var S={les:'AS',sev:.75,stage:1,hr:70,ej:0,con:1,fa:false,ret:true,refl:true,pvr:1,ref:true};
+var RES=null,DER=null;
+function cur(){return {les:S.les,sev:S.sev,stage:S.stage,hr:S.hr,ej:S.ej,con:S.con,fa:S.fa,ret:S.ret,refl:S.refl,pvr:S.pvr}}
+function scen(ov){var T=Object.assign(cur(),ov||{});var res=runState(T);return{S:T,res:res,m:res.m,d:derived(T,res)}}
+var BOOK={AS:['↑ leve','↑↑','—'],AR0:['↑','poco cambio','poco cambio'],AR1:['↑↑','—','↓'],MR1:['↑↑','↓','↓'],MS:['↓','—','—']};
+/* ---------- ECG ---------- */
+function ecgParams(T,res,d){
+  var m=res.m,RRms=60000/m.HR,k=T.les,s=T.sev,st=T.stage;
+  var E={PR:Math.min(160,RRms*.5),QT:res.r.QT*1000,pAmp:.12,pDur:1,pNotch:0,fa:T.fa,qrsW:1,
+   II:{r:.9,s:.18,q:.03,st:0,t:.3},V5:{r:1,s:.1,q:.08,st:0,t:.3},V1:{r:.18,s:.85,q:0,rp:0,st:0,t:-.08}};
+  var mass=stageMass(k,st,s),la=0,ra=0;
+  if(LES[k].side==='L'){
+    var big=Math.max(0,m.EDV/res.ref.m.EDV-1);
+    var hy=(mass-1)*2.1+(k==='AR'||k==='MR'?big*.7:0);
+    E.V5.r=1+hy;E.V5.s=.1+hy*.1;E.II.r=.9+hy*.3;
+    if(k==='AS'&&st>=1){var sr=clamp((mass-1)/.35,0,1);E.V5.st=-.22*sr;E.V5.t=.3-.7*sr;E.V5.q=.03}
+    if(k==='AR'&&st>=1){E.V5.q=.08+.25*big;E.V5.t=.3+.25*big}
+    if(k==='MS')la=s*(st===1?1:.7);
+    if(k==='MR'&&st>=1)la=s*.9;
+    if(k==='AS'&&st===2)la=.5;
+    if(k==='MS'&&s>.6){E.V1.r+=.55*(s-.6)/.4;E.V1.s-=.3*(s-.6)/.4}
+  }else{
+    if(k==='TS')ra=s;if(k==='TR'&&st>=1)ra=s*.9;if(k==='PS')ra=s*.6;
+    if(k==='PS'&&st>=1){E.V1.r=.18+.9*s;E.V1.s=.85-.5*s;E.V1.t=-.08-.45*s}
+    if((k==='TR'||k==='PR')&&st>=1){E.V1.rp=.3+.4*s;E.qrsW=1.12}
+    if(k==='TR'&&st===2){E.V1.r+=.35}
+  }
+  E.pAmp=.12+.2*ra;E.pDur=1+.6*la-.2*ra;E.pNotch=clamp(la*1.1,0,1);
+  if(la>.15)E.pAmp=.13;
+  E.laI=la;E.raI=ra;return E}
+/* ---------- interfaz ---------- */
+function build(){
+  var seg=$('lesSeg');ORDER.forEach(function(k){var b=document.createElement('button');b.className='btn';b.dataset.k=k;b.textContent=LES[k].n;b.onclick=function(){setLes(k)};seg.appendChild(b)});
+  ORDER.slice(1).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=LES[k].n;$('gSel').appendChild(o)});
+}
+function fillStage(){var a=STAGES[S.les];$('stage').innerHTML=a.map(function(n,i){return '<option value="'+i+'">'+n+'</option>'}).join('');$('stage').value=S.stage}
+function applyStageDefaults(){var d=stageDefaults(S.les,S.stage);S.hr=d.hr;S.ret=d.ret}
+function setLes(k,keepSev){S.les=k;if(!keepSev)S.sev=(k==='N')?0:.75;S.stage=(k==='N')?0:(STAGES[k].length>2?1:0);applyStageDefaults();fillStage();syncUI();render()}
+function syncUI(){$('sev').value=Math.round(S.sev*100);$('ej').value=Math.round(S.ej*100);$('hr').value=S.hr;$('con').value=Math.round(S.con*100);$('fa').checked=S.fa;$('ret').checked=S.ret;$('refl').checked=S.refl;$('showRef').checked=S.ref;$('pvr').value=Math.round(S.pvr*100);$('stage').value=S.stage}
+function bind(){
+  $('sev').oninput=function(){S.sev=this.value/100;render()};
+  $('stage').onchange=function(){S.stage=+this.value;applyStageDefaults();syncUI();render()};
+  $('ej').oninput=function(){S.ej=this.value/100;render()};
+  $('hr').oninput=function(){S.hr=+this.value;render()};
+  $('con').oninput=function(){S.con=this.value/100;render()};
+  $('pvr').oninput=function(){S.pvr=this.value/100;render()};
+  $('fa').onchange=function(){S.fa=this.checked;render()};
+  $('ret').onchange=function(){S.ret=this.checked;render()};
+  $('refl').onchange=function(){S.refl=this.checked;render()};
+  $('showRef').onchange=function(){S.ref=this.checked;render()};
+  $('reset').onclick=function(){Object.assign(S,{ej:0,con:1,fa:false,refl:true,pvr:1});applyStageDefaults();syncUI();render()};
+}
+var pend=false;
+function render(){if(pend)return;pend=true;requestAnimationFrame(function(){pend=false;doRender()})}
+function doRender(){
+  var T=cur();RES=runState(T);DER=derived(T,RES);
+  var L=LES[S.les],m=RES.m,d=DER,rm=RES.ref.m,sz=lesSize(S.les,S.sev);
+  document.querySelectorAll('#lesSeg .btn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===S.les?'true':'false')});
+  var cl=lesClass(S.les,sz);
+  $('sev').disabled=S.les==='N';
+  var sevTxt=S.les==='N'?'sin lesión':(L.t==='outS'||L.t==='inS'?'área '+fmt(sz,2)+' cm² · '+cl:'orificio regurgitante '+fmt(sz,2)+' cm² · '+cl);
+  $('sevV').textContent=sevTxt;$('ejV').textContent=Math.round(S.ej*100)+' % ('+Math.round(m.HR)+' lpm)';$('hrV').textContent=S.hr+' lpm';$('conV').textContent=Math.round(S.con*100)+' %';$('pvrV').textContent='× '+fmt(S.pvr,1);
+  $('pvrBox').hidden=L.side!=='R';
+  var kc=[];
+  kc.push(chip('Gasto cardiaco',fmt(m.CO,1)+' L/min',m.CO>4.3,m.CO<4.3?'bajo':''));
+  kc.push(chip(L.side==='L'?'Presión arterial':'Presión arterial pulmonar',Math.round(m.PAS)+'/'+Math.round(m.PAD)+' mmHg','ok','PP '+Math.round(m.PP)));
+  kc.push(chip('VTD / VTS',Math.round(m.EDV)+' / '+Math.round(m.ESV)+' mL',Math.abs(m.EDV/rm.EDV-1)<.2));
+  kc.push(chip('FE',Math.round(m.FE)+' %',m.FE>=50,m.FE>=70?'alta':m.FE<50?'baja':''));
+  kc.push(chip(L.side==='L'?'PTD VI':'PTD VD',fmt(m.LVEDP,0)+' mmHg',m.LVEDP<12));
+  kc.push(chip(L.side==='L'?'Aurícula izq. media':'Aurícula der. media',fmt(m.Pamean,0)+' mmHg',m.Pamean<(L.side==='L'?12:7)));
+  if(d.gMean!=null&&(L.t==='outS'||L.t==='inS'))kc.push(chip('Gradiente medio',fmt(d.gMean,0)+' mmHg',d.gMean<(L.t==='outS'?30:8)));
+  if(d.rvol!=null)kc.push(chip('Volumen regurgitante',Math.round(d.rvol)+' mL','wn','FR '+Math.round(d.rf)+' %'));
+  $('key').innerHTML=kc.join('');
+  $('why').textContent=whyText(T,d,m,rm);
+  drawLoop();drawPulse();drawWig();readMeas();readBook();
+}
+function whyText(T,d,m,rm){
+  var k=T.les,w=[];var q=d.qEj?Math.round(d.qEj):0;
+  if(k==='N')return 'Corazón normal en reposo: gasto ≈ 5 L/min, presión ≈ 112/70 mmHg y válvulas sin gradiente apreciable. Elige una lesión para comparar.';
+  if(k==='AS'||k==='PS'){w.push('El flujo que cruza el orificio durante la eyección es ≈ '+q+' mL/s; el gradiente sigue ΔP = (Q / 44,3·A)², así que '+(T.ej>0.2?'el esfuerzo lo eleva a ':'vale ')+fmt(d.gMean,0)+' mmHg de media con un área de '+fmt(d.areaTrue,2)+' cm².');
+    if(k==='AS'&&T.stage>=1)w.push('La sobrecarga de presión engruesa la pared: el estrés de pared relativo es '+fmt(d.wall,1)+' y la rigidez sube la PTD a '+Math.round(m.LVEDP)+' mmHg.');
+    if(T.stage===2)w.push('En la etapa tardía el gasto baja ('+fmt(m.CO,1)+' L/min) y el gradiente cae aunque el área siga igual.');
+    if(k==='AS'&&d.coroPerf<d.coroRef-8)w.push('La presión de perfusión coronaria (diastólica aórtica − PTD) cae de '+Math.round(d.coroRef)+' a '+Math.round(d.coroPerf)+' mmHg.');}
+  if(k==='AR'){w.push('La fuga diastólica devuelve '+Math.round(d.rvol)+' mL (fracción '+Math.round(d.rf)+' %) al VI.');
+    w.push(T.stage===0?'Sin tiempo para dilatarse, el VI sube su PTD a '+Math.round(m.LVEDP)+' mmHg y la presión de pulso se ensancha poco ('+Math.round(m.PP)+' mmHg).':'El VI se dilató (VTD '+Math.round(m.EDV)+' mL) y tolera el volumen con PTD '+Math.round(m.LVEDP)+' mmHg; la diastólica aórtica cae a '+Math.round(m.PAD)+' y la presión de pulso a '+Math.round(m.PP)+' mmHg (pulso saltón).');}
+  if(k==='MS'||k==='TS'){w.push('El gradiente medio de '+fmt(d.gMean,0)+' mmHg persiste durante la diástole; la presión auricular media sube a '+Math.round(m.Pamean)+' mmHg con onda A de '+Math.round(m.A)+'.');
+    if(T.ej>0.1||T.hr>85)w.push('Con frecuencia más alta la diástole se acorta y la presión auricular sube más: el esfuerzo desenmascara la estenosis.');
+    if(T.fa)w.push('Sin contracción auricular la presión media sube a '+Math.round(m.Pamean)+' mmHg.');}
+  if(k==='MR'||k==='TR'){w.push('La fuga sistólica devuelve '+Math.round(d.rvol)+' mL a la aurícula (fracción '+Math.round(d.rf)+' %): la onda V llega a '+Math.round(m.V)+' mmHg frente a una media de '+Math.round(m.Pamean)+'.');
+    w.push(T.stage===0?'Sin dilatación previa la aurícula no distiende y el gasto anterógrado cae a '+fmt(m.CO,1)+' L/min.':'La aurícula distensible absorbe la fuga; la FE ('+Math.round(m.FE)+' %) puede parecer normal aunque el VI esté trabajando de más.');}
+  if(k==='PR')w.push('La fuga diastólica devuelve '+Math.round(d.rvol)+' mL al VD; la diastólica pulmonar baja a '+Math.round(m.PAD)+' mmHg.');
+  return w.join(' ')}
+/* ---------- asa ---------- */
+function drawLoop(){
+  var c=$('loop'),W=cw(c,520);if(W<240)return;var H=Math.round(clamp(W*.78,230,380)),x=fit(c,W,H),r={x:42,y:8,w:W-54,h:H-38};x.clearRect(0,0,W,H);
+  var Ls=LES[S.les].side,XR=Ls==='L'?[0,320]:[0,240],YR=Ls==='L'?[0,220]:[0,130];
+  var mx=function(v){return r.x+(v-XR[0])/(XR[1]-XR[0])*r.w},my=function(p){return r.y+r.h-(p-YR[0])/(YR[1]-YR[0])*r.h};
+  gridY(x,r,YR[0],YR[1],Ls==='L'?[0,50,100,150,200]:[0,30,60,90,120]);
+  x.fillStyle=css('--muted');x.textAlign='center';x.textBaseline='top';(Ls==='L'?[0,100,200,300]:[0,50,100,150,200]).forEach(function(v){x.fillText(v,mx(v),r.y+r.h+5)});x.textAlign='right';x.fillText('volumen (mL)',r.x+r.w,r.y+r.h+17);
+  x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText('presión (mmHg)',0,0);x.restore();
+  function loopOf(res,col,lw,fill){var q=res.r,m=res.m,xs=[],ys=[];for(var i=m.i0;i<m.i1;i+=1){xs.push(q.V[i]);ys.push(q.Pv[i])}
+    x.beginPath();xs.forEach(function(v,i){var X=mx(v),Y=my(ys[i]);i?x.lineTo(X,Y):x.moveTo(X,Y)});x.closePath();if(fill){x.fillStyle=fill;x.fill()}x.strokeStyle=col;x.lineWidth=lw;x.stroke()}
+  if(S.ref&&S.les!=='N')loopOf(RES.ref,css('--muted'),1.4,'rgba(128,128,128,.08)');
+  /* EDPVR y ESPVR */
+  var pr=RES.r.par;x.setLineDash([5,4]);x.lineWidth=1.4;x.strokeStyle=css('--blood');x.beginPath();var f=0;for(var V=pr.V0d+2;V<XR[1];V+=3){var P=pr.AE*pr.st*(Math.exp(pr.BE*(V-pr.V0d))-1);if(P>YR[1])break;f?x.lineTo(mx(V),my(P)):x.moveTo(mx(V),my(P));f=1}x.stroke();
+  x.strokeStyle=css('--vec');x.beginPath();x.moveTo(mx(pr.V0s),my(0));x.lineTo(mx(pr.V0s+YR[1]/pr.Es),my(YR[1]));x.stroke();x.setLineDash([]);
+  loopOf(RES,css('--guess'),2.6,css('--guessSoft'));
+  var m=RES.m,q=RES.r,pts=[['1',m.iMC],['2',m.iAO],['3',m.iAC],['4',m.iMO]];
+  pts.forEach(function(p){if(p[1]<0)return;var X=mx(q.V[p[1]]),Y=my(q.Pv[p[1]]);x.beginPath();x.arc(X,Y,9,0,7);x.fillStyle=css('--panel');x.fill();x.strokeStyle=css('--fg');x.lineWidth=1.2;x.stroke();x.fillStyle=css('--fg');x.font='700 10px '+css('--font-mono');x.textAlign='center';x.textBaseline='middle';x.fillText(p[0],X,Y+.5)});
+  x.font='600 10px '+css('--font-body');x.textAlign='left';x.textBaseline='bottom';x.fillStyle=css('--vec');x.fillText('ESPVR',mx(pr.V0s+YR[1]*.82/pr.Es)+4,my(YR[1]*.82));
+  x.fillStyle=css('--blood');var vv=pr.V0d+Math.log(1+YR[1]*.45/(pr.AE*pr.st))/pr.BE;x.fillText('EDPVR',mx(vv)+4,my(YR[1]*.45));
+  /* anotaciones */
+  var ivc=0,ivr=0;if(m.iMC>=0&&m.iAO>=0)ivc=q.V[m.iAO]-q.V[m.iMC];if(m.iAC>=0&&m.iMO>=0)ivr=q.V[m.iMO]-q.V[m.iAC];
+  RES.ivc=ivc;RES.ivr=ivr;
+  $('loopChips').innerHTML=chip('Δ volumen en contracción isovolumétrica (1→2)',fmt(ivc,0)+' mL',Math.abs(ivc)<4)+chip('Δ volumen en relajación isovolumétrica (3→4)',fmt(ivr,0)+' mL',Math.abs(ivr)<4)+chip('Trabajo latido',fmt(workOf(RES),2)+' J',true);
+  var nt=['1 cierra la válvula AV · 2 abre la semilunar · 3 cierra la semilunar · 4 abre la AV.'];
+  if(S.les==='AR'||S.les==='PR')nt.push('La fuga diastólica llena el ventrículo desde la arteria: la relajación isovolumétrica desaparece (el volumen sube '+fmt(ivr,0)+' mL entre 3 y 4).');
+  if(S.les==='MR'||S.les==='TR')nt.push('La fuga sistólica vacía el ventrículo hacia la aurícula: la contracción isovolumétrica desaparece (el volumen cambia '+fmt(ivc,0)+' mL entre 1 y 2).');
+  if(S.les==='AS'||S.les==='PS')nt.push('El asa se alarga hacia presiones mayores: el ventrículo genera mucha más presión que la arterial.');
+  if(S.les==='MS'||S.les==='TS')nt.push('El asa se estrecha: llega menos volumen al ventrículo, aunque la presión auricular sea alta.');
+  $('loopNote').textContent=nt.join(' ');
+}
+function workOf(res){var q=res.r,m=res.m,a=0,n=m.i1-m.i0;for(var i=m.i0;i<m.i1-1;i++){a+=(q.V[i+1]-q.V[i])*(q.Pv[i]+q.Pv[i+1])/2}return Math.abs(a)*1.333e-4}
+/* ---------- pulso ---------- */
+function drawPulse(){
+  var c=$('pulse'),W=cw(c,520);if(W<240)return;var H=Math.round(clamp(W*.78,230,380)),x=fit(c,W,H),r={x:42,y:8,w:W-54,h:H-38};x.clearRect(0,0,W,H);
+  var Ls=LES[S.les].side,res=RES,m=res.m,q=res.r,dts=q.dtS,rm=res.ref.m,qr=res.ref.r;
+  var arterial=Ls==='L';var arr=arterial?q.Po:q.Pa,arrR=arterial?qr.Po:qr.Pa;
+  $('pulseT').textContent=arterial?'Pulso arterial (aorta)':'Pulso venoso yugular (aurícula derecha)';
+  var tw=Math.max(m.tB-m.tA,.3);function seg(qq,mm,a){var o=[];for(var i=mm.i0;i<mm.i1;i++)o.push(a[i]);return o}
+  var A=seg(q,m,arr),B=seg(qr,rm,arrR);
+  var lo=Math.min(Math.min.apply(null,A),Math.min.apply(null,B)),hi=Math.max(Math.max.apply(null,A),Math.max.apply(null,B));
+  lo=arterial?Math.floor(lo/10)*10-10:Math.min(0,Math.floor(lo)-1);hi=Math.ceil(hi/10)*10+(arterial?10:2);if(!arterial){hi=Math.ceil(hi/2)*2}
+  var step=arterial?20:Math.max(2,Math.round((hi-lo)/5/2)*2);var ticks=[];for(var v=Math.ceil(lo/step)*step;v<=hi;v+=step)ticks.push(v);
+  gridY(x,r,lo,hi,ticks);
+  var mx=function(t){return r.x+t/tw*r.w},my=function(p){return r.y+r.h-(p-lo)/(hi-lo)*r.h};
+  function pl(arr2,mm,col,lw,dash){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();for(var i=0;i<arr2.length;i++){var X=mx(i*dts),Y=my(arr2[i]);i?x.lineTo(X,Y):x.moveTo(X,Y)}x.stroke();x.setLineDash([])}
+  if(S.ref&&S.les!=='N')pl(B,rm,css('--muted'),1.6,[5,4]);pl(A,m,css('--blood'),2.6);
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';for(var t=0;t<tw;t+=.2){x.fillText(Math.round(t*1000),mx(t),r.y+r.h+5)}x.textAlign='right';x.fillText('ms desde el inicio del QRS',r.x+r.w,r.y+r.h+17);
+  var ch=[];
+  if(arterial){var ip=A.indexOf(Math.max.apply(null,A));var tpk=m.tPeakAo;
+    x.fillStyle=css('--fg');x.beginPath();x.arc(mx(ip*dts),my(A[ip]),4,0,7);x.fill();
+    var upS=m.dPdtAo/10,upR=rm.dPdtAo/10;
+    ch.push(chip('Máxima / mínima',Math.round(m.PAS)+' / '+Math.round(m.PAD)+' mmHg','ok','PP '+Math.round(m.PP)));
+    ch.push(chip('Tiempo al pico desde la apertura',Math.round(tpk||0)+' ms',(tpk||0)<(rm.tPeakAo||200)*1.25,(tpk||0)>=(rm.tPeakAo||200)*1.25?'tardus':''));
+    ch.push(chip('Pendiente de subida',Math.round(m.dPdtAo)+' mmHg/s',m.dPdtAo>.7*rm.dPdtAo&&m.dPdtAo<1.6*rm.dPdtAo,m.dPdtAo<.7*rm.dPdtAo?'lenta':m.dPdtAo>1.6*rm.dPdtAo?'brusca':''));
+    var nt='';if(S.les==='AS')nt='Pulso parvus et tardus: la presión de pulso '+(m.PP<rm.PP*.85?'pequeña ('+Math.round(m.PP)+' mmHg)':'(conservada mientras el volumen sistólico se mantiene)')+' y el pico tardío ('+Math.round(tpk)+' ms frente a '+Math.round(rm.tPeakAo)+' ms) vienen del orificio que frena la eyección.';
+    else if(S.les==='AR')nt='Pulso saltón: el volumen sistólico grande sube rápido la presión y la fuga diastólica la deja caer, de ahí una presión de pulso de '+Math.round(m.PP)+' mmHg y una diastólica de '+Math.round(m.PAD)+'.';
+    else if(S.les==='MR'&&S.stage===0)nt='Pulso pequeño: el volumen que llega a la aorta cae porque parte de la sangre vuelve a la aurícula.';
+    else if(S.les==='MS')nt='Pulso de poca amplitud si el llenado está limitado; el estudiante no debe esperar un pulso arterial muy alterado.';
+    else nt='Pulso normal para la lesión elegida: compara el pico y la muesca con la línea gris.';
+    $('pulseNote').textContent=nt;
+  }else{
+    var ia=-1,iv=-1,pa=-1,pv=-1;var tq=0;for(var i=0;i<A.length;i++){var tt=i*dts;if(tt>.0&&tt<.1&&A[i]>pa){pa=A[i];ia=i}if(tt>.12&&tt<.5&&A[i]>pv){pv=A[i];iv=i}}
+    function lab(i,l){if(i<0)return;x.fillStyle=css('--fg');x.font='700 11px '+css('--font-display');x.textAlign='center';x.textBaseline='bottom';x.fillText(l,mx(i*dts),my(A[i])-3)}
+    if(!S.fa)lab(ia,'a');lab(iv,'v');
+    ch.push(chip('Onda a / v',Math.round(m.A)+' / '+Math.round(m.V)+' mmHg','ok','media '+fmt(m.Pamean,0)));
+    ch.push(chip('v respecto a la media',fmt(m.V/Math.max(m.Pamean,1),1)+' ×',m.V/Math.max(m.Pamean,1)<1.7));
+    var nt2='';if(S.les==='TR')nt2='Insuficiencia tricuspídea: la onda v crece y la aurícula "se ventriculariza" (se parece a la curva del VD); una media normal y la ausencia de v ayudan a descartar una fuga importante.';
+    else if(S.les==='TS')nt2='Estenosis tricuspídea: onda a prominente y gradiente diastólico entre la aurícula y el VD.';
+    else if(S.les==='PS')nt2='Estenosis pulmonar: el VD hipertrófico es poco distensible y la contracción auricular produce una onda a alta.';
+    else nt2='Pulso venoso de la aurícula derecha, normal para la lesión elegida.';
+    $('pulseNote').textContent=nt2;
+  }
+  $('pulseChips').innerHTML=ch.join('');
+}
+/* ---------- Wiggers ---------- */
+function drawWig(){
+  var c=$('wig'),W=cw(c,980);if(W<260)return;var small=W<520;
+  var hs=[small?40:46,small?40:46,small?130:170,small?84:100,small?64:80,small?44:56],gap=6,tot=hs.reduce(function(a,b){return a+b},0)+gap*5+26,x=fit(c,W,tot);x.clearRect(0,0,W,tot);
+  var res=RES,q=res.r,m=res.m,dts=q.dtS,Ls=LES[S.les].side,RR=q.RR,PRs=q.PR;
+  var X0=44,Wp=W-56,R=[],y=4;hs.forEach(function(h){R.push({x:X0,y:y,w:Wp,h:h});y+=h+gap});
+  var tS=m.tA-PRs; /* inicio de la ventana: inicio de P */
+  function px(t){return X0+t/RR*Wp}
+  function idx(t){return Math.round((tS+t-q.t[0])/dts)}
+  var E=ecgParams(cur(),res,DER);E.PR=PRs*1000;
+  var lead2=Ls==='L'?'V5':'V1';
+  drawEcg(x,R[0],E,'II',RR*1000,function(t){return px(t/1000)},'DII');
+  drawEcg(x,R[1],E,lead2,RR*1000,function(t){return px(t/1000)},lead2);
+  /* presiones */
+  var pr=Ls==='L'?[0,220]:[0,130],pt=Ls==='L'?[0,50,100,150,200]:[0,30,60,90,120];
+  gridY(x,R[2],pr[0],pr[1],pt);
+  function plot(arr,rr,lo,hi,col,lw,dash,off){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();var n=Math.round(RR/dts),f=0;for(var k=0;k<n;k++){var i=idx(k*dts-(off||0));if(i<0||i>=arr.length)continue;var X=px(k*dts),Y=rr.y+rr.h-(clamp(arr[i],lo,hi)-lo)/(hi-lo)*rr.h;f?x.lineTo(X,Y):x.moveTo(X,Y);f=1}x.stroke();x.setLineDash([])}
+  if(S.ref&&S.les!=='N'){var qr=res.ref.r,mr=res.ref.m,tSr=mr.tA-qr.PR,n0=Math.round(RR/dts);}
+  plot(q.Po,R[2],pr[0],pr[1],css('--blood'),2);plot(q.Pv,R[2],pr[0],pr[1],css('--vec'),2);
+  x.font='600 10px '+css('--font-body');x.textAlign='left';x.textBaseline='top';x.fillStyle=css('--blood');x.fillText(Ls==='L'?'Aorta':'Arteria pulmonar',R[2].x+4,R[2].y+2);x.fillStyle=css('--vec');x.fillText(Ls==='L'?'Ventrículo izquierdo':'Ventrículo derecho',R[2].x+4,R[2].y+14);
+  /* aurícula */
+  var Pa=q.Pa,hiA=Math.max(12,Math.ceil(Math.max.apply(null,Pa.slice(m.i0,m.i1))/10)*10+4);if(Ls==='R')hiA=Math.max(8,Math.ceil(Math.max.apply(null,Pa.slice(m.i0,m.i1))/4)*4+2);
+  gridY(x,R[3],0,hiA,[0,Math.round(hiA/2/5)*5||0,hiA].filter(function(v,i,a){return a.indexOf(v)===i}));
+  plot(Pa,R[3],0,hiA,css('--guess'),2);
+  if(Ls==='L'){/* enclavamiento: retrasado y amortiguado */
+    var f2=[],lp=Pa[0];for(var i=0;i<Pa.length;i++){lp+=(Pa[i]-lp)*(dts/.045);f2.push(lp)}
+    plot(f2,R[3],0,hiA,css('--fg'),1.4,[4,3],.06)}
+  x.fillStyle=css('--guess');x.textAlign='left';x.textBaseline='top';x.fillText((Ls==='L'?'Aurícula izquierda':'Aurícula derecha')+(Ls==='L'?' (línea discontinua: lo que mide el enclavamiento)':''),R[3].x+4,R[3].y+2);
+  /* volumen */
+  var Vs=q.V.slice(m.i0,m.i1),vlo=Math.min.apply(null,Vs)-10,vhi=Math.max.apply(null,Vs)+10;plot(q.V,R[4],vlo,vhi,css('--fg'),2);
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.fillText('Volumen ventricular '+Math.round(vlo+10)+'–'+Math.round(vhi-10)+' mL',R[4].x+4,R[4].y+1);
+  /* fono */
+  var env=murmurEnv(q,S.les),rs=R[5],mid=rs.y+rs.h/2;x.strokeStyle=css('--line');x.lineWidth=1;x.beginPath();x.moveTo(rs.x,mid);x.lineTo(rs.x+rs.w,mid);x.stroke();
+  x.strokeStyle=css('--fg');x.lineWidth=1;x.beginPath();var seed=7;function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647*2-1}
+  var npx=Math.round(Wp);for(var k=0;k<npx;k++){var t=k/npx*RR,i=idx(t);var e=i>=0&&i<env.length?env[i]:0;var amp=Math.min(1,e)*rs.h*.42*(.5+.5*rnd());var yy=mid+(k%2?-1:1)*amp*Math.abs(rnd());
+    /* S1 / S2 */
+    var tt=tS+t,s=0;[[m.iMC,.9],[m.iAC,.75]].forEach(function(p){if(p[1]>=0&&p[0]>=0){var te=q.t[p[0]],dd=tt-te;if(dd>=0&&dd<.07)s+=p[1]*Math.exp(-dd/.02)*Math.sin(dd*2*Math.PI*60)}});
+    yy+=-s*rs.h*.4;k?x.lineTo(rs.x+k,yy):x.moveTo(rs.x+k,yy)}x.stroke();
+  x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='top';x.fillText('Fonocardiograma sintético · S1 y S2 en los cierres',rs.x+4,rs.y+1);
+  /* eventos */
+  var names=Ls==='L'?['CM','AAo','CAo','AM']:['CT','AP','CP','AT'],ev=[m.iMC,m.iAO,m.iAC,m.iMO];
+  ev.forEach(function(i,k){if(i<0)return;var t=q.t[i]-tS;if(t<0||t>RR)return;var xx=px(t);x.strokeStyle=css('--fg');x.globalAlpha=.45;x.setLineDash([3,3]);x.beginPath();x.moveTo(xx,R[0].y);x.lineTo(xx,R[5].y+R[5].h);x.stroke();x.setLineDash([]);x.globalAlpha=1;x.fillStyle=css('--fg');x.font='700 9px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';x.fillText(names[k],xx,R[2].y+R[2].h-13-(k%2)*10)});
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';var yb=R[5].y+R[5].h+4;for(var tm=0;tm<RR*1000;tm+=200)x.fillText(tm,px(tm/1000),yb);x.textAlign='right';x.fillText('ms desde el inicio de la P',R[5].x+R[5].w,yb+12);
+  $('legend').innerHTML='<span class="chip ok"><span class="sw" style="background:var(--vec)"></span>'+(Ls==='L'?'VI':'VD')+'</span><span class="chip ok"><span class="sw" style="background:var(--blood)"></span>'+(Ls==='L'?'Aorta':'A. pulmonar')+'</span><span class="chip ok"><span class="sw" style="background:var(--guess)"></span>Aurícula</span><span class="chip ok">'+names.join(' · ')+' = '+(Ls==='L'?'cierra mitral · abre aórtica · cierra aórtica · abre mitral':'cierra tricúspide · abre pulmonar · cierra pulmonar · abre tricúspide')+'</span>';
+  var en=[];if(E.pNotch>.3)en.push('Onda P ancha y con muesca (P "mitral"): aurícula izquierda grande.');if(E.raI>.3)en.push('Onda P alta y puntiaguda (P "pulmonal"): sobrecarga de la aurícula derecha.');if(S.fa)en.push('Fibrilación auricular: sin onda P, línea de base fibrilar.');
+  if(E.V5.r>1.5&&Ls==='L')en.push('Voltaje alto en V5 por masa o volumen del VI'+(E.V5.t<0?', con ST descendido y T invertida ("sobrecarga" por presión).':'.'));
+  if(Ls==='R'&&E.V1.r>.6)en.push('R dominante en V1 por hipertrofia del VD.');if(E.V1.rp>0&&Ls==='R')en.push('Patrón rSr′ en V1 por sobrecarga de volumen del VD.');
+  en.push('ECG esquemático; el voltaje y la forma dependen de la masa y del tamaño de cada cámara (perilla 3 del ECG), no de la contractilidad.');
+  $('ecgNote').textContent=en.join(' ');
+  /* audio */
+  AUDIO=buildAudioFor(res);
+  $('playNote').textContent=env.some(function(e){return e>.05})?'Hay soplo en este ciclo.':'No hay soplo apreciable.';
+}
+var AUDIO=null;
+function audOpts(){var t=LES[S.les].t;if(t==='outS')return{fc:420,gain:1.8};if(t==='outR')return{fc:800,hp:true,gain:1.6};if(t==='inR')return{fc:520,gain:1.6};if(t==='inS')return{fc:130,gain:2.4,snap:true,s1:.95};return{fc:300,gain:1}}
+function buildAudioFor(res){try{return buildAudio(res.r,murmurEnv(res.r,S.les),res.m,audOpts())}catch(e){return null}}
+/* ---------- mediciones ---------- */
+function readMeas(){
+  var L=LES[S.les],d=DER,m=RES.m,rm=RES.ref.m,rows=[];
+  function row(a,b,c,dd){rows.push('<tr><td>'+a+'</td><td class="n">'+b+'</td><td class="n">'+c+'</td><td>'+dd+'</td></tr>')}
+  if(L.t==='outS'){row('Gradiente pico instantáneo',fmt(d.gPeak,0)+' mmHg','Doppler 4V² = '+fmt(d.dopp,0)+' mmHg (V '+fmt(d.vmax,1)+' m/s)','El 4V² usa la velocidad del chorro y es un poco menor que la fórmula de Gorlin con c = 44,3.');
+    row('Gradiente medio',fmt(d.gMean,0)+' mmHg','—','Es el promedio durante la eyección.');
+    row('Gradiente pico a pico',fmt(d.gPP,0)+' mmHg','—','El pico del VI y el de la aorta no ocurren al mismo tiempo, por eso es menor que el instantáneo.');
+    row('Área valvular',fmt(d.areaTrue,2)+' cm²','Gorlin '+fmt(d.gorlin,2)+' · Hakki '+fmt(d.hakki,2)+' cm²','Hakki usa el gasto y el gradiente pico a pico; en gastos bajos subestima o sobrestima.');
+    row('Flujo medio durante la eyección',Math.round(d.qEj)+' mL/s','—','A área fija, el gradiente crece con el cuadrado de este flujo.')}
+  if(L.t==='inS'){row('Gradiente diastólico medio',fmt(d.gMean,1)+' mmHg','—','Persiste toda la diástole; sube con la frecuencia.');row('Área valvular',fmt(d.areaTrue,2)+' cm²','Gorlin '+fmt(d.gorlin,2)+' · tiempo de hemipresión '+fmt(d.pht,0)+' ms','El tiempo de hemipresión usa la regla 220/área.');
+    row('Presión de aurícula frente a enclavamiento',fmt(m.Pamean,1)+' mmHg (V '+fmt(m.V,0)+')','Enclavamiento: retrasado ≈ 60 ms y amortiguado','El enclavamiento subestima la onda V.')}
+  if(L.t==='outR'||L.t==='inR'){row('Volumen regurgitante',fmt(d.rvol,0)+' mL','—','Fracción regurgitante '+fmt(d.rf,0)+' %.');row('Orificio regurgitante efectivo',fmt(d.eroa,2)+' cm²','—','Se estima por el método PISA o por volumen; aquí es el dato que se fijó.');
+    row('Volumen sistólico total / anterógrado',fmt(m.SVtot,0)+' / '+fmt(m.SV,0)+' mL','—','El ventrículo mueve más volumen del que llega al sistema: por eso la FE engaña.')}
+  row('Gasto cardiaco',fmt(m.CO,1)+' L/min','Fick con VO₂ supuesto ≈ 125 mL/min/m²','El Fick supuesto puede errar ±25 % (VERIFICAR).');
+  if(S.les==='N')row('Gradientes','casi 0','—','Sin lesión no hay gradiente apreciable.');
+  document.querySelector('#meas tbody').innerHTML=rows.join('');
+}
+function readBook(){
+  var tb=[['Normal','—','—','—'],['Estenosis aórtica',BOOK.AS[0],BOOK.AS[1],BOOK.AS[2]],['Insuficiencia aórtica aguda',BOOK.AR0[0],BOOK.AR0[1],BOOK.AR0[2]],['Insuficiencia aórtica crónica',BOOK.AR1[0],BOOK.AR1[1],BOOK.AR1[2]],['Insuficiencia mitral crónica',BOOK.MR1[0],BOOK.MR1[1],BOOK.MR1[2]],['Estenosis mitral',BOOK.MS[0],BOOK.MS[1],BOOK.MS[2]]];
+  document.querySelector('#book tbody').innerHTML=tb.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>'}).join('');
+  var d=DER,m=RES.m,rm=RES.ref.m,L=LES[S.les];if(L.side!=='L'){$('loads').innerHTML='<span class="chip ok">Las comparaciones de cargas se muestran para el ventrículo izquierdo.</span>';$('loadsWhy').textContent='Elige una lesión del lado izquierdo para ver precarga, poscarga y contractilidad.';return}
+  var pre=arrow(m.EDV,rm.EDV,.06),postP=arrow(d.pk,112,.05),postS=arrow(d.wall,1,.08),con=arrow(d.Ees,d.EesRef,.06);
+  $('loads').innerHTML=chip('Precarga (VTD)',pre,'ok',Math.round(m.EDV)+' mL')+chip('Presión pico del VI',postP,'ok',Math.round(d.pk)+' mmHg')+chip('Estrés de pared relativo',postS,'ok','× '+fmt(d.wall,2))+chip('Contractilidad (Ees)',con,'ok','× '+fmt(d.Ees/d.EesRef,2))+chip('PTD VI',arrow(m.LVEDP,rm.LVEDP,.1),'ok',fmt(m.LVEDP,0)+' mmHg');
+  var w='El libro describe la poscarga como la carga que enfrenta el ventrículo. En el modelo hay dos lecturas: la presión pico que debe generar y el estrés de pared (presión × tamaño / masa). Una no implica la otra.';
+  if(S.les==='MR')w+=' Aquí la presión pico casi no cambia y el estrés de pared sube por la dilatación, mientras la salida hacia la aurícula baja la impedancia efectiva: por eso el libro habla de poscarga baja (VERIFICAR).';
+  if(S.les==='AS'&&S.stage>=1)w+=' La hipertrofia reparte la presión en más masa y devuelve el estrés de pared hacia lo normal.';
+  $('loadsWhy').textContent=w}
+/* ---------- ejemplo trabajado ---------- */
+function worked(){
+  var a=scen({les:'AS',sev:.75,stage:1,ej:0,hr:70,con:1,fa:false,ret:true,refl:true}),b=scen({les:'AS',sev:.75,stage:1,ej:.7,hr:70,con:1,fa:false,ret:true,refl:true});
+  var A=a.d.areaTrue,qa=a.d.qEj,qb=b.d.qEj;
+  var st=[
+   '<b>Dato:</b> área aórtica efectiva '+fmt(A,2)+' cm² (grave). Al reposo el gasto es '+fmt(a.m.CO,1)+' L/min.',
+   '<b>Flujo por el orificio:</b> durante la eyección pasan ≈ '+Math.round(qa)+' mL/s (volumen sistólico dividido entre el tiempo de eyección).',
+   '<b>Fórmula de Gorlin despejada:</b> ΔP = (Q / (44,3·A))² = ('+Math.round(qa)+' / (44,3 × '+fmt(A,2)+'))² ≈ '+fmt(Math.pow(qa/(44.3*A),2),0)+' mmHg. El modelo da un gradiente medio de '+fmt(a.d.gMean,0)+' mmHg: es el mismo cálculo con el flujo que cambia en el tiempo.',
+   '<b>Esfuerzo (70 %):</b> el gasto sube a '+fmt(b.m.CO,1)+' L/min ('+fmt(b.m.CO/a.m.CO,1)+' ×) y el flujo durante la eyección a ≈ '+Math.round(qb)+' mL/s ('+fmt(qb/qa,2)+' ×).',
+   '<b>Resultado:</b> el gradiente medio pasa de '+fmt(a.d.gMean,0)+' a '+fmt(b.d.gMean,0)+' mmHg ('+fmt(b.d.gMean/a.d.gMean,2)+' ×), cerca del cuadrado de '+fmt(qb/qa,2)+' ('+fmt(Math.pow(qb/qa,2),2)+'). Por eso el gradiente cambia con el gasto aunque el área no.',
+   '<b>Consecuencia clínica:</b> con gasto bajo el gradiente puede parecer moderado y ocultar una estenosis grave (ver el caso de cierre).'];
+  $('wkSteps').innerHTML=st.map(function(t){return '<li>'+t+'</li>'}).join('')}
+$('wkLoad').onclick=function(){Object.assign(S,{les:'AS',sev:.75,stage:1,ej:0,hr:70,con:1,fa:false,ret:true,refl:true});fillStage();syncUI();render();$('lab').scrollIntoView({behavior:'smooth'})};
+/* ---------- contraejemplos ---------- */
+function tbl(id,hdr,rows){$(id).innerHTML='<thead><tr>'+hdr.map(function(h){return '<th>'+h+'</th>'}).join('')+'</tr></thead><tbody>'+rows.map(function(r){return '<tr><td>'+r[0]+'</td>'+r.slice(1).map(function(c){return '<td class="n">'+c+'</td>'}).join('')+'</tr>'}).join('')+'</tbody>'}
+function counter(){
+  var b=scen({les:'AS',sev:.75,stage:1,ej:0,hr:70,con:1,fa:false,ret:true,refl:true}),c=scen({les:'AS',sev:.75,stage:2,ej:0,hr:70,con:.6,fa:false,ret:false,refl:true});
+  tbl('ce1',['','Flujo normal','Flujo bajo'],[['Área verdadera (cm²)',fmt(b.d.areaTrue,2),fmt(c.d.areaTrue,2)],['Gasto (L/min)',fmt(b.m.CO,1),fmt(c.m.CO,1)],['Flujo en eyección (mL/s)',Math.round(b.d.qEj),Math.round(c.d.qEj)],['Gradiente medio (mmHg)',fmt(b.d.gMean,0),fmt(c.d.gMean,0)],['Área por Gorlin (cm²)',fmt(b.d.gorlin,2),fmt(c.d.gorlin,2)]]);
+  $('ce1n').textContent='El área es la misma, pero con gasto bajo el gradiente cae a menos de la mitad. Un gradiente "moderado" no descarta una estenosis grave si el flujo es bajo.';
+  var k1=kickPair(buildOpts(Object.assign(cur(),{les:'MS',sev:.35,stage:0,fa:false,ej:0,hr:70,ret:true}))),k2=kickPair(buildOpts(Object.assign(cur(),{les:'MS',sev:.9,stage:0,fa:false,ej:0,hr:70,ret:true})));
+  function kp(sev){var T=Object.assign(cur(),{les:'MS',sev:sev,stage:0,fa:false,ej:0,hr:70,ret:true}),r=runState(T),o=buildOpts(T);var o2=Object.assign({},o,{comp:false,reflex:false,Pin:r.r.Pin,rdm:r.r.Rd/BASE.L.Rd});return{k:kickPair(o2).kick,A:lesSize('MS',sev),m:r.m}}
+  var p1=kp(.35),p2=kp(.9);
+  tbl('ce2',['','EM leve','EM grave'],[['Área (cm²)',fmt(p1.A,1),fmt(p2.A,2)],['Gradiente medio (mmHg)',fmt(derived(Object.assign(cur(),{les:'MS',sev:.35,stage:0}),runState(Object.assign(cur(),{les:'MS',sev:.35,stage:0,fa:false,ej:0,hr:70,ret:true}))).gMean,1),fmt(derived(Object.assign(cur(),{les:'MS',sev:.9,stage:0}),runState(Object.assign(cur(),{les:'MS',sev:.9,stage:0,fa:false,ej:0,hr:70,ret:true}))).gMean,1)],['Contribución auricular al llenado',fmt(p1.k,0)+' %',fmt(p2.k,0)+' %'],['Presión auricular media (mmHg)',fmt(p1.m.Pamean,0),fmt(p2.m.Pamean,0)]]);
+  $('ce2n').textContent='En el modelo la contribución auricular cae al empeorar la estenosis, porque el orificio estrecho limita lo que la contracción puede añadir. El libro cita ≈ 29 % (leve) y ≈ 9 % (grave); el modelo da cifras menores con el mismo sentido (VERIFICAR).';
+  var mrc=scen({les:'MR',sev:.5,stage:1,ej:0,hr:70,fa:false,ret:true,refl:true});
+  var o=Object.assign({},BASE.L);var rr=sim({side:'L',hr:70,nW:40,Pin:24,ast:3,comp:false}),mm=analyze(rr);
+  tbl('ce3',['','IM crónica moderada','Válvula normal, AI rígida y con volumen'],[['Orificio regurgitante (cm²)',fmt(mrc.d.eroa,2),'0'],['Presión auricular media (mmHg)',fmt(mrc.m.Pamean,0),fmt(mm.Pamean,0)],['Onda V (mmHg)',fmt(mrc.m.V,0),fmt(mm.V,0)],['V / media',fmt(mrc.m.V/mrc.m.Pamean,1)+' ×',fmt(mm.V/mm.Pamean,1)+' ×']]);
+  $('ce3n').textContent='Una onda V grande también aparece con una aurícula poco distensible y llena. Una relación V/media ≥ 2 sugiere insuficiencia grave, pero no es diagnóstica y no está bien validada (VERIFICAR).';}
+/* ---------- retos ---------- */
+var QS=[
+ {name:'Reto 1 · El gradiente y el flujo',q:'Estenosis aórtica grave (área ≈ 0,8 cm²) con hipertrofia. Pasas del reposo a un esfuerzo del 70 %. ¿Qué pasa con el gradiente medio?',o:['Sube más que el gasto, aproximadamente con el cuadrado del flujo','Sube lo mismo que el gasto','No cambia, porque el área no cambia'],a:0,
+  ap:function(){Object.assign(S,{les:'AS',sev:.75,stage:1,ej:.7,hr:70,con:1,fa:false,ret:true,refl:true});fillStage();syncUI();render()},
+  e:function(){var a=scen({ej:0,les:'AS',sev:.75,stage:1}),b=scen({ej:.7,les:'AS',sev:.75,stage:1});return 'El gasto pasa de '+fmt(a.m.CO,1)+' a '+fmt(b.m.CO,1)+' L/min ('+fmt(b.m.CO/a.m.CO,1)+' ×) y el gradiente medio de '+fmt(a.d.gMean,0)+' a '+fmt(b.d.gMean,0)+' mmHg ('+fmt(b.d.gMean/a.d.gMean,1)+' ×). A área fija ΔP = (Q/44,3A)².'}},
+ {name:'Reto 2 · Taquicardia o fibrilación en la estenosis mitral',q:'Estenosis mitral grave (≈ 1 cm²) con gasto de reposo. ¿Qué eleva más la presión auricular: perder la contracción auricular (fibrilación a 70 lpm) o subir la frecuencia a 110 lpm en ritmo sinusal?',o:['La taquicardia, porque acorta la diástole','Perder la contracción auricular','Las dos pesan igual'],a:0,
+  ap:function(){Object.assign(S,{les:'MS',sev:.75,stage:0,ej:0,hr:110,con:1,fa:false,ret:true,refl:true});fillStage();syncUI();render()},
+  e:function(){var a=scen({les:'MS',sev:.75,stage:0,ej:0,hr:70,fa:false}),b=scen({les:'MS',sev:.75,stage:0,ej:0,hr:70,fa:true}),c=scen({les:'MS',sev:.75,stage:0,ej:0,hr:110,fa:false});return 'Presión auricular media: ritmo sinusal a 70 lpm = '+fmt(a.m.Pamean,0)+' mmHg; fibrilación a 70 lpm = '+fmt(b.m.Pamean,0)+'; sinusal a 110 lpm = '+fmt(c.m.Pamean,0)+' mmHg. El gradiente medio sube de '+fmt(a.d.gMean,0)+' a '+fmt(c.d.gMean,0)+' con la taquicardia. Lo que más daña es la diástole corta.'}},
+ {name:'Reto 3 · Insuficiencia aórtica aguda frente a crónica',q:'Misma fuga grave (orificio ≈ 0,3 cm²). ¿En cuál sube más la presión telediastólica del VI y se ensancha menos la presión de pulso?',o:['En la aguda','En la crónica','En ambas por igual'],a:0,
+  ap:function(){Object.assign(S,{les:'AR',sev:.55,stage:0,ej:0,hr:100,con:1,fa:false,ret:false,refl:true});fillStage();syncUI();render()},
+  e:function(){var a=scen({les:'AR',sev:.55,stage:0,hr:100,ret:false,ej:0,fa:false}),b=scen({les:'AR',sev:.55,stage:1,hr:70,ret:true,ej:0,fa:false});return 'Aguda: PTD '+fmt(a.m.LVEDP,0)+' mmHg, presión de pulso '+fmt(a.m.PP,0)+' mmHg, VTD '+Math.round(a.m.EDV)+' mL. Crónica: PTD '+fmt(b.m.LVEDP,0)+' mmHg, presión de pulso '+fmt(b.m.PP,0)+' mmHg, VTD '+Math.round(b.m.EDV)+' mL. La cámara que no se dilató paga con presión.'}},
+ {name:'Reto 4 · Onda V en la insuficiencia mitral',q:'Insuficiencia mitral grave. ¿Qué cambia más en la aurícula izquierda entre la forma aguda y la crónica?',o:['En la aguda, la onda V y la presión media son mayores respecto al volumen que se regurgita','En la crónica la onda V es siempre mayor','No hay diferencia, la fuga es la misma'],a:0,
+  ap:function(){Object.assign(S,{les:'MR',sev:.75,stage:0,ej:0,hr:100,con:1,fa:false,ret:false,refl:true});fillStage();syncUI();render()},
+  e:function(){var a=scen({les:'MR',sev:.75,stage:0,hr:100,ret:false,ej:0,fa:false}),b=scen({les:'MR',sev:.75,stage:1,hr:70,ret:true,ej:0,fa:false});return 'Aguda: V '+fmt(a.m.V,0)+' mmHg con media '+fmt(a.m.Pamean,0)+' y gasto anterógrado '+fmt(a.m.CO,1)+' L/min. Crónica: V '+fmt(b.m.V,0)+' con media '+fmt(b.m.Pamean,0)+' y gasto '+fmt(b.m.CO,1)+' L/min, FE '+Math.round(b.m.FE)+' %. La aurícula que no se distendió convierte la fuga en presión.'}},
+ {name:'Reto 5 · Bajo flujo, bajo gradiente',q:'Estenosis aórtica grave en etapa tardía. Bajas la contractilidad sin tocar la válvula. ¿Qué pasa con el gradiente y con el área calculada por Gorlin?',o:['El gradiente baja; el área calculada casi no cambia','El gradiente y el área calculada bajan','El gradiente sube porque el ventrículo lucha más'],a:0,
+  ap:function(){Object.assign(S,{les:'AS',sev:.75,stage:2,ej:0,hr:70,con:.6,fa:false,ret:false,refl:true});fillStage();syncUI();render()},
+  e:function(){var a=scen({les:'AS',sev:.75,stage:2,con:1,ret:false,ej:0}),b=scen({les:'AS',sev:.75,stage:2,con:.6,ret:false,ej:0});return 'Gradiente medio '+fmt(a.d.gMean,0)+' → '+fmt(b.d.gMean,0)+' mmHg; gasto '+fmt(a.m.CO,1)+' → '+fmt(b.m.CO,1)+' L/min; área de Gorlin '+fmt(a.d.gorlin,2)+' → '+fmt(b.d.gorlin,2)+' cm² (verdadera '+fmt(b.d.areaTrue,2)+'). El área corrige por flujo; el gradiente no.'}},
+ {name:'Reto 6 · Contribución auricular',q:'¿La contribución auricular al llenado ventricular es igual en la estenosis mitral leve y en la grave?',o:['No: es menor en la grave','Sí, es igual','Es mayor en la grave porque la aurícula empuja más fuerte'],a:0,
+  ap:function(){Object.assign(S,{les:'MS',sev:.9,stage:0,ej:0,hr:70,con:1,fa:false,ret:true,refl:true});fillStage();syncUI();render()},
+  e:function(){function kp(sev){var T=Object.assign(cur(),{les:'MS',sev:sev,stage:0,fa:false,ej:0,hr:70,ret:true}),r=runState(T),o=buildOpts(T);return kickPair(Object.assign({},o,{comp:false,reflex:false,Pin:r.r.Pin,rdm:r.r.Rd/BASE.L.Rd})).kick}return 'En el modelo: leve '+fmt(kp(.35),0)+' % y grave '+fmt(kp(.9),0)+' % del llenado. El libro cita ≈ 29 % y ≈ 9 % (VERIFICAR). Con el orificio estrecho, el empuje auricular casi no añade flujo a un gradiente que ya persiste toda la diástole.'}}
+];
+/* ---------- juego ---------- */
+var GM={cur:null,lvl:0,pts:10,total:0};
+function newG(){var k=pick(ORDER.slice(1)),L=LES[k],sev=.5+Math.random()*.4,stg=Math.floor(Math.random()*STAGES[k].length);var d=stageDefaults(k,stg);
+  var T={les:k,sev:sev,stage:stg,hr:d.hr,ej:0,con:1,fa:Math.random()<.15&&(k==='MS'),ret:d.ret,refl:true,pvr:1};GM.cur={k:k,T:T,res:runState(T)};GM.lvl=0;GM.pts=10;$('gFb').textContent='';$('gSel').value='';drawG();$('gScore').textContent='Puntos de este caso: '+GM.pts+' · total '+GM.total}
+function drawG(){
+  var c=$('gc'),W=cw(c,520);if(W<240)return;var g=GM.cur;if(!g)return;var res=g.res,q=res.r,m=res.m,dts=q.dtS,RR=q.RR,Ls=LES[g.k].side;
+  var rows=[{h:90,t:'pulso'}];if(GM.lvl>=1)rows.push({h:70,t:'aur'});if(GM.lvl>=2)rows.push({h:50,t:'fono'});if(GM.lvl>=3)rows.push({h:44,t:'ecg'});if(GM.lvl>=4)rows.push({h:160,t:'asa'});
+  var tot=rows.reduce(function(a,b){return a+b.h+8},0)+6,x=fit(c,W,tot);x.clearRect(0,0,W,tot);var y=2,X0=34,Wp=W-44;
+  rows.forEach(function(rw){var r={x:X0,y:y,w:Wp,h:rw.h};y+=rw.h+8;
+    function sig(arr){var o=[];for(var i=m.i0;i<m.i1;i++)o.push(arr[i]);return o}
+    function line(a,lo,hi,col){x.strokeStyle=col;x.lineWidth=2;x.beginPath();a.forEach(function(v,i){var X=r.x+i/(a.length-1)*r.w,Y=r.y+r.h-(clamp(v,lo,hi)-lo)/(hi-lo)*r.h;i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke()}
+    x.fillStyle=css('--muted');x.font='600 10px '+css('--font-mono');x.textAlign='left';x.textBaseline='top';
+    x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(r.x,r.y,r.w,r.h);
+    if(rw.t==='pulso'){var A=sig(Ls==='L'?q.Po:q.Pa),lo=Math.min.apply(null,A)-5,hi=Math.max.apply(null,A)+5;line(A,lo,hi,css('--blood'));x.fillText(Ls==='L'?'Pulso arterial '+Math.round(lo+5)+'–'+Math.round(hi-5)+' mmHg':'Pulso yugular '+Math.round(lo+5)+'–'+Math.round(hi-5)+' mmHg',r.x+4,r.y+2)}
+    if(rw.t==='aur'){var B=sig(q.Pa),hi2=Math.max.apply(null,B)+3;line(B,0,hi2,css('--guess'));x.fillText('Aurícula 0–'+Math.round(hi2-3)+' mmHg',r.x+4,r.y+2)}
+    if(rw.t==='fono'){var env=murmurEnv(q,g.k),mid=r.y+r.h/2;x.strokeStyle=css('--fg');x.beginPath();var seed=3;for(var k=0;k<Wp;k++){seed=(seed*16807)%2147483647;var rn=seed/2147483647*2-1;var i=m.i0+Math.round(k/Wp*(m.i1-m.i0-1));var e=Math.min(1,env[i]||0);var yy=mid+rn*e*r.h*.45;k?x.lineTo(r.x+k,yy):x.moveTo(r.x+k,yy)}x.stroke();x.fillStyle=css('--muted');x.fillText('Fonocardiograma (desde el QRS)',r.x+4,r.y+2)}
+    if(rw.t==='ecg'){var E=ecgParams(g.T,res,null);E.PR=q.PR*1000;drawEcg(x,r,E,Ls==='L'?'II':'II',RR*1000,function(t){return r.x+t/(RR*1000)*r.w},'DII')}
+    if(rw.t==='asa'){var XR=Ls==='L'?[0,320]:[0,240],YR=Ls==='L'?[0,220]:[0,130];x.beginPath();for(var i2=m.i0;i2<m.i1;i2++){var X=r.x+q.V[i2]/XR[1]*r.w,Y=r.y+r.h-q.Pv[i2]/YR[1]*r.h;i2>m.i0?x.lineTo(X,Y):x.moveTo(X,Y)}x.closePath();x.fillStyle=css('--guessSoft');x.fill();x.strokeStyle=css('--guess');x.lineWidth=2.4;x.stroke();x.fillStyle=css('--muted');x.fillText('Asa P–V (volumen 0–'+XR[1]+' mL)',r.x+4,r.y+2)}
+  })}
+$('gHint').onclick=function(){if(!GM.cur)return;if(GM.lvl<4){GM.lvl++;GM.pts=Math.max(2,GM.pts-2);drawG();$('gScore').textContent='Puntos de este caso: '+GM.pts+' · total '+GM.total}};
+$('gAud').onclick=function(){if(!GM.cur)return;var a=null;try{a=buildAudio(GM.cur.res.r,murmurEnv(GM.cur.res.r,GM.cur.k),GM.cur.res.m,(function(){var t=LES[GM.cur.k].t;return t==='outS'?{fc:420,gain:1.8}:t==='outR'?{fc:800,hp:true,gain:1.6}:t==='inR'?{fc:520,gain:1.6}:{fc:130,gain:2.4,snap:true,s1:.95}})())}catch(e){}
+  if(a&&playBuf(a)){GM.pts=Math.max(2,GM.pts-1);$('gFb').textContent='Reproduciendo (vuelve a pulsar Nuevo caso para detener).'}else $('gFb').textContent='Este navegador no permite reproducir audio; usa el fonocardiograma (segunda pista).'};
+$('gNew').onclick=function(){stopBuf();newG()};
+var CLUES={AS:'pulso de pico tardío, soplo en diamante de eyección y asa muy alta con gradiente VI–Ao',AR:'presión de pulso ancha con diastólica baja y soplo diastólico decreciente; la relajación isovolumétrica se pierde',MS:'aurícula con onda A alta y gradiente diastólico persistente, retumbo diastólico y chasquido',MR:'onda V grande en la aurícula, soplo holosistólico y contracción isovolumétrica ausente',TS:'pulso yugular con onda a alta y gradiente diastólico derecho',TR:'pulso yugular con onda V prominente y soplo sistólico derecho',PS:'VD con presión alta frente a arteria pulmonar baja, soplo de eyección derecho y onda a alta',PR:'diastólica pulmonar baja y soplo diastólico corto y suave'};
+$('gGo').onclick=function(){var v=$('gSel').value,g=GM.cur;if(!g)return;if(!v){$('gFb').textContent='Elige una lesión.';return}
+  var ok=v===g.k;if(ok)GM.total+=GM.pts;$('gFb').innerHTML=(ok?'<span class="ok">Correcto (+'+GM.pts+').</span> ':'<span class="no">No: era '+LES[g.k].n.toLowerCase()+'.</span> ')+'Etapa: '+STAGES[g.k][g.T.stage].toLowerCase()+'. Pistas decisivas: '+CLUES[g.k]+'.';
+  GM.lvl=4;drawG();$('gScore').textContent='Total '+GM.total+' puntos'};
+$('play').onclick=function(){if(AUD.src){stopBuf();$('play').textContent='Escuchar el soplo';return}if(AUDIO&&playBuf(AUDIO))$('play').textContent='Detener';else $('playNote').textContent='Este navegador no permite reproducir audio; revisa el fonocardiograma.'};
+/* ---------- caso clínico ---------- */
+var CS={step:0,sel:{}};
+function caseRender(){
+  var T={les:'AS',sev:.75,stage:2,hr:70,ej:0,con:.7,fa:false,ret:false,refl:true,pvr:1},r=scen(T),m=r.m,d=r.d;CS.T=T;CS.r=r;
+  var SVi=m.SV/1.8;
+  $('caseData').innerHTML='<p>Hombre de 74 años con disnea de esfuerzo y un episodio de síncope al subir escaleras. Los datos de la evaluación (generados por el modelo) son: área valvular aórtica '+fmt(d.gorlin,2)+' cm² (Gorlin), gradiente medio '+fmt(d.gMean,0)+' mmHg, fracción de eyección '+Math.round(m.FE)+' %, gasto '+fmt(m.CO,1)+' L/min, volumen sistólico indexado ≈ '+Math.round(SVi)+' mL/m² (superficie 1,8 m²), presión de aurícula izquierda media '+Math.round(m.Pamean)+' mmHg y PTD '+Math.round(m.LVEDP)+' mmHg.</p><div class="row"><button class="btn" id="caseLoad">Ver su asa y sus trazos en el laboratorio</button></div>';
+  $('caseLoad').onclick=function(){Object.assign(S,T);fillStage();syncUI();render();$('lab').scrollIntoView({behavior:'smooth'})};
+  var Q=[
+   {q:'1. El área indica estenosis grave pero el gradiente medio es de '+fmt(d.gMean,0)+' mmHg. ¿Cuál es la explicación más coherente con el modelo?',o:['El flujo es bajo (volumen sistólico pequeño por disfunción del VI), y el gradiente depende del cuadrado del flujo','La estenosis en realidad es leve y el área está mal medida','El gradiente medio y el área no tienen relación'],a:0,f:'Con gasto de '+fmt(m.CO,1)+' L/min el flujo en eyección es ≈ '+Math.round(d.qEj)+' mL/s; al reposo normal sería ≈ 280, y el gradiente se reduce en proporción al cuadrado. Gorlin corrige por flujo y por eso sigue señalando un área pequeña.'},
+   {q:'2. ¿Qué maniobra del modelo ayuda a distinguir una estenosis verdadera con bajo flujo de una situación en la que el bajo flujo es lo que reduce el área aparente?',o:['Aumentar el flujo (más contractilidad) y ver si el gradiente sube mientras el área calculada se mantiene','Aumentar la poscarga con un vasoconstrictor','Reducir la frecuencia cardiaca'],a:0,apply:function(){var T2=Object.assign({},T,{con:1.15}),b=scen(T2);CS.b=b;return 'Con más contractilidad el gasto sube a '+fmt(b.m.CO,1)+' L/min, el gradiente medio a '+fmt(b.d.gMean,0)+' mmHg y el área de Gorlin queda en '+fmt(b.d.gorlin,2)+' cm² (verdadera '+fmt(b.d.areaTrue,2)+'). El área no se mueve: la estenosis es verdadera. (El modelo no simula el caso de pseudoestenosis: allí el área calculada crecería con el flujo.)'}},
+   {q:'3. Si la FE se recuperara con el mismo área, ¿qué le pasaría al gradiente medio?',o:['Subiría hasta rangos de estenosis grave con flujo normal','Quedaría igual','Bajaría aún más'],a:0,apply:function(){var T3=Object.assign({},T,{stage:1,con:1,ret:true}),b=scen(T3);return 'Con el gasto normalizado ('+fmt(b.m.CO,1)+' L/min) el gradiente medio llega a '+fmt(b.d.gMean,0)+' mmHg con la misma área de '+fmt(b.d.areaTrue,2)+' cm². El gradiente era "bajo" por el flujo, no por la válvula.'}}
+  ];
+  CS.Q=Q;var h='';Q.forEach(function(q,i){h+='<div class="col" id="cs'+i+'" '+(i>0?'hidden':'')+'><fieldset style="flex-direction:column"><legend>'+q.q+'</legend>'+q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="cq'+i+'" value="'+k+'"> '+t+'</label>'}).join('')+'</fieldset><div class="row"><button class="btn primary" data-i="'+i+'">Comprobar</button></div><p class="fb" id="csf'+i+'" aria-live="polite"></p></div>'});
+  $('caseSteps').innerHTML=h;
+  document.querySelectorAll('#caseSteps .btn.primary').forEach(function(b){b.onclick=function(){var i=+this.dataset.i,q=CS.Q[i],ch=document.querySelector('input[name=cq'+i+']:checked');if(!ch){$('csf'+i).textContent='Elige una respuesta.';return}var ok=+ch.value===q.a;var extra=q.apply?q.apply():'';
+    $('csf'+i).innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">Revisa el razonamiento.</span> ')+(q.f||'')+' '+extra;
+    if(i+1<CS.Q.length)$('cs'+(i+1)).hidden=false}})}
+/* ---------- arranque ---------- */
+build();fillStage();bind();syncUI();
+quiz({text:'qText',opts:'qOpts',go:'qGo',next:'qNext',fb:'qFb',name:'qName',conf:'qConf',QS:QS});
+worked();counter();caseRender();newG();doRender();
+redrawAll(function(){if(RES){drawLoop();drawPulse();drawWig();drawG()}});
+window.__dbg={S:S,cur:cur,scen:scen,runState:runState,derived:derived,get RES(){return RES},get DER(){return DER},ecgParams:ecgParams,QS:QS,counter:counter,GM:GM,newG:newG,murmurEnv:murmurEnv,buildAudio:buildAudio};
+})();
+
+</script>
+
+</body></html>

@@ -1,0 +1,753 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Vasos y presión</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: la presión arterial como resultado de cuatro perillas (VS, FC, rigidez, RPT), medida con un manguito virtual y puesta en el circuito completo. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --vein:#2B5FAE; --veinSoft:rgba(43,95,174,.16);
+  --lymph:#8A6200; --lymphSoft:rgba(138,98,0,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --vein:#7FA9EE; --veinSoft:rgba(127,169,238,.2);
+    --lymph:#E3B341; --lymphSoft:rgba(227,179,65,.18);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --vein:#7FA9EE; --veinSoft:rgba(127,169,238,.2);
+  --lymph:#E3B341; --lymphSoft:rgba(227,179,65,.18);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+label.ctl .mono{color:var(--fg)}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.seg{display:flex;gap:0;flex-wrap:wrap}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+.hot{background:var(--vecSoft);border-radius:4px}
+.lvl{font-family:var(--font-mono);font-size:.72rem;color:var(--vec);letter-spacing:.04em}
+.chain{display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.chain .st{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:baseline;padding:6px 8px;border:1px solid var(--line);border-radius:4px}
+.chain .st b{font-family:var(--font-mono);font-size:.78rem;color:var(--vec)}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.cmp>div{border:1px solid var(--line);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cmp h3{font-size:.95rem}
+.casebox{display:flex;flex-direction:column;gap:10px}
+.prog{font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.cdata{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.cdata div{border:1px solid var(--line);border-radius:4px;padding:5px 8px;font-size:.85rem;display:flex;flex-direction:column}
+.cdata b{font-family:var(--font-mono);font-size:.9rem;font-weight:600}
+.cdata span{color:var(--muted);font-size:.75rem}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B17 · los vasos, la capacitancia y la presión arterial</div>
+  <h1>Vasos y presión</h1>
+  <p class="lede">La presión arterial es el resultado de cuatro cosas que puedes mover con la mano: cuánta sangre sale por latido, cuántas veces por minuto, qué tan elástica es la arteria y cuánto resiste el lecho periférico. Aquí las mueves, ves las cuatro presiones cambiar y las mides con un manguito virtual, errores incluidos.</p>
+  <div class="tags"><span>Unidad 6: 6.150–6.156, 6.157–6.168, 6.174–6.190</span><span>Requiere B0 y B5</span><span>Nivel N2 (ejemplos básico a avanzado)</span></div>
+</header>
+
+<section class="panel">
+  <div class="lvl">EJEMPLO TRABAJADO · básico · perillas: VS, FC, rigidez, RPT</div>
+  <h2>Del latido a las cuatro presiones, paso a paso</h2>
+  <div class="chain" id="work"></div>
+</section>
+
+
+<section class="panel">
+  <div class="lvl">COMPARACIÓN · básico · una variable: el segmento del árbol vascular</div>
+  <h2>Estructura y función: cada vaso hace una cosa principal</h2>
+  <div class="seg" id="segBtns" role="group" aria-label="Segmento vascular"></div>
+  <div class="grid">
+    <div class="col"><div class="tw"><table id="segT"><tbody></tbody></table></div></div>
+    <div class="col"><canvas id="dist" role="img" aria-label="Reparto aproximado del volumen de sangre entre compartimentos"></canvas><p class="note">Reparto del volumen de sangre (aproximado, VERIFICAR): ≈ 50 % en venas y vénulas, 15 % en el corazón, 20 % en la circulación pulmonar, 10 % en arterias y 5 % en arteriolas y capilares. Por eso las venas son el reservorio.</p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="lvl">INTERACTIVO 1 · intermedio · perillas: VS, FC, rigidez arterial, RPT</div>
+  <h2>Taller de la presión arterial</h2>
+  <div class="row" id="pre"></div>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Volumen sistólico (VS): <span class="mono" id="svV"></span><input type="range" id="sv" min="40" max="110" step="1" value="70"></label>
+      <label class="ctl" style="flex:none">Frecuencia cardiaca (FC): <span class="mono" id="hrV"></span><input type="range" id="hr" min="40" max="150" step="1" value="70"></label>
+      <label class="ctl" style="flex:none">Rigidez arterial (1 = normal; baja la capacitancia): <span class="mono" id="rigV"></span><input type="range" id="rig" min="0.5" max="3" step="0.1" value="1"></label>
+      <label class="ctl" style="flex:none">Resistencia periférica total (RPT, 1 = normal): <span class="mono" id="rptV"></span><input type="range" id="rpt" min="0.5" max="1.8" step="0.05" value="1"></label>
+    </div>
+    <div class="col">
+      <canvas id="wf" role="img" aria-label="Onda de presión arterial con presiones sistólica, diastólica y media"></canvas>
+      <div class="chips" id="wfChips"></div>
+    </div>
+  </div>
+  <p class="why" id="wfWhy"></p>
+  <h3>¿Qué mueve cada presión? Sensibilidad calculada con el modelo</h3>
+  <div class="tw"><table id="sens"><thead><tr><th>Subes 20 % la perilla…</th><th>PAS</th><th>PAD</th><th>Presión de pulso</th><th>PAM</th></tr></thead><tbody></tbody></table></div>
+  <p class="note">Sin barorreflejo ni compensación: lo que ves es el efecto inmediato de cada perilla. En el paciente, el control nervioso y renal reacciona después (B5, D1–D3). La PAM de la fórmula «PAD + ⅓ de la presión de pulso» solo es buena cerca de 60 lpm; compárala con la PAM del modelo al subir la FC.</p>
+</section>
+
+<section class="panel">
+  <div class="lvl">INTERACTIVO 2 · intermedio · medición, sus errores y Korotkoff</div>
+  <h2>Manómetro virtual y ruidos de Korotkoff</h2>
+  <p class="note">El manguito se infla por encima de la sistólica y se desinfla. El ruido aparece cuando el pico de presión arterial vence al manguito y la sangre pasa en chorros por una arteria casi colapsada (turbulencia: Reynolds alto); desaparece cuando el manguito ya no comprime ni en diástole. Usa las presiones de la perilla del taller de arriba.</p>
+  <div class="grid">
+    <div class="col">
+      <div class="row">
+        <label class="ctl">Manguito<select id="cuff"><option value="ok">Adecuado para el brazo</option><option value="small">Demasiado pequeño (brazo grueso)</option><option value="big">Demasiado grande</option></select></label>
+        <label class="ctl">Desinflado<select id="rate"><option value="2">Lento (2 mmHg/s)</option><option value="3" selected>Recomendado (3 mmHg/s)</option><option value="10">Rápido (10 mmHg/s)</option></select></label>
+      </div>
+      <label class="ctl" style="flex:none">Altura del brazo respecto del corazón: <span class="mono" id="armV"></span><input type="range" id="arm" min="-30" max="30" step="1" value="0"></label>
+      <div class="row"><button class="btn" id="armUp">Sube el brazo (+20 cm)</button><button class="btn" id="armDn">Brazo colgando (−25 cm)</button><button class="btn" id="armH">A la altura del corazón</button></div>
+      <div class="row"><button class="btn primary" id="kGo">Medir (tiempo ×8)</button><button class="btn" id="kNow">Medir al instante</button></div>
+      <div class="row"><button class="btn" id="mk1">Oigo el primer ruido</button><button class="btn" id="mk2">Dejé de oír</button></div>
+    </div>
+    <div class="col">
+      <canvas id="kor" role="img" aria-label="Manómetro y latidos con fases de Korotkoff durante el desinflado"></canvas>
+      <div class="chips" id="korChips"></div>
+    </div>
+  </div>
+  <p class="why" id="korWhy"></p>
+  <h3>Por qué suena (Reynolds en la zona comprimida)</h3>
+  <div class="tw"><table id="reTab"><thead><tr><th>Presión del manguito</th><th>Luz de la arteria en el pico</th><th>Re ≈</th><th>Qué se oye</th></tr></thead><tbody></tbody></table></div>
+  <p class="note">Re = ρ·v·d / η. Al estrecharse la luz, v sube y d baja: el Reynolds cruza ≈ 2000 y el flujo se vuelve turbulento. Los números de Re son ilustrativos (flujo pico supuesto, VERIFICAR); la vibración de la pared también contribuye al ruido.</p>
+</section>
+
+<section class="panel">
+  <div class="lvl">INTERACTIVO 3 · básico a intermedio · perillas: GC, tono arteriolar, resistencia pulmonar, capilares reclutados</div>
+  <h2>El circuito: dónde cae la presión y qué pasa con la velocidad</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Gasto cardiaco: <span class="mono" id="gcV"></span><input type="range" id="gc" min="3" max="10" step="0.5" value="5"></label>
+      <label class="ctl" style="flex:none">Tono de las arteriolas sistémicas (1 = normal): <span class="mono" id="tonV"></span><input type="range" id="ton" min="0.5" max="2" step="0.05" value="1"></label>
+      <label class="ctl" style="flex:none">Resistencia vascular pulmonar (1 = normal): <span class="mono" id="ptV"></span><input type="range" id="pt" min="0.5" max="4" step="0.1" value="1"></label>
+      <label class="ctl" style="flex:none">Capilares reclutados (100 % = reposo): <span class="mono" id="recV"></span><input type="range" id="rec" min="30" max="160" step="5" value="100"></label>
+    </div>
+    <div class="col">
+      <canvas id="prof" role="img" aria-label="Presión media a lo largo de la circulación sistémica y pulmonar"></canvas>
+      <div class="chips" id="profChips"></div>
+    </div>
+  </div>
+  <p class="why" id="profWhy"></p>
+  <div class="tw"><table id="avTab"><thead><tr><th>Segmento</th><th>Área total (cm²)</th><th>Flujo (mL/min)</th><th>Velocidad media</th><th>Resistencia en serie</th></tr></thead><tbody></tbody></table></div>
+  <p class="note">Es una serie: el flujo es el mismo en cada nivel. La velocidad (v = Q / A) cae en los capilares porque su área total es enorme, no porque haya menos flujo. Las resistencias en serie se suman (R = ΣRi), por eso la mayor caída de presión ocurre donde está la mayor resistencia: las arteriolas. Áreas y porcentajes de resistencia: aproximados, VERIFICAR contra el libro del curso.</p>
+</section>
+
+<section class="panel">
+  <div class="lvl">INTERACTIVO 4 · intermedio · perillas: radio, longitud, viscosidad, tono por lecho</div>
+  <h2>Resistencia: Ohm, Poiseuille y el reparto del flujo (serie y paralelo)</h2>
+  <div class="cols2">
+    <div class="col">
+      <h3>Un solo vaso: Q = ΔP / R, con R = 8ηL / πr⁴</h3>
+      <label class="ctl" style="flex:none">Radio (% del reposo): <span class="mono" id="prV"></span><input type="range" id="pr" min="50" max="150" step="1" value="100"></label>
+      <label class="ctl" style="flex:none">Longitud (% del reposo): <span class="mono" id="plV"></span><input type="range" id="pl" min="50" max="200" step="5" value="100"></label>
+      <label class="ctl" style="flex:none">Hematocrito (viscosidad): <span class="mono" id="phV"></span><input type="range" id="ph" min="20" max="65" step="1" value="45"></label>
+      <div class="chips" id="poiChips"></div>
+      <p class="why" id="poiWhy"></p>
+    </div>
+    <div class="col">
+      <h3>Lechos en paralelo: ejercicio frente a reposo</h3>
+      <div class="row"><div class="seg" role="group" aria-label="Qué se mantiene"><button class="btn" id="mP" aria-pressed="true">Se mantiene la PAM</button><button class="btn" id="mG" aria-pressed="false">Se mantiene el GC</button></div>
+        <button class="btn" id="exRest">Reposo</button><button class="btn" id="exEx">Ejercicio intenso</button></div>
+      <label class="ctl" style="flex:none">Radio arteriolar del músculo: <span class="mono" id="emV"></span><input type="range" id="em" min="50" max="250" step="5" value="100"></label>
+      <label class="ctl" style="flex:none">Radio arteriolar esplácnico: <span class="mono" id="esV"></span><input type="range" id="es" min="30" max="150" step="5" value="100"></label>
+      <label class="ctl" style="flex:none">Radio arteriolar de la piel: <span class="mono" id="ekV"></span><input type="range" id="ek" min="30" max="200" step="5" value="100"></label>
+    </div>
+  </div>
+  <canvas id="ex" role="img" aria-label="Flujo por lecho vascular en reposo y ahora"></canvas>
+  <div class="chips" id="exChips"></div>
+  <p class="why" id="exWhy"></p>
+</section>
+
+<section class="panel">
+  <div class="lvl">INTERACTIVO 5 · básico · perillas: volumen añadido, tono venoso</div>
+  <h2>Capacitancia: C = ΔV / ΔP</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Volumen que se añade (o se pierde): <span class="mono" id="dvV"></span><input type="range" id="dv" min="-500" max="1000" step="50" value="500"></label>
+      <label class="ctl" style="flex:none">Tono venoso (venoconstricción): <span class="mono" id="tvV"></span><input type="range" id="tv" min="0" max="100" step="5" value="0"></label>
+      <p class="note">La rigidez arterial es la del taller de arriba. La vena es el vaso de capacitancia: acepta volumen con poco cambio de presión; la arteriola es el vaso de resistencia.</p>
+    </div>
+    <div class="col">
+      <canvas id="cap" role="img" aria-label="Cambio de presión arterial y venosa al añadir volumen"></canvas>
+      <div class="chips" id="capChips"></div>
+    </div>
+  </div>
+  <p class="why" id="capWhy"></p>
+</section>
+
+<section class="panel">
+  <div class="lvl">INTERACTIVO 6 · intermedio · perillas: inclinación, velocidad, dilatación</div>
+  <h2>Gravedad, Laplace y Bernoulli</h2>
+  <div class="cols2">
+    <div class="col">
+      <label class="ctl" style="flex:none">Inclinación del cuerpo (0° = decúbito, 90° = de pie): <span class="mono" id="tiV"></span><input type="range" id="ti" min="-20" max="90" step="1" value="90"></label>
+      <canvas id="grav" role="img" aria-label="Presión arterial y venosa a lo largo del cuerpo según la inclinación"></canvas>
+      <div class="chips" id="gravChips"></div>
+    </div>
+    <div class="col">
+      <h3>Laplace en el vaso: T = P · r</h3>
+      <div class="row"><label class="ctl">Vaso<select id="lv"><option value="0">Aorta</option><option value="1">Arteria muscular</option><option value="2">Arteriola</option><option value="3">Capilar</option><option value="4">Vena cava</option></select></label>
+        <label class="ctl">Dilatación (× radio): <span class="mono" id="ldV"></span><input type="range" id="ld" min="100" max="300" step="10" value="100"></label></div>
+      <div class="chips" id="lapChips"></div>
+      <h3>Bernoulli: P + ρgh + ½ρv² = constante</h3>
+      <label class="ctl" style="flex:none">Velocidad de la sangre: <span class="mono" id="bvV"></span><input type="range" id="bv" min="0.1" max="4" step="0.1" value="0.4"></label>
+      <div class="chips" id="berChips"></div>
+      <p class="why" id="gravWhy"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="lvl">RETOS · «Predice y observa»</div>
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <div class="prog" id="qTag"></div>
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <fieldset aria-label="Confianza"><legend>¿Qué tan seguro estás?</legend>
+        <label class="opt"><input type="radio" name="qc" value="seguro"> Seguro</label><label class="opt"><input type="radio" name="qc" value="medio" checked> Más o menos</label><label class="opt"><input type="radio" name="qc" value="adivino"> Adivino</label></fieldset>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+      <p class="prog" id="qSc"></p>
+    </div>
+    <div class="col">
+      <h3>Contraejemplo: misma PAM, dos arterias distintas</h3>
+      <p class="note">Casi iguales por el promedio, muy distintas por la forma. Compara dos pacientes con el mismo GC y la misma RPT.</p>
+      <div class="cmp" id="cex"></div>
+      <p class="why" id="cexWhy"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="lvl">JUEGO · «Una perilla, cuatro números»</div>
+  <h2>Juego: ¿qué perilla cambió?</h2>
+  <div class="grid">
+    <div class="col">
+      <p class="note">Hay una onda de referencia (gris) y una onda nueva (color). Solo cambió una perilla. Léela con la forma de la onda y los cuatro números.</p>
+      <canvas id="gm" role="img" aria-label="Onda de referencia y onda nueva"></canvas>
+      <div class="chips" id="gChips"></div>
+    </div>
+    <div class="col">
+      <fieldset style="flex-direction:column"><legend>¿Qué subió?</legend>
+        <label class="opt"><input type="radio" name="gk" value="sv"> El volumen sistólico</label>
+        <label class="opt"><input type="radio" name="gk" value="hr"> La frecuencia cardiaca</label>
+        <label class="opt"><input type="radio" name="gk" value="rig"> La rigidez arterial</label>
+        <label class="opt"><input type="radio" name="gk" value="rpt"> La resistencia periférica</label></fieldset>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><button class="btn" id="gNew">Nuevo caso</button></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+      <p class="note" id="gSc"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="lvl">CASO CLÍNICO DE CIERRE · avanzado</div>
+  <h2>Caso clínico</h2>
+  <div class="casebox" id="caseBox"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>«La sangre va más lenta en los capilares porque hay menos flujo»: el flujo es el mismo en cada nivel de la serie; la velocidad cae porque el área total es máxima.</li>
+    <li>«La presión arterial normal implica gasto normal»: la PAM depende de GC y RPT; un GC bajo con RPT alta puede dar la misma PAM.</li>
+    <li>«Poscarga = presión arterial»: aquí la presión es resultado de VS, FC, rigidez y RPT; no es una perilla independiente.</li>
+    <li>«Una presión de pulso ancha significa presión alta»: significa arteria rígida o VS grande; la PAM puede ser normal.</li>
+    <li>«Mida con el brazo como esté»: el brazo por encima o por debajo del corazón cambia la lectura ≈ 0,77 mmHg por cm.</li>
+    <li>«Desinflar rápido solo ahorra tiempo»: subestima la sistólica y sobrestima la diastólica.</li>
+    <li>«Las arterias se dilatan sin costo para la pared»: por Laplace la tensión crece con el radio; el aneurisma se agranda solo.</li>
+    <li>«Si el músculo dilata, roba sangre al riñón»: con PAM sostenida, el flujo renal solo cambia si cambia su resistencia; el GC sube para abastecer el nuevo lecho.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>La arteria es un Windkessel de dos elementos (una compliancia y una resistencia); no hay ondas reflejadas ni muesca dicrótica. Da ≈ 115/73 con PAM ≈ 93; la clínica espera ≈ 120/80 (la amplificación de la braquial explica parte de la diferencia; VERIFICAR).</li>
+    <li>La eyección es una media onda de seno con duración dependiente de la FC (LVET ≈ 413 − 1,7·FC ms; VERIFICAR).</li>
+    <li>No hay barorreflejo: las presiones que ves son el efecto inmediato, sin compensación.</li>
+    <li>Korotkoff: las fases se asignan por la posición del manguito entre PAD y PAS; el error por manguito pequeño o grande (+10/+8 y −5/−4 mmHg) es un valor ilustrativo (VERIFICAR). Se supone ritmo regular.</li>
+    <li>Porcentajes de resistencia, áreas de sección y la compliancia venosa (≈ 24 veces la arterial en la tabla de Guyton) son aproximados (VERIFICAR).</li>
+    <li>Gravedad: columna continua de sangre de densidad 1,06 g/mL; en el cuello las venas se colapsan y no siguen la regla.</li>
+    <li>Contenido educativo: los casos son inventados con datos del modelo.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.150–6.156, 6.157–6.168, 6.174–6.190). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,mx){return Math.max(200,Math.min(mx||940,Math.floor(c.parentElement.clientWidth-2)))}
+var REDRAW=[];
+function bindRedraw(){
+  var f=function(){REDRAW.forEach(function(g){try{g()}catch(e){console.error(e)}})};
+  if(window.ResizeObserver)new ResizeObserver(f).observe(document.body);else window.addEventListener('resize',f);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',f);
+  new MutationObserver(f).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f);
+}
+/* ---- retos "Predice y observa" ---- */
+function mountQuiz(items,H){
+  var qi=0,score=0,done={};
+  function show(){var q=items[qi];$('qTag').textContent=q.tag+' · reto '+(qi+1)+' de '+items.length;$('qText').textContent=q.q;
+    $('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> '+t+'</label>'}).join('');$('qFb').innerHTML='';
+    $('qSc').textContent='Aciertos: '+score+' de '+Object.keys(done).length+' respondidos'}
+  $('qGo').onclick=function(){
+    var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+    var q=items[qi],ok=+r.value===q.a,cf=document.querySelector('input[name=qc]:checked').value;
+    var b=H.measure();H.reset();q.change();var a=H.measure();H.render();
+    var cal='';if(cf==='seguro'&&!ok)cal=' Estabas seguro y fallaste: revisa en qué eslabón de la cadena causal te desviaste.';
+    if(cf==='adivino'&&ok)cal=' Acertaste con poca confianza: repite la cadena causal en voz alta para consolidarla.';
+    if(cf==='seguro'&&ok)cal=' Buena calibración: seguro y correcto.';
+    if(!done[qi]){done[qi]=1;if(ok)score++}
+    $('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa: la respuesta era «'+q.o[q.a]+'».</span> ')+q.why(b,a)+cal+' <span class="note">(El simulador ya aplicó el cambio.)</span>';
+    $('qSc').textContent='Aciertos: '+score+' de '+Object.keys(done).length+' respondidos'};
+  $('qNext').onclick=function(){qi=(qi+1)%items.length;H.reset();H.render();show()};
+  show();
+}
+/* ---- caso clínico de cierre ---- */
+function mountCase(C,H){
+  var si=0,sc=0,box=$('caseBox'),answered=false;
+  function start(){si=0;sc=0;H.start&&H.start();render()}
+  function render(){
+    var h='<h3>'+C.title+'</h3><p>'+C.intro+'</p><div class="cdata">'+(typeof C.data==='function'?C.data():C.data).map(function(d){return '<div><span>'+d[0]+'</span><b>'+d[1]+'</b></div>'}).join('')+'</div>';
+    if(si>=C.steps.length){
+      h+='<p class="why"><b>Cierre:</b> '+sc+' de '+C.steps.length+' decisiones correctas. '+C.close+'</p><div class="row"><button class="btn" id="caseRe">Repetir el caso</button></div>';
+      box.innerHTML=h;$('caseRe').onclick=start;return}
+    var s=C.steps[si];
+    h+='<div class="prog">Decisión '+(si+1)+' de '+C.steps.length+'</div><fieldset style="flex-direction:column"><legend>'+s.q+'</legend>'+
+      s.o.map(function(o,k){return '<label class="opt"><input type="radio" name="co" value="'+k+'"> '+o.t+'</label>'}).join('')+'</fieldset>'+
+      '<div class="row"><button class="btn primary" id="caseGo">Decidir</button></div><p class="fb" id="caseFb" aria-live="polite"></p>';
+    box.innerHTML=h;answered=false;
+    $('caseGo').onclick=function(){
+      if(answered){si++;render();return}
+      var r=document.querySelector('input[name=co]:checked');if(!r){$('caseFb').textContent='Elige una opción.';return}
+      var o=s.o[+r.value];answered=true;if(o.ok)sc++;
+      if(s.apply)s.apply();
+      $('caseFb').innerHTML=(o.ok?'<span class="ok">Buena decisión.</span> ':'<span class="no">Revisa este paso.</span> ')+o.fb+(s.after?' '+s.after():'');
+      $('caseGo').textContent=si===C.steps.length-1?'Ver cierre':'Siguiente decisión'};
+  }
+  start();
+}
+
+var PVC=3,R0=1.102,C0=1.12,BASE={sv:70,hr:70,rig:1,rpt:1};
+var DEF={sv:70,hr:70,rig:1,rpt:1,h:0,cuff:'ok',rate:3,gc:5,ton:1,pt:1,rec:100,pr:100,pl:100,ph:45,mode:'P',em:100,es:100,ek:100,dv:100,tv:0,ti:90,lv:0,ld:100,bv:.4,seg:0};
+var S=Object.assign({},DEF);
+var PH=.25; /* fase del primer latido respecto del inicio del desinflado */
+var WKC={};
+function wk(o){
+  var key=[o.sv,o.hr,o.rig,o.rpt].join('|');if(WKC[key])return WKC[key];
+  var RR=60/o.hr,ET=Math.min(Math.max((413-1.7*o.hr)/1000,.16),RR*.55),R=R0*o.rpt,C=C0/o.rig,dt=.002,P=80,N=Math.round(RR/dt),keep=Math.ceil(3.2/RR)+1,beats=keep+18,out={t:[],P:[]};
+  for(var b=0;b<beats;b++){for(var i=0;i<N;i++){var t=i*dt,q=t<ET?Math.PI*o.sv/(2*ET)*Math.sin(Math.PI*t/ET):0;
+    P+=((q-(P-PVC)/R)/C)*dt;
+    if(b>=beats-keep){out.t.push(((b-(beats-keep))*N+i)*dt*1000);out.P.push(P)}}}
+  var last=out.P.slice(-N),pas=Math.max.apply(null,last),pad=Math.min.apply(null,last),m=last.reduce(function(a,b){return a+b},0)/N;
+  out.PAS=pas;out.PAD=pad;out.PAM=m;out.PP=pas-pad;out.RR=RR*1000;out.ET=ET*1000;out.GC=o.sv*o.hr/1000;out.RVS=(m-PVC)*80/out.GC;out.PWV=5.5*Math.sqrt(o.rig);out.R=R;out.C=C;out.tau=R*C;out.qpk=Math.PI*o.sv/(2*ET);
+  WKC[key]=out;return out}
+function cur(){return wk(S)}
+/* ---------- Korotkoff ---------- */
+function korot(art,o){
+  var dh=-0.77*o.h,es=o.cuff==='small'?10:o.cuff==='big'?-5:0,ed=o.cuff==='small'?8:o.cuff==='big'?-4:0;
+  var Ps=art.PAS+dh+es,Pd=art.PAD+dh+ed,P0=Math.max(200,Ps+25),RR=art.RR/1000,beats=[],first=null,last=null;
+  for(var k=0;;k++){var t=(o.phase+k)*RR,Pc=P0-o.rate*t;if(Pc<30)break;
+    var f=(Pc-Pd)/(Ps-Pd),snd=Pc<Ps&&Pc>Pd,ph=0;if(snd)ph=f>.8?1:f>.55?2:f>.15?3:4;
+    beats.push({t:t,Pc:Pc,ph:ph,snd:snd});if(snd){if(first===null)first=Pc;last=Pc}}
+  function r2(x){return x===null?null:Math.round(x/2)*2}
+  return {Ps:Ps,Pd:Pd,P0:P0,beats:beats,sys:r2(first),dia:r2(last),tsArm:art.PAS+dh,tdArm:art.PAD+dh,tsH:art.PAS,tdH:art.PAD,dh:dh,rate:o.rate}}
+function kInst(){return korot(cur(),{h:S.h,cuff:S.cuff,rate:S.rate,phase:PH})}
+/* ---------- circuito ---------- */
+var SEGN=['Arterias grandes','Arterias pequeñas','Arteriolas','Capilares','Vénulas','Venas'];
+var SHS=[.03,.07,.60,.17,.08,.05],SHP=[.10,.15,.25,.30,.10,.10],AREA=[5,20,40,2500,250,80];
+function circ(){
+  var Rb=(93-PVC)/5,rs=SHS.map(function(s,i){return s*Rb*(i===2?S.ton:1)}),Rt=rs.reduce(function(a,b){return a+b},0),pam=PVC+S.gc*Rt;
+  var ps=[pam];rs.forEach(function(r){ps.push(ps[ps.length-1]-S.gc*r)});
+  var PAI=8,Rp=1.2*S.pt,pap=PAI+S.gc*Rp,pp=[pap];SHP.forEach(function(s){pp.push(pp[pp.length-1]-S.gc*Rp*s)});
+  return {ps:ps,pp:pp,pam:pam,pap:pap,rvs:(pam-PVC)*80/S.gc,rvp:(pap-PAI)*80/S.gc,rs:rs,Rt:Rt,Rp:Rp}}
+/* ---------- lechos en paralelo ---------- */
+var BEDS=[{n:'Cerebro',f:.14},{n:'Corazón',f:.05},{n:'Esplácnico',f:.25,k:'es'},{n:'Riñón',f:.21},{n:'Músculo',f:.20,k:'em'},{n:'Piel',f:.07,k:'ek'},{n:'Otros',f:.08}];
+function exCalc(o){
+  o=o||S;var G=BEDS.map(function(b){var g=b.f*5/(93-PVC);return b.k?g*Math.pow(o[b.k]/100,4):g}),Gt=G.reduce(function(a,b){return a+b},0),dp,gc;
+  if(o.mode==='P'){dp=93-PVC;gc=Gt*dp}else{gc=5;dp=gc/Gt}
+  return {q:G.map(function(g){return g*dp}),gc:gc,pam:PVC+dp,Gt:Gt,dp:dp,rpt:dp/gc,G:G}}
+function visc(h){var H=h/100;return 1.2*(1+2*H+9*H*H)}
+function poi(){var R=visc(S.ph)/visc(45)*(S.pl/100)/Math.pow(S.pr/100,4);return {R:R,Q:1/R,v:(1/R)/Math.pow(S.pr/100,2)}}
+/* ---------- capacitancia ---------- */
+function capCalc(){var Ca=C0/S.rig,Cv=24*C0*(1-.4*S.tv/100);return {Ca:Ca,Cv:Cv,dPa:S.dv/Ca,dPv:S.dv/Cv}}
+/* ---------- laplace ---------- */
+var VES=[['Aorta',100,1.25],['Arteria muscular',95,.25],['Arteriola',60,.0015],['Capilar',25,.0004],['Vena cava',5,1.5]];
+/* ---------- segmentos ---------- */
+var SEG=[
+ {n:'Arterias grandes',pared:'Capa media gruesa con mucha elastina; diámetro de 25 a unos 3 mm.',fun:'Elasticidad: almacenan volumen en sístole y lo devuelven en diástole (amortiguan el pulso).',vol:'Arterias ≈ 10 %',pres:'≈ 90–93 mmHg (media), con pulso grande',tag:'a'},
+ {n:'Arterias pequeñas',pared:'Capa media muscular con menos elastina.',fun:'Distribución del gasto hacia cada órgano; resistencia moderada.',vol:'Arterias ≈ 10 %',pres:'≈ 84–90 mmHg',tag:'a'},
+ {n:'Arteriolas',pared:'Luz de unas decenas de µm con una pared de músculo liso muy gruesa para su calibre.',fun:'Resistencia: son el principal sitio de control del flujo local y de la RPT (≈ 60 %).',vol:'Arteriolas y capilares ≈ 5 %',pres:'cae de ≈ 84 a ≈ 29 mmHg',tag:'c'},
+ {n:'Capilares',pared:'Una capa de endotelio sobre membrana basal; 5–8 µm de diámetro; sin músculo.',fun:'Intercambio de agua, gases y solutos con el tejido (B18).',vol:'Arteriolas y capilares ≈ 5 %',pres:'≈ 29 → 14 mmHg',tag:'c'},
+ {n:'Vénulas',pared:'Endotelio con muy poco músculo; recogen la sangre de los capilares.',fun:'Recolección y parte del intercambio; resistencia poscapilar.',vol:'Venas y vénulas ≈ 50 %',pres:'≈ 14 → 6 mmHg',tag:'v'},
+ {n:'Venas',pared:'Pared delgada, luz grande y distensible; válvulas en las extremidades.',fun:'Capacitancia: reservorio de volumen y retorno al corazón (B19).',vol:'Venas y vénulas ≈ 50 %',pres:'≈ 6 → 3 mmHg',tag:'v'}];
+/* ===================== dibujo ===================== */
+function drawWave(c,w,ref,W,H,opt){
+  var x=fit(c,W,H),ylo=30,yhi=Math.max(180,w.PAS+18,ref?ref.PAS+18:0);if(opt&&opt.ylo!==undefined){ylo=opt.ylo;yhi=opt.yhi}
+  var L=44,Rr=opt&&opt.noLab?6:58,T=8,B=22,pw=W-L-Rr,ph=H-T-B,tl=2800;
+  function X(t){return L+t/tl*pw}function Y(p){return T+ph-(p-ylo)/(yhi-ylo)*ph}
+  x.clearRect(0,0,W,H);x.font='11px '+css('--font-mono');x.textBaseline='middle';
+  for(var g=Math.ceil(ylo/50)*50;g<=yhi;g+=50){x.strokeStyle=css('--line');x.lineWidth=1;x.beginPath();x.moveTo(L,Y(g));x.lineTo(L+pw,Y(g));x.stroke();x.fillStyle=css('--muted');x.textAlign='right';x.fillText(g,L-5,Y(g))}
+  x.fillStyle=css('--muted');x.textAlign='center';x.textBaseline='top';for(var s=0;s<=2;s++){x.fillText(s+' s',X(s*1000),H-B+6)}
+  x.save();x.translate(7,T+ph/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText('mmHg',0,0);x.restore();
+  function line(a,col,lw,dash){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();var f=true;for(var i=0;i<a.t.length&&a.t[i]<=tl;i++){var px=X(a.t[i]),py=Y(a.P[i]);f?x.moveTo(px,py):x.lineTo(px,py);f=false}x.stroke();x.setLineDash([])}
+  if(ref)line(ref,css('--muted'),1.6,[5,4]);
+  line(w,css('--blood'),2.4);
+  if(!(opt&&opt.noLab)){
+    [[w.PAS,'PAS'],[w.PAD,'PAD'],[w.PAM,'PAM']].forEach(function(a,i){x.setLineDash(i==2?[2,3]:[6,3]);x.strokeStyle=i==2?css('--vec'):css('--guess');x.lineWidth=1;x.beginPath();x.moveTo(L,Y(a[0]));x.lineTo(L+pw,Y(a[0]));x.stroke();x.setLineDash([]);
+      x.fillStyle=i==2?css('--vec'):css('--guess');x.textAlign='left';x.textBaseline='middle';x.font='600 11px '+css('--font-mono');x.fillText(a[1]+' '+Math.round(a[0]),L+pw+4,Y(a[0]))})}
+}
+function wfDraw(){
+  var c=$('wf'),W=cw(c,520),w=cur(),ref=wk(BASE);if(W<240)return;drawWave(c,w,ref,W,Math.round(clamp(W*.55,210,280)));
+}
+function chips(w){
+  var f3=w.PAD+w.PP/3,d=Math.abs(f3-w.PAM);
+  return chip('PA',Math.round(w.PAS)+'/'+Math.round(w.PAD)+' mmHg',(w.PAS<140&&w.PAD<90)?'ok':'wn',(w.PAS<140&&w.PAD<90)?'':'elevada')+
+   chip('Presión de pulso',Math.round(w.PP)+' mmHg',(w.PP>=30&&w.PP<=55)?'ok':'wn',w.PP>55?'ancha':w.PP<30?'estrecha':'')+
+   chip('PAM (modelo)',fmt(w.PAM,0)+' mmHg','ok')+
+   chip('PAD + ⅓ PP',fmt(f3,0)+' mmHg',d<4?'ok':'wn',d<4?'fórmula útil':'fórmula falla')+
+   chip('GC',fmt(w.GC,1)+' L/min',(w.GC>=4&&w.GC<=8)?'ok':'wn')+chip('RVS',Math.round(w.RVS)+' dyn·s/cm⁵',(w.RVS>=700&&w.RVS<=1600)?'ok':'wn')+
+   chip('Velocidad de onda',fmt(w.PWV,1)+' m/s','ok','∝ √rigidez')}
+function wfText(w){
+  var p=[];
+  p.push('Cada latido expulsa '+S.sv+' mL en '+Math.round(w.ET)+' ms (flujo pico ≈ '+Math.round(w.qpk)+' mL/s).');
+  p.push('La capacitancia arterial es C = '+fmt(w.C,2)+' mL/mmHg, así que el volumen que se queda en la aorta eleva la presión unos '+Math.round(w.PP)+' mmHg (presión de pulso).');
+  p.push('La resistencia R = '+fmt(w.R,2)+' mmHg·s/mL vacía la arteria con constante de tiempo τ = R·C = '+fmt(w.tau,1)+' s, mientras dura la diástole ('+Math.round(w.RR-w.ET)+' ms).');
+  p.push('La PAM sigue la ley de Ohm: PVC + GC·RPT = '+PVC+' + '+fmt(w.GC,1)+' × '+fmt(w.R*1000/60,1)+' ≈ '+Math.round(w.PAM)+' mmHg, sin importar la rigidez.');
+  return p.join(' ')}
+function sens(){
+  var b=cur(),rows=[['el volumen sistólico','sv'],['la frecuencia cardiaca','hr'],['la rigidez arterial','rig'],['la resistencia periférica','rpt']];
+  $('sens').querySelector('tbody').innerHTML=rows.map(function(r){var o=Object.assign({},S);o[r[1]]*=1.2;var w=wk(o);
+    function d(v){var s=(v>=0?'+':'−')+Math.abs(Math.round(v));return '<td class="n '+(Math.abs(v)<1.5?'':(v>0?'no':'ok'))+'">'+s+'</td>'}
+    return '<tr><td>'+r[0]+'</td>'+d(w.PAS-b.PAS)+d(w.PAD-b.PAD)+d(w.PP-b.PP)+d(w.PAM-b.PAM)+'</tr>'}).join('')}
+/* korotkoff dibujo */
+var KM={res:null,rev:1e9,run:false,t0:0,m1:null,m2:null,raf:0};
+function korFresh(){KM.res=kInst();KM.rev=1e9;KM.run=false;KM.m1=KM.m2=null}
+var PHC=['','I','II','III','IV'];
+function korDraw(){
+  var c=$('kor'),W=cw(c,520);if(W<240||!KM.res)return;var r=KM.res,H=250,x=fit(c,W,H);x.clearRect(0,0,W,H);
+  var L=14,Rr=14,pw=W-L-Rr,lo=30,hi=r.P0;function X(p){return L+(hi-p)/(hi-lo)*pw}
+  var nrev=Math.min(KM.rev,r.beats.length),lastP=nrev>0?r.beats[nrev-1].Pc:r.P0;
+  /* gauge */
+  var gy=8,gh=26;x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(L,gy,pw,gh);
+  x.fillStyle=css('--blood');x.globalAlpha=.55;x.fillRect(L,gy,X(lastP)-L,gh);x.globalAlpha=1;
+  x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';x.fillStyle=css('--muted');
+  for(var p=Math.ceil(lo/20)*20;p<=hi;p+=20){var xx=X(p);x.strokeStyle=css('--line');x.beginPath();x.moveTo(xx,gy+gh);x.lineTo(xx,gy+gh+4);x.stroke();if(W>380||p%40==0)x.fillText(p,xx,gy+gh+5)}
+  x.fillStyle=css('--fg');x.textAlign='left';x.textBaseline='middle';x.font='600 12px '+css('--font-mono');
+  /* beats */
+  var by=60,bh=140,base=by+bh;
+  /* bandas de fases (por la verdad en el brazo con el error del manguito) */
+  var PS=r.Ps,PD=r.Pd,PPv=PS-PD,bnd=[PS,PD+.8*PPv,PD+.55*PPv,PD+.15*PPv,PD];
+  var pn=['I','II','III','IV','V'];x.font='600 11px '+css('--font-mono');x.textBaseline='top';x.textAlign='center';
+  for(var i=0;i<5;i++){var a=bnd[i],b=i<4?bnd[i+1]:Math.max(lo,PD-12);x.fillStyle=i%2?css('--vecSoft'):'rgba(0,0,0,0)';if(i%2)x.fillRect(X(a),by,X(b)-X(a),bh);
+    x.fillStyle=css('--muted');x.fillText(pn[i],(X(a)+X(b))/2,by+2)}
+  x.strokeStyle=css('--line');x.beginPath();x.moveTo(L,base);x.lineTo(L+pw,base);x.stroke();
+  for(var k=0;k<nrev;k++){var bt=r.beats[k],bx=X(bt.Pc),amp=[.05,.5,.72,1,.42][bt.ph];x.strokeStyle=bt.snd?css('--vec'):css('--muted');x.lineWidth=bt.snd?3:2;x.beginPath();x.moveTo(bx,base);x.lineTo(bx,base-amp*(bh-26));x.stroke()}
+  /* verdad */
+  function vl(p,col,lab,yy,dash){x.setLineDash(dash||[]);x.strokeStyle=col;x.lineWidth=1.4;x.beginPath();x.moveTo(X(p),by);x.lineTo(X(p),base+6);x.stroke();x.setLineDash([]);x.fillStyle=col;x.textAlign='center';x.textBaseline='top';x.font='600 11px '+css('--font-mono');x.fillText(lab,X(p),base+8+yy)}
+  vl(r.tsH,css('--guess'),'PAS '+Math.round(r.tsH),0,[5,3]);vl(r.tdH,css('--guess'),'PAD '+Math.round(r.tdH),0,[5,3]);
+  if(Math.abs(r.dh)>.5){vl(r.tsArm,css('--bad'),'brazo '+Math.round(r.tsArm),14,[2,3]);vl(r.tdArm,css('--bad'),'brazo '+Math.round(r.tdArm),14,[2,3])}
+  x.fillStyle=css('--muted');x.textAlign='right';x.textBaseline='bottom';x.font='10px '+css('--font-mono');x.fillText('manguito (mmHg) →  desinflado hacia la derecha',L+pw,H-2);
+  /* aguja */
+  var nx=X(lastP);x.fillStyle=css('--fg');x.beginPath();x.moveTo(nx,gy+gh+16);x.lineTo(nx-5,gy+gh+26);x.lineTo(nx+5,gy+gh+26);x.closePath();x.fill();
+  x.font='600 13px '+css('--font-mono');x.textAlign='left';x.textBaseline='middle';x.fillStyle=css('--fg');x.fillText(Math.round(lastP)+' mmHg',L+4,gy+gh/2);
+}
+function korUI(){
+  var r=KM.res,done=KM.rev>=r.beats.length;
+  var eS=r.sys-r.tsH,eD=r.dia-r.tdH;
+  function ec(e){return Math.abs(e)<=4?'ok':Math.abs(e)<=8?'wn':'no'}
+  var h=chip('Lectura (manguito)',(done?r.sys+'/'+r.dia:'…')+' mmHg','ok')+(done?chip('Verdad en el corazón',Math.round(r.tsH)+'/'+Math.round(r.tdH)+' mmHg','ok')+chip('Error sistólica',(eS>=0?'+':'−')+Math.abs(Math.round(eS))+' mmHg',ec(eS))+chip('Error diastólica',(eD>=0?'+':'−')+Math.abs(Math.round(eD))+' mmHg',ec(eD))+chip('Presión de pulso medida',(r.sys-r.dia)+' mmHg',Math.abs((r.sys-r.dia)-(r.tsH-r.tdH))<6?'ok':'wn'):'');
+  if(KM.m1!==null)h+=chip('Tu primer ruido',Math.round(KM.m1)+' mmHg','ok');if(KM.m2!==null)h+=chip('Tu último ruido',Math.round(KM.m2)+' mmHg','ok');
+  $('korChips').innerHTML=h;
+  var w=[];if(Math.abs(r.dh)>.5)w.push('El brazo está '+Math.abs(S.h)+' cm '+(S.h>0?'por encima':'por debajo')+' del corazón: la columna de sangre cambia la presión en la arteria del brazo en '+(r.dh>0?'+':'−')+fmt(Math.abs(r.dh),0)+' mmHg ('+fmt(.77,2)+' mmHg por cm), y el manguito mide ahí.');
+  if(S.cuff==='small')w.push('Un manguito demasiado pequeño comprime menos arteria por mmHg: hay que inflar más para colapsarla y la lectura sale alta (+10/+8 mmHg, valor ilustrativo).');
+  if(S.cuff==='big')w.push('Un manguito demasiado grande transmite mejor la presión y la lectura sale baja (−5/−4 mmHg, valor ilustrativo).');
+  if(S.rate>=10)w.push('Con '+S.rate+' mmHg/s la presión del manguito cae '+fmt(S.rate*r.beats[1].t-S.rate*r.beats[0].t,1)+' mmHg entre latido y latido: el primer y el último ruido se detectan tarde y se pierde resolución (sistólica baja, diastólica alta).');
+  if(!w.length)w.push('Con manguito adecuado, brazo a la altura del corazón y desinflado de 3 mmHg/s, la lectura queda a pocos mmHg de la presión real. Cambia una condición a la vez y compara.');
+  $('korWhy').textContent=w.join(' ');
+  var rows=[[r.tsArm+10,'Colapsada por completo'],[r.tsArm-.15*(r.tsArm-r.tdArm),'Se abre solo en el pico'],[(r.tsArm+r.tdArm)/2,'Se abre buena parte del latido'],[r.tdArm+.08*(r.tsArm-r.tdArm),'Casi abierta en diástole'],[r.tdArm-10,'Sin compresión']];
+  $('reTab').querySelector('tbody').innerHTML=rows.map(function(q,i){var a=i===0?0:i===4?1:clamp((r.tsArm-q[0])/(r.tsArm-r.tdArm),.02,1),re=a>0?1900/Math.sqrt(a):0;
+    var snd=i===0?'Silencio: no pasa sangre':(re>2000?'Ruido (turbulencia)':'Silencio: flujo laminar');
+    return '<tr><td class="n">'+Math.round(q[0])+' mmHg</td><td>'+q[1]+(a>0?' ('+Math.round(a*100)+' % de la luz)':'')+'</td><td class="n">'+(a>0?Math.round(re):'—')+'</td><td>'+snd+'</td></tr>'}).join('')}
+function korRun(){
+  KM.res=kInst();KM.rev=0;KM.run=true;KM.m1=KM.m2=null;KM.t0=performance.now();cancelAnimationFrame(KM.raf);
+  function step(ts){var el=(ts-KM.t0)/1000*8,n=0,b=KM.res.beats;while(n<b.length&&b[n].t<=el)n++;KM.rev=n;
+    if(n>=b.length){KM.run=false}else KM.raf=requestAnimationFrame(step);korDraw();korUI()}
+  KM.raf=requestAnimationFrame(step)}
+function korNow(){cancelAnimationFrame(KM.raf);korFresh();korDraw();korUI()}
+/* perfil */
+function profDraw(){
+  var c=$('prof'),W=cw(c,520);if(W<240)return;var H=Math.round(clamp(W*.62,230,300)),x=fit(c,W,H),m=circ();x.clearRect(0,0,W,H);
+  var L=40,Rr=10,T=14,B=44,pw=W-L-Rr,ph=H-T-B,hi=Math.max(110,Math.ceil((m.pam+8)/20)*20);
+  function X(i){return L+i/6*pw}function Y(p){return T+ph-p/hi*ph}
+  x.font='11px '+css('--font-mono');x.textBaseline='middle';
+  for(var g=0;g<=hi;g+=20){x.strokeStyle=css('--line');x.lineWidth=1;x.beginPath();x.moveTo(L,Y(g));x.lineTo(L+pw,Y(g));x.stroke();x.fillStyle=css('--muted');x.textAlign='right';x.fillText(g,L-5,Y(g))}
+  x.fillStyle=css('--guessSoft');x.fillRect(X(2),T,X(3)-X(2),ph);
+  x.fillStyle=css('--muted');x.textBaseline='top';x.textAlign='center';var short=['Art.\ngrandes','Art.\npequeñas','Arteriolas','Capilares','Vénulas','Venas'];
+  short.forEach(function(s,i){var p=s.split('\n');p.forEach(function(t,j){x.fillText(t,(X(i)+X(i+1))/2,T+ph+6+j*12)})});
+  x.save();x.translate(10,T+ph/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText('Presión media (mmHg)',0,0);x.restore();
+  function line(a,col,dash){x.setLineDash(dash||[]);x.strokeStyle=col;x.lineWidth=2.6;x.beginPath();a.forEach(function(p,i){i?x.lineTo(X(i),Y(p)):x.moveTo(X(i),Y(p))});x.stroke();x.setLineDash([]);x.fillStyle=col;a.forEach(function(p,i){x.beginPath();x.arc(X(i),Y(p),3.2,0,7);x.fill()})}
+  line(m.ps,css('--blood'));line(m.pp,css('--vein'),[6,4]);
+  x.font='600 11px '+css('--font-mono');x.textBaseline='bottom';x.textAlign='left';x.fillStyle=css('--blood');x.fillText('sistémica '+Math.round(m.ps[0]),X(0)+6,Y(m.ps[0])-5);
+  x.fillStyle=css('--vein');x.fillText('pulmonar '+Math.round(m.pp[0]),X(0)+6,Y(m.pp[0])-5);
+  x.textAlign='center';x.fillStyle=css('--blood');x.textBaseline='bottom';x.fillText(Math.round(m.ps[2]),X(2),Y(m.ps[2])-6);x.fillText(Math.round(m.ps[3]),X(3)+4,Y(m.ps[3])-6);
+}
+function profUI(){
+  var m=circ(),dArt=m.ps[2]-m.ps[3],tot=m.ps[0]-m.ps[6];
+  $('profChips').innerHTML=chip('PAM',fmt(m.pam,0)+' mmHg',(m.pam>=70&&m.pam<=105)?'ok':'wn')+chip('RVS',Math.round(m.rvs)+' dyn·s/cm⁵',(m.rvs>=700&&m.rvs<=1600)?'ok':'wn')+
+   chip('PAP media',fmt(m.pap,0)+' mmHg',m.pap<=20?'ok':'wn',m.pap>20?'alta':'')+chip('RVP',Math.round(m.rvp)+' dyn·s/cm⁵',(m.rvp>=20&&m.rvp<=130)?'ok':'wn')+chip('RVS / RVP',fmt(m.rvs/m.rvp,0)+' : 1','ok')+chip('Presión capilar (entrada)',fmt(m.ps[3],0)+' mmHg','ok');
+  $('profWhy').textContent='Las arteriolas aportan '+Math.round(m.rs[2]/m.Rt*100)+' % de la resistencia sistémica y por eso se llevan '+Math.round(dArt)+' de los '+Math.round(tot)+' mmHg de caída (en serie, la caída en cada tramo es Q·R del tramo). La presión a la entrada del capilar es '+fmt(m.ps[3],0)+' mmHg: si el tono arteriolar sube, la PAM sube pero el capilar queda más protegido (menos presión); si baja, pasa lo contrario (B18). La circulación pulmonar tiene unas '+fmt(m.rvs/m.rvp,0)+' veces menos resistencia, por eso su presión media es solo '+Math.round(m.pap)+' mmHg con el mismo gasto.';
+  var Q=S.gc*1000,A=AREA.slice();A[3]=A[3]*S.rec/100;var vs=A.map(function(a){return Q/60/a}),lg=vs.map(function(v){return Math.log10(v)+3}),mx=Math.max.apply(null,lg);
+  $('avTab').querySelector('tbody').innerHTML=SEGN.map(function(n,i){return '<tr><td>'+n+'</td><td class="n">'+Math.round(A[i]).toLocaleString('es-MX')+'</td><td class="n">'+Math.round(Q).toLocaleString('es-MX')+'</td><td class="n">'+(vs[i]<1?fmt(vs[i]*10,1)+' mm/s':fmt(vs[i],1)+' cm/s')+'<div style="height:5px;margin-top:3px;border-radius:2px;background:var(--vec);width:'+Math.max(3,Math.round(lg[i]/mx*100))+'%"></div></td><td class="n">'+fmt(m.rs[i]/m.Rt*100,0)+' %</td></tr>'}).join('')}
+/* poiseuille + lechos */
+function poiUI(){
+  var p=poi();$('poiChips').innerHTML=chip('R relativa','× '+fmt(p.R,2),p.R>1.6?'no':p.R<.6?'wn':'ok')+chip('Flujo a igual ΔP','× '+fmt(p.Q,2),p.Q<.6?'no':p.Q>1.6?'wn':'ok')+chip('Velocidad media','× '+fmt(p.v,2),'ok')+chip('η','≈ '+fmt(visc(S.ph),1)+' cP','ok');
+  var parts=[];if(S.pr!==100)parts.push('radio '+S.pr+' %: r⁴ = '+fmt(Math.pow(S.pr/100,4),2)+' veces el original');if(S.pl!==100)parts.push('longitud '+S.pl+' %: R proporcional a L');if(S.ph!==45)parts.push('Hct '+S.ph+' %: viscosidad × '+fmt(visc(S.ph)/visc(45),2));
+  $('poiWhy').textContent=parts.length?('Cambió '+parts.join('; ')+'. Resultado: R × '+fmt(p.R,2)+' y, con la misma ΔP, el flujo × '+fmt(p.Q,2)+'. Un cambio pequeño del radio pesa mucho: con 119 % del radio el flujo se duplica; con 84 % se reduce a la mitad.'):'Mueve el radio: un 20 % más de radio casi duplica el flujo, porque entra a la cuarta potencia. Por eso el radio de las arteriolas es la perilla del flujo regional.'}
+function exDraw(){
+  var c=$('ex'),W=cw(c,940);if(W<260)return;var e=exCalc(),e0=exCalc(Object.assign({},DEF)),n=BEDS.length,rowH=26,H=n*rowH+24,x=fit(c,W,H),L=Math.min(110,W*.24),R=W<460?64:96,pw=W-L-R;
+  var mx=Math.max.apply(null,e.q.concat(e0.q))*1.05;x.clearRect(0,0,W,H);x.font='12px '+css('--font-body');x.textBaseline='middle';
+  BEDS.forEach(function(b,i){var y=8+i*rowH+rowH/2;x.fillStyle=css('--fg');x.textAlign='right';x.fillText(b.n,L-8,y);
+    x.fillStyle=css('--bloodSoft');x.strokeStyle=css('--blood');x.lineWidth=1;x.fillRect(L,y-8,e0.q[i]/mx*pw,16);
+    x.fillStyle=css('--blood');x.globalAlpha=.8;x.fillRect(L,y-4,e.q[i]/mx*pw,8);x.globalAlpha=1;
+    x.fillStyle=css('--fg');x.textAlign='left';x.font='600 11px '+css('--font-mono');x.fillText(fmt(e.q[i],2)+' L/min',L+Math.max(e.q[i],e0.q[i])/mx*pw+6,y);x.font='12px '+css('--font-body')});
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='left';x.fillText('contorno claro = reposo · barra = ahora',L,H-6)}
+function exUI(){
+  var e=exCalc(),e0=exCalc(Object.assign({},DEF));
+  $('exChips').innerHTML=chip('GC',fmt(e.gc,1)+' L/min',e.gc>25?'wn':'ok',e.gc>e0.gc*1.2?'sube':'')+chip('PAM',fmt(e.pam,0)+' mmHg',e.pam<65?'no':'ok',e.pam<65?'hipotensión':'')+chip('RPT total (paralelo)',fmt(e.rpt,1)+' mmHg por L/min',e.rpt<e0.rpt?'ok':'ok',e.rpt<e0.rpt?'baja':'')+chip('Flujo muscular',fmt(e.q[4]/e.gc*100,0)+' % del GC','ok');
+  var w;if(S.mode==='P'&&Math.abs(e.gc-e0.gc)<.05)w='En reposo cada lecho tiene su resistencia y la misma ΔP ('+fmt(e.dp,0)+' mmHg): Q = ΔP / R. Prueba «Ejercicio intenso» o abre solo el músculo y mira qué pasa con el GC y con el flujo de los demás lechos.';else if(S.mode==='P')w='Con la PAM sostenida (ΔP = '+fmt(e.dp,0)+' mmHg), cada lecho cumple Q = ΔP / R: el músculo, con R '+fmt(Math.pow(100/S.em,4),2)+' veces la de reposo, recibe '+fmt(e.q[4],1)+' L/min (reposo 1,0). El riñón, cuya R no cambió, sigue con '+fmt(e.q[3],2)+' L/min: el GC sube a '+fmt(e.gc,1)+' L/min para abastecer el nuevo lecho. Las resistencias en paralelo se combinan por conductancias (1/R total = Σ 1/Ri), por eso el total baja aunque algunos lechos se cierren.';
+  else w='Con el GC clavado en 5 L/min, abrir el músculo baja la resistencia total y la PAM cae a '+fmt(e.pam,0)+' mmHg; los demás lechos pierden flujo ('+fmt(e.q[3],2)+' L/min en el riñón) solo porque la presión de perfusión bajó. Por eso en el ejercicio el corazón debe aumentar el gasto y el barorreflejo constriñe otros lechos.';
+  $('exWhy').textContent=w}
+function capDraw(){
+  var c=$('cap'),W=cw(c,520);if(W<240)return;var m=capCalc(),H=150,x=fit(c,W,H),L=104,Rr=12,pw=W-L-Rr,mx=120;x.clearRect(0,0,W,H);x.font='12px '+css('--font-body');x.textBaseline='middle';
+  [['Arteria',m.dPa,css('--blood')],['Vena',m.dPv,css('--vein')]].forEach(function(r,i){var y=30+i*55;x.fillStyle=css('--fg');x.textAlign='right';x.fillText(r[0],L-8,y);x.fillStyle=css('--line');x.fillRect(L,y-12,pw,24);x.fillStyle=r[2];x.globalAlpha=.8;
+    var w=clamp(Math.abs(r[1])/mx,0,1)*pw;x.fillRect(L,y-12,w,24);x.globalAlpha=1;x.fillStyle=css('--fg');x.textAlign='left';x.font='600 12px '+css('--font-mono');
+    x.fillText((r[1]>=0?'+':'−')+fmt(Math.abs(r[1]),1)+' mmHg'+(Math.abs(r[1])>mx?'  (fuera de escala)':''),L+6,y);x.font='12px '+css('--font-body')});
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='right';x.fillText('escala 0 a '+mx+' mmHg',L+pw,H-10)}
+function capUI(){
+  var m=capCalc();$('capChips').innerHTML=chip('C arterial',fmt(m.Ca,2)+' mL/mmHg','ok')+chip('C venosa',fmt(m.Cv,1)+' mL/mmHg','ok','≈ '+fmt(m.Cv/m.Ca,0)+' × la arterial')+chip('ΔV',(S.dv>=0?'+':'')+S.dv+' mL','ok');
+  $('capWhy').textContent='C = ΔV / ΔP, así que ΔP = ΔV / C. Si '+Math.abs(S.dv)+' mL '+(S.dv>=0?'se añadieran':'se perdieran')+' en las arterias, la presión cambiaría '+fmt(Math.abs(m.dPa),0)+' mmHg; en las venas, solo '+fmt(Math.abs(m.dPv),1)+' mmHg. La vena es el vaso de capacitancia: absorbe volumen casi sin subir su presión. Con venoconstricción ('+S.tv+' %) su capacitancia baja y el mismo volumen sube más la presión (el simpático «exprime» el reservorio). Arterias rígidas (rigidez '+fmt(S.rig,1)+') tienen menos C y suben más. La proporción de ≈ 24 veces sale de la tabla de Guyton (VERIFICAR).'}
+function gravDraw(){
+  var c=$('grav'),W=cw(c,480);if(W<240)return;var H=290,x=fit(c,W,H),th=S.ti*Math.PI/180,sn=Math.sin(th),g=.77*sn;x.clearRect(0,0,W,H);
+  var L=70,Rr=12,T=12,B=26,pw=W-L-Rr,ph=H-T-B,smax=55,smin=-135,pmin=-30,pmax=210;
+  function X(p){return L+(p-pmin)/(pmax-pmin)*pw}function Y(s){return T+(smax-s)/(smax-smin)*ph}
+  x.font='11px '+css('--font-mono');x.textBaseline='middle';
+  for(var p=0;p<=200;p+=50){x.strokeStyle=css('--line');x.lineWidth=1;x.beginPath();x.moveTo(X(p),T);x.lineTo(X(p),T+ph);x.stroke();x.fillStyle=css('--muted');x.textAlign='center';x.textBaseline='top';x.fillText(p,X(p),T+ph+5)}
+  x.textBaseline='middle';var marks=[['Cabeza',50],['Corazón',0],['Rodilla',-70],['Pie',-130]];
+  marks.forEach(function(m){x.strokeStyle=css('--line');x.setLineDash([3,4]);x.beginPath();x.moveTo(L,Y(m[1]));x.lineTo(L+pw,Y(m[1]));x.stroke();x.setLineDash([]);x.fillStyle=css('--fg');x.textAlign='right';x.fillText(m[0],L-6,Y(m[1]))});
+  function pa(s){return 93-g*s}function pv(s){return PVC-g*s}
+  x.strokeStyle=css('--blood');x.lineWidth=2.6;x.beginPath();x.moveTo(X(pa(smax)),Y(smax));x.lineTo(X(pa(smin)),Y(smin));x.stroke();
+  x.strokeStyle=css('--vein');x.beginPath();var sc=g>0?Math.max(smin,Math.min(smax,PVC/g)):smax;var s0=smin,s1=g>0?Math.min(smax,PVC/g):smax;
+  x.moveTo(X(pv(s1)),Y(s1));x.lineTo(X(pv(s0)),Y(s0));x.stroke();
+  if(g>0&&PVC/g<smax){x.setLineDash([4,4]);x.beginPath();x.moveTo(X(0),Y(PVC/g));x.lineTo(X(0),Y(smax));x.stroke();x.setLineDash([]);x.fillStyle=css('--vein');x.textAlign='left';x.fillText('venas colapsadas',X(0)+6,Y((PVC/g+smax)/2))}
+  [[50],[0],[-130]].forEach(function(m){x.fillStyle=css('--blood');x.beginPath();x.arc(X(pa(m[0])),Y(m[0]),4,0,7);x.fill()});
+  x.fillStyle=css('--blood');x.textAlign='left';x.font='600 11px '+css('--font-mono');x.fillText('arterial',X(pa(smax))+8,Y(smax)+10);
+  x.fillStyle=css('--vein');x.fillText('venosa',X(Math.max(pv(smin),0))-4,Y(-100));
+  var xs=X(0);x.strokeStyle=css('--fg');x.globalAlpha=.4;x.beginPath();x.moveTo(xs,T);x.lineTo(xs,T+ph);x.stroke();x.globalAlpha=1;
+  x.fillStyle=css('--muted');x.textAlign='right';x.fillText('mmHg',L+pw,T+ph+18);
+}
+function gravUI(){
+  var sn=Math.sin(S.ti*Math.PI/180),g=.77*sn;
+  $('gravChips').innerHTML=chip('Gradiente',fmt(g,2)+' mmHg/cm','ok')+chip('PA media en la cabeza',fmt(93-g*50,0)+' mmHg',(93-g*50)<60?'wn':'ok')+chip('PA media en el pie',fmt(93-g*-130,0)+' mmHg','ok')+chip('Presión venosa en el pie',fmt(PVC+g*130,0)+' mmHg',(PVC+g*130)>60?'wn':'ok');
+  $('gravWhy').textContent='A '+S.ti+'° la gravedad suma ≈ '+fmt(g,2)+' mmHg por cada cm bajo el corazón (ρ·g·h; 1 mmHg ≈ 13,6 mm de agua/sangre ÷ densidad). De pie, el pie tiene ≈ '+fmt(93+g*130,0)+' mmHg de presión arterial y ≈ '+fmt(PVC+g*130,0)+' mmHg de venosa: la diferencia (≈ 90) es la misma que en decúbito, así que el flujo casi no cambia. Lo que cambia es la presión venosa distal, y de ahí viene el edema de pie (B19). En el cuello las venas se colapsan y su presión no es negativa.'}
+function lapUI(){
+  var v=VES[S.lv],r=v[2]*S.ld/100,T=v[1]*1333.2*r,T0=VES[0][1]*1333.2*VES[0][2];
+  $('ldV').textContent=S.ld+' %';
+  $('lapChips').innerHTML=chip('P',v[1]+' mmHg','ok')+chip('r',(r>=.05?fmt(r*10,1)+' mm':fmt(r*10000,0)+' µm'),'ok')+chip('T = P·r',(T>=1000?Math.round(T/1000)+' × 10³':fmt(T,0))+' dyn/cm',S.ld>150?'wn':'ok')+chip('T / T aorta',fmt(T/T0,4),'ok');
+  var bv=.5*1060*S.bv*S.bv/133.32,q=4*S.bv*S.bv,h20=.77*20;
+  $('bvV').textContent=fmt(S.bv,1)+' m/s';
+  $('berChips').innerHTML=chip('½ρv²',fmt(bv,2)+' mmHg',bv>5?'wn':'ok')+chip('4v² (estenosis)',fmt(q,1)+' mmHg',q>10?'wn':'ok')+chip('20 cm de altura',fmt(h20,1)+' mmHg','wn');
+}
+function segUI(){
+  var s=SEG[S.seg];document.querySelectorAll('#segBtns .btn').forEach(function(b,i){b.setAttribute('aria-pressed',i===S.seg?'true':'false')});
+  $('segT').querySelector('tbody').innerHTML='<tr><th>Pared</th><td>'+s.pared+'</td></tr><tr><th>Función principal</th><td>'+s.fun+'</td></tr><tr><th>Dónde está la sangre</th><td>'+s.vol+'</td></tr><tr><th>Presión media aprox.</th><td>'+s.pres+'</td></tr>'}
+function distDraw(){
+  var c=$('dist'),W=cw(c,420);if(W<220)return;var H=130,x=fit(c,W,H),parts=[['Venas y vénulas',50,css('--vein'),'v'],['Pulmonar',20,css('--lymph'),'p'],['Corazón',15,css('--muted'),'h'],['Arterias',10,css('--blood'),'a'],['Arteriolas y capilares',5,css('--guess'),'c']];
+  x.clearRect(0,0,W,H);var cx=0,sel=SEG[S.seg].tag;parts.forEach(function(p){var w=p[1]/100*W;x.globalAlpha=p[3]===sel?1:.42;x.fillStyle=p[2];x.fillRect(cx,10,w-1,46);x.globalAlpha=1;
+    x.fillStyle=css('--fg');x.font='600 11px '+css('--font-mono');x.textAlign='center';x.textBaseline='middle';if(w>26)x.fillText(p[1]+'%',cx+w/2,33);cx+=w});
+  x.font='11px '+css('--font-body');x.textAlign='left';x.textBaseline='top';var lx=0,ly=70;parts.forEach(function(p,i){var tw=x.measureText(p[0]).width+22;if(lx+tw>W){lx=0;ly+=18}x.fillStyle=p[2];x.fillRect(lx,ly+2,10,10);x.fillStyle=css('--fg');x.fillText(p[0],lx+14,ly);lx+=tw+8})}
+/* ejemplo trabajado */
+function workUI(){
+  var w=wk(BASE);function st(n,t){return '<div class="st"><b>'+n+'</b><span>'+t+'</span></div>'}
+  $('work').innerHTML=st('1 Eyección','El ventrículo expulsa 70 mL en '+Math.round(w.ET)+' ms. El flujo máximo es ≈ π·VS / (2·t) = '+Math.round(w.qpk)+' mL/s, mucho mayor que el flujo medio de '+fmt(w.GC*1000/60,0)+' mL/s.')+
+   st('2 Almacén','Porque la RPT limita la salida (R = '+fmt(w.R,2)+' mmHg·s/mL), no todo cabe de inmediato en la periferia: la aorta se distiende (C = '+fmt(w.C,2)+' mL/mmHg) y la presión sube hasta la PAS = '+Math.round(w.PAS)+' mmHg.')+
+   st('3 Retroceso','En diástole la válvula aórtica está cerrada y la pared elástica devuelve el volumen guardado; la presión cae con τ = R·C = '+fmt(w.tau,1)+' s hasta la PAD = '+Math.round(w.PAD)+' mmHg.')+
+   st('4 Promedio','Promediada en el tiempo manda la ley de Ohm: PAM = PVC + GC·RPT = '+PVC+' + '+fmt(w.GC,1)+' × '+fmt(w.R*1000/60,1)+' = '+Math.round(w.PAM)+' mmHg.')+
+   st('5 Pulso','Presión de pulso = PAS − PAD = '+Math.round(w.PP)+' mmHg. Depende sobre todo de VS y capacitancia (VS / C), no de la RPT. Ahora mueve las perillas del taller y verifica cada eslabón.')}
+/* ===================== orquestación ===================== */
+var KEYS=[['sv','svV',function(v){return v+' mL'}],['hr','hrV',function(v){return v+' lpm'}],['rig','rigV',function(v){return '× '+fmt(v,1)+'  (C = '+fmt(C0/v,2)+' mL/mmHg)'}],['rpt','rptV',function(v){return '× '+fmt(v,2)}],
+ ['arm','armV',null],['gc','gcV',function(v){return fmt(v,1)+' L/min'}],['ton','tonV',function(v){return '× '+fmt(v,2)}],['pt','ptV',function(v){return '× '+fmt(v,1)}],['rec','recV',function(v){return v+' %'}],
+ ['pr','prV',function(v){return v+' %'}],['pl','plV',function(v){return v+' %'}],['ph','phV',function(v){return v+' %'}],['em','emV',function(v){return v+' %'}],['es','esV',function(v){return v+' %'}],['ek','ekV',function(v){return v+' %'}],
+ ['dv','dvV',function(v){return (v>=0?'+':'')+v+' mL'}],['tv','tvV',function(v){return v+' %'}],['ti','tiV',function(v){return v+'°'}],['bv','bvV',null],['ld','ldV',null]];
+var MAPK={arm:'h'};
+function syncUI(){
+  KEYS.forEach(function(k){var key=MAPK[k[0]]||k[0],el=$(k[0]);if(!el)return;el.value=S[key];
+    if(k[0]==='arm')$('armV').textContent=(S.h>0?'+':'')+S.h+' cm';else if(k[2]&&k[0]!=='bv'&&k[0]!=='ld')$(k[1]).textContent=k[2](S[key])});
+  $('cuff').value=S.cuff;$('rate').value=String(S.rate);$('lv').value=S.lv;
+  $('mP').setAttribute('aria-pressed',S.mode==='P');$('mG').setAttribute('aria-pressed',S.mode==='G')}
+function render(){
+  syncUI();var w=cur();wfDraw();$('wfChips').innerHTML=chips(w);$('wfWhy').textContent=wfText(w);sens();
+  if(!KM.run){korFresh()}korDraw();korUI();profDraw();profUI();poiUI();exDraw();exUI();capDraw();capUI();gravDraw();gravUI();lapUI();segUI();distDraw();cexDraw();gDraw()}
+KEYS.forEach(function(k){var el=$(k[0]);el.oninput=function(){var key=MAPK[k[0]]||k[0];S[key]=+this.value;render()}});
+$('cuff').onchange=function(){S.cuff=this.value;render()};$('rate').onchange=function(){S.rate=+this.value;render()};$('lv').onchange=function(){S.lv=+this.value;render()};
+$('armUp').onclick=function(){S.h=20;render()};$('armDn').onclick=function(){S.h=-25;render()};$('armH').onclick=function(){S.h=0;render()};
+$('kGo').onclick=function(){syncUI();korRun()};$('kNow').onclick=korNow;
+$('mk1').onclick=function(){if(KM.run&&KM.rev>0){var b=KM.res.beats;if(b[KM.rev-1].snd){KM.m1=b[KM.rev-1].Pc;korUI()}else $('korWhy').textContent='Todavía no se oye ningún ruido en este latido: espera el primer golpe y vuelve a marcar.'}else $('korWhy').textContent='Pulsa «Medir (tiempo ×8)» y marca mientras el manguito se desinfla.'};
+$('mk2').onclick=function(){if(KM.run&&KM.rev>0){var b=KM.res.beats,i=KM.rev-1;while(i>0&&!b[i].snd)i--;KM.m2=b[i].Pc;korUI()}else $('korWhy').textContent='Pulsa «Medir (tiempo ×8)» y marca mientras el manguito se desinfla.'};
+$('mP').onclick=function(){S.mode='P';render()};$('mG').onclick=function(){S.mode='G';render()};
+$('exRest').onclick=function(){S.em=S.es=S.ek=100;render()};$('exEx').onclick=function(){S.em=210;S.es=70;S.ek=100;render()};
+var PRES=[['Adulto joven (referencia)',{sv:70,hr:70,rig:1,rpt:1}],['Arteria rígida (70 años)',{sv:74,hr:68,rig:1.9,rpt:1}],['Ejercicio (vasodilatación muscular)',{sv:100,hr:130,rig:.9,rpt:.5}],['Vasodilatación (fiebre, calor)',{sv:75,hr:95,rig:.9,rpt:.6}],['Bradicardia en reposo (atleta)',{sv:100,hr:50,rig:.9,rpt:1}]];
+PRES.forEach(function(p){var b=document.createElement('button');b.className='btn';b.textContent=p[0];b.onclick=function(){Object.assign(S,p[1]);render()};$('pre').appendChild(b)});
+SEG.forEach(function(s,i){var b=document.createElement('button');b.className='btn';b.textContent=s.n;b.setAttribute('aria-pressed','false');b.onclick=function(){S.seg=i;segUI();distDraw()};$('segBtns').appendChild(b)});
+/* contraejemplo */
+function cexDraw(){
+  var A=wk({sv:70,hr:70,rig:1,rpt:1}),B=wk({sv:70,hr:70,rig:2.6,rpt:1});
+  if(!$('cA')){$('cex').innerHTML='<div><h3>Paciente A · arteria elástica</h3><canvas id="cA"></canvas><div class="chips" id="cAc"></div></div><div><h3>Paciente B · arteria rígida</h3><canvas id="cB"></canvas><div class="chips" id="cBc"></div></div>'}
+  var W=Math.max(200,Math.floor($('cex').firstChild.clientWidth-22));
+  var yh=Math.max(A.PAS,B.PAS)+14;drawWave($('cA'),A,null,W,170,{noLab:true,ylo:30,yhi:yh});drawWave($('cB'),B,null,W,170,{noLab:true,ylo:30,yhi:yh});
+  function cc(w){return chip('PA',Math.round(w.PAS)+'/'+Math.round(w.PAD),'ok')+chip('PAM',Math.round(w.PAM),'ok')+chip('Pulso',Math.round(w.PP),w.PP>55?'wn':'ok')+chip('GC',fmt(w.GC,1),'ok')}
+  $('cAc').innerHTML=cc(A);$('cBc').innerHTML=cc(B);
+  $('cexWhy').textContent='Mismo VS, FC y RPT: la PAM es igual ('+Math.round(A.PAM)+' y '+Math.round(B.PAM)+' mmHg) porque depende de GC·RPT. La arteria rígida tiene 2,6 veces menos capacitancia, así que la sistólica sube a '+Math.round(B.PAS)+', la diastólica baja a '+Math.round(B.PAD)+' y la presión de pulso pasa de '+Math.round(A.PP)+' a '+Math.round(B.PP)+' mmHg. Promediar esconde la rigidez; por eso se miden las cuatro presiones.'}
+/* juego */
+var GM={knob:null,ref:null,nw:null,score:0,n:0,done:false};
+var GF={sv:1.35,hr:1.4,rig:2,rpt:1.35},GN={sv:'el volumen sistólico',hr:'la frecuencia cardiaca',rig:'la rigidez arterial',rpt:'la resistencia periférica'};
+var GWHY={sv:'Más volumen por latido llena más la aorta: sube la PAS más que la PAD, el pulso se ensancha y la PAM sube porque aumenta el GC.',hr:'Más latidos por minuto dejan menos tiempo de diástole para que la presión decaiga: la PAD sube mucho, el pulso casi no cambia y la PAM sube porque aumenta el GC. En la onda se ven más latidos.',rig:'Menos capacitancia: el mismo volumen produce más pulso. La PAS sube, la PAD baja y la PAM casi no cambia (GC y RPT son los mismos).',rpt:'Más resistencia drena menos sangre por diástole: PAS y PAD suben casi igual, el pulso casi no cambia y la PAM sube.'};
+function gNew(){var ks=['sv','hr','rig','rpt'],k;do{k=ks[Math.floor(Math.random()*4)]}while(k===GM.knob&&Math.random()<.7);
+  GM.knob=k;GM.done=false;var o=Object.assign({},BASE);o[k]*=GF[k];GM.ref=wk(BASE);GM.nw=wk(o);GM.o=o;
+  var r=document.querySelector('input[name=gk]:checked');if(r)r.checked=false;$('gFb').textContent='';gDraw()}
+function gDraw(){
+  var c=$('gm');if(!c||!GM.nw)return;var W=cw(c,480);if(W<220)return;var w=GM.nw,x;drawWave(c,w,GM.ref,W,210,{noLab:true,ylo:30,yhi:Math.max(180,w.PAS+14)});
+  var r=GM.ref;function d(a,b){return (b-a>=0?'+':'−')+Math.abs(Math.round(b-a))}
+  $('gChips').innerHTML=chip('PAS',Math.round(w.PAS),'ok',d(r.PAS,w.PAS))+chip('PAD',Math.round(w.PAD),'ok',d(r.PAD,w.PAD))+chip('Pulso',Math.round(w.PP),'ok',d(r.PP,w.PP))+chip('PAM',Math.round(w.PAM),'ok',d(r.PAM,w.PAM));
+  $('gSc').textContent='Aciertos: '+GM.score+' de '+GM.n}
+$('gNew').onclick=gNew;
+$('gGo').onclick=function(){var r=document.querySelector('input[name=gk]:checked');if(!r){$('gFb').textContent='Elige una perilla.';return}
+  var ok=r.value===GM.knob;if(!GM.done){GM.n++;if(ok)GM.score++;GM.done=true}
+  $('gFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No: subió '+GN[GM.knob]+'.</span> ')+GWHY[GM.knob];gDraw()};
+/* retos */
+function M(){var w=cur(),k=kInst(),e=exCalc(),cp=capCalc();return {GC:w.GC,PAS:w.PAS,PAD:w.PAD,PAM:w.PAM,PP:w.PP,sys:k.sys,dia:k.dia,tsH:k.tsH,tdH:k.tdH,gc:e.gc,pam:e.pam,kid:e.q[3],mus:e.q[4]}}
+function reset(){Object.assign(S,DEF);KM.run=false;cancelAnimationFrame(KM.raf);korFresh()}
+var QS=[
+ {tag:'Mide la presión (y equivócate a propósito)',q:'Mides con el brazo 20 cm por encima del corazón (todo lo demás igual). ¿Cómo sale la lectura frente a la presión real?',o:['≈ 15 mmHg menor que la real','≈ 15 mmHg mayor que la real','Igual: el manguito mide la presión del paciente, no la del brazo'],a:0,change:function(){S.h=20},
+  why:function(b,a){return 'La columna de sangre pesa ≈ 0,77 mmHg por cm: 20 cm por encima del corazón restan ≈ 15 mmHg en la arteria del brazo. En el modelo, la lectura pasó de '+b.sys+'/'+b.dia+' a '+a.sys+'/'+a.dia+' mmHg con una presión real de '+Math.round(a.tsH)+'/'+Math.round(a.tdH)+'. Por eso el brazo se apoya a la altura del corazón.'}},
+ {tag:'Mide la presión (y equivócate a propósito)',q:'Desinflas el manguito a 10 mmHg/s en lugar de 3 mmHg/s. ¿Qué pasa con las lecturas?',o:['Sistólica subestimada y diastólica sobrestimada','Sistólica sobrestimada y diastólica subestimada','No cambia: el ruido aparece a la misma presión','Ambas suben 10 mmHg'],a:0,change:function(){S.rate=10},
+  why:function(b,a){return 'Entre un latido y el siguiente el manguito cae ≈ '+fmt(10*60/70,1)+' mmHg: el primer ruido se registra después de que el pico ya venció al manguito, y el último ruido se registra antes de la desaparición real. La lectura pasó de '+b.sys+'/'+b.dia+' a '+a.sys+'/'+a.dia+' mmHg (real '+Math.round(a.tsH)+'/'+Math.round(a.tdH)+'): la presión de pulso parece menor de lo que es.'}},
+ {tag:'Mide la presión (y equivócate a propósito)',q:'El brazo es grueso y usas un manguito demasiado pequeño. ¿Qué lectura esperas?',o:['Sobrestimada','Subestimada','Correcta, el tamaño solo afecta la comodidad'],a:0,change:function(){S.cuff='small'},
+  why:function(b,a){return 'Un manguito pequeño comprime menos tejido por mmHg: hace falta inflar más para colapsar la arteria. En el modelo (con un error ilustrativo de +10/+8 mmHg, VERIFICAR) la lectura pasó de '+b.sys+'/'+b.dia+' a '+a.sys+'/'+a.dia+' mmHg.'}},
+ {tag:'¿Qué mueve la diastólica?',q:'Duplicas la rigidez arterial, con VS, FC y RPT iguales. ¿Qué pasa con la PAD y la PAM?',o:['La PAD baja, la PAS sube y la PAM casi no cambia','La PAD sube porque la arteria rígida resiste más','Todo sube por igual','Nada cambia: la rigidez no afecta la presión'],a:0,change:function(){S.rig=2},
+  why:function(b,a){return 'Con la mitad de capacitancia, la arteria guarda menos volumen en sístole y devuelve menos en diástole: la PAS pasó de '+Math.round(b.PAS)+' a '+Math.round(a.PAS)+' mmHg, la PAD de '+Math.round(b.PAD)+' a '+Math.round(a.PAD)+' y la PAM quedó en '+Math.round(a.PAM)+' (antes '+Math.round(b.PAM)+'), porque GC y RPT no cambiaron. Es la hipertensión sistólica aislada del adulto mayor.'}},
+ {tag:'¿Qué mueve la diastólica?',q:'Subes la resistencia periférica 40 % (VS y FC iguales). ¿Qué ocurre con el pulso?',o:['PAS y PAD suben casi igual: el pulso casi no cambia','Sube la PAS y la PAD no se mueve','Solo sube la PAM','Bajan ambas'],a:0,change:function(){S.rpt=1.4},
+  why:function(b,a){return 'Con mayor resistencia sale menos sangre por diástole: toda la onda se desplaza hacia arriba. PAS '+Math.round(b.PAS)+'→'+Math.round(a.PAS)+', PAD '+Math.round(b.PAD)+'→'+Math.round(a.PAD)+' y presión de pulso '+Math.round(b.PP)+'→'+Math.round(a.PP)+' mmHg. La resistencia es el principal determinante de la diastólica.'}},
+ {tag:'¿Qué mueve la diastólica?',q:'La FC pasa de 70 a 90 lpm con el mismo volumen sistólico. ¿Qué pasa con la PAD?',o:['Baja, porque el corazón late más rápido','Sube, porque la diástole es más corta y la presión no alcanza a decaer; la PAM sube por el mayor GC','No cambia hasta que cambie la resistencia'],a:1,change:function(){S.hr=90},
+  why:function(b,a){return 'La diástole se acorta y la arteria se vacía menos entre latidos: PAD '+Math.round(b.PAD)+'→'+Math.round(a.PAD)+' mmHg. Como el GC pasó de '+fmt(b.GC,1)+' a '+fmt(a.GC,1)+' L/min con la misma RPT, la PAM subió de '+Math.round(b.PAM)+' a '+Math.round(a.PAM)+' mmHg (sin barorreflejo, que en la vida real lo frenaría).'}},
+ {tag:'Resistencias en paralelo',q:'En el ejercicio el músculo duplica el radio de sus arteriolas y la PAM se mantiene. Si el riñón no cambia su resistencia, ¿cuánto flujo recibe?',o:['El mismo: Q = ΔP / R y ni ΔP ni R cambiaron; el GC sube para abastecer al músculo','Menos, porque el músculo «roba» sangre','Más, porque hay más gasto'],a:0,change:function(){S.em=200},
+  why:function(b,a){return 'Los lechos están en paralelo y cada uno ve la misma ΔP. El músculo pasó de '+fmt(b.mus,1)+' a '+fmt(a.mus,1)+' L/min (r⁴ = 16 veces), el riñón siguió en '+fmt(a.kid,2)+' L/min y el GC subió de '+fmt(b.gc,1)+' a '+fmt(a.gc,1)+' L/min. El «robo» ocurre solo si la PAM cae o si otros lechos se constriñen.'}}
+];
+mountQuiz(QS,{measure:M,reset:reset,render:render});
+/* caso */
+var PAT={sv:74,hr:68,rig:1.9,rpt:1};
+var CASE={title:'Mujer de 70 años con presión de pulso ancha',intro:'Acude a revisión general sin síntomas. Fuma desde hace años y no toma medicamentos. Tú mides su presión en el consultorio.',
+ data:function(){var w=wk(PAT),k=korot(w,{h:0,cuff:'ok',rate:3,phase:PH}),k2=korot(w,{h:-25,cuff:'ok',rate:3,phase:PH});
+   return [['PA (sentada, brazo a la altura del corazón)',k.sys+'/'+k.dia+' mmHg'],['Presión de pulso',(k.sys-k.dia)+' mmHg'],['FC / ritmo',PAT.hr+' lpm, sinusal'],['PA con el brazo colgando 25 cm',k2.sys+'/'+k2.dia+' mmHg'],['PAM calculada con el modelo',Math.round(w.PAM)+' mmHg'],['Referencia de PAM',' ≈ 93 mmHg']]},
+ steps:[
+  {q:'La PAM es normal pero la presión de pulso es muy ancha. ¿Qué determinante explica mejor el hallazgo?',apply:function(){reset();Object.assign(S,PAT);render()},o:[
+    {t:'Menor capacitancia arterial (arterias rígidas)',ok:true,fb:'Con la misma PAM (GC·RPT), menos capacitancia aumenta la PAS, baja la PAD y ensancha el pulso. En el modelo, con rigidez × 1,9 el pulso es de unos '+Math.round(wk(PAT).PP)+' mmHg y la PAM de '+Math.round(wk(PAT).PAM)+'.'},
+    {t:'Resistencia periférica muy alta',ok:false,fb:'La RPT elevada desplaza PAS y PAD juntas hacia arriba y casi no cambia el pulso; además aquí la PAM es normal.'},
+    {t:'Volumen sistólico muy bajo',ok:false,fb:'Un VS bajo estrecha el pulso, no lo ensancha.'},
+    {t:'Frecuencia cardiaca elevada',ok:false,fb:'La FC es normal y la taquicardia no ensancha el pulso.'}]},
+  {q:'Al medir con el brazo colgando, la lectura sube. ¿A qué se debe?',o:[
+    {t:'A la columna de sangre: ≈ 0,77 mmHg por cm de brazo bajo el corazón',ok:true,fb:'25 cm × 0,77 ≈ 19 mmHg más en la arteria del brazo. La presión «real» del paciente no cambió: cambió dónde se midió. Por Bernoulli, la energía cinética (<1 mmHg) no compite con ρgh.'},
+    {t:'La presión arterial sube con el estrés de la medición',ok:false,fb:'Puede ocurrir, pero no explica una diferencia de ≈ 19 mmHg que coincide con el cálculo hidrostático y aparece solo al bajar el brazo.'},
+    {t:'La rigidez arterial cambia al colgar el brazo',ok:false,fb:'La rigidez no cambia en segundos. Piensa en la altura.'}],apply:function(){S.h=-25;render()}},
+  {q:'¿Por qué su presión diastólica es baja si su RPT es normal?',o:[
+    {t:'Una arteria rígida devuelve poco volumen en diástole, y la presión cae más antes del siguiente latido',ok:true,fb:'Es el efecto Windkessel perdido: con C menor, el volumen guardado en sístole es menor y la caída diastólica es mayor.'},
+    {t:'Porque tiene vasodilatación periférica',ok:false,fb:'Con vasodilatación la PAM caería; aquí la PAM es normal.'},
+    {t:'Porque la FC es lenta',ok:false,fb:'68 lpm es normal; una FC lenta baja la PAD solo en parte y no explica este pulso.'}],
+    after:function(){var w0=wk({sv:PAT.sv,hr:PAT.hr,rig:1,rpt:PAT.rpt});return 'Mira el modelo: con rigidez 1,0 la PAD sería '+Math.round(w0.PAD)+' mmHg y el pulso '+Math.round(w0.PP)+' mmHg.'}}],
+ close:'Pulso ancho con PAM normal apunta a rigidez arterial; mide siempre con el brazo a la altura del corazón y repite la medición. Todo esto es educativo, no un criterio diagnóstico.'};
+mountCase(CASE,{start:function(){}});
+bindRedraw();REDRAW.push(function(){wfDraw();korDraw();profDraw();exDraw();capDraw();gravDraw();distDraw();cexDraw();gDraw()});
+workUI();gNew();reset();render();
+window.__dbg={S:S,wk:wk,korot:korot,circ:circ,exCalc:exCalc,poi:poi,capCalc:capCalc,kInst:kInst,reset:reset,render:render,M:M,QS:QS,BASE:BASE,GM:GM,get KM(){return KM}};
+
+})();
+</script>
+
+</body></html>

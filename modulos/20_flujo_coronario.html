@@ -1,0 +1,551 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Flujo coronario</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el pulso venoso como un trazo que se lee por ondas (a, c, v) y descensos (x, y), alineado con el ECG y con el flujo venoso. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+.meta{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px}
+.meta span{border:1px solid var(--line);border-radius:3px;padding:1px 6px}
+.meta .lv{border-color:var(--vec);color:var(--vec)}
+.chain-l{list-style:none;padding:0;counter-reset:s;gap:6px}
+.chain-l li{counter-increment:s;padding:6px 10px 6px 34px;position:relative;border:1px solid var(--line);border-radius:5px;background:var(--bg)}
+.chain-l li::before{content:counter(s);position:absolute;left:8px;top:6px;width:18px;height:18px;border-radius:50%;background:var(--vec);color:var(--bg);font:700 .72rem var(--font-mono);display:flex;align-items:center;justify-content:center}
+.qopt{display:flex;gap:8px;align-items:flex-start;font-size:.95rem}
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.vs>div{border:1px solid var(--line);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.big{font-family:var(--font-mono);font-size:1.4rem;font-weight:600;font-variant-numeric:tabular-nums}
+.warn{color:var(--guess)}
+.stepcard{border:1px solid var(--line);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.copt{text-align:left;white-space:normal;width:100%}
+.copt[disabled]{opacity:.8;cursor:default}
+.copt.good{border-color:var(--good);background:rgba(42,122,53,.14)}
+.copt.bad{border-color:var(--bad);background:rgba(179,38,30,.12)}
+.bar{display:flex;height:26px;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;min-width:0}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo D5 · circulaciones regionales · corazón (complementa B13)</div>
+  <h1>Flujo coronario</h1>
+  <p class="lede">La pared del ventrículo izquierdo aprieta a sus propios vasos cada vez que se contrae. Por eso el corazón se riega sobre todo en diástole, por eso la capa interna es la primera en sufrir y por eso la taquicardia pesa tanto cuando hay una estenosis.</p>
+  <div class="tags"><span>Unidad 6: 6.241–6.252</span><span>Nivel N5</span><span>Perillas: FC · PAM · contractilidad · estenosis · cámara</span><span>Requiere B13 y A8</span></div>
+</header>
+
+<section class="panel">
+  <h2>Un latido en la pared del ventrículo</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: FC, PAM, contractilidad, % de estenosis, ventrículo</span><span>objetivos 6.243–6.246</span></div>
+  <div class="chips" id="pre"></div>
+  <div class="grid">
+    <div class="col">
+      <canvas id="cy" role="img" aria-label="Presión aórtica y ventricular con el flujo coronario de tres capas de la pared durante un latido"></canvas>
+      <div class="row"><span class="lab"><i class="sw" style="background:var(--fg)"></i>Aorta</span><span class="lab"><i class="sw" style="background:var(--muted)"></i>Cavidad ventricular</span><span class="lab"><i class="sw" style="background:var(--blood)"></i>Flujo subendocardio</span><span class="lab"><i class="sw" style="background:var(--guess)"></i>Flujo capa media</span><span class="lab"><i class="sw" style="background:var(--vec)"></i>Flujo subepicardio</span></div>
+      <div class="chips" id="read"></div>
+      <p class="why" id="why"></p>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Frecuencia cardiaca: <span class="mono" id="vHr"></span><input type="range" id="hr" min="45" max="190" step="1" value="70"></label>
+      <label class="ctl" style="flex:none">PAM: <span class="mono" id="vPam"></span><input type="range" id="pam" min="50" max="140" step="1" value="93"></label>
+      <label class="ctl" style="flex:none">Contractilidad (relativa): <span class="mono" id="vC"></span><input type="range" id="cc" min="0.6" max="2.2" step="0.05" value="1"></label>
+      <label class="ctl" style="flex:none">Estenosis coronaria proximal (reducción de diámetro): <span class="mono" id="vS"></span><input type="range" id="st" min="0" max="92" step="1" value="0"></label>
+      <label class="ctl" style="flex:none">Ventrículo:
+        <select id="ch"><option value="LV">Izquierdo (presión sistólica ≈ 120)</option><option value="RV">Derecho (presión sistólica ≈ 25)</option></select></label>
+      <label class="ctl" style="flex:none">Instante del latido (para el corte de pared): <span class="mono" id="vPh"></span><input type="range" id="ph" min="0" max="99" step="1" value="12"></label>
+      <div class="row"><button class="btn" id="pSys">Ir a sístole</button><button class="btn" id="pDia">Ir a diástole</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Corte de pared y ECG</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: las mismas</span><span>objetivos 6.244–6.246 · A8</span></div>
+  <div class="cols2">
+    <div class="col"><h3>Corte de la pared del VI en el instante elegido</h3><canvas id="wl" role="img" aria-label="Corte transversal de la pared ventricular con flujo y presión tisular por capa"></canvas><p class="note" id="wln"></p></div>
+    <div class="col"><h3>ECG en V5 (ver A8)</h3><canvas id="ec" role="img" aria-label="Electrocardiograma con desnivel del segmento ST según isquemia subendocárdica"></canvas><p class="note" id="ecn"></p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Reserva coronaria frente a la estenosis</h2>
+  <div class="meta"><span class="lv">avanzado</span><span>perillas: % de estenosis, demanda</span><span>objetivos 6.245, 6.247</span></div>
+  <canvas id="rs" role="img" aria-label="Flujo coronario en reposo y máximo frente al porcentaje de estenosis"></canvas>
+  <div class="row"><span class="lab"><i class="sw" style="background:var(--vec)"></i>Flujo con autorregulación (cubre la demanda actual)</span><span class="lab"><i class="sw" style="background:var(--guess)"></i>Flujo máximo con vasodilatación total</span><span class="lab"><i class="sw" style="background:var(--muted)"></i>Demanda actual</span></div>
+  <p class="note" id="rsn"></p>
+</section>
+
+<section class="panel">
+  <h2>Ejemplo trabajado: estenosis del 70 % y una carrera</h2>
+  <div class="meta"><span class="lv">básico</span><span>perillas: FC, contractilidad, estenosis</span><span>objetivos 6.243–6.246</span></div>
+  <ol class="chain-l" id="wk"></ol>
+</section>
+
+<section class="panel">
+  <h2>Anatomía funcional: quién riega qué</h2>
+  <div class="meta"><span class="lv">básico</span><span>perillas: dominancia, arteria ocluida</span><span>objetivos 6.241–6.242 · A8</span></div>
+  <div class="grid">
+    <div class="col"><canvas id="an" role="img" aria-label="Corte corto del ventrículo con los territorios de las arterias coronarias"></canvas></div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Dominancia:
+        <select id="dom"><option value="R">Derecha (≈ 85 %, VERIFICAR)</option><option value="L">Izquierda</option><option value="C">Codominante</option></select></label>
+      <label class="ctl" style="flex:none">Arteria ocluida:
+        <select id="occ"><option value="">Ninguna</option><option value="LAD">Descendente anterior</option><option value="LCX">Circunfleja</option><option value="RCA">Coronaria derecha</option></select></label>
+      <div class="chips" id="anr"></div>
+      <p class="why" id="anw"></p>
+    </div>
+  </div>
+  <p class="note">La dominancia la define qué arteria da la descendente posterior (la que irriga la pared inferior). En este esquema el lado derecho del paciente queda a la izquierda de la figura, como en un corte corto visto desde el ápex.</p>
+</section>
+
+<section class="panel">
+  <h2>Regulación y combustibles</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perilla: situación metabólica</span><span>objetivos 6.248–6.252</span></div>
+  <div class="grid">
+    <div class="col"><div class="tw"><table><thead><tr><th>Mecanismo</th><th>Qué hace</th></tr></thead><tbody>
+      <tr><td>Metabólico local</td><td>Adenosina, K⁺ y NO dilatan cuando sube la demanda; es el mecanismo dominante. La extracción de O₂ ya es ≈ 75 % en reposo, así que la demanda solo se cubre con más flujo.</td></tr>
+      <tr><td>Nervioso directo</td><td>La noradrenalina sobre receptores α constriñe (efecto pequeño).</td></tr>
+      <tr><td>Nervioso indirecto</td><td>El simpático sube FC y contractilidad, aumenta el consumo de O₂ y la vasodilatación metabólica supera a la constricción α: en el ejercicio el flujo sube.</td></tr></tbody></table></div></div>
+    <div class="col">
+      <div class="seg" role="group" aria-label="Situación"><button class="btn" data-k="a" aria-pressed="true">Reposo en ayuno</button><button class="btn" data-k="p" aria-pressed="false">Tras comer</button><button class="btn" data-k="e" aria-pressed="false">Ejercicio intenso</button></div>
+      <div class="bar" id="sub" role="img" aria-label="Proporción de combustibles"></div>
+      <div class="row" id="subl"></div>
+      <p class="note" id="subn"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Contraejemplo: la misma taquicardia, dos corazones</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perilla: estenosis</span><span>objetivos 6.245–6.246</span></div>
+  <div class="vs" id="ce"></div>
+  <p class="why">Con la misma FC y la misma carga, el corazón sano dilata sus arteriolas y cubre la demanda, y el que tiene estenosis ya gastó su reserva en reposo: no puede abrirse más y la capa interna se queda corta. Lo que asusta no es la FC, sino la FC sobre una reserva agotada.</p>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div id="quiz"></div>
+</section>
+
+<section class="panel">
+  <h2>Juego: ¿Hay isquemia?</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: todas</span><span>objetivos 6.245–6.246</span></div>
+  <p class="note">Mira los datos del paciente y clasifica antes de ver el resultado del modelo.</p>
+  <div class="grid">
+    <div class="col"><p class="why" id="gdat"></p><div class="col" id="gopt" style="gap:6px"></div><p class="fb" id="gfb" aria-live="polite"></p><p class="note" id="gsc"></p></div>
+    <div class="col"><div class="chips" id="gres"></div><div class="row"><button class="btn primary" id="gnew">Nuevo paciente</button></div></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Caso clínico de cierre</h2>
+  <div class="meta"><span class="lv">avanzado</span><span>perillas: FC, contractilidad, estenosis</span><span>objetivos 6.245–6.247 · A8</span></div>
+  <div id="case"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"El flujo coronario es sobre todo sistólico": el del VI es sobre todo diastólico, porque la sístole comprime los vasos intramurales.</li>
+    <li>"El VD y el VI se riegan igual": el VD tiene presión baja y recibe un flujo más parejo en el ciclo.</li>
+    <li>"Una estenosis del 70 % reduce el flujo en reposo en 70 %": las arteriolas dilatan y el flujo en reposo se conserva; se pierde la reserva.</li>
+    <li>"La taquicardia siempre causa isquemia": solo cuando la reserva no alcanza; en un corazón sano la dilatación metabólica cubre el aumento.</li>
+    <li>"El corazón puede extraer más oxígeno si falta": ya extrae ≈ 75 % en reposo; casi no tiene margen.</li>
+    <li>"La noradrenalina reduce el flujo coronario en el ejercicio": el efecto directo α es pequeño y la vasodilatación metabólica domina.</li>
+    <li>"La depresión del ST subendocárdica señala la arteria ocluida": es difusa y por demanda; la elevación transmural es la que se ubica por derivaciones.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Windkessel de dos elementos con presión de pulso ≈ 44 mmHg (116/72 con PAM 93); la presión ventricular es una forma fija escalada.</li>
+    <li>Tres capas con presión tisular proporcional a la profundidad (30 %, 70 % y 105 % de la presión de la cavidad); la proporción real es VERIFICAR.</li>
+    <li>Presión de flujo cero fija en 8 mmHg y sin capacitancia intramural ni efecto de la presión venosa.</li>
+    <li>Reserva máxima de 3,4 a 5 veces según la capa (≈ 4,2 en total); extracción máxima de 85 %, por encima de lo cual hay isquemia. Valores de curso, VERIFICAR.</li>
+    <li>Consumo de O₂ ∝ FC × (0,55 presión sistólica + 0,45 contractilidad); el subendocardio gasta 15 % más y el subepicardio 15 % menos.</li>
+    <li>Con flujo de reposo de ≈ 235 mL/min en 300 g y extracción de 75 %, el consumo sale de ≈ 12 mL/min/100 g, no 8 (VERIFICAR contra el libro del curso).</li>
+    <li>La estenosis sigue una ley tipo Gould con coeficientes ilustrativos; el ECG es una función simple del déficit por capa, no una simulación eléctrica.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.241–6.252). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,max){var p=c.parentElement,s=getComputedStyle(p),w=p.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight);return Math.max(200,Math.min(max||940,Math.floor(w)))}
+function axisText(x,s,px,py,al,bl,col){x.fillStyle=col||css('--muted');x.textAlign=al||'left';x.textBaseline=bl||'alphabetic';x.fillText(s,px,py)}
+/* Reto «Predice y observa» con nivel de confianza y calibración */
+function Quiz(el,items){
+  var i=0,tot=0,okc=0,hiN=0,hiOk=0,done=false,id=el.id;
+  el.innerHTML='<div class="cols2"><div class="col"><fieldset style="flex-direction:column"><legend class="qleg"></legend><div class="qo col" style="gap:6px"></div></fieldset>'+
+   '<fieldset><legend>¿Qué tan seguro estás?</legend><label class="opt"><input type="radio" name="'+id+'cf" value="1"> Poco</label><label class="opt"><input type="radio" name="'+id+'cf" value="2" checked> Medio</label><label class="opt"><input type="radio" name="'+id+'cf" value="3"> Mucho</label></fieldset>'+
+   '<div class="row"><button class="btn primary qgo">Comprobar y aplicar</button><button class="btn qnx">Siguiente reto</button></div></div>'+
+   '<div class="col"><div class="meta qmeta"></div><p class="fb qfb" aria-live="polite"></p><p class="note qcal"></p></div></div>';
+  var q=function(s){return el.querySelector(s)};
+  function show(){var it=items[i];done=false;q('.qleg').innerHTML='<b>'+it.name+'</b><br>'+it.q;
+    q('.qo').innerHTML=it.o.map(function(t,k){return '<label class="qopt"><input type="radio" name="'+id+'o" value="'+k+'"> <span>'+t+'</span></label>'}).join('');
+    q('.qmeta').innerHTML='<span class="lv">'+it.lv+'</span><span>perilla: '+it.knob+'</span><span>objetivos '+it.obj+'</span>';
+    q('.qfb').innerHTML=''}
+  q('.qgo').onclick=function(){var r=el.querySelector('input[name='+id+'o]:checked');if(!r){q('.qfb').textContent='Elige primero una respuesta.';return}
+    var it=items[i],ok=+r.value===it.a,cf=+el.querySelector('input[name='+id+'cf]:checked').value;
+    it.ap();if(!done){done=true;tot++;if(ok)okc++;if(cf===3){hiN++;if(ok)hiOk++}}
+    q('.qfb').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No era esa.</b></span> La respuesta era: '+it.o[it.a]+'. ')+it.e()+(!ok&&cf===3?' <span class="warn">Estabas muy seguro: revisa en qué eslabón de la cadena falló tu razonamiento.</span>':'');
+    q('.qcal').textContent='Aciertos: '+okc+' de '+tot+(hiN?' · con mucha seguridad: '+hiOk+' de '+hiN:'')};
+  q('.qnx').onclick=function(){i=(i+1)%items.length;show()};
+  show()}
+/* Caso clínico: datos → decisiones → retroalimentación */
+function Case(el,steps,intro){
+  var k=0,sc=0;
+  function render(){
+    if(k>=steps.length){el.innerHTML='<div class="why"><b>Cierre del caso.</b> Puntaje: '+fmt(sc,1)+' de '+steps.length+'. '+(sc>=steps.length-.5?'Razonaste la cadena completa.':'Repasa los pasos en los que sumaste menos y vuelve a intentarlo.')+'</div><div><button class="btn" id="'+el.id+'r">Reiniciar caso</button></div>';
+      $(el.id+'r').onclick=function(){k=0;sc=0;render()};return}
+    var s=steps[k],t=typeof s.txt==='function'?s.txt():s.txt;
+    el.innerHTML=(k===0&&intro?'<p class="note">'+intro+'</p>':'')+'<div class="stepcard"><div class="meta"><span class="lv">Decisión '+(k+1)+' de '+steps.length+'</span></div><div>'+t+'</div><div class="col" style="gap:6px">'+
+      s.opts.map(function(o,j){return '<button class="btn copt" data-j="'+j+'">'+o.t+'</button>'}).join('')+'</div><div class="cfb" aria-live="polite"></div><div><button class="btn primary cnx" hidden>Continuar</button></div></div>';
+    el.querySelectorAll('.copt').forEach(function(b){b.onclick=function(){var o=s.opts[+b.dataset.j];
+      el.querySelectorAll('.copt').forEach(function(x){x.disabled=true});b.classList.add(o.s>=1?'good':(o.s>0?'':'bad'));sc+=o.s;
+      if(o.fx)o.fx();var fb=typeof o.fb==='function'?o.fb():o.fb;
+      el.querySelector('.cfb').innerHTML='<p class="why"><b>'+(o.s>=1?'Bien.':(o.s>0?'Parcial.':'No.'))+'</b> '+fb+'</p>';el.querySelector('.cnx').hidden=false;
+      el.querySelector('.cnx').onclick=function(){k++;render()}}})}
+  render()}
+function onRedraw(fn){
+  if(window.ResizeObserver)new ResizeObserver(fn).observe(document.body);else window.addEventListener('resize',fn);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',fn);
+  new MutationObserver(fn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fn)}
+
+/* ===== Modelo coronario: Windkessel aórtico + presión tisular por capas + estenosis ===== */
+var NS=120,DL=[.3,.7,1.05],WD=[.85,1,1.15],RSV=[5,4.5,3.4],PB=8,BASEQ=80/60; /* mL/s por 100 g */
+function hemo(HR,PAM,c){
+  var RR=60/HR,Ts=.33*Math.sqrt(RR/.857),SV=70*(1+.3*(c-1))*Math.pow(70/HR,.25),CO=HR*SV/60;
+  var R=(PAM-3)/CO,C=1.0,dt=.002,P=PAM,n=Math.round(RR/dt),i,b,rec=[],Pmax=0,Pmin=1e9;
+  for(b=0;b<12;b++){rec=[];for(i=0;i<n;i++){var t=i*dt,q=t<Ts?SV*Math.PI/(2*Ts)*Math.sin(Math.PI*t/Ts):0;P+=((q-(P-3)/R)/C)*dt;rec.push(P)}}
+  var A=[],T=[];for(i=0;i<NS;i++){T.push(i/NS*RR);A.push(rec[Math.min(n-1,Math.floor(i/NS*n))])}
+  rec.forEach(function(v){Pmax=Math.max(Pmax,v);Pmin=Math.min(Pmin,v)});
+  return {RR:RR,Ts:Ts,SV:SV,CO:CO,t:T,Pao:A,Ps:Pmax,Pd:Pmin,dt:RR/NS}}
+function shape(t,Ts){return t<Ts?Math.pow(Math.sin(Math.PI*t/Ts),.6):0}
+function chamberP(h,ch){var Ped=ch==='RV'?4:8,Pm=ch==='RV'?25:h.Ps+3;return h.t.map(function(t){return Ped+(Pm-Ped)*shape(t,h.Ts)})}
+function dpq(Q,s){var k=1/Math.pow(1-s,2)-1;return .08*k*Q+.003*k*k*Q*Q}
+function solveLayers(h,ch,sten,Rf,demand){ /* Rf: null => autorregulación a demanda; array => resistencias fijas */
+  var Pc=chamberP(h,ch),Pt=DL.map(function(d){return Pc.map(function(p){return p*d})}),n=NS,tg=WD.map(function(w){return BASEQ*demand*w*(ch==='RV'?.7:1)});
+  var Qt=new Array(n).fill(4),R=Rf?Rf.slice():[1,1,1],l,t,it,ot;
+  function qAt(l,t,r,Q){return Math.max(h.Pao[t]-dpq(Q,sten)-Pt[l][t]-PB,0)/r}
+  function meanQ(l,r){var s=0;for(var t=0;t<n;t++)s+=qAt(l,t,r,Qt[t]);return s/n}
+  var Rmin=CAL(ch).Rmin;
+  for(ot=0;ot<6;ot++){
+    if(!Rf){for(l=0;l<3;l++){var lo=Rmin[l],hi=400;if(meanQ(l,lo)<tg[l]){R[l]=lo}else{for(it=0;it<30;it++){var m=Math.sqrt(lo*hi);meanQ(l,m)>tg[l]?lo=m:hi=m}R[l]=Math.sqrt(lo*hi)}}}
+    for(t=0;t<n;t++){var lo2=0,hi2=60;for(it=0;it<34;it++){var Q=.5*(lo2+hi2),s=0;for(l=0;l<3;l++)s+=qAt(l,t,R[l],Q);s>Q?lo2=Q:hi2=Q}Qt[t]=.5*(lo2+hi2)}
+    if(Rf)break}
+  var q=[0,1,2].map(function(l){var a=[];for(t=0;t<n;t++)a.push(qAt(l,t,R[l],Qt[t]));return a});
+  var mean=q.map(function(a){return a.reduce(function(x,y){return x+y},0)/n}),dist=h.Pao.map(function(p,t){return p-dpq(Qt[t],sten)});
+  return {q:q,mean:mean,tg:tg,R:R,Qt:Qt,Pt:Pt,Pc:Pc,dist:dist,total:mean.reduce(function(a,b){return a+b},0)}}
+var _cal={};
+function CAL(ch){
+  if(_cal[ch])return _cal[ch];
+  var h=hemo(70,93,1),Pc=chamberP(h,ch),Pt=DL.map(function(d){return Pc.map(function(p){return p*d})}),Rr=[],Rmin=[],l,t;
+  for(l=0;l<3;l++){var tg=BASEQ*WD[l]*(ch==='RV'?.7:1),lo=.05,hi=400,it;for(it=0;it<40;it++){var m=Math.sqrt(lo*hi),s=0;for(t=0;t<NS;t++)s+=Math.max(h.Pao[t]-Pt[l][t]-PB,0)/m;s/=NS;s>tg?lo=m:hi=m}Rr.push(Math.sqrt(lo*hi));Rmin.push(Rr[l]/RSV[l])}
+  _cal[ch]={Rr:Rr,Rmin:Rmin};return _cal[ch]}
+function ecgST(isE,isP){return clamp(-1.2*(isE-1.5*isP),-.35,.35)}
+function coro(s){
+  var h=hemo(s.hr,s.pam,s.c),ch=s.ch,demand=(s.hr/70)*(.55*h.Ps/120+.45*s.c);
+  var r=solveLayers(h,ch,s.sten,null,demand),mx=solveLayers(h,ch,s.sten,CAL(ch).Rmin,demand);
+  var isch=r.mean.map(function(q,l){return Math.max(0,1-q/(.88*r.tg[l]))}),sd=r.mean.map(function(q,l){return q/r.tg[l]});
+  var ex=r.mean.map(function(q,l){return clamp(.75*r.tg[l]/Math.max(q,1e-6),0,1)});
+  var dp=0,tt=0;for(var i=0;i<NS;i++){if(h.t[i]<h.Ts)tt+=r.Pc[i]*h.dt;else dp+=Math.max(h.Pao[i]-r.Pc[i],0)*h.dt}
+  var restTot=BASEQ*3*(ch==='RV'?.7:1);
+  return {h:h,r:r,mx:mx,demand:demand,isch:isch,sd:sd,ex:ex,sevr:dp/tt,
+    flowMin:r.total*60,flowMax:mx.total*60,per100:r.mean.map(function(x){return x*60}),
+    cfr:mx.total/(CAL_REST(ch)),st:ecgST(isch[2],isch[0]),dia:h.RR-h.Ts,
+    fracDia:function(l){var a=0,b=0;for(var i=0;i<NS;i++){if(h.t[i]<h.Ts)a+=r.q[l][i];else b+=r.q[l][i]}return b/(a+b+1e-9)}}}
+var _cr={};function CAL_REST(ch){if(!_cr[ch])_cr[ch]=BASEQ*3*(ch==='RV'?.7:1);return _cr[ch]}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+var S={hr:70,pam:93,c:1,sten:0,ch:'LV',ph:12},DEF=JSON.parse(JSON.stringify(S));
+var R=null,SW=null,swKey='';
+var PRE=[
+ {n:'Reposo',s:{}},
+ {n:'Esfuerzo (corazón sano)',s:{hr:150,c:1.8,pam:110}},
+ {n:'Estenosis 70 % en reposo',s:{sten:70}},
+ {n:'Estenosis 70 % + esfuerzo',s:{sten:70,hr:150,c:1.8,pam:110}},
+ {n:'PAM baja + estenosis 50 %',s:{pam:55,sten:50}},
+ {n:'Estenosis crítica 90 %',s:{sten:90}},
+ {n:'Ventrículo derecho',s:{ch:'RV'}}];
+function M(o){return {hr:o.hr,pam:o.pam,c:o.c,sten:o.sten/100,ch:o.ch}}
+function run(o){return coro(M(o))}
+function sync(){$('hr').value=S.hr;$('pam').value=S.pam;$('cc').value=S.c;$('st').value=S.sten;$('ch').value=S.ch;$('ph').value=S.ph}
+function setS(o){S=Object.assign({},DEF,o||{});sync();render()}
+var cls=function(sd){return sd>=.95?'ok':sd>=.8?'wn':'no'};
+var LN=['Subepicardio','Capa media','Subendocardio'];
+function cycle(){
+  var c=$('cy'),W=cw(c,700),H=W<460?316:346,x=fit(c,W,H),h=R.h,pl=44,pr=10,w=W-pl-pr,T=h.RR;
+  var p1={y:12,h:W<460?110:120},p2={y:p1.y+p1.h+36,h:W<460?120:140};
+  var X=function(t){return pl+t/T*w};
+  x.clearRect(0,0,W,H);x.font='11px '+css('--font-mono');
+  x.fillStyle=css('--vecSoft');x.fillRect(X(0),p1.y,X(h.Ts)-X(0),p2.y+p2.h-p1.y);
+  axisText(x,'sístole',X(h.Ts/2),p1.y+11,'center',null,css('--vec'));axisText(x,'diástole',X((h.Ts+T)/2),p1.y+11,'center',null,css('--muted'));
+  var ymaxP=Math.max(140,h.Ps+10),Y1=function(v){return p1.y+p1.h-v/ymaxP*p1.h};
+  x.strokeStyle=css('--line');x.lineWidth=1;[0,40,80,120].forEach(function(v){x.beginPath();x.moveTo(pl,Y1(v));x.lineTo(pl+w,Y1(v));x.stroke();axisText(x,v,pl-5,Y1(v)+4,'right')});
+  axisText(x,'mmHg',pl,p1.y-2,'right');
+  function line(arr,Y,col,lw){x.strokeStyle=col;x.lineWidth=lw;x.beginPath();arr.forEach(function(v,i){var xx=X(h.t[i]),yy=Y(v);i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke()}
+  line(h.Pao,Y1,css('--fg'),2);line(R.r.Pc,Y1,css('--muted'),2);
+  
+  var fl=R.r.q.map(function(a){return a.map(function(v){return v*60})}),ymaxF=Math.max(150,Math.ceil(Math.max.apply(null,fl.map(function(a){return Math.max.apply(null,a)}))*1.1/50)*50),Y2=function(v){return p2.y+p2.h-v/ymaxF*p2.h};
+  for(var v=0;v<=ymaxF;v+=ymaxF>400?200:100){x.strokeStyle=css('--line');x.beginPath();x.moveTo(pl,Y2(v));x.lineTo(pl+w,Y2(v));x.stroke();axisText(x,v,pl-5,Y2(v)+4,'right')}
+  axisText(x,'mL/min/100 g',pl+w,p2.y-5,'right');
+  line(fl[0],Y2,css('--vec'),2);line(fl[1],Y2,css('--guess'),2);line(fl[2],Y2,css('--blood'),2.6);
+  var xp=X(h.t[Math.min(NS-1,S.ph)]);x.setLineDash([4,3]);x.strokeStyle=css('--fg');x.beginPath();x.moveTo(xp,p1.y);x.lineTo(xp,p2.y+p2.h);x.stroke();x.setLineDash([]);
+  for(var tm=0;tm<=T*1000;tm+=T*1000>600?200:100){axisText(x,tm,X(tm/1000),p2.y+p2.h+14,'center')}axisText(x,'ms',pl+w,p2.y+p2.h+27,'right');
+}
+function wall(){
+  var c=$('wl'),W=cw(c,460),H=230,x=fit(c,W,H),i=Math.min(NS-1,S.ph),r=R.r,h=R.h;x.clearRect(0,0,W,H);
+  var bw=(W-20)/4.2,y0=26,bh=130,pm=Math.max.apply(null,r.Pc);
+  var qi=[0,1,2].map(function(l){return r.q[l][i]*60}),ymax=Math.max(150,Math.max.apply(null,r.q.map(function(a){return Math.max.apply(null,a)*60}))*1.05);
+  [0,1,2].forEach(function(l){var x0=10+l*bw,comp=r.Pt[l][i]/Math.max(pm,1);
+    var col=R.sd[l]>=.95?css('--good'):R.sd[l]>=.8?css('--guess'):css('--bad');
+    x.globalAlpha=.18;x.fillStyle=col;x.fillRect(x0,y0,bw-4,bh);x.globalAlpha=.55*comp;x.fillStyle=css('--muted');x.fillRect(x0,y0,bw-4,bh);x.globalAlpha=1;
+    x.strokeStyle=col;x.lineWidth=1.5;x.strokeRect(x0,y0,bw-4,bh);
+    var fh=qi[l]/ymax*bh;x.fillStyle=l===2?css('--blood'):l===1?css('--guess'):css('--vec');x.fillRect(x0+bw*.3,y0+bh-fh,bw*.3,fh);
+    x.font='600 11px '+css('--font-mono');axisText(x,fmt(qi[l],0),x0+(bw-4)/2,y0-6,'center',null,css('--fg'));
+    x.font='10.5px '+css('--font-mono');axisText(x,fmt(r.Pt[l][i],0)+' mmHg',x0+(bw-4)/2,y0+bh+14,'center');
+    x.font='600 11px '+css('--font-body');axisText(x,l===0?'Subepi':l===1?'Media':'Subendo',x0+(bw-4)/2,y0+bh+30,'center',null,css('--fg'));
+    x.font='10.5px '+css('--font-mono');axisText(x,'S/D '+fmt(R.sd[l],2),x0+(bw-4)/2,y0+bh+45,'center',null,col)});
+  var xc=10+3*bw;x.fillStyle=css('--bloodSoft');x.fillRect(xc,y0,W-xc-10,bh);x.strokeStyle=css('--blood');x.strokeRect(xc,y0,W-xc-10,bh);
+  x.font='600 11px '+css('--font-body');axisText(x,'Cavidad',xc+(W-xc-10)/2,y0+bh/2-4,'center',null,css('--fg'));axisText(x,fmt(r.Pc[i],0)+' mmHg',xc+(W-xc-10)/2,y0+bh/2+12,'center',null,css('--fg'));
+  $('wln').textContent='Barras = flujo instantáneo (mL/min/100 g). Sombra gris = presión tisular que comprime. S/D = oferta de O₂ sobre demanda de cada capa (≈ 1 si está cubierta). Instante: '+Math.round(h.t[i]*1000)+' ms, '+(h.t[i]<h.Ts?'sístole':'diástole')+'.';
+}
+function g(t,m,s,a){return a*Math.exp(-Math.pow((t-m)/s,2)/2)}
+function sstep(a,b,t){var u=clamp((t-a)/(b-a),0,1);return u*u*(3-2*u)}
+function beat(t,st){var v=g(t,.1,.022,.12)+g(t,.235,.008,-.1)+g(t,.255,.011,1.1)+g(t,.282,.011,-.22)+g(t,.5,.045,.3);return v+st*(sstep(.285,.315,t)-sstep(.42,.5,t))}
+function ecg(){
+  var c=$('ec'),W=cw(c,460),H=190,x=fit(c,W,H),pl=40,pr=8,w=W-pl-pr,T=.7,y0=H-60,sc=62;x.clearRect(0,0,W,H);
+  x.strokeStyle=css('--line');x.lineWidth=1;x.font='10.5px '+css('--font-mono');
+  for(var mv=-.3;mv<=1.21;mv+=.1){var yy=y0-mv*sc*1.7;x.globalAlpha=Math.abs(mv%.5)<.01||Math.abs(mv)<.01?1:.35;x.beginPath();x.moveTo(pl,yy);x.lineTo(pl+w,yy);x.stroke()}x.globalAlpha=1;
+  axisText(x,'0',pl-5,y0+4,'right');axisText(x,'1 mV',pl-5,y0-sc*1.7+4,'right');
+  function tr(st,col,lw,dash){x.setLineDash(dash||[]);x.strokeStyle=col;x.lineWidth=lw;x.beginPath();for(var k=0;k<=w;k++){var t=k/w*T,yy=y0-beat(t,st)*sc*1.7;k?x.lineTo(pl+k,yy):x.moveTo(pl+k,yy)}x.stroke();x.setLineDash([])}
+  tr(0,css('--muted'),1.2,[4,3]);tr(R.st,css('--blood'),2.2);
+  var yS=y0-R.st*sc*1.7;x.fillStyle=css('--blood');x.font='600 11px '+css('--font-mono');axisText(x,'ST '+(R.st>0?'+':'')+fmt(R.st,2)+' mV',pl+w*.62,R.st<-.02?y0+28:y0-sc*.9,'left',null,css('--blood'));
+  x.font='10.5px '+css('--font-mono');axisText(x,'basal (gris)',pl+4,H-8,'left');
+  var iE=R.isch[2],iP=R.isch[0];
+  $('ecn').textContent=R.st<-.03?'Depresión del ST: la capa interna isquémica no se repolariza como el resto y la corriente de lesión apunta hacia la cavidad, lejos del electrodo de V5.':R.st>.03?'Elevación del ST: la isquemia llega al subepicardio (transmural) y la corriente de lesión apunta hacia el electrodo.':'ST en la línea de base: ninguna capa tiene déficit de O₂.';
+}
+function reserve(){
+  var key=[S.hr,S.pam,S.c,S.ch].join();
+  if(key!==swKey){swKey=key;var pts=[];var base=Object.assign({},S);
+    for(var s=0;s<=90;s+=5){var o=coro({hr:S.hr,pam:S.pam,c:S.c,sten:s/100,ch:S.ch});pts.push({s:s,r:o.flowMin,m:o.flowMax,d:o.r.tg.reduce(function(a,b){return a+b},0)*60})}
+    SW=pts}
+  var c=$('rs'),W=cw(c,700),H=250,x=fit(c,W,H),pl=48,pr=10,pt=10,pb=34,w=W-pl-pr,h=H-pt-pb;x.clearRect(0,0,W,H);
+  var ym=Math.max(300,Math.ceil(Math.max.apply(null,SW.map(function(p){return Math.max(p.m,p.d)}))*1.1/200)*200),X=function(v){return pl+v/92*w},Y=function(v){return pt+h-v/ym*h};
+  x.font='11px '+css('--font-mono');x.strokeStyle=css('--line');x.lineWidth=1;
+  for(var v=0;v<=ym;v+=ym>800?400:200){x.beginPath();x.moveTo(pl,Y(v));x.lineTo(pl+w,Y(v));x.stroke();axisText(x,v,pl-5,Y(v)+4,'right')}
+  for(var s2=0;s2<=90;s2+=10)axisText(x,s2+' %',X(s2),pt+h+15,'center');
+  axisText(x,'reducción del diámetro',pl+w/2,H-4,'center');x.save();x.translate(10,pt+h/2);x.rotate(-Math.PI/2);axisText(x,'mL/min (todo el lecho)',0,0,'center');x.restore();
+  function ln(k,col,lw,dash){x.setLineDash(dash||[]);x.strokeStyle=col;x.lineWidth=lw;x.beginPath();SW.forEach(function(p,i){var xx=X(p.s),yy=Y(p[k]);i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke();x.setLineDash([])}
+  ln('d',css('--muted'),1.6,[5,4]);ln('m',css('--guess'),2.4);ln('r',css('--vec'),2.8);
+  var xs=X(S.sten);x.strokeStyle=css('--fg');x.setLineDash([3,3]);x.beginPath();x.moveTo(xs,pt);x.lineTo(xs,pt+h);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--blood');x.beginPath();x.arc(xs,Y(R.flowMin),5,0,7);x.fill();
+  var crit=null;for(var i=0;i<SW.length;i++){if(SW[i].m<SW[i].d*0.98){crit=SW[i].s;break}}
+  $('rsn').textContent='Con la demanda actual, la reserva se agota (el flujo máximo no alcanza la demanda) desde ≈ '+(crit===null?'más de 90':crit)+' % de estenosis. En reposo (demanda ≈ 235 mL/min) ese punto está cerca de 80 %; con más demanda llega antes.';
+}
+function readout(){
+  var f=R.per100;
+  $('read').innerHTML=chip('Flujo total',fmt(R.flowMin,0)+' mL/min','ok',fmt(R.flowMin/5000*100,1)+' % de un GC de 5 L')+
+   chip('Subendo',fmt(f[2],0)+' mL/min/100 g',cls(R.sd[2]))+chip('Subepi',fmt(f[0],0)+' mL/min/100 g',cls(R.sd[0]))+
+   chip('Flujo en diástole (subendo)',fmt(R.fracDia(2)*100,0)+' %','ok')+chip('Flujo en diástole (subepi)',fmt(R.fracDia(0)*100,0)+' %','ok')+
+   chip('Extracción de O₂ subendo',fmt(R.ex[2]*100,0)+' %',R.ex[2]>.8?'no':'ok')+chip('Reserva',fmt(R.cfr,1)+' ×',R.cfr<2.5?'wn':'ok')+
+   (S.ch==='LV'?chip('Índice subendocárdico (DPTI/TTI)',fmt(R.sevr,2),R.sevr<.7?'no':'ok'):'')+chip('Diástole',Math.round(R.dia*1000)+' ms','ok')+chip('Presión Ao',Math.round(R.h.Ps)+'/'+Math.round(R.h.Pd),'ok');
+  var w;
+  if(R.isch[2]>.05)w='Déficit en el subendocardio: aun con las arteriolas al máximo, la presión que empuja en diástole (aorta menos presión tisular menos pérdida en la estenosis) no cubre su demanda, que además es la mayor. S/D = '+fmt(R.sd[2],2)+(R.isch[0]>.05?' y el déficit ya alcanza el subepicardio.':', mientras el subepicardio aún cubre ('+fmt(R.sd[0],2)+').');
+  else if(S.ch==='RV')w='En el VD la presión de cavidad es baja: comprime poco y el flujo es más parejo entre sístole y diástole ('+fmt(R.fracDia(2)*100,0)+' % en diástole en el subendocardio).';
+  else if(S.sten>=50)w='La estenosis consume reserva ('+fmt(R.cfr,1)+' × frente a ≈ 4,2 sin estenosis) pero la demanda actual aún se cubre: no hay isquemia.';
+  else w='En el VI la sístole comprime las capas internas: el subendocardio recibe '+fmt(R.fracDia(2)*100,0)+' % de su flujo en diástole.';
+  $('why').textContent=w;
+  $('vHr').textContent=S.hr+' lpm';$('vPam').textContent=S.pam+' mmHg';$('vC').textContent=fmt(S.c,2)+' ×';$('vS').textContent=S.sten+' %';$('vPh').textContent=Math.round(S.ph)+' % del latido';
+  document.querySelectorAll('#pre .btn').forEach(function(b,i){b.setAttribute('aria-pressed',String(JSON.stringify(Object.assign({},DEF,PRE[i].s))===JSON.stringify(Object.assign({},S,{ph:DEF.ph}))))});
+}
+/* anatomía */
+var DOMF={R:{inf:'RCA'},L:{inf:'LCX'},C:{inf:'RCA/LCX'}};
+function anatomy(){
+  var c=$('an'),W=cw(c,380),H=Math.round(W*.9),x=fit(c,W,H),cx=W*.58,cy=H*.5,ro=Math.min(W,H)*.38,ri=ro*.55;x.clearRect(0,0,W,H);
+  var dom=$('dom').value,occ=$('occ').value;
+  var seg=[{k:'ant',a0:225,a1:315,art:'LAD',n:'Anterior'},{k:'sep',a0:135,a1:225,art:'LAD',n:'Septal'},{k:'lat',a0:-45,a1:45,art:'LCX',n:'Lateral'},{k:'inf',a0:45,a1:135,art:dom==='R'?'RCA':dom==='L'?'LCX':'RCA',n:'Inferior'}];
+  var hit=[];
+  seg.forEach(function(s){var aff=occ&&((s.art===occ)||(dom==='C'&&s.k==='inf'&&(occ==='RCA'||occ==='LCX')));var colr=s.art==='LAD'?css('--vec'):s.art==='LCX'?css('--guess'):css('--blood');
+    if(aff)hit.push(s.n);
+    x.beginPath();x.arc(cx,cy,ro,s.a0*Math.PI/180,s.a1*Math.PI/180);x.arc(cx,cy,ri,s.a1*Math.PI/180,s.a0*Math.PI/180,true);x.closePath();
+    x.globalAlpha=aff?.9:.3;x.fillStyle=aff?css('--bad'):colr;x.fill();x.globalAlpha=1;x.strokeStyle=css('--panel');x.lineWidth=2;x.stroke();
+    var am=(s.a0+s.a1)/2*Math.PI/180,rr=(ro+ri)/2;x.font='600 11px '+css('--font-body');axisText(x,s.n,cx+rr*Math.cos(am),cy+rr*Math.sin(am),'center','middle',css('--fg'));
+    var nm=dom==='C'&&s.k==='inf'?'RCA/LCX':s.art;x.font='10px '+css('--font-mono');axisText(x,nm,cx+rr*Math.cos(am),cy+rr*Math.sin(am)+13,'center','middle',css('--fg'))});
+  x.beginPath();x.arc(cx,cy,ri,0,7);x.fillStyle=css('--bloodSoft');x.fill();axisText(x,'VI',cx,cy,'center','middle',css('--fg'));
+  x.beginPath();x.arc(cx-ro*1.12,cy+ro*.05,ro*.62,-1.2,1.2);x.arc(cx-ro*.64,cy+ro*.05,ro*.28,1.2,-1.2,true);x.closePath();
+  var rvAff=occ==='RCA';x.globalAlpha=rvAff?.8:.3;x.fillStyle=rvAff?css('--bad'):css('--blood');x.fill();x.globalAlpha=1;x.strokeStyle=css('--panel');x.stroke();
+  axisText(x,'VD',cx-ro*1.12,cy+ro*.05,'center','middle',css('--fg'));
+  var L={LAD:'V1–V4',LCX:'I, aVL, V5–V6 (y pared inferior si domina la izquierda)',RCA:'II, III, aVF (y VD)'};
+  $('anr').innerHTML=chip('Anterior y septal','descendente anterior','ok')+chip('Lateral','circunfleja','ok')+chip('Inferior',DOMF[dom].inf,'ok');
+  $('anw').textContent=occ?'Oclusión de '+({LAD:'la descendente anterior',LCX:'la circunfleja',RCA:'la coronaria derecha'})[occ]+': afecta '+(hit.join(', ')||'sin pared izquierda adicional')+(occ==='RCA'?', además del ventrículo derecho':'')+'. Derivaciones que verían elevación del ST (A8): '+L[occ]+'. El mapa de arterias es un esquema; hay mucha variabilidad (VERIFICAR).':'Elige una arteria para ver qué pared pierde su irrigación y qué derivaciones la reflejan. Cambia la dominancia y observa qué pared depende de la circunfleja o de la derecha.';
+}
+$('dom').onchange=anatomy;$('occ').onchange=anatomy;
+/* sustratos */
+var SUBS={a:{n:'Reposo en ayuno',v:[['Ácidos grasos',70],['Glucosa',15],['Lactato',5],['Otros',10]],t:'En reposo y en ayuno predominan los ácidos grasos: rinden mucha energía por molécula de O₂ gastada en menos proporción que la glucosa (VERIFICAR cifras con el libro).'},
+ p:{n:'Tras comer',v:[['Ácidos grasos',40],['Glucosa',40],['Lactato',10],['Otros',10]],t:'Con insulina alta el corazón usa más glucosa.'},
+ e:{n:'Ejercicio intenso',v:[['Ácidos grasos',30],['Glucosa',20],['Lactato',40],['Otros',10]],t:'En ejercicio intenso el lactato que producen los músculos se convierte en combustible importante del corazón.'}};
+var SC=['--blood','--guess','--vec','--muted'];
+function subs(k){var s=SUBS[k];$('sub').innerHTML=s.v.map(function(p,i){return '<i style="width:'+p[1]+'%;background:var('+SC[i]+')"></i>'}).join('');
+  $('subl').innerHTML=s.v.map(function(p,i){return '<span class="lab"><i class="sw" style="background:var('+SC[i]+')"></i>'+p[0]+' ≈ '+p[1]+' %</span>'}).join('');$('subn').textContent=s.t+' Porcentajes ilustrativos: VERIFICAR.';
+  document.querySelectorAll('.seg [data-k]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.k===k))})}
+document.querySelectorAll('.seg [data-k]').forEach(function(b){b.onclick=function(){subs(b.dataset.k)}});
+function render(){R=run(S);readout();cycle();wall();ecg();anatomy();clearTimeout(render.t);render.t=setTimeout(function(){reserve()},60)}
+PRE.forEach(function(p){var b=document.createElement('button');b.className='btn';b.textContent=p.n;b.setAttribute('aria-pressed','false');b.onclick=function(){setS(p.s)};$('pre').appendChild(b)});
+[['hr','hr'],['pam','pam'],['cc','c'],['st','sten']].forEach(function(p){$(p[0]).oninput=function(){S[p[1]]=+this.value;render()}});
+$('ch').onchange=function(){S.ch=this.value;render()};
+$('ph').oninput=function(){S.ph=+this.value;R=R||run(S);wall();cycle();readout()};
+$('pSys').onclick=function(){S.ph=Math.round(R.h.Ts/R.h.RR*NS*.45);sync();wall();cycle();readout()};
+$('pDia').onclick=function(){S.ph=Math.round((R.h.Ts/R.h.RR+(1-R.h.Ts/R.h.RR)*.5)*NS);sync();wall();cycle();readout()};
+/* ejemplo trabajado */
+function worked(){
+  var a=run(DEF),b=run(Object.assign({},DEF,{sten:70})),c=run(Object.assign({},DEF,{sten:70,hr:150,c:1.8,pam:110})),d=run(Object.assign({},DEF,{hr:150,c:1.8,pam:110}));
+  $('wk').innerHTML=[
+   'Reposo, arterias sanas: el lecho recibe '+fmt(a.flowMin,0)+' mL/min y puede llegar a '+fmt(a.flowMax,0)+' con vasodilatación total, una reserva de '+fmt(a.cfr,1)+' ×.',
+   'Aparece una estenosis del 70 % del diámetro: en reposo el flujo sigue en '+fmt(b.flowMin,0)+' mL/min porque las arteriolas de abajo se dilatan para compensar la pérdida de presión. Lo que se perdió es la reserva: ahora el máximo es '+fmt(b.flowMax,0)+' ('+fmt(b.cfr,1)+' ×).',
+   'Una carrera sube la demanda a '+fmt(c.demand,1)+' veces la de reposo, con FC 150, contractilidad 1,8 y PAM 110. Un corazón sano cubre esa demanda dilatando ('+fmt(d.flowMin,0)+' mL/min, S/D '+fmt(d.sd[2],2)+' en el subendocardio).',
+   'Con la estenosis, el flujo necesario ('+fmt(c.r.tg.reduce(function(s,v){return s+v},0)*60,0)+' mL/min) supera el máximo posible ('+fmt(c.flowMax,0)+'). Porque la diástole se acorta a '+Math.round(c.dia*1000)+' ms, la capa interna recibe el flujo solo en ese lapso y su S/D cae a '+fmt(c.sd[2],2)+'; el subepicardio todavía cubre ('+fmt(c.sd[0],2)+').',
+   'En el ECG aparece una depresión del ST de '+fmt(Math.abs(c.st),2)+' mV: es isquemia por demanda en el subendocardio y no un infarto.'].map(function(t){return '<li>'+t+'</li>'}).join('')}
+/* contraejemplo */
+function counter(){
+  var A=run({hr:150,pam:110,c:1.8,sten:0,ch:'LV'}),B=run({hr:150,pam:110,c:1.8,sten:70,ch:'LV'});
+  function card(t,o,m){return '<div><h3>'+t+'</h3><div class="chips">'+chip('FC','150','ok')+chip('Estenosis',o.sten+' %','ok')+chip('Reserva',fmt(m.cfr,1)+' ×',m.cfr<2.5?'wn':'ok')+chip('S/D subendo',fmt(m.sd[2],2),cls(m.sd[2]))+chip('ST',fmt(m.st,2)+' mV',Math.abs(m.st)>.03?'no':'ok')+'</div><button class="btn" data-o=\''+JSON.stringify(o)+'\'>Cargar en el modelo</button></div>'}
+  $('ce').innerHTML=card('Corazón sano al correr',{hr:150,pam:110,c:1.8,sten:0},A)+card('Con estenosis del 70 %, misma carrera',{hr:150,pam:110,c:1.8,sten:70},B);
+  document.querySelectorAll('#ce button').forEach(function(b){b.onclick=function(){setS(JSON.parse(b.dataset.o));$('cy').scrollIntoView({behavior:'smooth',block:'center'})}})}
+/* retos */
+var Q=[
+ {name:'¿Por qué el subendocardio primero?',lv:'intermedio',knob:'estenosis + FC',obj:'6.244–6.246',q:'Un paciente con estenosis del 70 % corre con FC 150. ¿Qué capa de la pared se queda corta primero?',o:['El subepicardio, que está más lejos de la cavidad','El subendocardio, porque la sístole lo comprime más y gasta más','Todas por igual, porque la estenosis está antes de la pared'],a:1,ap:function(){setS({sten:70,hr:150,c:1.8,pam:110})},e:function(){return 'Dos razones se suman. Primero, la presión tisular del subendocardio casi iguala la de la cavidad ('+fmt(R.r.Pt[2][Math.round(NS*R.h.Ts/R.h.RR*.4)],0)+' mmHg en sístole) y deja pasar solo '+fmt(R.fracDia(2)*100,0)+' % de su flujo en diástole. Segundo, su demanda es ≈ 15 % mayor. Resultado: S/D '+fmt(R.sd[2],2)+' en el subendocardio frente a '+fmt(R.sd[0],2)+' en el subepicardio, y la taquicardia, al acortar la diástole a '+Math.round(R.dia*1000)+' ms, lo agrava.'}},
+ {name:'Taquicardia en un corazón sano',lv:'básico',knob:'FC',obj:'6.245',q:'Un corredor sano sube su FC de 70 a 150 y su contractilidad a 1,8. ¿Aparece isquemia subendocárdica?',o:['Sí, porque la diástole se acorta','No, porque la dilatación metabólica sube el flujo y cubre la demanda','Sí, porque el subendocardio nunca recibe flujo en sístole'],a:1,ap:function(){setS({hr:150,c:1.8,pam:110})},e:function(){return 'El flujo pasa de ≈ 235 a '+fmt(R.flowMin,0)+' mL/min ('+fmt(R.flowMin/235,1)+' ×) y el máximo posible es '+fmt(R.flowMax,0)+'. S/D subendo '+fmt(R.sd[2],2)+'. Hay menos diástole ('+Math.round(R.dia*1000)+' ms), pero la reserva lo compensa. El índice subendocárdico baja a '+fmt(R.sevr,2)+' sin consecuencias, porque aún hay reserva.'}},
+ {name:'Estenosis en reposo',lv:'intermedio',knob:'estenosis',obj:'6.245, 6.247',q:'Una estenosis del 70 % del diámetro, con el paciente en reposo: ¿qué pasa con el flujo coronario?',o:['Baja ≈ 70 %','Casi no cambia, pero la reserva cae a la mitad','Sube, porque el vaso estrecho acelera la sangre'],a:1,ap:function(){setS({sten:70})},e:function(){return 'El flujo de reposo sigue en '+fmt(R.flowMin,0)+' mL/min: las arteriolas distales se dilatan para compensar. La reserva pasa de ≈ 4,2 a '+fmt(R.cfr,1)+' ×. Por eso el paciente puede estar asintomático en reposo y fallar solo con esfuerzo.'}},
+ {name:'Corazón derecho',lv:'básico',knob:'ventrículo',obj:'6.244',q:'¿Cómo se reparte el flujo coronario del ventrículo derecho durante el ciclo?',o:['Igual que el izquierdo, casi todo en diástole','Más parejo entre sístole y diástole, porque su presión sistólica es baja','Casi todo en sístole'],a:1,ap:function(){setS({ch:'RV'})},e:function(){return 'La presión del VD ronda 25 mmHg: comprime poco a sus vasos. El flujo en diástole es solo '+fmt(R.fracDia(2)*100,0)+' % (subendo) frente a ≈ 90 % en el VI.'}}];
+Quiz($('quiz'),Q);
+/* juego */
+var GP=[{hr:150,pam:110,c:1.8,sten:0},{hr:70,pam:93,c:1,sten:70},{hr:150,pam:110,c:1.8,sten:70},{hr:70,pam:93,c:1,sten:90},{hr:150,pam:105,c:1.6,sten:60},{hr:110,pam:93,c:1.2,sten:80},{hr:70,pam:93,c:1,sten:80},{hr:130,pam:100,c:1.4,sten:40}];
+var gp=null,gdone=false,gs=[0,0];
+function classify(r){return r.isch[0]>=.1?'T':r.isch[2]>=.05?'E':'N'}
+var GL={N:'Sin isquemia',E:'Isquemia subendocárdica',T:'Isquemia que llega al subepicardio'};
+function gNew(){var p;do{p=GP[Math.floor(Math.random()*GP.length)]}while(p===gp);gp=p;gdone=false;
+  $('gdat').innerHTML='FC <b>'+p.hr+'</b> · PAM <b>'+p.pam+'</b> · contractilidad <b>'+fmt(p.c,1)+'</b> × · estenosis <b>'+p.sten+' %</b> · ventrículo izquierdo';
+  $('gopt').innerHTML=['N','E','T'].map(function(k){return '<button class="btn copt" data-k="'+k+'">'+GL[k]+'</button>'}).join('');$('gfb').textContent='';$('gres').innerHTML='';
+  document.querySelectorAll('#gopt button').forEach(function(b){b.onclick=function(){if(gdone)return;gdone=true;var r=run(Object.assign({ch:'LV'},gp)),k=classify(r),ok=b.dataset.k===k;gs[1]++;if(ok)gs[0]++;
+    document.querySelectorAll('#gopt button').forEach(function(x){x.disabled=true;if(x.dataset.k===k)x.classList.add('good');else if(x===b)x.classList.add('bad')});
+    $('gfb').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No.</b></span> Era: '+GL[k].toLowerCase()+'. ')+(k==='N'?'La demanda se cubre con la reserva disponible.':'La reserva ('+fmt(r.cfr,1)+' ×) no alcanza para la demanda de '+fmt(r.demand,1)+' ×, y el subendocardio es la primera capa en quedarse corta.');
+    $('gres').innerHTML=chip('Reserva',fmt(r.cfr,1)+' ×',r.cfr<2.5?'wn':'ok')+chip('S/D subendo',fmt(r.sd[2],2),cls(r.sd[2]))+chip('S/D subepi',fmt(r.sd[0],2),cls(r.sd[0]))+chip('Índice subendo',fmt(r.sevr,2),r.sevr<.7?'no':'ok')+chip('ST',fmt(r.st,2)+' mV','ok');
+    $('gsc').textContent='Aciertos: '+gs[0]+' de '+gs[1];setS(Object.assign({},gp,{ch:'LV'}))}})}
+$('gnew').onclick=gNew;
+/* caso */
+Case($('case'),[
+ {txt:'<b>Hombre de 58 años</b>, dolor opresivo al subir dos pisos de escaleras, que cede con el reposo. ECG en reposo normal. La coronariografía muestra una estenosis del 70 % en la descendente anterior. ¿Por qué no tiene dolor en reposo?',
+  opts:[{t:'Porque en reposo las arteriolas distales dilatan y conservan el flujo; lo que falta es la reserva',s:1,fb:function(){var r=run(Object.assign({},DEF,{sten:70}));return 'Flujo de reposo '+fmt(r.flowMin,0)+' mL/min (sin cambio) y reserva '+fmt(r.cfr,1)+' × en lugar de ≈ 4,2.'},fx:function(){setS({sten:70})}},
+        {t:'Porque la estenosis solo reduce el flujo cuando el diámetro cae más del 90 %',s:0,fb:'La reducción de flujo en reposo aparece tarde (cerca de 85–90 %), pero la pérdida de reserva empieza mucho antes; ese es el problema con el esfuerzo.'},
+        {t:'Porque el miocardio extrae más oxígeno cuando falta flujo',s:0,fb:'Ya extrae ≈ 75 % en reposo y no tiene margen para extraer más.'}]},
+ {txt:'En la prueba de esfuerzo, a FC 150 aparece dolor y una depresión del ST en V4–V6. ¿Qué mecanismo explica el ST?',
+  opts:[{t:'Déficit de O₂ en el subendocardio: demanda alta y reserva agotada; la diástole es corta',s:1,fb:function(){var r=run({hr:150,pam:110,c:1.8,sten:70,ch:'LV'});return 'En el modelo: S/D subendo '+fmt(r.sd[2],2)+', subepi '+fmt(r.sd[0],2)+', ST '+fmt(r.st,2)+' mV, diástole '+Math.round(r.dia*1000)+' ms.'},fx:function(){setS({sten:70,hr:150,c:1.8,pam:110})}},
+        {t:'Oclusión total de la arteria que da elevación transmural',s:0,fb:'Una oclusión transmural da elevación del ST; aquí hay déficit subendocárdico y la depresión es difusa.'},
+        {t:'Espasmo de todas las coronarias por noradrenalina',s:0,fb:'El efecto directo α es pequeño y la vasodilatación metabólica domina; el problema es la reserva ya consumida.'}]},
+ {txt:'Se inicia un betabloqueador, que reduce la FC y la contractilidad en esfuerzo (FC 105, contractilidad 1,2, PAM 100). ¿Por qué ayuda?',
+  opts:[{t:'Baja la demanda de O₂ y alarga la diástole, que es cuando se riega la capa interna',s:1,fb:function(){var r=run({hr:105,pam:100,c:1.2,sten:70,ch:'LV'});return 'En el modelo con FC 105: demanda '+fmt(r.demand,1)+' ×, diástole '+Math.round(r.dia*1000)+' ms, S/D subendo '+fmt(r.sd[2],2)+' y ST '+fmt(r.st,2)+' mV: ya no hay isquemia.'},fx:function(){setS({sten:70,hr:105,c:1.2,pam:100})}},
+        {t:'Dilata la estenosis',s:0,fb:'No actúa sobre la placa fija; su efecto es reducir la demanda y alargar la diástole.'},
+        {t:'Sube la PAM para empujar más sangre',s:0,fb:'Subir la PAM aumentaría el trabajo y el consumo de O₂, además de la poscarga.'}]}
+],'Aplica lo aprendido. Cada decisión se aplica al modelo de arriba.');
+worked();counter();subs('a');setS({});gNew();setS({});
+onRedraw(function(){if(R){render()}});
+window.__dbg={coro:coro,run:run,DEF:DEF,get S(){return S},classify:classify,GP:GP};
+
+})();
+</script>
+
+</body></html>
