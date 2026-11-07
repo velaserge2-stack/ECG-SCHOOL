@@ -8,7 +8,7 @@
  * NUNCA pongas aquí la clave service_role / secret.
  */
 window.ECG_CONFIG = {
-  supabaseUrl: 'https://TU-PROYECTO.supabase.co',
+  supabaseUrl: 'https://jusoxfzkucjmeiygjcuq.supabase.co',
   supabaseAnonKey: 'TU-ANON-KEY',
   bucket: 'modulos'
 };
