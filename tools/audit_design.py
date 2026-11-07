@@ -6,11 +6,11 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 MODULES = sorted((ROOT / "modulos").glob("*.html"))
 CHECKS = [
-    ("Bricolage Grotesque", re.compile(r"Bricolage\\s*Grotesque", re.I)),
-    ("Source Sans 3", re.compile(r"Source\\s*Sans\\s*3", re.I)),
-    ("JetBrains Mono", re.compile(r"JetBrains\\s*Mono", re.I)),
-    ("tema oscuro", re.compile(r"prefers-color-scheme\\s*:\\s*dark|data-theme\\s*=\\s*dark", re.I)),
-    ("layout responsive", re.compile(r"@media\\s*\\([^)]*(?:max-width|width)", re.I)),
+    ("Bricolage Grotesque", re.compile(r"Bricolage\s*Grotesque", re.I)),
+    ("Source Sans 3", re.compile(r"Source\s*Sans\s*3", re.I)),
+    ("JetBrains Mono", re.compile(r"JetBrains\s*Mono", re.I)),
+    ("tema oscuro", re.compile(r"prefers-color-scheme\s*:\s*dark|data-theme\s*=\s*dark", re.I)),
+    ("layout responsive", re.compile(r"@media\s*\([^)]*(?:max-width|width)", re.I)),
     ("foco visible", re.compile(r":focus-visible", re.I)),
     ("movimiento reducido", re.compile(r"prefers-reduced-motion", re.I)),
 ]
@@ -22,7 +22,7 @@ def main():
     totals = {name: 0 for name, _ in CHECKS}
     for path in MODULES:
         html = path.read_text(encoding="utf-8")
-        body16 = bool(re.search(r"font-size\\s*:\\s*16px|font\\s*:\\s*16px", html, re.I))
+        body16 = bool(re.search(r"font-size\s*:\s*16px|font\s*:\s*16px", html, re.I))
         results = []
         for name, pattern in CHECKS:
             ok = bool(pattern.search(html))
