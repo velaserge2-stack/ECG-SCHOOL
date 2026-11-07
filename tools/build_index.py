@@ -12,6 +12,7 @@ G = [
     ('A', 'Electrocardiograma', 'Del vector al trazo: deduce cada onda, intervalo y patrón.', ['01', '02', '03', '04', '05']),
     ('B', 'Hemodinamia', 'La bomba, los vasos y las presiones, del ciclo cardiaco al cateterismo.', ['06', '10', '11', '12', '14', '16', '17', '19', '22', '23']),
     ('D', 'Regulación y circulaciones regionales', 'Reflejos y órganos en paralelo: cómo se reparte el gasto.', ['21', '13', '20', '15', '18']),
+    ('E', 'Integración fisiológica', 'Un solo estado compartido para tejido, señal, contracción, circulación, control y medición.', ['24']),
 ]
 
 data = {}
@@ -24,6 +25,7 @@ for p in mods:
     lede = re.search(r'<p class="lede">([^<]*)</p>', h)
     data[n] = {'t': t, 'e': e, 'h': h, 'o': o.group(1) if o else '', 'l': lede.group(1) if lede else ''}
 assert sum(len(g[3]) for g in G) == len(data), 'Hay módulos sin grupo en G'
+assert set(k for g in G for k in g[3]) == set(data), 'Hay módulos duplicados o fuera de grupo'
 
 esc = html.escape
 first = G[1][3][0]  # MVP: Cámara cardiaca
@@ -83,7 +85,7 @@ page = '''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name=
 :root[data-theme="dark"]{--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.14);
  --blood:#E27A7A;--guess:#FF9A5C;--slate:#9DB2E8;--gridMinor:rgba(255,125,135,.09);--gridMajor:rgba(255,125,135,.2);color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--fg);font:16px/1.5 "Source Sans 3","Segoe UI",system-ui,sans-serif}
-.gF{--acc:var(--slate)}.gA{--acc:var(--vec)}.gB{--acc:var(--blood)}.gD{--acc:var(--guess)}
+.gF{--acc:var(--slate)}.gA{--acc:var(--vec)}.gB{--acc:var(--blood)}.gD{--acc:var(--guess)}.gE{--acc:var(--vec)}
 .top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);height:53px}
 .brand{display:flex;align-items:center;gap:8px;color:var(--fg);text-decoration:none;font:700 1.15rem "Bricolage Grotesque",system-ui,sans-serif;white-space:nowrap}
 .brand svg{flex:none}
@@ -172,7 +174,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--vec);outline-offset
     <svg class="trace" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true"><path d="''' + trace + '''"/></svg>
     <div class="stats">
       <div><b>''' + str(len(data)) + '''</b><span>módulos interactivos</span></div>
-      <div><b>4</b><span>partes: F · A · B · D</span></div>
+      <div><b>5</b><span>partes: F · A · B · D · E</span></div>
       <div><b>9</b><span>perillas causales</span></div>
       <div><b>6.1–6.283</b><span>objetivos de referencia (Unidad 6)</span></div>
     </div>
@@ -206,7 +208,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--vec);outline-offset
   </section>
 
   <section id="mapa">
-    <div class="sh"><h3>Mapa de módulos</h3><p>Ruta sugerida: Fundamentos → Electrocardiograma → Hemodinamia → Regulación. Puedes entrar a cualquiera; cada uno indica lo que requiere.</p></div>
+    <div class="sh"><h3>Mapa de módulos</h3><p>Ruta sugerida: Fundamentos → Electrocardiograma → Hemodinamia → Regulación → Integración. Puedes entrar a cualquiera; cada uno indica lo que requiere.</p></div>
     <div class="parts">''' + groups + '''</div>
   </section>
 
