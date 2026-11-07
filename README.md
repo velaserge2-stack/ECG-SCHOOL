@@ -33,9 +33,9 @@ Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 | 21 | [Lazo del barorreflejo](modulos/21_lazo_del_barorreflejo.html) | D2 | 6.219–6.232 |
 | 22 | [Vasos y presión](modulos/22_vasos_y_presion.html) | B17 | 6.150–6.168, 6.174–6.190 |
 | 23 | [Valvulopatías en el ciclo cardiaco](modulos/23_valvulopatias_en_el_ciclo_cardiaco.html) | B9 | 6.124, 6.145–6.149 |
-| 24 | [Modelo integrado L2–L8](modulos/24_modelo_integrado_l2_l8.html) | L2–L8: tejido, señal, excitación–contracción, hemodinamia, control, sincronía y medición | Laboratorio transversal de integración; cobertura curricular fina pendiente de asignar |
+| 24 | [Modelo integrado L2–L8](modulos/24_modelo_integrado_l2_l8.html) | L2–L8: tejido, señal, excitación–contracción, hemodinamia, control, sincronía y medición; escenario C2 (elevación pasiva de piernas) | Laboratorio transversal simplificado; C2 es una primera implementación y la cobertura curricular fina sigue pendiente |
 
-El módulo 24 es un laboratorio de integración fisiológica que conecta las capas L2–L8 en un mismo estado de simulación. Es una primera implementación educativa simplificada, no un simulador clínico validado. Sus supuestos, rangos y ecuaciones requieren pruebas numéricas y revisión por especialistas.
+El módulo 24 es un laboratorio de integración fisiológica que conecta las capas L2–L8 en un mismo estado de simulación. Incluye el escenario C2 de elevación pasiva de piernas, con comparación contra el estado basal y un desplazamiento venoso aproximado de 300 mL. Es una implementación educativa simplificada: no representa por separado los reservorios de piernas y abdomen ni la cinética completa de la maniobra, y no es un simulador clínico validado. Sus supuestos, rangos y ecuaciones requieren pruebas numéricas y revisión por especialistas.
 
 Para regenerar `index.html` tras añadir o cambiar módulos: `python3 tools/build_index.py .` (el orden y los grupos del menú están al inicio del script).
 
