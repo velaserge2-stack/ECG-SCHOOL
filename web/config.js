@@ -9,6 +9,6 @@
  */
 window.ECG_CONFIG = {
   supabaseUrl: 'https://jusoxfzkucjmeiygjcuq.supabase.co',
-  supabaseAnonKey: 'TU-ANON-KEY',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1c294ZnprdWNqbWVpeWdqY3VxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwNzE0NjAsImV4cCI6MjEwOTY0NzQ2MH0.Wy2uyfE5gCmJCnCYZsFpz56JOw0WFJhVTs8A2brQahs',
   bucket: 'modulos'
 };
