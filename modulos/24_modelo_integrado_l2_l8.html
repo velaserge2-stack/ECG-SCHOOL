@@ -9,12 +9,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-:root{color-scheme:light;--bg:#f1f4f4;--panel:#fff;--ink:#172421;--muted:#5d706b;--line:#d5dfdc;--teal:#087e78;--teal-soft:#e2f2ef;--red:#b74242;--orange:#b95d22;--blue:#456a9a;--good:#287a49;--shadow:0 8px 24px rgba(24,50,44,.07)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0d1715;--panel:#14221f;--ink:#e8f0ed;--muted:#9bada7;--line:#2b403a;--teal:#54d2c5;--teal-soft:#193a35;--red:#f08080;--orange:#ffad72;--blue:#91b4e5;--good:#80d39a;--shadow:0 8px 24px rgba(0,0,0,.2)}}
-:root[data-theme=dark]{color-scheme:dark;--bg:#0d1715;--panel:#14221f;--ink:#e8f0ed;--muted:#9bada7;--line:#2b403a;--teal:#54d2c5;--teal-soft:#193a35;--red:#f08080;--orange:#ffad72;--blue:#91b4e5;--good:#80d39a;--shadow:0 8px 24px rgba(0,0,0,.2)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Source Sans 3","Segoe UI",system-ui,sans-serif;padding:18px clamp(12px,3vw,30px) 60px}
+:root{color-scheme:light;--bg:#F1F4F4;--panel:#FFFFFF;--fg:#16211F;--muted:#586966;--line:#D5DEDC;--vec:#0A7C76;--vecSoft:rgba(10,124,118,.12);--blood:#B23A3A;--guess:#C2480F;--slate:#4A5D8A;--good:#2A7A35;--shadow:0 8px 24px rgba(24,50,44,.07);--font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.14);--blood:#E27A7A;--guess:#FF9A5C;--slate:#9DB2E8;--good:#6FD07C;--shadow:0 8px 24px rgba(0,0,0,.2)}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.14);--blood:#E27A7A;--guess:#FF9A5C;--slate:#9DB2E8;--good:#6FD07C;--shadow:0 8px 24px rgba(0,0,0,.2)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--font-body);padding:18px clamp(12px,3vw,30px) 60px}
 .wrap{max-width:1240px;margin:auto;display:flex;flex-direction:column;gap:18px}
-header{display:flex;flex-direction:column;gap:8px;padding:10px 2px 14px}.eyebrow{font:700 .72rem 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--teal)}
+header{display:flex;flex-direction:column;gap:8px;padding:10px 2px 14px}.eyebrow{font:700 .72rem 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--vec)}
 h1,h2,h3,h4,p{margin:0}h1,h2,h3{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif}h1{font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.035em}h2{font-size:1.35rem;line-height:1.2}h3{font-size:1.02rem}h4{font-size:.92rem}.lede{max-width:78ch;color:var(--muted);font-size:1.03rem}
 .pills{display:flex;gap:7px;flex-wrap:wrap}.pill{border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--muted);font-size:.75rem}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);min-width:0}
@@ -24,9 +24,9 @@ h1,h2,h3,h4,p{margin:0}h1,h2,h3{font-family:"Bricolage Grotesque","Segoe UI",sys
 .controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 @media(max-width:760px){.controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.controls{grid-template-columns:1fr}}
-.control{display:flex;flex-direction:column;gap:4px;min-width:0}.control label{font-size:.82rem;color:var(--muted);display:flex;justify-content:space-between;gap:8px}.control output{font:600 .8rem 'JetBrains Mono',ui-monospace,monospace;color:var(--ink)}input[type=range]{width:100%;accent-color:var(--teal)}
-button{font:600 .86rem inherit;border:1px solid var(--line);border-radius:7px;padding:8px 11px;background:var(--panel);color:var(--ink);cursor:pointer}button:hover{border-color:var(--teal)}button.primary{background:var(--teal);border-color:var(--teal);color:#fff}button:focus-visible,input:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
-.switch{display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}input[type=checkbox]{accent-color:var(--teal)}
+.control{display:flex;flex-direction:column;gap:4px;min-width:0}.control label{font-size:.82rem;color:var(--muted);display:flex;justify-content:space-between;gap:8px}.control output{font:600 .8rem 'JetBrains Mono',ui-monospace,monospace;color:var(--fg)}input[type=range]{width:100%;accent-color:var(--vec)}
+button{font:600 .86rem inherit;border:1px solid var(--line);border-radius:7px;padding:8px 11px;background:var(--panel);color:var(--fg);cursor:pointer}button:hover{border-color:var(--vec)}button.primary{background:var(--vec);border-color:var(--vec);color:#fff}button:focus-visible,input:focus-visible{outline:2px solid var(--guess);outline-offset:2px}
+.switch{display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}input[type=checkbox]{accent-color:var(--vec)}
 .metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
 @media(max-width:780px){.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:430px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -34,17 +34,17 @@ button{font:600 .86rem inherit;border:1px solid var(--line);border-radius:7px;pa
 canvas{width:100%;display:block;max-width:100%}.chart-wrap{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px;overflow:hidden}
 canvas.ecg{height:260px}.chart{height:220px}.smallchart{height:150px}
 .legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.75rem;margin-top:8px}.legend span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--c);margin-right:5px}
-.note{color:var(--muted);font-size:.79rem}.warning{border-left:3px solid var(--orange);background:var(--teal-soft);padding:9px 11px;border-radius:0 7px 7px 0;font-size:.84rem}
-.good{color:var(--good)}.bad{color:var(--red)}.muted{color:var(--muted)}
+.note{color:var(--muted);font-size:.79rem}.warning{border-left:3px solid var(--guess);background:var(--vecSoft);padding:9px 11px;border-radius:0 7px 7px 0;font-size:.84rem}
+.good{color:var(--good)}.bad{color:var(--blood)}.muted{color:var(--muted)}
 table{border-collapse:collapse;width:100%;font-size:.82rem}th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}th{color:var(--muted);font-weight:600}th:first-child,td:first-child{text-align:left}
 .scroll{overflow-x:auto}
 .svgmap{width:100%;height:auto;display:block;background:var(--bg);border-radius:8px;border:1px solid var(--line)}
-.node-label{font:11px system-ui;fill:var(--ink)}.node-time{font:10px ui-monospace;fill:var(--muted)}
-.flowline{stroke:var(--teal);stroke-width:3;fill:none;stroke-linecap:round}.inactive{stroke:var(--line);stroke-dasharray:4 5}.node{fill:var(--panel);stroke:var(--teal);stroke-width:2}
-.timeline{display:grid;grid-template-columns:120px 1fr;gap:7px 10px;align-items:center}.tlname{color:var(--muted);font-size:.78rem}.track{height:24px;background:var(--bg);border:1px solid var(--line);border-radius:5px;position:relative;overflow:hidden}.event{position:absolute;top:3px;height:16px;border-radius:3px;background:var(--teal);min-width:3px}.event.orange{background:var(--orange)}.event.red{background:var(--red)}.event.blue{background:var(--blue)}
+.node-label{font:11px system-ui;fill:var(--fg)}.node-time{font:10px ui-monospace;fill:var(--muted)}
+.flowline{stroke:var(--vec);stroke-width:3;fill:none;stroke-linecap:round}.inactive{stroke:var(--line);stroke-dasharray:4 5}.node{fill:var(--panel);stroke:var(--vec);stroke-width:2}
+.timeline{display:grid;grid-template-columns:120px 1fr;gap:7px 10px;align-items:center}.tlname{color:var(--muted);font-size:.78rem}.track{height:24px;background:var(--bg);border:1px solid var(--line);border-radius:5px;position:relative;overflow:hidden}.event{position:absolute;top:3px;height:16px;border-radius:3px;background:var(--vec);min-width:3px}.event.orange{background:var(--guess)}.event.red{background:var(--blood)}.event.blue{background:var(--slate)}
 details{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}summary{cursor:pointer;font-weight:650;font-size:.85rem}
 footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);padding-top:15px}
-.kv{display:flex;flex-wrap:wrap;gap:6px}.tag{font:600 .72rem 'JetBrains Mono',ui-monospace,monospace;background:var(--teal-soft);padding:3px 7px;border-radius:5px;color:var(--teal)}
+.kv{display:flex;flex-wrap:wrap;gap:6px}.tag{font:600 .72rem 'JetBrains Mono',ui-monospace,monospace;background:var(--vecSoft);padding:3px 7px;border-radius:5px;color:var(--vec)}
 </style>
 </head>
 <body>
@@ -68,8 +68,29 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
   <div class="control"><label for="rvs">Resistencia sistémica <output id="rvsV">1.00 ×</output></label><input id="rvs" type="range" min="0.6" max="1.8" step="0.05" value="1"></div>
   <div class="control"><label for="rvp">Resistencia pulmonar <output id="rvpV">1.00 ×</output></label><input id="rvp" type="range" min="0.6" max="2.2" step="0.05" value="1"></div>
  </div>
- <div class="pills" style="margin-top:12px"><label class="switch"><input id="baro" type="checkbox" checked> Barorreflejo rápido activado</label><label class="switch"><input id="slow" type="checkbox" checked> Compensación renal/humoral ilustrada</label></div>
+ <div class="pills" style="margin-top:12px"><label class="switch"><input id="baro" type="checkbox" checked> Barorreflejo rápido activado</label><label class="switch"><input id="slow" type="checkbox" checked> Compensación renal/humoral ilustrada</label><label class="switch"><input id="plr" type="checkbox"> C2 · Elevación pasiva de piernas</label></div>
  <p class="note" style="margin-top:8px">Rangos didácticos ajustables; no son prescripciones ni límites de seguridad para pacientes. La simulación no es un dispositivo médico.</p>
+</section>
+
+<section class="card" id="scenarioC2">
+ <div class="topline"><div><div class="eyebrow">PARTE C · ESCENARIO C2</div><h2>Elevación pasiva de piernas</h2><p class="desc">Activa la maniobra reversible para desplazar aproximadamente 300 mL desde el reservorio venoso periférico al compartimento central. Compara el cambio respecto al mismo paciente en decúbito.</p></div><span class="tag" id="plrStatus">Maniobra desactivada</span></div>
+ <div class="metrics">
+  <div class="metric"><small>Cambio en volumen sistólico</small><strong id="plrSV">—</strong><em>mL/latido · modelo</em></div>
+  <div class="metric"><small>Cambio en gasto cardiaco</small><strong id="plrCO">—</strong><em>L/min · modelo</em></div>
+  <div class="metric"><small>Cambio en presión AD</small><strong id="plrRA">—</strong><em>mmHg · modelo</em></div>
+  <div class="metric"><small>Cambio en PAM</small><strong id="plrMAP">—</strong><em>mmHg · modelo</em></div>
+ </div>
+ <p class="warning" id="plrVerdict">Activa la perilla C2 para comparar la respuesta con el estado basal.</p>
+ <details><summary>Cadena causal, predicción y límites</summary>
+  <ol>
+   <li>La maniobra desplaza sangre hacia el compartimento central y reduce el volumen venoso no estresado.</li>
+   <li>Suben la presión media de llenado sistémico y el retorno venoso; primero aumenta el llenado derecho y después el izquierdo.</li>
+   <li>En la rama ascendente de Frank–Starling puede aumentar el volumen sistólico. En una meseta, el volumen sistólico cambia poco y pueden subir más las presiones de llenado.</li>
+   <li>El barorreflejo puede amortiguar parcialmente la respuesta en segundos. Apágalo para comparar el efecto sin compensación rápida.</li>
+  </ol>
+  <p class="note">Prueba también con volumen circulante bajo, menor contractilidad o mayor rigidez. El umbral orientativo de cambio ≥10 % en volumen sistólico o gasto se muestra solo como referencia didáctica, no como criterio diagnóstico en esta simulación.</p>
+  <p class="note">Simplificación explícita: el modelo desplaza 300 mL en un solo paso dentro de un reservorio venoso agregado. No separa piernas y territorio abdominal ni reproduce la cinética de 30–90 s, la presión intraabdominal, la ventilación mecánica o las causas de falsos negativos. No equivale a administrar líquidos.</p>
+ </details>
 </section>
 
 <section class="card">
@@ -109,7 +130,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
 <section class="card span-6" id="L3">
  <div class="topline"><div><div class="eyebrow">L3 · Señal</div><h2>ECG de 12 derivaciones desde un vector común</h2><p class="desc">Un vectorcardiograma sintético se proyecta sobre seis ejes frontales y seis ejes torácicos aproximados. Los miembros respetan I, II, III y las derivaciones aumentadas por álgebra de Einthoven/Goldberger.</p></div><span class="tag">10 electrodos · 12 vistas</span></div>
  <div class="chart-wrap"><canvas id="ecg" class="ecg" aria-label="ECG sintético de doce derivaciones"></canvas></div>
- <div class="legend"><span style="--c:var(--teal)">Complejo y repolarización</span><span style="--c:var(--orange)">Cuadrícula de papel</span></div>
+ <div class="legend"><span style="--c:var(--vec)">Complejo y repolarización</span><span style="--c:var(--guess)">Cuadrícula de papel</span></div>
  <p class="note">Calibración dibujada: 25 mm/s y 10 mm/mV como referencia visual. Las derivaciones precordiales usan ejes espaciales aproximados y no sustituyen un modelo de torso conductor.</p>
 </section>
 
@@ -121,7 +142,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
   <div class="metric"><small>Calcio máximo relativo</small><strong id="caPeak">—</strong><em>unidades normalizadas</em></div>
   <div class="metric"><small>Elastancia VI máx.</small><strong id="emax">—</strong><em>mmHg/mL · modelo</em></div>
  </div>
- <div class="legend"><span style="--c:var(--blue)">Activación eléctrica</span><span style="--c:var(--orange)">Calcio relativo</span><span style="--c:var(--teal)">Elastancia del VI (la que usa el motor)</span></div>
+ <div class="legend"><span style="--c:var(--slate)">Activación eléctrica</span><span style="--c:var(--guess)">Calcio relativo</span><span style="--c:var(--vec)">Elastancia del VI (la que usa el motor)</span></div>
  <p class="note">La curva de calcio es un pulso fenomenológico, no una simulación de canales, retículo sarcoplásmico ni unión a troponina. La elastancia sigue al calcio tras el retraso electromecánico; su forma es una doble función de Hill, simplificada.</p>
 </section>
 
@@ -129,7 +150,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);paddi
  <div class="topline"><div><div class="eyebrow">L5 · Hemodinamia</div><h2>Cuatro cámaras y dos circuitos en serie</h2><p class="desc">Modelo concentrado de cuatro cámaras, cuatro válvulas, compartimentos arteriales y venosos sistémicos y pulmonares. Los flujos valvulares dependen del gradiente y son unidireccionales.</p></div></div>
  <div class="chart-wrap"><canvas id="pressures" class="chart" aria-label="Presiones de cámaras y grandes arterias"></canvas></div>
  <div class="chart-wrap" style="margin-top:10px"><canvas id="pv" class="smallchart" aria-label="Asa de presión y volumen del ventrículo izquierdo"></canvas></div>
- <div class="legend"><span style="--c:var(--teal)">VI / aorta</span><span style="--c:var(--red)">VD / arteria pulmonar</span><span style="--c:var(--blue)">Aurículas</span><span style="--c:var(--orange)">Volumen del VI</span></div>
+ <div class="legend"><span style="--c:var(--vec)">VI / aorta</span><span style="--c:var(--blood)">VD / arteria pulmonar</span><span style="--c:var(--slate)">Aurículas</span><span style="--c:var(--guess)">Volumen del VI</span></div>
  <div class="warning" id="hemoNote" style="margin-top:10px">Modelo educativo concentrado: no incluye geometría 3D, interacción valvular detallada, flujo turbulento completo ni todas las circulaciones regionales.</div>
 </section>
 
@@ -195,9 +216,9 @@ var clamp=function(x,a,b){return Math.max(a,Math.min(b,x))};
 var fmt=function(x,d){return Number.isFinite(x)?x.toFixed(d):"—"};
 var rad=function(d){return d*Math.PI/180};
 var last=null;
-var DEFAULT={hr:75,av:.04,branch:2,contract:1,stiff:1,volume:100,rvs:1,rvp:1,baro:true,slow:true,blockBaro:false,zero:0,damp:0,delay:200};
+var DEFAULT={hr:75,av:.04,branch:2,contract:1,stiff:1,volume:100,rvs:1,rvp:1,baro:true,slow:true,plr:false,blockBaro:false,zero:0,damp:0,delay:200};
 function inputs(){
- return {hr:+$("hr").value,av:+$("av").value,branch:+$("branch").value,contract:+$("contract").value,stiff:+$("stiff").value,volume:+$("volume").value/100,rvs:+$("rvs").value,rvp:+$("rvp").value,baro:$("baro").checked,slow:$("slow").checked,blockBaro:$("blockBaro").checked,zero:+$("zero").value,damp:+$("damp").value/100,delay:+$("delay").value};
+ return {hr:+$("hr").value,av:+$("av").value,branch:+$("branch").value,contract:+$("contract").value,stiff:+$("stiff").value,volume:+$("volume").value/100,rvs:+$("rvs").value,rvp:+$("rvp").value,baro:$("baro").checked,slow:$("slow").checked,plr:$("plr").checked,blockBaro:$("blockBaro").checked,zero:+$("zero").value,damp:+$("damp").value/100,delay:+$("delay").value};
 }
 function labelInputs(s){
  $("hrV").textContent=s.hr+" lpm";$("avV").textContent=fmt(s.av,3)+" m/s";$("branchV").textContent=fmt(s.branch,1)+" m/s";$("contractV").textContent=fmt(s.contract,2)+" ×";$("stiffV").textContent=fmt(s.stiff,2)+" ×";$("volumeV").textContent=Math.round(s.volume*100)+" %";$("rvsV").textContent=fmt(s.rvs,2)+" ×";$("rvpV").textContent=fmt(s.rvp,2)+" ×";
@@ -282,7 +303,7 @@ function simulate(s,c){
   Csa:1.4,Csv:90,Cpa:4.5,Cpv:16,Rsys:.95*s.rvs,Rpul:.09*s.rvp,Rven:.05,Rpven:.02,Rav:.005,Rmv:.004,Rpv:.004,Rtv:.004,
   Usv:2700,Upv:300,Usa:600,Upa:100};
  // volumen total (mL) escalado por la perilla de volumen; reparto inicial aproximado
- var tot=5000*s.volume;P.Usv+=.5*(tot-5000);
+ var tot=5000*s.volume;P.Usv+=.5*(tot-5000);if(s.plr)P.Usv-=300;
  var z={lv:120,rv:120,la:55,ra:55,sa:P.Usa+P.Csa*90,pa:P.Upa+P.Cpa*14,pv:P.Upv+P.Cpv*8};
  z.sv=tot-(z.lv+z.rv+z.la+z.ra+z.sa+z.pa+z.pv);
  var ctrl={hr:s.hr,ces:1,rs:1,u:1},mapF=null,beat=0,T=60/s.hr,qrsT=c.pr/1000,Ts=.30;
@@ -375,13 +396,14 @@ function measurement(s,c,r){
 }
 function render(){
  var s=inputs();labelInputs(s);var c=conduction(s);updateConduction(s,c);
- var r=simulate(Object.assign({mapRef:93},s),c),sh=Object.assign({},s,{hr:Math.round(r.hr)});last={s:sh,c:c,r:r};
+ var r=simulate(Object.assign({mapRef:93},s),c),base=s.plr?simulate(Object.assign({mapRef:93},Object.assign({},s,{plr:false})),c):null,sh=Object.assign({},s,{hr:Math.round(r.hr)});last={s:sh,c:c,r:r};
+ if(s.plr&&base){var dsv=r.sv-base.sv,dco=r.co-base.co,dra=r.pRA-base.pRA,dmap=r.map-base.map,pctSV=100*dsv/Math.max(1,base.sv),pctCO=100*dco/Math.max(.1,base.co);$("plrStatus").textContent="C2 activa · +300 mL";$("plrSV").textContent=(dsv>=0?"+":"")+fmt(dsv,1);$("plrCO").textContent=(dco>=0?"+":"")+fmt(dco,2);$("plrRA").textContent=(dra>=0?"+":"")+fmt(dra,1);$("plrMAP").textContent=(dmap>=0?"+":"")+fmt(dmap,1);$("plrVerdict").textContent=(pctSV>=10||pctCO>=10?"La respuesta simulada alcanza el umbral orientativo de 10 % (VS: "+fmt(pctSV,1)+" %; GC: "+fmt(pctCO,1)+" %).":"La respuesta simulada queda por debajo del umbral orientativo de 10 % (VS: "+fmt(pctSV,1)+" %; GC: "+fmt(pctCO,1)+" %).")+" Compara con barorreflejo activo y apagado.";}else{$("plrStatus").textContent="Maniobra desactivada";["plrSV","plrCO","plrRA","plrMAP"].forEach(function(id){$(id).textContent="—"});$("plrVerdict").textContent="Activa la perilla C2 para comparar la respuesta con el estado basal.";}
  $("co").textContent=fmt(r.co,2);$("sv").textContent=fmt(r.sv,0);$("ef").textContent=fmt(r.ef,0);$("map").textContent=fmt(r.map,0);$("lvsp").textContent=fmt(r.lvsp,0);$("pap").textContent=fmt(r.pap,1);
  drawECG(sh,c);drawCalcium(sh,c);drawPressures(sh,r);drawPV(sh,r);slowResponse(s,r);renderTimeline(sh,c);measurement(s,c,r);drawCausal(s,c,r);
  $("engineStatus").textContent="actualizado · "+new Date().toLocaleTimeString();
 }
 function bind(id){$(id).addEventListener("input",render);$(id).addEventListener("change",render)}
-["hr","av","branch","contract","stiff","volume","rvs","rvp","baro","slow","blockBaro","zero","damp","delay"].forEach(bind);
+["hr","av","branch","contract","stiff","volume","rvs","rvp","baro","slow","plr","blockBaro","zero","damp","delay"].forEach(bind);
 $("reset").addEventListener("click",function(){
  Object.keys(DEFAULT).forEach(function(k){var el=$(k);if(el.type==="checkbox")el.checked=DEFAULT[k];else el.value=DEFAULT[k]});
  render();
