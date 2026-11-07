@@ -1,0 +1,547 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Curvas de Guyton</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+.qconf{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.qconf label{display:flex;gap:4px;align-items:center}
+.card{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px}
+.steps li::before{content:counter(s);font:600 .8rem var(--font-mono);color:var(--vec);border:1px solid var(--vec);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.sw2{display:inline-block;width:18px;height:0;border-top:3px solid;vertical-align:middle;margin-right:4px}
+.vh{position:absolute;left:-9999px}
+.btn[disabled]{opacity:.5;cursor:default}
+.warn{border-left:3px solid var(--guess);padding:6px 10px;background:var(--guessSoft);font-size:.9rem}
+.ver{font-family:var(--font-mono);font-size:.7rem;color:var(--guess);border:1px solid var(--guess);border-radius:3px;padding:0 4px;white-space:nowrap}
+input[type=number].cin{width:100px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;font-size:.9rem}
+.kv span:nth-child(odd){color:var(--muted)}
+.lab{min-width:0;max-width:100%}
+.lab.sel{flex:1 1 100%}.lab.sel select{flex:1;min-width:0}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B4 · gasto cardiaco, retorno venoso y control</div>
+  <h1>Curvas de Guyton</h1>
+  <p class="lede">El corazón solo puede expulsar lo que le llega, y solo le llega lo que el sistema venoso empuja. El gasto cardiaco queda donde se cruzan las dos curvas. Mueve volumen, tono venoso, resistencia, contractilidad y frecuencia, y mira cuál curva se mueve y dónde queda el cruce. Después separa, en el tiempo, lo inmediato de lo que compensan los reflejos y los riñones.</p>
+  <div class="tags"><span>Unidad 6: 6.139–6.144 · 6.219–6.232 (parcial; el lazo completo está en D2)</span><span>Requiere B3</span><span>Nivel N2 · N4 (control)</span><span>Etiquetas: hecho / simplificación / discutido</span></div>
+</header>
+
+<section class="panel">
+  <h2>1 · Punto de equilibrio: curva cardiaca × curva de retorno venoso</h2>
+  <div class="chips" id="pre"></div>
+  <canvas id="gz" role="img" aria-label="Curva de función cardiaca y curva de retorno venoso con su punto de equilibrio"></canvas>
+  <div class="chips" id="read"></div>
+  <p class="why" id="why"></p>
+</section>
+
+<section class="panel">
+  <h2>Perillas</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Volumen sanguíneo (retorno venoso): <span class="mono" id="bvV"></span><input type="range" id="bv" min="3800" max="6600" step="50" value="5000"></label>
+      <label class="ctl" style="flex:none">Tono venoso simpático: <span class="mono" id="toneV"></span><input type="range" id="tone" min="0.4" max="2" step="0.05" value="1"></label>
+      <label class="ctl" style="flex:none">Bomba muscular (esfuerzo): <span class="mono" id="pumpV"></span><input type="range" id="pump" min="0" max="1" step="0.05" value="0"></label>
+      <label class="ctl" style="flex:none">Presión intratorácica: <span class="mono" id="pitV"></span><input type="range" id="pit" min="-6" max="12" step="1" value="0"></label>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Resistencia periférica (×reposo): <span class="mono" id="rvsV"></span><input type="range" id="rvs" min="0.4" max="2" step="0.05" value="1"></label>
+      <label class="ctl" style="flex:none">Contractilidad (×reposo): <span class="mono" id="conV"></span><input type="range" id="con" min="0.3" max="1.8" step="0.05" value="1"></label>
+      <label class="ctl" style="flex:none">Frecuencia cardiaca: <span class="mono" id="hrV"></span><input type="range" id="hr" min="40" max="190" step="5" value="70"></label>
+      <div class="row"><button class="btn" id="rst">Volver al reposo</button><label class="lab"><input type="checkbox" id="ghost" checked> Mostrar curvas de reposo (tenues)</label></div>
+    </div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Perilla</th><th>¿Qué curva mueve?</th><th>Cómo (en este modelo)</th></tr></thead><tbody>
+    <tr><td>Volumen, tono venoso, bomba muscular</td><td>Retorno venoso</td><td>Cambian la presión media de llenado sistémico (Pmsf): la curva se desplaza en paralelo. El volumen no estresado se reduce con el tono.</td></tr>
+    <tr><td>Resistencia periférica</td><td>Ambas</td><td>Gira el retorno venoso (más resistencia al flujo de regreso) y baja la curva cardiaca (poscarga).</td></tr>
+    <tr><td>Contractilidad</td><td>Cardiaca</td><td>Sube la meseta y la hace más empinada: otra curva de Starling del corazón.</td></tr>
+    <tr><td>Frecuencia</td><td>Cardiaca</td><td>Multiplica el volumen sistólico, pero acorta el llenado: la ganancia se pierde con frecuencias muy altas.</td></tr>
+    <tr><td>Presión intratorácica</td><td>Cardiaca</td><td>La presión de llenado que importa es la transmural (AD − presión intratorácica): la curva se desplaza.</td></tr></tbody></table></div>
+</section>
+
+<section class="panel">
+  <h2>2 · Frank–Starling del corazón: moverse sobre la curva o cambiar de curva</h2>
+  <p class="note">Propiedad intrínseca del miocito: ocurre sin nervios ni hormonas (hecho establecido). No confundir con el Starling del capilar (B18).</p>
+  <div class="grid">
+    <div class="col"><canvas id="sf" role="img" aria-label="Familia de curvas de Frank-Starling: volumen sistólico contra presión de llenado"></canvas>
+      <div class="chips" id="sfRead"></div></div>
+    <div class="col">
+      <div class="card" id="ctr">
+        <h3>Contraejemplo: el mismo volumen sistólico, dos causas distintas</h3>
+        <p class="note">Caso A sube la precarga (se mueve sobre la curva). Caso B sube la contractilidad hasta lograr el mismo volumen sistólico (cambia de curva). El número que delata la diferencia es la presión de llenado.</p>
+        <div class="tw"><table><thead><tr><th></th><th>Reposo</th><th>A (+vol.)</th><th>B (+contr.)</th></tr></thead><tbody id="ctrT"></tbody></table></div>
+        <div class="row"><button class="btn" id="ctrA">Aplicar A</button><button class="btn" id="ctrB">Aplicar B</button></div>
+        <p class="why" id="ctrW"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>3 · Tres relojes: inmediato, segundos, minutos a días</h2>
+  <div class="row">
+    <label class="lab sel">Perturbación: <select id="scn" aria-label="Perturbación"></select></label>
+    <label class="lab"><input type="checkbox" id="swB" checked> Barorreflejo (segundos)</label>
+    <label class="lab"><input type="checkbox" id="swBa"> Bainbridge <span class="ver">DISCUTIDO en humanos</span></label>
+    <label class="lab"><input type="checkbox" id="swS" checked> Sistemas lentos (líquido capilar, riñón, hormonas)</label>
+  </div>
+  <canvas id="tm" role="img" aria-label="Presión arterial media, gasto cardiaco, frecuencia y volumen sanguíneo en el tiempo, en escala logarítmica"></canvas>
+  <div class="tw"><table id="tmT"></table></div>
+  <p class="why" id="tmW"></p>
+</section>
+
+<section class="panel">
+  <h2>Ejemplo trabajado · hemorragia de 600 mL</h2>
+  <ol class="steps" id="work"></ol>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <div class="eyebrow" id="qTag"></div>
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <div class="qconf">Confianza: <label><input type="radio" name="qc" value="b"> baja</label><label><input type="radio" name="qc" value="m" checked> media</label><label><input type="radio" name="qc" value="a"> alta</label></div>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+      <p class="note" id="qObj"></p>
+    </div>
+    <div class="col">
+      <h3>Juego: ¿Qué perilla se movió?</h3>
+      <p class="note">Hay una curva tenue (reposo) y las curvas nuevas. Deduce qué cambió. Ojo: volumen y tono venoso producen el mismo desplazamiento; el modelo no puede distinguirlos solo con las curvas.</p>
+      <canvas id="gm" role="img" aria-label="Curvas de un caso misterioso comparadas con el reposo"></canvas>
+      <select id="gSel" aria-label="Qué se movió"></select>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><button class="btn" id="gNew">Nuevo caso</button><span class="mono" id="gSc"></span></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Caso clínico · hombre de 58 años con melena</h2>
+  <p>Dos días de heces negras, mareo al ponerse de pie, piel fría. Está acostado. Ya actuaron sus reflejos. Los datos de abajo salen del mismo modelo. Tu trabajo: decidir qué mover y comprobar si el modelo responde como esperabas.</p>
+  <div class="chips" id="cData"></div>
+  <div class="cols2">
+    <div class="col">
+      <h3>Paso 1 · ¿Qué curva se movió primero?</h3>
+      <div id="c1" class="col" style="gap:6px"></div>
+      <p class="fb" id="c1Fb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Paso 2 · Aplica intervenciones (en el orden que elijas)</h3>
+      <div class="row" id="cBtn"></div>
+      <p class="fb" id="c2Fb" aria-live="polite"></p>
+      <div class="row"><button class="btn" id="cRst">Reiniciar caso</button></div>
+    </div>
+  </div>
+  <p class="note">Ejercicio de razonamiento sobre un modelo simplificado. No es una guía de manejo ni sustituye el juicio clínico.</p>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"Más volumen siempre da más gasto": sube el gasto solo mientras la curva cardiaca es empinada; en un corazón con meseta baja (insuficiencia) casi todo el volumen se convierte en presión de llenado.</li>
+    <li>"El corazón fija el gasto por sí solo": en equilibrio, GC = retorno venoso. El corazón elige el punto sobre la curva de retorno.</li>
+    <li>"Taquicardia siempre sube el gasto": a frecuencias altas el llenado se acorta, el volumen sistólico cae y el retorno venoso limita el aumento.</li>
+    <li>"Más contractilidad multiplica el gasto": en el equilibrio el gasto sube menos de lo que sube la curva cardiaca, porque la presión auricular baja y el retorno venoso también.</li>
+    <li>"El barorreflejo controla la presión a largo plazo": actúa en segundos y se adapta; el riñón restituye el volumen en horas a días.</li>
+    <li>"Frank–Starling necesita nervios u hormonas": es propiedad del miocito, y se puede desplazar con ellos.</li>
+    <li>"Precarga = presión venosa": la presión de llenado es un estimador; el modelo muestra que con la misma presión pueden coexistir volúmenes sistólicos distintos (cambio de curva).</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Estado estable: cada punto es el equilibrio de dos curvas. No hay ondas de presión ni latido a latido. La dinámica de la sección 3 solo mueve las perillas en el tiempo.</li>
+    <li>Pmsf de reposo 7 mmHg, resistencia al retorno 1 mmHg por L/min y meseta cardiaca ≈ 11 L/min a 70 lpm con el reflejo apagado <span class="ver">VERIFICAR</span> (distintos libros dibujan mesetas entre 10 y 13 L/min y Pmsf entre 6 y 8).</li>
+    <li>Compliance venosa efectiva de 220 mL/mmHg y 800 mL de volumen no estresado por unidad de tono <span class="ver">VERIFICAR</span>.</li>
+    <li>Los reflejos son un solo "tono simpático relativo" con ganancia fija, sin vagal separado ni saturación fisiológica. La respuesta del barorreflejo se aplana con el tiempo (adaptación) por una exponencial.</li>
+    <li>Bainbridge se modela como un aumento de frecuencia proporcional a la presión auricular, con peso débil, y se marca como discutido en humanos.</li>
+    <li>El líquido capilar y el riñón son dos exponenciales (40 % en ≈ 1,5 h y 60 % en ≈ 2 días) que devuelven el volumen; no hay un controlador de presión–natriuresis (ver D3). La reposición de eritrocitos no se modela.</li>
+    <li>La presión intratorácica solo desplaza la curva cardiaca (más compresión abdominal en maniobras positivas). Las variaciones de un ciclo respiratorio normal, latido a latido, son mucho menores que las del estado estable <span class="ver">VERIFICAR</span>.</li>
+    <li>Sin rama descendente de Starling (rara en el corazón intacto). Sin edad ni fracción de eyección.</li>
+    <li>Ejercicio máximo: este modelo llega a ≈ 3 veces el gasto de reposo; en atletas puede acercarse a 6 veces (hecho citado en el texto de referencia, VERIFICAR el valor del curso).</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.139–6.144, 6.219–6.232). Sin aval institucional.</p>
+</footer>
+</div>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,mx){return Math.max(240,Math.min(mx||940,Math.floor(c.parentElement.clientWidth-(c.parentElement.classList.contains('panel')?30:2))))}
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function sgn(x,d){return (x>=0?'+':'−')+fmt(Math.abs(x),d)}
+function pct(a,b){return (a>=b?'+':'−')+Math.abs(Math.round((a/b-1)*100))+' %'}
+/* motor de retos "Predice y observa" con confianza */
+function makeQuiz(QS){
+  var qi=0;
+  function show(){var q=QS[qi];$('qTag').textContent='Reto '+(qi+1)+' de '+QS.length+(q.nm?' · «'+q.nm+'»':'');$('qText').textContent=q.q;
+    $('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> <span>'+t+'</span></label>'}).join('');$('qFb').textContent='';$('qObj').textContent=q.obj||''}
+  $('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+    var q=QS[qi],ok=+r.value===q.a,cf=document.querySelector('input[name=qc]:checked'),cv=cf?cf.value:'m';
+    q.ap();var cal=ok?(cv==='b'?' Acertaste con poca confianza: confía más en la cadena causal que armaste.':''):(cv==='a'?' Fallaste con confianza alta: revisa qué eslabón diste por seguro.':'');
+    $('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+q.e()+cal};
+  $('qNext').onclick=function(){qi=(qi+1)%QS.length;show()};
+  show();return {show:show}}
+function redrawAll(fn){
+  if(window.ResizeObserver)new ResizeObserver(fn).observe(document.body);else window.addEventListener('resize',fn);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',fn);
+  new MutationObserver(fn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fn)}
+/* ===== Modelo B4: función cardiaca × retorno venoso (Guyton) ===== */
+var M4={PM0:7,CV:220,VU0:3460,BV0:5000,RVS0:18.2,TAU:8.25,SV0:157.1};
+var P4_BASE={bv:5000,tone:1,con:1,rvs:1,hr:70,pump:0,pit:0};
+function pmsf4(p){return (p.bv-(M4.VU0-800*(p.tone-1)))/M4.CV+1.5*(p.pump||0)+0.5*Math.max(0,p.pit)}
+function rv4(p){return (0.55*(1+0.15*(p.tone-1))+0.45*p.rvs)*(1-0.3*(p.pump||0))}
+function fill4(hr){return (1+Math.pow(70/150,4))/(1+Math.pow(hr/150,4))}
+function after4(r){return 1/(1+0.35*(r-1))}
+function svmax4(p){return M4.SV0*p.con*after4(p.rvs)*fill4(p.hr)}
+function tau4(p){return M4.TAU/Math.sqrt(p.con)}
+function svAt4(p,pt){return pt<=-3?0:svmax4(p)*(1-Math.exp(-(pt+3)/tau4(p)))} /* mL, pt = presión transmural de AD */
+function coHeart4(p,pra){return p.hr*svAt4(p,pra-p.pit)/1000}
+function vr4(p,pra){var pe=pra>=0?pra:-2*(1-Math.exp(pra/2));return Math.max(0,(pmsf4(p)-pe)/rv4(p))}
+function eq4(p){
+  var lo=-8,hi=30,i,m;
+  for(i=0;i<60;i++){m=(lo+hi)/2;if(coHeart4(p,m)-vr4(p,m)<0)lo=m;else hi=m}
+  var pra=(lo+hi)/2,co=vr4(p,pra),sv=co*1000/p.hr;
+  return {pra:pra,co:co,sv:sv,pm:pmsf4(p),rv:rv4(p),pam:co*M4.RVS0*p.rvs+pra,ptd:pra-p.pit,svmax:svmax4(p)}}
+/* Neurohumoral: S = actividad simpática relativa (1 = reposo) */
+function applyS4(base,S,rf){
+  var q=Object.assign({},base);
+  q.hr=base.hr+rf.hr*(S-1);q.con=base.con*(1+rf.con*(S-1));q.tone=base.tone+rf.tone*(S-1);q.rvs=base.rvs*(1+rf.rvs*(S-1));
+  q.hr=Math.max(35,Math.min(190,q.hr));q.con=Math.max(.3,q.con);q.tone=Math.max(.3,q.tone);q.rvs=Math.max(.3,q.rvs);
+  return q}
+var RF4={hr:55,con:.5,tone:.45,rvs:.55};
+/* simulación temporal: perturbación de volumen + reflejos, tiempo log (0 s a 7 días) */
+function sim4(sc,sw){ /* sc:{dv:mL perdidos (+) o ganados (-), noRefill:bool}, sw:{baro,bain,slow} */
+  var base=Object.assign({},P4_BASE),pts=[],G=3.2,e0=eq4(base),SET=e0.pam,Sx=1,tprev=0;
+  function volAt(t){var rem=(sc.noRefill||!sw.slow)?1:(0.4*Math.exp(-t/5400)+0.6*Math.exp(-t/172800));return base.bv-sc.dv*rem}
+  function build(bv,S){var q=applyS4(Object.assign({},base,{bv:bv}),S,RF4);if(sw.bain){var e1=eq4(q);q.hr=Math.min(190,q.hr+1.2*Math.max(0,e1.pra-e0.pra))}return q}
+  for(var k=0;k<=240;k++){
+    var t=k===0?0:Math.pow(10,(k-1)/239*Math.log10(604800)),dt=t-tprev,bv=volAt(t);
+    var gad=(sw.slow&&!sc.noRefill)?Math.exp(-t/172800*0.7):1;
+    function tgt(S){var r=eq4(build(bv,S));return sw.baro?Math.max(0,Math.min(3,1+G*gad*3*(SET-r.pam)/SET)):1}
+    if(k>0){
+      var al=1-Math.exp(-dt/8),So=Sx,lo=0,hi=3,m,i;
+      for(i=0;i<30;i++){m=(lo+hi)/2;var f=m-So-al*(tgt(m)-So);if(f<0)lo=m;else hi=m}
+      Sx=(lo+hi)/2}
+    var q=build(bv,Sx),r=eq4(q);
+    pts.push({t:t,S:Sx,co:r.co,pam:r.pam,pra:r.pra,hr:q.hr,bv:bv,sv:r.sv,q:q});tprev=t}
+  return pts}
+/* estado estable con reflejos (cuasi-estático) */
+function steady4(base,sw){
+  sw=sw||{baro:1,bain:0};var e0=eq4(P4_BASE),SET=e0.pam,G=3.2;
+  function build(S){var q=applyS4(base,S,RF4);if(sw.bain){var e1=eq4(q);q.hr=Math.min(190,q.hr+1.2*Math.max(0,e1.pra-e0.pra))}return q}
+  var lo=0,hi=3,m,i;
+  for(i=0;i<30;i++){m=(lo+hi)/2;var r=eq4(build(m));var tg=sw.baro?Math.max(0,Math.min(3,1+G*3*(SET-r.pam)/SET)):1;if(m-tg<0)lo=m;else hi=m}
+  var S=(lo+hi)/2;return {S:S,q:build(S)}}
+var S=Object.assign({},P4_BASE);
+var E0=eq4(P4_BASE);
+var BASEKEYS=['bv','tone','pump','pit','rvs','con','hr'];
+function setState(o){Object.keys(o).forEach(function(k){if(BASEKEYS.indexOf(k)>=0)S[k]=o[k]});syncCtl();render()}
+function resetState(){setState(P4_BASE)}
+function syncCtl(){BASEKEYS.forEach(function(k){var el=$(k);if(el)el.value=S[k]})}
+var PRE=[
+ {id:'rep',n:'Reposo',o:P4_BASE},
+ {id:'eje',n:'Ejercicio',o:{tone:1.8,con:1.6,hr:150,rvs:.45,pump:1}},
+ {id:'hem',n:'Hemorragia con reflejos',o:steady4(Object.assign({},P4_BASE,{bv:4400})).q},
+ {id:'ic',n:'Insuficiencia compensada',o:{con:.45,bv:5800,tone:1.2}},
+ {id:'sep',n:'Vasodilatación (sepsis)',o:{rvs:.5,tone:.7}},
+ {id:'ins',n:'Inspiración profunda',o:{pit:-4}},
+ {id:'val',n:'Valsalva (esfuerzo)',o:{pit:10}}];
+var curPre='rep';
+function describe(){
+  var p=S,e=eq4(p),L=[];
+  if(Math.abs(pmsf4(p)-pmsf4(P4_BASE))>.15)L.push('Retorno venoso: la presión media de llenado sistémico (Pmsf) pasa de 7,0 a '+fmt(pmsf4(p),1)+' mmHg, así que la curva se desplaza '+(pmsf4(p)>7?'a la derecha':'a la izquierda')+' en paralelo.');
+  if(Math.abs(p.rvs-1)>.04)L.push('Resistencia '+(p.rvs>1?'alta':'baja')+': gira la curva de retorno (pendiente '+fmt(1/rv4(p),2)+' L/min por mmHg) y '+(p.rvs>1?'baja':'sube')+' la curva cardiaca por la poscarga.');
+  if(Math.abs(p.con-1)>.04)L.push('Contractilidad ×'+fmt(p.con,2)+': otra curva de Starling del corazón (meseta '+fmt(p.hr*svmax4(p)/1000,1)+' L/min).');
+  if(Math.abs(p.hr-70)>2)L.push('Frecuencia '+p.hr+' lpm: el volumen sistólico de meseta pasa a '+Math.round(svmax4(p))+' mL por el tiempo de llenado.');
+  if(Math.abs(p.pit)>.4)L.push('Presión intratorácica '+sgn(p.pit,0)+' mmHg: la presión de llenado transmural es AD − '+sgn(p.pit,0)+'.');
+  if(!L.length)L.push('Reposo: las curvas se cruzan en GC ≈ 5 L/min y presión auricular ≈ 2 mmHg.');
+  L.push('Equilibrio: GC = retorno venoso = '+fmt(e.co,1)+' L/min con Pra = '+fmt(e.pra,1)+' mmHg (reposo 5,0 y 2,0).');
+  return L.join(' ')}
+function render(){
+  var e=eq4(S);
+  $('bvV').textContent=Math.round(S.bv)+' mL';$('toneV').textContent='×'+fmt(S.tone,2);$('pumpV').textContent=fmt(S.pump,2);$('pitV').textContent=sgn(S.pit,0)+' mmHg';
+  $('rvsV').textContent='×'+fmt(S.rvs,2);$('conV').textContent='×'+fmt(S.con,2);$('hrV').textContent=S.hr+' lpm';
+  $('read').innerHTML=chip('GC',fmt(e.co,1)+' L/min',e.co>3.5&&e.co<8?'ok':'wn',pct(e.co,E0.co)+' vs reposo')+chip('Pra',fmt(e.pra,1)+' mmHg',e.pra<8?'ok':'wn','')+chip('Pmsf',fmt(e.pm,1)+' mmHg','ok','')+chip('VS',Math.round(e.sv)+' mL','ok','')+chip('PAM (GC×RVS+Pra)',Math.round(e.pam)+' mmHg',e.pam>70&&e.pam<110?'ok':'wn','')+chip('IC (ASC 1,8)',fmt(e.co/1.8,1)+' L/min/m²','ok','');
+  $('why').textContent=describe();
+  document.querySelectorAll('#pre .btn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===curPre?'true':'false')});
+  draw();drawSF();ctrTable()}
+function axes(x,r,x0,x1,y0,y1,xt,yt,xl,yl){
+  x.strokeStyle=css('--line');x.lineWidth=1;x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');
+  x.textAlign='right';x.textBaseline='middle';yt.forEach(function(v){var yy=r.y+r.h-(v-y0)/(y1-y0)*r.h;x.beginPath();x.moveTo(r.x,yy);x.lineTo(r.x+r.w,yy);x.stroke();x.fillText(v,r.x-4,yy)});
+  x.textAlign='center';x.textBaseline='top';xt.forEach(function(v){var xx=r.x+(v-x0)/(x1-x0)*r.w;x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h+3);x.stroke();x.fillText(v,xx,r.y+r.h+4)});
+  x.strokeStyle=css('--muted');x.beginPath();x.moveTo(r.x,r.y);x.lineTo(r.x,r.y+r.h);x.lineTo(r.x+r.w,r.y+r.h);x.stroke();
+  x.textAlign='right';x.textBaseline='bottom';x.fillText(xl,r.x+r.w,r.y+r.h+28);
+  x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.textBaseline='top';x.fillText(yl,0,-6);x.restore()}
+function curveXY(f,x0,x1,y0,y1,r,x,col,lw,dash,steps){
+  x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();var first=true;
+  for(var i=0;i<=(steps||120);i++){var v=x0+(x1-x0)*i/(steps||120),y=f(v);var xx=r.x+(v-x0)/(x1-x0)*r.w,yy=r.y+r.h-(clamp(y,y0,y1)-y0)/(y1-y0)*r.h;first?x.moveTo(xx,yy):x.lineTo(xx,yy);first=false}
+  x.stroke();x.setLineDash([])}
+function guytonCore(x,r,p,ghostP,opt){
+  var x0=-4,x1=14,y0=0,y1=18;
+  axes(x,r,x0,x1,y0,y1,[-4,0,4,8,12],[0,5,10,15],'Presión de la aurícula derecha (mmHg)','Gasto cardiaco / retorno venoso (L/min)');
+  if(ghostP)curveXY(function(v){return coHeart4(ghostP,v)},x0,x1,y0,y1,r,x,css('--blood'),1.4,[4,4]),curveXY(function(v){return vr4(ghostP,v)},x0,x1,y0,y1,r,x,css('--vec'),1.4,[4,4]);
+  curveXY(function(v){return coHeart4(p,v)},x0,x1,y0,y1,r,x,css('--blood'),2.6);
+  curveXY(function(v){return vr4(p,v)},x0,x1,y0,y1,r,x,css('--vec'),2.6);
+  var e=eq4(p),px=r.x+(e.pra-x0)/(x1-x0)*r.w,py=r.y+r.h-(clamp(e.co,y0,y1)-y0)/(y1-y0)*r.h;
+  x.setLineDash([3,3]);x.strokeStyle=css('--fg');x.lineWidth=1;x.beginPath();x.moveTo(px,py);x.lineTo(px,r.y+r.h);x.moveTo(px,py);x.lineTo(r.x,py);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--guess');x.strokeStyle=css('--bg');x.lineWidth=2;x.beginPath();x.arc(px,py,6,0,7);x.fill();x.stroke();
+  return {e:e,px:px,py:py}}
+function draw(){
+  var c=$('gz'),W=cw(c),small=W<520,H=small?280:340,x=fit(c,W,H);x.clearRect(0,0,W,H);
+  var r={x:46,y:12,w:W-62,h:H-52};
+  var o=guytonCore(x,r,S,$('ghost').checked&&JSON.stringify(S)!==JSON.stringify(P4_BASE)?P4_BASE:($('ghost').checked?null:null),{});
+  var e=o.e;
+  /* etiquetas */
+  x.font='600 12px '+css('--font-body');x.textBaseline='bottom';x.textAlign='left';
+  var cy=r.y+r.h-clamp(coHeart4(S,11),0,18)/18*r.h;x.fillStyle=css('--blood');x.fillText('Función cardiaca',r.x+r.w*.62,clamp(cy-8,r.y+14,r.y+r.h-4));
+  x.fillStyle=css('--vec');x.textAlign='right';x.fillText('Retorno venoso',r.x+r.w-4,r.y+r.h*.55);
+  x.fillStyle=css('--fg');x.textAlign=o.px>r.x+r.w*.6?'right':'left';x.textBaseline='top';x.font='600 12px '+css('--font-mono');
+  x.fillText('GC '+fmt(e.co,1)+' · Pra '+fmt(e.pra,1),o.px+(o.px>r.x+r.w*.6?-10:10),o.py+8);
+  /* Pmsf */
+  var pmx=r.x+(e.pm+4)/18*r.w;if(pmx<r.x+r.w){x.fillStyle=css('--vec');x.beginPath();x.moveTo(pmx,r.y+r.h);x.lineTo(pmx-5,r.y+r.h-9);x.lineTo(pmx+5,r.y+r.h-9);x.fill();x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='bottom';x.fillText('Pmsf '+fmt(e.pm,1),clamp(pmx,r.x+28,r.x+r.w-28),r.y+r.h-11)}
+}
+function drawSF(){
+  var c=$('sf'),W=cw(c,460),H=W<400?250:290,x=fit(c,W,H);x.clearRect(0,0,W,H);var r={x:46,y:12,w:W-62,h:H-52},x0=-4,x1=14,y0=0,y1=200;
+  axes(x,r,x0,x1,y0,y1,[-4,0,4,8,12],[0,50,100,150,200],'Presión de llenado (AD ≈ telediastólica, mmHg)','Volumen sistólico (mL)');
+  var cols=[.6,1,1.5];
+  cols.forEach(function(cv){var q=Object.assign({},S,{con:cv});curveXY(function(v){return svAt4(q,v-S.pit)},x0,x1,y0,y1,r,x,css('--blood'),1.3,[2,3])});
+  curveXY(function(v){return svAt4(S,v-S.pit)},x0,x1,y0,y1,r,x,css('--blood'),2.6);
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='middle';
+  cols.forEach(function(cv){var q=Object.assign({},S,{con:cv}),yv=svAt4(q,x1-S.pit);var yy=r.y+r.h-clamp(yv,0,200)/200*r.h;x.fillText('×'+cv,r.x+r.w-30,clamp(yy,r.y+6,r.y+r.h-6)-(cv===1?0:0))});
+  var g=eq4(P4_BASE),e=eq4(S);
+  function pt(ee,col,fill){var px=r.x+(ee.pra-x0)/(x1-x0)*r.w,py=r.y+r.h-clamp(ee.sv,0,200)/200*r.h;x.strokeStyle=col;x.fillStyle=fill?col:css('--panel');x.lineWidth=2;x.beginPath();x.arc(px,py,5.5,0,7);x.fill();x.stroke()}
+  pt(g,css('--muted'),false);pt(e,css('--guess'),true);
+  $('sfRead').innerHTML=chip('Reposo','Pra '+fmt(g.pra,1)+' · VS '+Math.round(g.sv)+' mL','ok','')+chip('Ahora','Pra '+fmt(e.pra,1)+' · VS '+Math.round(e.sv)+' mL','ok','')+'<span class="note" style="flex-basis:100%">Círculo vacío: reposo. Círculo lleno: ahora. Líneas punteadas: contractilidad ×0,6, ×1 y ×1,5 con la frecuencia y la resistencia actuales. Las curvas del corazón dependen también de la poscarga y del tiempo de llenado.</span>'}
+/* contraejemplo A/B */
+var CT=null;
+function ctrCompute(){
+  var A=Object.assign({},P4_BASE,{bv:5600}),eA=eq4(A),lo=1,hi=2.5,m,i;
+  for(i=0;i<40;i++){m=(lo+hi)/2;if(eq4(Object.assign({},P4_BASE,{con:m})).sv<eA.sv)lo=m;else hi=m}
+  var B=Object.assign({},P4_BASE,{con:(lo+hi)/2});CT={A:A,B:B,eA:eA,eB:eq4(B),e0:E0}}
+function ctrTable(){
+  if(!CT)ctrCompute();var T=CT;
+  function row(l,f,d){return '<tr><th>'+l+'</th><td class="n">'+f(T.e0)+'</td><td class="n">'+f(T.eA)+'</td><td class="n">'+f(T.eB)+'</td></tr>'}
+  $('ctrT').innerHTML=row('Pra (mmHg)',function(e){return fmt(e.pra,1)})+row('VS (mL)',function(e){return Math.round(e.sv)})+row('GC (L/min)',function(e){return fmt(e.co,1)})+row('PAM (mmHg)',function(e){return Math.round(e.pam)})+'<tr><th>Contractilidad</th><td class="n">×1,00</td><td class="n">×1,00</td><td class="n">×'+fmt(T.B.con,2)+'</td></tr>';
+  $('ctrW').textContent='Mismo volumen sistólico ('+Math.round(T.eA.sv)+' mL): en A el corazón se movió hacia la derecha sobre su misma curva (Pra '+fmt(T.eA.pra,1)+' mmHg); en B cambió de curva y la presión de llenado quedó más baja ('+fmt(T.eB.pra,1)+' mmHg). Un volumen sistólico alto no dice cuál de los dos ocurrió; hay que mirar la presión de llenado.'}
+$('ctrA').onclick=function(){curPre='';setState(CT.A)};
+$('ctrB').onclick=function(){curPre='';setState(CT.B)};
+/* controles */
+BASEKEYS.forEach(function(k){$(k).oninput=function(){S[k]=+this.value;curPre='';render()}});
+$('rst').onclick=function(){curPre='rep';resetState()};
+$('ghost').onchange=draw;
+PRE.forEach(function(p){var b=document.createElement('button');b.className='btn';b.dataset.k=p.id;b.textContent=p.n;b.setAttribute('aria-pressed','false');b.onclick=function(){curPre=p.id;setState(Object.assign({},P4_BASE,p.o))};$('pre').appendChild(b)});
+/* ---- panel de tiempo ---- */
+var SCN=[{id:'hem',n:'Hemorragia de 600 mL (≈ 12 %)',dv:600},{id:'pie',n:'Ponerse de pie (≈ 500 mL se acumulan en las piernas)',dv:500,noRefill:true},{id:'inf',n:'Infusión de 1 L de solución',dv:-1000}];
+var TS={scn:'hem',baro:true,bain:false,slow:true},TP=null;
+SCN.forEach(function(s){var o=document.createElement('option');o.value=s.id;o.textContent=s.n;$('scn').appendChild(o)});
+function curScn(){return SCN.filter(function(s){return s.id===TS.scn})[0]}
+function tcompute(){TP=sim4(curScn(),{baro:TS.baro,bain:TS.bain,slow:TS.slow})}
+function tIdx(sec){var b=0,d=1e18;TP.forEach(function(p,i){var dd=Math.abs(Math.log((p.t+.01)/(sec+.01)));if(dd<d){d=dd;b=i}});return b}
+function fmtT(s){return s===0?'0 s (inmediato)':s<60?s+' s':s<3600?Math.round(s/60)+' min':s<86400?Math.round(s/3600)+' h':Math.round(s/86400)+' d'}
+var MOM=[0,30,3600,86400,604800];
+function tdraw(){
+  tcompute();var c=$('tm'),W=cw(c),small=W<520,rows=4,rh=small?62:74,gap=8,top=26,H=top+rows*(rh+gap)+30,x=fit(c,W,H);x.clearRect(0,0,W,H);
+  var X0=small?48:56,Wp=W-X0-12,tmax=Math.log10(604800)+1;
+  function px(t){return X0+(t<=0?0:(Math.log10(Math.max(t,.1))+1)/tmax)*Wp}
+  var defs=[{k:'pam',l:'PAM (mmHg)',col:'--blood',ref:93,st:10},{k:'co',l:'GC (L/min)',col:'--vec',ref:5,st:1},{k:'hr',l:'FC (lpm)',col:'--guess',ref:70,st:10},{k:'bv',l:'Volumen (L)',col:'--muted',sc:.001,ref:5,st:.5}];
+  defs.forEach(function(d){var mn=d.ref,mx=d.ref;TP.forEach(function(p){var v=p[d.k]*(d.sc||1);mn=Math.min(mn,v);mx=Math.max(mx,v)});d.lo=Math.floor((mn-d.st*.3)/d.st)*d.st;d.hi=Math.ceil((mx+d.st*.3)/d.st)*d.st;if(d.hi-d.lo<d.st*2)d.hi=d.lo+d.st*2});
+  var bandsX=[[0,1,'Inmediato'],[1,120,'Segundos'],[120,604800,'Minutos a días']];
+  var shade=['--vecSoft','--guessSoft','--bloodSoft'];
+  bandsX.forEach(function(b,i){var a=px(b[0]===0?0:b[0]),bb=px(b[1]);x.fillStyle=css(shade[i]);x.globalAlpha=.5;x.fillRect(a,top-6,bb-a,rows*(rh+gap)-2);x.globalAlpha=1;x.fillStyle=css('--fg');x.font='600 11px '+css('--font-body');x.textAlign=i===0?'left':'center';x.textBaseline='middle';x.fillText(b[2],i===0?a+3:(a+bb)/2,top-14)});
+  defs.forEach(function(d,i){
+    var y=top+i*(rh+gap);x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(X0,y,Wp,rh);
+    x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='right';x.textBaseline='top';x.fillText(fmt(d.hi,d.st<1?1:0),X0-3,y);x.textBaseline='bottom';x.fillText(fmt(d.lo,d.st<1?1:0),X0-3,y+rh);
+    x.textAlign='left';x.textBaseline='top';x.fillText(d.l,X0+4,y+2);
+    x.strokeStyle=css(d.col);x.lineWidth=2.4;x.beginPath();
+    TP.forEach(function(p,j){var v=p[d.k]*(d.sc||1),xx=px(p.t),yy=y+rh-(clamp(v,d.lo,d.hi)-d.lo)/(d.hi-d.lo)*rh;if(j===0){x.moveTo(xx,yy);var n=TP[1],xx2=px(.1);x.lineTo(xx2,yy)}else x.lineTo(xx,yy)});x.stroke();
+    var ref=d.ref;x.setLineDash([3,4]);x.strokeStyle=css('--muted');x.lineWidth=1;var yr=y+rh-(ref-d.lo)/(d.hi-d.lo)*rh;x.beginPath();x.moveTo(X0,yr);x.lineTo(X0+Wp,yr);x.stroke();x.setLineDash([]);
+  });
+  var yb=top+rows*(rh+gap)-4;x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';
+  [[0,'0'],[1,'1 s'],[10,'10 s'],[60,'1 min'],[600,'10 min'],[3600,'1 h'],[86400,'1 d'],[604800,'7 d']].forEach(function(m){if(small&&(m[0]===10||m[0]===600))return;x.fillText(m[1],px(m[0]===0?0:m[0]),yb)});
+  x.textAlign='right';x.fillText('tiempo (escala log)',X0+Wp,yb+12);
+  /* tabla */
+  var h='<thead><tr><th>Momento</th><th>PAM</th><th>GC</th><th>FC</th><th>Pra</th><th>Volumen</th></tr></thead><tbody>';
+  MOM.forEach(function(s){var p=TP[tIdx(s)];h+='<tr><td>'+fmtT(s)+'</td><td class="n">'+Math.round(p.pam)+' mmHg</td><td class="n">'+fmt(p.co,1)+' L/min</td><td class="n">'+Math.round(p.hr)+'</td><td class="n">'+fmt(p.pra,1)+'</td><td class="n">'+fmt(p.bv/1000,2)+' L</td></tr>'});
+  $('tmT').innerHTML=h+'</tbody>';
+  var a=TP[0],b=TP[tIdx(30)],f=TP[tIdx(604800)],sc=curScn(),why='';
+  why='Inmediato: la perturbación mueve la curva de retorno antes de que reaccione ningún reflejo (PAM '+Math.round(a.pam)+', GC '+fmt(a.co,1)+'). A los 30 s: '+(TS.baro?'el barorreflejo ya aumentó el simpático (×'+fmt(b.S,2)+': FC '+Math.round(b.hr)+', tono venoso, resistencia y contractilidad) y la PAM queda en '+Math.round(b.pam)+' mmHg.':'sin barorreflejo no hay compensación en segundos: PAM '+Math.round(b.pam)+' mmHg y FC '+Math.round(b.hr)+'.')+' A los 7 días: '+(TS.slow&&!sc.noRefill?'el volumen vuelve a '+fmt(f.bv/1000,2)+' L, el simpático a ×'+fmt(f.S,2)+' y la PAM a '+Math.round(f.pam)+' mmHg.':(sc.noRefill?'mientras la persona siga de pie la acumulación persiste (el modelo no la resuelve; sentarse la revierte).':'sin sistemas lentos el volumen no se restituye ('+fmt(f.bv/1000,2)+' L).'));
+  if(TS.bain)why+=' Bainbridge activo: añade taquicardia por distensión auricular, de peso pequeño y discutido en humanos.';
+  $('tmW').textContent=why}
+$('scn').onchange=function(){TS.scn=this.value;tdraw()};$('swB').onchange=function(){TS.baro=this.checked;tdraw()};$('swBa').onchange=function(){TS.bain=this.checked;tdraw()};$('swS').onchange=function(){TS.slow=this.checked;tdraw()};
+function workedExample(){
+  var pts=sim4({dv:600},{baro:1,bain:0,slow:1}),a=pts[0],b=pts[tIdx2(pts,30)],d=pts[tIdx2(pts,86400)],f=pts[pts.length-1],e0=E0;
+  var q=[
+   'Se pierden 600 mL. El volumen no estresado casi no cambia, así que se pierde volumen estresado: la Pmsf cae de 7,0 a '+fmt(pmsf4(a.q),1)+' mmHg y la curva de retorno venoso se desplaza a la izquierda. <i>Porque</i> el gradiente (Pmsf − Pra) es lo que empuja la sangre de regreso. La curva cardiaca no se movió.',
+   'Inmediato (sin reflejos aún): el cruce baja por la misma curva de Starling. El GC pasa de '+fmt(e0.co,1)+' a '+fmt(a.co,1)+' L/min, la Pra de '+fmt(e0.pra,1)+' a '+fmt(a.pra,1)+' mmHg y la PAM de '+Math.round(e0.pam)+' a '+Math.round(a.pam)+' mmHg. <i>Porque</i> GC = retorno venoso en equilibrio.',
+   'En segundos (barorreflejo): menos estiramiento en el seno carotídeo y el arco aórtico, menos descarga aferente, más simpático (×'+fmt(b.S,2)+'). La FC sube a '+Math.round(b.hr)+', la venoconstricción desplaza la curva de retorno a la derecha, la contractilidad sube la curva cardiaca y la resistencia sostiene la presión. PAM '+Math.round(b.pam)+' mmHg, GC '+fmt(b.co,1)+' L/min: compensa la presión, no el gasto.',
+   'En minutos a horas: la presión capilar baja y entra líquido intersticial al plasma; el volumen sube a '+fmt(d.bv/1000,2)+' L al cabo de un día. <i>Porque</i> Starling del capilar (B18): menos presión hidrostática, misma oncótica.',
+   'En días: renina–angiotensina–aldosterona, ADH y menor excreción renal de sal y agua devuelven el volumen ('+fmt(f.bv/1000,2)+' L). El simpático regresa a ×'+fmt(f.S,2)+' y el GC a '+fmt(f.co,1)+' L/min. <i>Porque</i> el riñón no se adapta mientras el volumen no esté restituido: es el controlador de largo plazo.'];
+  $('work').innerHTML=q.map(function(t){return '<li><div>'+t+'</div></li>'}).join('')}
+function tIdx2(pts,sec){var b=0,d=1e18;pts.forEach(function(p,i){var dd=Math.abs(Math.log((p.t+.01)/(sec+.01)));if(dd<d){d=dd;b=i}});return b}
+/* ---- retos ---- */
+var bef=null;
+function R(o){setState(Object.assign({},P4_BASE,o))}
+var QS=[
+ {nm:'Mueve el punto de equilibrio · volumen',obj:'Cubre 6.139–6.141 · nivel básico · perilla 1',q:'Infundes 1000 mL de solución a una persona sana (todavía sin respuesta refleja). ¿Qué pasa con el gasto cardiaco y con la presión de la aurícula derecha?',o:['El GC sube y la Pra sube: la curva de retorno se desplaza a la derecha y el cruce sube por la misma curva cardiaca','El GC sube y la Pra baja','El GC no cambia: el corazón ya trabaja a su máximo','El GC baja: el corazón se sobredistiende'],a:0,
+  ap:function(){bef=eq4(P4_BASE);R({bv:6000});curPre=''},e:function(){var a=eq4(S);return 'Pmsf pasa de 7,0 a '+fmt(a.pm,1)+' mmHg. GC '+fmt(bef.co,1)+' → '+fmt(a.co,1)+' L/min ('+pct(a.co,bef.co)+') y Pra '+fmt(bef.pra,1)+' → '+fmt(a.pra,1)+' mmHg. El corazón se movió sobre la misma curva: más llenado, más volumen sistólico ('+Math.round(bef.sv)+' → '+Math.round(a.sv)+' mL).'}},
+ {nm:'Mueve el punto de equilibrio · tono venoso',obj:'Cubre 6.139–6.141 y 6.219–6.232 · nivel intermedio · perillas 1 y 3',q:'El simpático aumenta el tono venoso (×1,5) sin cambiar el volumen total de sangre. ¿Qué espera la curva?',o:['Se reduce el volumen no estresado: sube la Pmsf, la curva de retorno se desplaza a la derecha y el GC y la Pra suben','Nada: sin más volumen no hay más retorno','El GC baja porque las venas pequeñas se cierran','Solo cambia la curva cardiaca'],a:0,
+  ap:function(){bef=eq4(P4_BASE);R({tone:1.5});curPre=''},e:function(){var a=eq4(S);return 'La sangre pasa del reservorio venoso a la circulación efectiva. Pmsf 7,0 → '+fmt(a.pm,1)+' mmHg; GC '+fmt(bef.co,1)+' → '+fmt(a.co,1)+' L/min y Pra '+fmt(bef.pra,1)+' → '+fmt(a.pra,1)+'. Es el mismo efecto que añadir ≈ 800 × 0,5 = 400 mL de volumen estresado.'}},
+ {nm:'Mueve el punto de equilibrio · contractilidad',obj:'Cubre 6.140–6.142 · nivel intermedio · perilla 3 · contraejemplo de «más contractilidad = mucho más gasto»',q:'Un inotrópico sube la contractilidad ×1,5 en una persona sana. ¿Qué pasa en el nuevo equilibrio?',o:['El GC sube mucho (más de 50 %)','El GC sube moderadamente y la Pra baja','El GC no cambia y la Pra sube','El GC baja porque el corazón se vacía más'],a:1,
+  ap:function(){bef=eq4(P4_BASE);R({con:1.5});curPre=''},e:function(){var a=eq4(S);return 'La curva cardiaca sube (meseta ≈ '+fmt(S.hr*svmax4(S)/1000,1)+' L/min), pero el retorno venoso la frena: GC '+fmt(bef.co,1)+' → '+fmt(a.co,1)+' L/min ('+pct(a.co,bef.co)+') y Pra '+fmt(bef.pra,1)+' → '+fmt(a.pra,1)+' mmHg. El corazón expulsa más porque deja menos sangre atrás, no porque reciba mucha más.'}},
+ {nm:'Taquicardia sin más retorno',obj:'Cubre 6.140–6.144 · nivel intermedio · perilla 4',q:'Un marcapasos lleva la frecuencia de 70 a 160 lpm en un corazón normal. ¿Qué pasa con el gasto y el volumen sistólico?',o:['El GC casi se duplica, igual que la frecuencia','El GC cambia poco y el volumen sistólico se reduce a menos de la mitad','El GC baja a la mitad porque no hay llenado','Ambos suben'],a:1,
+  ap:function(){bef=eq4(P4_BASE);R({hr:160});curPre=''},e:function(){var a=eq4(S);return 'GC '+fmt(bef.co,1)+' → '+fmt(a.co,1)+' L/min ('+pct(a.co,bef.co)+'); VS '+Math.round(bef.sv)+' → '+Math.round(a.sv)+' mL. La diástole se acorta, el llenado cae y el retorno venoso no puede subir solo por la frecuencia. A 190 lpm el GC ya baja ('+fmt(eq4(Object.assign({},P4_BASE,{hr:190})).co,1)+' L/min).'}},
+ {nm:'Resistencia: ¿presión o gasto?',obj:'Cubre 6.137 y 6.142 · nivel intermedio · perilla 2',q:'Un vasoconstrictor puro sube la resistencia periférica un 50 %. ¿Qué esperas en el nuevo equilibrio?',o:['El GC sube porque sube la presión','El GC baja algo y la PAM sube cerca de 25 %','El GC no cambia y la PAM sube 50 %','El GC y la PAM bajan'],a:1,
+  ap:function(){bef=eq4(P4_BASE);R({rvs:1.5});curPre=''},e:function(){var a=eq4(S);return 'Más resistencia sube la poscarga (baja la curva cardiaca) y gira la curva de retorno hacia abajo: GC '+fmt(bef.co,1)+' → '+fmt(a.co,1)+' L/min ('+pct(a.co,bef.co)+'), PAM '+Math.round(bef.pam)+' → '+Math.round(a.pam)+' mmHg ('+pct(a.pam,bef.pam)+'). Presión alta no implica gasto alto.'}},
+ {nm:'Apaga el barorreflejo',obj:'Cubre 6.219–6.232 (parcial; ver D2) · nivel intermedio · perilla 5 (control)',q:'Hemorragia de 600 mL. A los 30 s, ¿qué pasa con la PAM si el barorreflejo está apagado, comparado con tenerlo activo?',o:['Prácticamente lo mismo: lo que baja la presión es el volumen','Queda unos 20 mmHg más baja y la frecuencia no sube','Sube más, porque no hay vasodilatación refleja','Queda igual pero el GC es mayor'],a:1,
+  ap:function(){TS.scn='hem';TS.baro=false;TS.slow=true;$('scn').value='hem';$('swB').checked=false;tdraw();bef=sim4({dv:600},{baro:1,bain:0,slow:1});curPre='rep'},e:function(){var on=bef[tIdx2(bef,30)],off=TP[tIdx(30)];return 'A los 30 s: PAM '+Math.round(off.pam)+' mmHg sin reflejo frente a '+Math.round(on.pam)+' con reflejo, GC '+fmt(off.co,1)+' frente a '+fmt(on.co,1)+' L/min y FC '+Math.round(off.hr)+' frente a '+Math.round(on.hr)+'. Mira la sección 3: sin reflejo la recuperación solo llega por los sistemas lentos (horas a días). Vuelve a marcar el barorreflejo para compararlo.'}},
+ {nm:'Volumen en un corazón débil',obj:'Cubre 6.139–6.143 · nivel avanzado · perillas 1 y 3',q:'Corazón con contractilidad ×0,45 (ya con 5800 mL y tono ×1,2). Le añades otros 1000 mL. Comparado con un corazón sano que recibe lo mismo, el aumento de gasto es…',o:['Mayor, porque está más vacío','Igual','Menor, y la presión auricular sube mucho más','Negativo en todos los casos'],a:2,
+  ap:function(){curPre='';R({con:.45,bv:5800,tone:1.2});bef=eq4(S);S.bv=6800;syncCtl();render()},e:function(){var a=eq4(S),h0=eq4(P4_BASE),h1=eq4(Object.assign({},P4_BASE,{bv:6000}));return 'Corazón débil: GC '+fmt(bef.co,1)+' → '+fmt(a.co,1)+' L/min ('+pct(a.co,bef.co)+') pero Pra '+fmt(bef.pra,1)+' → '+fmt(a.pra,1)+' mmHg. Sano con 1000 mL: GC '+fmt(h0.co,1)+' → '+fmt(h1.co,1)+' ('+pct(h1.co,h0.co)+'), Pra '+fmt(h0.pra,1)+' → '+fmt(h1.pra,1)+'. En la parte plana de la curva, el volumen se vuelve presión (congestión) y no gasto.'}}
+];
+var QZ=makeQuiz(QS);
+/* ---- juego ---- */
+var GCL=[{id:'pm+',n:'Pmsf ↑ (volumen o venoconstricción)',mk:function(){return {bv:5000+rnd([800,1200,1600])}}},
+ {id:'pm-',n:'Pmsf ↓ (hemorragia o venodilatación)',mk:function(){return {bv:5000-rnd([600,900,1200])}}},
+ {id:'c+',n:'Contractilidad ↑',mk:function(){return {con:rnd([1.4,1.6,1.8])}}},
+ {id:'c-',n:'Contractilidad ↓ (falla de bomba)',mk:function(){return {con:rnd([.45,.6,.7])}}},
+ {id:'r+',n:'Resistencia periférica ↑',mk:function(){return {rvs:rnd([1.5,1.8,2])}}},
+ {id:'r-',n:'Resistencia periférica ↓',mk:function(){return {rvs:rnd([.45,.55,.65])}}}];
+var gCase=null,gOk=0,gN=0;
+GCL.forEach(function(c){var o=document.createElement('option');o.value=c.id;o.textContent=c.n;$('gSel').appendChild(o)});
+var go=document.createElement('option');go.value='';go.textContent='¿Qué se movió?';$('gSel').insertBefore(go,$('gSel').firstChild);$('gSel').value='';
+function gNew(){var c=rnd(GCL.filter(function(z){return !gCase||z.id!==gCase.id}));gCase={id:c.id,n:c.n,p:Object.assign({},P4_BASE,c.mk())};$('gSel').value='';$('gFb').textContent='';gDraw()}
+function gDraw(){
+  var c=$('gm'),W=cw(c,460),H=W<400?220:250,x=fit(c,W,H);x.clearRect(0,0,W,H);var r={x:40,y:10,w:W-54,h:H-46};
+  var x0=-4,x1=14,y0=0,y1=18;axes(x,r,x0,x1,y0,y1,[-4,0,4,8,12],[0,5,10,15],'Pra (mmHg)','L/min');
+  curveXY(function(v){return coHeart4(P4_BASE,v)},x0,x1,y0,y1,r,x,css('--blood'),1.3,[4,4]);curveXY(function(v){return vr4(P4_BASE,v)},x0,x1,y0,y1,r,x,css('--vec'),1.3,[4,4]);
+  curveXY(function(v){return coHeart4(gCase.p,v)},x0,x1,y0,y1,r,x,css('--blood'),2.6);curveXY(function(v){return vr4(gCase.p,v)},x0,x1,y0,y1,r,x,css('--vec'),2.6);
+  var e=eq4(gCase.p),px=r.x+(e.pra-x0)/(x1-x0)*r.w,py=r.y+r.h-clamp(e.co,0,18)/18*r.h;x.fillStyle=css('--guess');x.beginPath();x.arc(px,py,5,0,7);x.fill()}
+$('gNew').onclick=gNew;
+$('gGo').onclick=function(){var v=$('gSel').value;if(!v){$('gFb').textContent='Elige una opción.';return}gN++;var ok=v===gCase.id;if(ok)gOk++;var e=eq4(gCase.p);
+  $('gFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No: era «'+gCase.n+'».</span> ')+'Resultado: GC '+fmt(e.co,1)+' L/min y Pra '+fmt(e.pra,1)+' mmHg (reposo 5,0 y 2,0).'+(gCase.id==='r+'||gCase.id==='c-'?' Pista: la resistencia alta gira la curva de retorno y baja un poco la cardiaca; la contractilidad baja solo mueve la cardiaca.':'');
+  $('gSc').textContent=gOk+'/'+gN};
+/* ---- caso clínico ---- */
+var CK;
+function cReset(){CK={dbv:0,dtone:0,dcon:0,drvs:0,log:[]};cRender();$('c2Fb').innerHTML='';$('c1Fb').textContent=''}
+function cState(k){var b=Object.assign({},P4_BASE,{bv:3900+k.dbv,tone:1+k.dtone,con:1+k.dcon,rvs:1+k.drvs});var s=steady4(b);return Object.assign({q:s.q,S:s.S},eq4(s.q))}
+function cRender(){var s=cState(CK);
+  $('cData').innerHTML=chip('PAM',Math.round(s.pam)+' mmHg',s.pam>=85?'ok':'no','')+chip('FC',Math.round(s.q.hr)+' lpm',s.q.hr<100?'ok':'no','')+chip('GC',fmt(s.co,1)+' L/min',s.co>=4.5?'ok':'no','')+chip('Pra (≈ PVC)',fmt(s.pra,1)+' mmHg','wn','')+chip('Simpático',' ×'+fmt(s.S,2),'ok','');
+  var goal=s.pam>=85&&s.co>=4.5&&s.q.hr<100;
+  if(CK.log.length)$('c2Fb').innerHTML=CK.log.map(function(l){return '<div>'+l+'</div>'}).join('')+(goal?'<div class="ok"><b>Meta alcanzada</b> (PAM ≥ 85, GC ≥ 4,5 y FC < 100): la causa primaria, el volumen, se corrigió.</div>':'<div class="note">Meta del ejercicio: PAM ≥ 85 mmHg, GC ≥ 4,5 L/min y FC < 100 lpm.</div>')}
+var INT=[
+ {n:'Líquidos IV 1000 mL',f:function(k){k.dbv+=1000},t:'Rellena el reservorio: sube la Pmsf y la curva de retorno vuelve a la derecha. Trata la causa.'},
+ {n:'Transfusión 500 mL (sangrado controlado)',f:function(k){k.dbv+=500},t:'Repone volumen estresado y capacidad de transportar O₂. Suma con otras medidas, no sustituye controlar la fuente.'},
+ {n:'Elevar las piernas',f:function(k){k.dbv+=250},t:'Autotransfusión de unos 250 mL (aprox.) desde las venas de las piernas, efecto breve. Mueve la curva de retorno sin dar líquido.'},
+ {n:'Norepinefrina',f:function(k){k.dtone+=.4;k.drvs+=.35},t:'Subir la presión con tono venoso y resistencia ayuda, pero un volumen bajo sigue limitando el gasto y la perfusión de órganos puede empeorar.'},
+ {n:'Dobutamina',f:function(k){k.dcon+=.4},t:'Sube la curva cardiaca. El problema no está en la bomba: el retorno no acompaña, la Pra baja aún más y la FC sube.'},
+ {n:'Furosemida',f:function(k){k.dbv-=400},t:'Reduce volumen: desplaza el retorno a la izquierda. Indicada en congestión, es lo contrario de lo que pide este paciente.'}];
+INT.forEach(function(it){var b=document.createElement('button');b.className='btn';b.textContent=it.n;b.onclick=function(){var s0=cState(CK);it.f(CK);var s1=cState(CK);CK.log.push('<b>'+it.n+':</b> PAM '+Math.round(s0.pam)+' → '+Math.round(s1.pam)+', GC '+fmt(s0.co,1)+' → '+fmt(s1.co,1)+', Pra '+fmt(s0.pra,1)+' → '+fmt(s1.pra,1)+', FC '+Math.round(s0.q.hr)+' → '+Math.round(s1.q.hr)+'. '+it.t);if(CK.log.length>6)CK.log.shift();cRender()};$('cBtn').appendChild(b)});
+$('cRst').onclick=cReset;
+var C1=[['Se desplazó la curva de retorno venoso hacia la izquierda (menos Pmsf, la presión de llenado de la AD es baja)',true],['Cayó la curva cardiaca (falla de bomba)',false],['Subió la resistencia al retorno sin perder volumen',false]];
+$('c1').innerHTML=C1.map(function(o,i){return '<button class="btn" data-i="'+i+'" style="text-align:left">'+o[0]+'</button>'}).join('');
+$('c1').onclick=function(ev){var b=ev.target.closest('button');if(!b)return;var o=C1[+b.dataset.i],s=cState({dbv:0,dtone:0,dcon:0,drvs:0});
+  $('c1Fb').innerHTML=o[1]?'<span class="ok">Correcto.</span> Pra '+fmt(s.pra,1)+' mmHg y FC '+Math.round(s.q.hr)+' con piel fría y mareo: la presión de llenado baja delata falta de retorno. En una falla de bomba verías Pra alta (≈ 8 mmHg o más en el modelo de insuficiencia).':'<span class="no">No.</span> Con falla de bomba la Pra estaría alta; aquí es '+fmt(s.pra,1)+' mmHg. Una resistencia alta con volumen normal tampoco explica la FC y la piel fría con esta Pra.'};
+/* arranque */
+syncCtl();render();tdraw();workedExample();gNew();cReset();
+redrawAll(function(){draw();drawSF();tdraw();gDraw()});
+window.__dbg={S:S,eq4:eq4,sim4:sim4,steady4:steady4,P4_BASE:P4_BASE,setState:setState,get TP(){return TP},QS:QS,cState:cState,CK:function(){return CK},INT:INT,GCL:GCL,gNew:gNew,get gCase(){return gCase},ctrCompute:ctrCompute,get CT(){return CT}};
+})();
+</script>
+
+</body></html>

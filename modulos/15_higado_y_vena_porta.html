@@ -1,0 +1,353 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Hígado y vena porta</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el pulso venoso como un trazo que se lee por ondas (a, c, v) y descensos (x, y), alineado con el ECG y con el flujo venoso. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+:root{--ven:#2F6DB5;--art:#C0392B;--satl:46%}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ven:#6FA8F0;--art:#F0806F;--satl:62%}}
+:root[data-theme="dark"]{--ven:#6FA8F0;--art:#F0806F;--satl:62%}
+.sec-h{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;justify-content:space-between}
+.lvl{font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
+.case-data{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px}
+.case-data div{border:1px solid var(--line);border-radius:4px;padding:5px 8px;font-size:.85rem}
+.case-data b{display:block;font-family:var(--font-mono);font-weight:600;font-size:.95rem}
+.ver{font-family:var(--font-mono);font-size:.68rem;color:var(--guess);border:1px solid var(--guess);border-radius:3px;padding:0 4px;white-space:nowrap}
+.cmp td.n{white-space:normal}
+.ord{display:flex;flex-direction:column;gap:6px}
+.ord .btn{text-align:left}
+.ord .btn[disabled]{opacity:.45;cursor:default}
+select.wide{width:100%}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo D7 · circulación esplácnica y hepática</div>
+  <h1>Hígado y vena porta</h1>
+  <p class="lede">El hígado recibe sangre por dos puertas (la vena porta y la arteria hepática) y la entrega por una sola salida hacia la cava. Mueve la presión venosa central, la resistencia intrahepática y el tono simpático, y mira dónde se congestiona la sangre y cuándo se forma ascitis.</p>
+  <div class="tags"><span>Unidad 6: 6.256–6.264</span><span>Prioridad N5 · dificultad intermedia (N2)</span><span>Requiere B17 y D2</span><span>Perillas: PVC, resistencia intrahepática, flujo portal, tono simpático</span></div>
+</header>
+
+<section class="panel">
+  <div class="sec-h"><h2>Dos entradas y una salida</h2><span class="lvl">cubre 6.256 (esquema) · 6.259–6.260 (flujo, presiones, ascitis) · tag de cobertura fina: VERIFICAR</span></div>
+  <div class="chips" id="pre"></div>
+  <canvas id="dg" role="img" aria-label="Esquema del hígado con arteria hepática, vena porta, venas hepáticas, colaterales y ascitis"></canvas>
+  <div class="chips" id="read"></div>
+  <p class="why" id="why"></p>
+</section>
+
+<section class="panel">
+  <h2>Controles</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Presión venosa central (PVC): <span class="mono" id="pvcV"></span><input type="range" id="pvc" min="0" max="25" step="0.5" value="3"></label>
+      <label class="ctl" style="flex:none">Resistencia intrahepática (× normal): <span class="mono" id="rihV"></span><input type="range" id="rih" min="0.5" max="6" step="0.1" value="1"></label>
+      <label class="ctl" style="flex:none">Dónde está la resistencia
+        <select id="site" class="wide"><option value="0.5">Mixta (normal)</option><option value="0.15">Antes del sinusoide (presinusoidal: trombosis portal)</option><option value="0.7">En el sinusoide (cirrosis)</option><option value="0.9">Después del sinusoide (venas hepáticas, cava)</option></select></label>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Tono simpático esplácnico: <span class="mono" id="symV"></span><input type="range" id="sym" min="0" max="1" step="0.05" value="0"></label>
+      <label class="ctl" style="flex:none">Hiperemia posprandial (comida): <span class="mono" id="mealV"></span><input type="range" id="meal" min="0" max="1" step="0.05" value="0"></label>
+      <label class="ctl" style="flex:none">Compensación de la arteria hepática: <span class="mono" id="bufV"></span><input type="range" id="buf" min="0" max="1" step="0.05" value="0.4"></label>
+      <div class="row"><label class="lab"><input type="checkbox" id="coll" checked> Pueden abrirse colaterales portosistémicas</label><label class="lab"><input type="checkbox" id="alb"> Albúmina baja</label></div>
+    </div>
+  </div>
+  <p class="note">Control nervioso vs local: el simpático estrecha las arteriolas y las venas esplácnicas (menos flujo, sangre movilizada hacia el centro); tras comer, los metabolitos y las hormonas digestivas dilatan el lecho (más flujo portal). Magnitudes de la compensación arterial y del reservorio: <span class="ver">VERIFICAR</span> con el libro del curso.</p>
+</section>
+
+<section class="cols2">
+  <div class="panel">
+    <h3>Ejemplo trabajado: sube la PVC de 3 a 15 mmHg</h3>
+    <div id="work" class="col" style="gap:6px"></div>
+    <button class="btn" id="wApply">Aplicar este ejemplo al modelo</button>
+  </div>
+  <div class="panel">
+    <h3>Circulación enterohepática</h3>
+    <p class="note">Las sales biliares se reabsorben en el íleon, vuelven al hígado por la vena porta y se secretan otra vez.</p>
+    <label class="ctl" style="flex:none">Reabsorción ileal: <span class="mono" id="reaV"></span><input type="range" id="rea" min="50" max="99" step="0.5" value="97.5"></label>
+    <label class="ctl" style="flex:none">Ciclos por día: <span class="mono" id="cicV"></span><input type="range" id="cic" min="4" max="12" step="1" value="6"></label>
+    <div class="chips" id="ehr"></div>
+    <p class="why" id="ehrW"></p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <label class="lab">Confianza: <select id="qConf"><option value="media">media</option><option value="alta">alta</option><option value="baja">baja</option></select></label>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Juego: Detective portal</h3>
+      <p class="note">Estos son los números de un paciente. Deduce qué perilla está alterada.</p>
+      <div class="chips" id="gChips"></div>
+      <select id="gSel" aria-label="Causa"><option value="">¿Qué le pasa?</option></select>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><button class="btn" id="gNew">Nuevo paciente</button></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Contraejemplo: la misma presión portal, otro sitio de la obstrucción</h2>
+  <p class="note">Resistencia intrahepática × 4, con colaterales. Solo cambia dónde se concentra la resistencia. Tipo de ejemplo: casi igual pero distinto.</p>
+  <div class="tw"><table class="cmp" id="cx"></table></div>
+  <p class="why" id="cxW"></p>
+</section>
+
+<section class="panel">
+  <div class="sec-h"><h2>Caso clínico de cierre</h2><span class="lvl">integra 6.259–6.260 · C27</span></div>
+  <div id="case" class="col"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"La ascitis siempre indica cirrosis": la insuficiencia derecha y la pericarditis constrictiva suben la PVC y la presión sinusoidal, y también producen ascitis.</li>
+    <li>"El hígado recibe sobre todo sangre arterial": en reposo cerca de tres cuartas partes del flujo llegan por la porta (VERIFICAR el porcentaje con el libro).</li>
+    <li>"Si baja el flujo portal, el hígado se queda sin sangre": la arteria hepática compensa en parte (VERIFICAR).</li>
+    <li>"El simpático solo cierra arteriolas": en el lecho esplácnico también estrecha las venas y moviliza sangre hacia el corazón.</li>
+    <li>"Presión portal alta es lo mismo que PVC alta": la porta sube también por resistencia intrahepática con PVC normal.</li>
+    <li>"Las colaterales son una complicación inútil": descomprimen la porta, a costa de varices y de sangre que evita al hígado.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>El flujo que sale del lecho esplácnico es una entrada (975 mL/min en reposo), reducida por el simpático y subida por la comida; baja un poco si sube la presión portal.</li>
+    <li>La resistencia intrahepática es lineal; el sitio de la resistencia solo reparte la caída de presión entre la porta y la vena hepática.</li>
+    <li>Las colaterales se abren de forma lineal cuando el gradiente porta–cava supera 10 mmHg (valor didáctico, VERIFICAR).</li>
+    <li>La ascitis suma filtración sinusoidal (sin barrera oncótica, líquido rico en proteína) y filtración del capilar intestinal; la capacidad linfática es un tope fijo. En la cirrosis real intervienen además vasodilatación esplácnica y retención renal de sodio, que no se modelan.</li>
+    <li>El volumen hepático y el reservorio dependen de la PVC y del simpático con pendientes ilustrativas.</li>
+    <li>No hay dinámica temporal: los L/día suponen que la situación se mantiene.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.256–6.264). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro del curso.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,mx){return Math.max(260,Math.min(mx||940,Math.floor(c.parentElement.clientWidth-2)))}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function mkQuiz(QS,redraw){
+  var qi=0;
+  function show(){var q=QS[qi];$('qText').textContent='Reto '+(qi+1)+' de '+QS.length+(q.name?' · «'+q.name+'»':'')+'. '+q.q;
+    $('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> '+t+'</label>'}).join('');$('qFb').textContent=''}
+  $('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+    var q=QS[qi],ok=+r.value===q.a,conf=$('qConf').value;q.ap();
+    var cal=ok?(conf==='alta'?' Buena calibración: confianza alta y acierto.':conf==='baja'?' Acertaste con confianza baja: confía un poco más en tu razonamiento.':''):(conf==='alta'?' Ojo: confianza alta y fallo; revisa la cadena causal paso a paso.':'');
+    $('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> La respuesta es: <b>'+q.o[q.a]+'</b>. ')+q.e()+cal+' Mira el modelo arriba: ya aplicó el cambio.';if(redraw)redraw()};
+  $('qNext').onclick=function(){qi=(qi+1)%QS.length;show()};
+  show()}
+function mkCase(C){
+  var si=0,root=$('case');
+  function render(){
+    var s=C.steps[si];
+    var h='<p>'+C.intro+'</p><div class="case-data">'+C.data.map(function(d){return '<div>'+d[0]+'<b>'+d[1]+'</b></div>'}).join('')+'</div>';
+    if(C.load)h+='<div class="row"><button class="btn" id="cLoad">'+C.loadTxt+'</button></div>';
+    h+='<h3>Decisión '+(si+1)+' de '+C.steps.length+'</h3><fieldset style="flex-direction:column"><legend>'+s.q+'</legend>'+s.opts.map(function(o,k){return '<label class="opt"><input type="radio" name="co" value="'+k+'"> '+o.t+'</label>'}).join('')+'</fieldset><div class="row"><button class="btn primary" id="cGo">Decidir</button><button class="btn" id="cNx" hidden>'+(si<C.steps.length-1?'Siguiente decisión':'Ver cierre')+'</button></div><p class="fb" id="cFb" aria-live="polite"></p>';
+    root.innerHTML=h;
+    if(C.load)$('cLoad').onclick=C.load;
+    $('cGo').onclick=function(){var r=root.querySelector('input[name=co]:checked');if(!r){$('cFb').textContent='Elige una opción.';return}var o=s.opts[+r.value];$('cFb').innerHTML=(o.ok?'<span class="ok">Bien razonado.</span> ':'<span class="no">Revisa este paso.</span> ')+(typeof o.fb==='function'?o.fb():o.fb);if(o.ok){$('cNx').hidden=false}};
+    $('cNx').onclick=function(){if(si<C.steps.length-1){si++;render()}else{root.innerHTML='<div class="why">'+C.end+'</div><div class="row"><button class="btn" id="cRe">Repetir el caso</button></div>';$('cRe').onclick=function(){si=0;render()}}}}
+  render()}
+
+var KG=60,KF=.6,LMAX=9;
+function hep(o){
+  var Phv=o.pvc,Qg0=975*(1+.6*o.meal)*(1-.45*o.sym),Rih=(6.5/975)*o.rih,G=1/Rih,Ppv=Phv+6.5,dP=6.5,qg=Qg0,i;
+  for(i=0;i<40;i++){qg=Qg0*Math.max((93-Ppv)/(93-9.5),.2);dP=qg/G;if(o.coll&&dP>10)dP=(qg+KG*10)/(G+KG);Ppv=Phv+dP}
+  var Qph=dP*G,Qcol=Math.max(qg-Qph,0);
+  var Qha=clamp((325+o.buf*(975-Qph))*(1-.3*o.sym),120,800);
+  var Qh=Qph+Qha,Psin=Phv+o.site*dP;
+  var sin=KF*Math.max(Psin-2,0),gut=.15*Math.max(Ppv-12,0)*(o.alb?2:1),filt=sin+gut,lymph=Math.min(filt,LMAX),asc=Math.max(filt-LMAX,0);
+  var Vh=(450+30*(o.pvc-3)+8*(dP-6.5))*(1-.3*o.sym);
+  return {Ppv:Ppv,Phv:Phv,Psin:Psin,dP:dP,Qg:qg,Qph:Qph,Qha:Qha,Qh:Qh,Qcol:Qcol,pct:Qh/50,fp:Qph/Qh,filt:filt,lymph:lymph,asc:asc*1.44,Vh:Vh,mob:375*o.sym}}
+var PRES=[
+ {id:'n',n:'Normal',o:{pvc:3,rih:1,site:.5,sym:0,meal:0,alb:false,coll:true,buf:.4},w:'En reposo el hígado recibe cerca de 1300 mL/min (≈ 26 % del gasto): unos tres cuartos por la porta (presión ≈ 9–10 mmHg) y el resto por la arteria hepática. La presión cae en el sinusoide y llega a la cava casi en cero a 5 mmHg.'},
+ {id:'rv',n:'PVC alta (insuficiencia derecha, constricción)',o:{pvc:15},w:'La presión de la cava se transmite hacia atrás por las venas hepáticas hasta los sinusoides. El hígado se congestiona y, como el sinusoide casi no retiene proteína, se filtra líquido rico en proteína hacia el peritoneo.'},
+ {id:'cir',n:'Cirrosis (resistencia en el sinusoide)',o:{rih:4.5,site:.7,alb:true},w:'Al subir la resistencia dentro del hígado, la presión portal sube; se abren colaterales que desvían sangre de la porta a la cava (varices), cae el flujo portal hepático y la arteria hepática compensa en parte. Con albúmina baja, el capilar intestinal también filtra.'},
+ {id:'tp',n:'Trombosis portal (resistencia antes del sinusoide)',o:{rih:4.5,site:.15},w:'La obstrucción está antes del sinusoide: la porta sube, pero el sinusoide está protegido y la presión sinusoidal casi no cambia. Hay colaterales y varices, sin ascitis marcada.'},
+ {id:'bc',n:'Obstrucción de venas hepáticas (después del sinusoide)',o:{rih:4,site:.9},w:'Con la salida bloqueada, la presión se acumula en el sinusoide aunque la PVC sea normal: congestión y ascitis con la porta alta.'},
+ {id:'hem',n:'Hemorragia o ejercicio (simpático)',o:{sym:.8},w:'El simpático estrecha arteriolas y venas del lecho esplácnico: cae el flujo portal, el hígado y el intestino devuelven sangre a la circulación central (reservorio) y la PAM se defiende.'},
+ {id:'com',n:'Después de comer (hiperemia)',o:{meal:1},w:'Los metabolitos y las hormonas digestivas dilatan el lecho intestinal: sube el flujo portal (≈ +60 % en el modelo) y la presión portal sube solo un poco.'}];
+var BASE=PRES[0].o,S=Object.assign({},BASE);
+function stateOf(p){return Object.assign({},BASE,p.o)}
+function curW(){return PRES.filter(function(p){var t=stateOf(p);return Object.keys(t).every(function(q){return t[q]===S[q]||q==='buf'})})[0]}
+var D=null;
+function arrow(x,x1,y1,x2,y2,w,col,dash){x.strokeStyle=col;x.fillStyle=col;x.lineWidth=w;x.setLineDash(dash||[]);x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();x.setLineDash([]);var a=Math.atan2(y2-y1,x2-x1),h=6+w*.8;x.beginPath();x.moveTo(x2,y2);x.lineTo(x2-h*Math.cos(a-.45),y2-h*Math.sin(a-.45));x.lineTo(x2-h*Math.cos(a+.45),y2-h*Math.sin(a+.45));x.closePath();x.fill()}
+function box(x,bx,by,bw,bh,txt,fill,stroke){x.fillStyle=fill;x.strokeStyle=stroke;x.lineWidth=1.5;x.beginPath();x.rect(bx,by,bw,bh);x.fill();x.stroke();x.fillStyle=css('--fg');x.textAlign='center';x.textBaseline='middle';var ls=txt.split('\n');ls.forEach(function(l,i){x.fillText(l,bx+bw/2,by+bh/2+(i-(ls.length-1)/2)*13)})}
+function draw(){
+  var c=$('dg'),W=cw(c,940);if(!D)return;var sm=W<520,H=sm?330:350,x=fit(c,W,H),d=D;x.clearRect(0,0,W,H);
+  var f1='600 '+(sm?10:11.5)+'px '+css('--font-body'),fm='600 '+(sm?10:11)+'px '+css('--font-mono');
+  x.font=f1;
+  var bw=sm?72:100,bh=40,ao={x:2,y:10},gt={x:2,y:H-124},lv={x:W*.36,y:34,w:W*.28,h:H-130},cv={x:W-bw-2,y:H*.36};
+  var cong=clamp((d.Vh-450)/450,0,1);
+  x.fillStyle=css('--bloodSoft');x.globalAlpha=.35+.65*cong;x.fillRect(lv.x,lv.y,lv.w,lv.h);x.globalAlpha=1;x.strokeStyle=css('--blood');x.lineWidth=2;x.strokeRect(lv.x,lv.y,lv.w,lv.h);
+  x.fillStyle=css('--fg');x.textAlign='center';x.textBaseline='top';x.font='700 '+(sm?12:14)+'px '+css('--font-display');x.fillText('HÍGADO',lv.x+lv.w/2,lv.y+6);
+  x.font=fm;x.fillText('sinusoide',lv.x+lv.w/2,lv.y+26);x.fillText(fmt(d.Psin,1)+' mmHg',lv.x+lv.w/2,lv.y+40);x.fillText(Math.round(d.Vh)+' mL',lv.x+lv.w/2,lv.y+54);
+  x.font=f1;
+  box(x,ao.x,ao.y,bw,bh,'Aorta\nPAM 93',css('--panel'),css('--blood'));
+  box(x,gt.x,gt.y,bw,bh+14,'Intestino\ny bazo\n(reservorio)',css('--panel'),css('--vec'));
+  box(x,cv.x,cv.y,bw,bh+10,'Cava / AD\nPVC '+fmt(S.pvc,1),css('--panel'),css('--ven'));
+  var wA=2+d.Qha/160,wP=2+d.Qph/110;
+  arrow(x,ao.x+bw,ao.y+bh/2,lv.x,lv.y+70,wA,css('--blood'));
+  x.font=fm;x.fillStyle=css('--blood');x.textAlign='left';x.textBaseline='top';x.fillText('A. hepática',ao.x,ao.y+bh+6);x.fillText(Math.round(d.Qha)+' mL/min',ao.x,ao.y+bh+19);
+  arrow(x,gt.x+bw,gt.y+(bh+14)/2,lv.x,lv.y+lv.h-60,wP,css('--vec'));
+  x.fillStyle=css('--vec');x.textAlign='left';x.textBaseline='top';x.fillText('V. porta '+Math.round(d.Qph)+' mL/min',gt.x,gt.y+bh+18);x.fillText(fmt(d.Ppv,1)+' mmHg',gt.x,gt.y+bh+31);
+  arrow(x,lv.x+lv.w,lv.y+lv.h/2,cv.x,cv.y+(bh+10)/2,2+d.Qh/200,css('--ven'));
+  x.fillStyle=css('--ven');x.textAlign='center';x.textBaseline='bottom';x.fillText(fmt(d.Phv,1)+' mmHg',lv.x+lv.w/2,lv.y+lv.h-30);x.fillText(Math.round(d.Qh)+' mL/min',lv.x+lv.w/2,lv.y+lv.h-17);x.fillText('V. hepáticas',lv.x+lv.w/2,lv.y+lv.h-4);
+  if(d.Qcol>5){x.strokeStyle=css('--guess');x.fillStyle=css('--guess');x.lineWidth=2+d.Qcol/150;x.setLineDash([6,4]);x.beginPath();x.moveTo(gt.x+bw/2,gt.y+bh+14);x.bezierCurveTo(gt.x+bw/2,H+10,cv.x+bw/2,H+10,cv.x+bw/2,cv.y+bh+10);x.stroke();x.setLineDash([]);
+    x.font=fm;x.textAlign='center';x.textBaseline='bottom';x.fillText('colaterales '+Math.round(d.Qcol)+' mL/min',W/2,H-10)}
+  if(d.asc>0.01){x.fillStyle=css('--ven');x.globalAlpha=.25;x.fillRect(lv.x-6,lv.y+lv.h+4,lv.w+12,12);x.globalAlpha=1;x.font=fm;x.fillStyle=css('--ven');x.textAlign='center';x.textBaseline='top';x.fillText('ascitis ≈ '+fmt(d.asc,1)+' L/día',lv.x+lv.w/2,lv.y+lv.h+18)}
+}
+function read(){
+  var d=D;
+  $('read').innerHTML=chip('Flujo hepático',Math.round(d.Qh)+' mL/min',d.pct>15&&d.pct<35?'ok':'wn',fmt(d.pct,0)+' % del GC')+chip('Porta / arteria',Math.round(d.Qph)+' / '+Math.round(d.Qha),'ok',fmt(d.fp*100,0)+' % portal')+chip('P. porta',fmt(d.Ppv,1)+' mmHg',d.Ppv<12?'ok':'no',d.Ppv<12?'normal 9–10':'alta')+chip('Gradiente porta–cava',fmt(d.dP,1)+' mmHg',d.dP<8?'ok':'no')+chip('P. sinusoide / v. hepáticas',fmt(d.Psin,1)+' / '+fmt(d.Phv,1),d.Psin<10?'ok':'wn')+chip('Colaterales',Math.round(d.Qcol)+' mL/min',d.Qcol<5?'ok':'wn')+chip('Ascitis (si persiste)',fmt(d.asc,1)+' L/día',d.asc<.05?'ok':'no',d.asc<.05?'no se acumula':'rica en proteína por sinusoide')+chip('Volumen hepático',Math.round(d.Vh)+' mL',d.Vh<520?'ok':'wn')+chip('Reservorio movilizado',Math.round(d.mob)+' mL',d.mob<20?'ok':'wn','hacia el centro');
+  var k=curW();$('why').textContent=(k?k.n+': '+k.w:'Combinación libre de perillas. Mira cuál de las presiones cambió y por qué: la porta depende del flujo y de la resistencia; la sinusoidal, además, de la PVC y del sitio de la resistencia.');
+  $('pvcV').textContent=fmt(S.pvc,1)+' mmHg';$('rihV').textContent='× '+fmt(S.rih,1);$('symV').textContent=fmt(S.sym,2);$('mealV').textContent=fmt(S.meal,2);$('bufV').textContent=fmt(S.buf,2);
+  document.querySelectorAll('#pre .btn').forEach(function(b){b.setAttribute('aria-pressed',k&&k.id===b.dataset.k?'true':'false')});
+}
+function sync(){$('pvc').value=S.pvc;$('rih').value=S.rih;$('site').value=String(S.site);$('sym').value=S.sym;$('meal').value=S.meal;$('buf').value=S.buf;$('coll').checked=S.coll;$('alb').checked=S.alb}
+function render(){D=hep(S);read();draw()}
+function setPre(id){S=stateOf(PRES.filter(function(p){return p.id===id})[0]);sync();render()}
+PRES.forEach(function(p){var b=document.createElement('button');b.className='btn';b.dataset.k=p.id;b.textContent=p.n;b.setAttribute('aria-pressed','false');b.onclick=function(){setPre(p.id)};$('pre').appendChild(b)});
+['pvc','rih','sym','meal','buf'].forEach(function(a){$(a).oninput=function(){S[a]=+this.value;render()}});
+$('site').onchange=function(){S.site=+this.value;render()};$('coll').onchange=function(){S.coll=this.checked;render()};$('alb').onchange=function(){S.alb=this.checked;render()};
+function work(){
+  var a=hep(stateOf(PRES[0])),b=hep(stateOf(PRES[1]));
+  var st=[['La PVC pasa de 3 a 15 mmHg','porque el corazón derecho no vacía la cava'],['La presión de las venas hepáticas pasa de '+fmt(a.Phv,1)+' a '+fmt(b.Phv,1)+' mmHg','porque la cava es su salida'],['La presión del sinusoide pasa de '+fmt(a.Psin,1)+' a '+fmt(b.Psin,1)+' mmHg y la de la porta de '+fmt(a.Ppv,1)+' a '+fmt(b.Ppv,1),'porque el gradiente porta–cava ('+fmt(b.dP,1)+' mmHg) se apila sobre la nueva presión de salida'],['El volumen hepático sube de '+Math.round(a.Vh)+' a '+Math.round(b.Vh)+' mL','porque venas y sinusoides son compliantes: congestión hepática'],['La filtración sinusoidal supera la capacidad linfática: ascitis ≈ '+fmt(b.asc,1)+' L/día','porque el sinusoide casi no retiene proteína (σ≈0) y el líquido es rico en proteína']];
+  $('work').innerHTML=st.map(function(s,i){return '<div class="why"><b>'+(i+1)+'.</b> '+s[0]+' <i>porque '+s[1].replace(/^porque /,'')+'.</i></div>'}).join('')}
+$('wApply').onclick=function(){setPre('rv')};
+function ehr(){var r=+$('rea').value/100,n=+$('cic').value,P0=3.5,Smax=3,loss0=(1-r)*P0*n,P=loss0>Smax?Smax/((1-r)*n):P0,flux=P*n,loss=(1-r)*flux;
+  $('reaV').textContent=fmt(r*100,1)+' %';$('cicV').textContent=n;
+  $('ehr').innerHTML=chip('Reserva circulante',fmt(P,1)+' g',P>3?'ok':'no')+chip('Flujo por la porta',fmt(flux,0)+' g/día','ok')+chip('Pérdida fecal',fmt(loss,1)+' g/día',loss<1?'ok':'wn')+chip('Síntesis necesaria',fmt(loss,1)+' g/día',loss<Smax-.01?'ok':'no',loss<Smax-.01?'dentro de la capacidad':'al tope');
+  $('ehrW').textContent=P>3?'Con reabsorción alta la reserva (≈ 3–4 g, VERIFICAR) se recicla varias veces al día y el hígado solo repone una pérdida fecal pequeña.':'Si el íleon falla (resección, enfermedad), la pérdida supera la capacidad de síntesis y la reserva cae: menos sales biliares para absorber grasas. El reciclaje por la porta ahorra síntesis.'}
+$('rea').oninput=ehr;$('cic').oninput=ehr;
+var QS=[
+ {name:'Sube la PVC: ¿qué se congestiona?',q:'La PVC sube de 3 a 15 mmHg por insuficiencia cardiaca derecha. ¿Qué ocurre en el hígado?',o:['Se congestionan las venas hepáticas y los sinusoides; puede aparecer ascitis rica en proteína','Cae el flujo arterial hepático y el hígado se encoge','Solo sube la presión en la arteria hepática, sin cambios en la porta'],a:0,ap:function(){setPre('rv')},e:function(){var a=hep(stateOf(PRES[0])),b=D;return 'La presión sinusoidal pasa de '+fmt(a.Psin,1)+' a '+fmt(b.Psin,1)+' mmHg, la porta de '+fmt(a.Ppv,1)+' a '+fmt(b.Ppv,1)+', el volumen hepático de '+Math.round(a.Vh)+' a '+Math.round(b.Vh)+' mL y la ascitis ≈ '+fmt(b.asc,1)+' L/día. La causa es la presión de salida, no el flujo arterial.'}},
+ {q:'Hay una hemorragia y el simpático esplácnico llega a 0,8. ¿Qué hace el lecho esplácnico?',o:['Menos flujo portal y devuelve sangre al centro (reservorio)','Más flujo portal para nutrir al hígado','No cambia: el simpático no actúa en el lecho esplácnico'],a:0,ap:function(){setPre('hem')},e:function(){var b=D;return 'El flujo portal baja a '+Math.round(b.Qph)+' mL/min (normal 975), la arteria hepática queda en '+Math.round(b.Qha)+' y se movilizan ≈ '+Math.round(b.mob)+' mL hacia la circulación central. El simpático constriñe arteriolas (menos flujo) y venas (menos volumen almacenado).'}},
+ {q:'Cirrosis: la resistencia intrahepática se multiplica por 4,5 (con colaterales y albúmina baja). ¿Qué pasa con la presión portal y con el flujo portal que realmente atraviesa el hígado?',o:['La presión portal sube mucho, parte de la sangre se desvía por colaterales y el flujo portal hepático cae','La presión portal baja porque el hígado resiste menos','La presión portal sube y todo el flujo sigue pasando por el hígado'],a:0,ap:function(){setPre('cir')},e:function(){var b=D;return 'La porta sube a '+fmt(b.Ppv,1)+' mmHg (gradiente '+fmt(b.dP,1)+'), '+Math.round(b.Qcol)+' mL/min se van por colaterales, el flujo portal hepático queda en '+Math.round(b.Qph)+' mL/min y la arteria hepática sube a '+Math.round(b.Qha)+' (compensación parcial, VERIFICAR).'}},
+ {q:'Después de una comida abundante, ¿qué pasa con el flujo y la presión de la vena porta?',o:['Sube el flujo portal y la presión sube solo un poco','Baja el flujo portal porque el intestino consume sangre','Sube mucho la presión portal por cierre sinusoidal'],a:0,ap:function(){setPre('com')},e:function(){var b=D;return 'Los metabolitos y las hormonas digestivas dilatan el lecho: el flujo portal pasa a '+Math.round(b.Qph)+' mL/min y la porta a '+fmt(b.Ppv,1)+' mmHg (+'+fmt(b.Ppv-9.5,1)+'). La arteria hepática baja a '+Math.round(b.Qha)+' mL/min: compensación recíproca.'}},
+ {q:'Trombosis de la vena porta (obstrucción antes del sinusoide) con la misma resistencia ×4,5. ¿Se forma ascitis rica en proteína por el sinusoide?',o:['No de forma marcada: la presión sinusoidal casi no sube','Sí, igual que en la insuficiencia derecha','Sí, porque la porta alta siempre eleva el sinusoide'],a:0,ap:function(){setPre('tp')},e:function(){var b=D;return 'La porta llega a '+fmt(b.Ppv,1)+' mmHg, pero el sinusoide queda en '+fmt(b.Psin,1)+' mmHg y la ascitis en '+fmt(b.asc,1)+' L/día. Importa dónde se apila la presión, no solo su valor en la porta.'}}];
+mkQuiz(QS,function(){});
+function cx(){var A=hep(Object.assign(stateOf(PRES[0]),{rih:4,site:.15,coll:true})),B=hep(Object.assign(stateOf(PRES[0]),{rih:4,site:.9,coll:true}));
+  function r(l,a,b){return '<tr><td>'+l+'</td><td class="n">'+a+'</td><td class="n">'+b+'</td></tr>'}
+  $('cx').innerHTML='<thead><tr><th>Medida</th><th>Resistencia antes del sinusoide</th><th>Resistencia después del sinusoide</th></tr></thead><tbody>'+r('Presión portal (mmHg)',fmt(A.Ppv,1),fmt(B.Ppv,1))+r('Presión sinusoidal (mmHg)',fmt(A.Psin,1),fmt(B.Psin,1))+r('Presión de venas hepáticas (mmHg)',fmt(A.Phv,1),fmt(B.Phv,1))+r('Volumen hepático (mL)',Math.round(A.Vh),Math.round(B.Vh))+r('Ascitis (L/día si persiste)',fmt(A.asc,1),fmt(B.asc,1))+'</tbody>';
+  $('cxW').textContent='La porta es idéntica ('+fmt(A.Ppv,1)+' mmHg), pero el sinusoide está a '+fmt(A.Psin,1)+' mmHg en un caso y a '+fmt(B.Psin,1)+' en el otro. La filtración sinusoidal sigue a la presión del sinusoide.'}
+var gcur=null;
+PRES.forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.n;$('gSel').appendChild(o)});
+function newG(){var pool=PRES.filter(function(p){return p!==gcur});gcur=pool[Math.floor(Math.random()*pool.length)];var d=hep(stateOf(gcur));
+  $('gChips').innerHTML=chip('P. porta',fmt(d.Ppv,1),'wn')+chip('P. v. hepáticas',fmt(d.Phv,1),'wn')+chip('Flujo portal',Math.round(d.Qph),'wn')+chip('A. hepática',Math.round(d.Qha),'wn')+chip('Colaterales',Math.round(d.Qcol),'wn')+chip('Ascitis L/día',fmt(d.asc,1),'wn')+chip('Reservorio mov.',Math.round(d.mob)+' mL','wn')+chip('P. sinusoide',fmt(d.Psin,1),'wn');$('gSel').value='';$('gFb').textContent=''}
+$('gNew').onclick=newG;$('gGo').onclick=function(){var v=$('gSel').value;if(!v){$('gFb').textContent='Elige una causa.';return}
+  if(v===gcur.id)$('gFb').innerHTML='<span class="ok">Correcto.</span> '+gcur.w;else $('gFb').innerHTML='<span class="no">No.</span> Pista: compara la presión de las venas hepáticas con la de la porta y mira si hay colaterales. Era: <b>'+gcur.n+'</b>. '+gcur.w};
+mkCase({intro:'Mujer de 64 años con estenosis mitral antigua y corazón derecho claudicante: disnea, hígado doloroso y abdomen distendido.',
+ data:[['PVC estimada','16 mmHg'],['Hígado','3 cm bajo el reborde, doloroso'],['Ascitis','sí; proteína alta (≈ 3 g/dL, VERIFICAR)'],['Albúmina sérica','3,8 g/dL'],['Edema','tobillos +']],
+ loadTxt:'Cargar PVC 16 en el modelo',load:function(){S=stateOf(PRES[0]);S.pvc=16;sync();render()},
+ steps:[{q:'¿Qué perilla del modelo explica el cuadro?',opts:[{t:'PVC alta que se transmite hacia atrás hasta los sinusoides',ok:true,fb:function(){return 'Con PVC 16 el modelo da presión sinusoidal '+fmt(hep(Object.assign(stateOf(PRES[0]),{pvc:16})).Psin,1)+' mmHg, hígado congestionado y ascitis.'}},{t:'Resistencia intrahepática alta por cirrosis',ok:false,fb:'En la cirrosis la porta sube, pero la PVC sería normal; aquí la PVC está alta y el hígado está agrandado y doloroso.'},{t:'Flujo portal bajo por el simpático',ok:false,fb:'El simpático baja el flujo y la presión portal; no congestiona ni forma ascitis.'}]},
+  {q:'¿Por qué el líquido ascítico tiene proteína alta?',opts:[{t:'El sinusoide es muy permeable y casi no retiene proteína',ok:true,fb:'Con σ≈0 la presión oncótica no frena la filtración sinusoidal: pasa plasma casi completo.'},{t:'Porque la albúmina sérica está muy baja',ok:false,fb:'Aquí la albúmina es 3,8 g/dL, casi normal; la proteína alta se debe a la permeabilidad del sinusoide.'},{t:'Porque la linfa hepática no drena',ok:false,fb:'La linfa drena de más; la ascitis aparece cuando se supera su capacidad.'}]},
+  {q:'El tratamiento baja la PVC a 6 mmHg. ¿Qué esperas en el hígado?',opts:[{t:'Baja la presión sinusoidal, se descongestiona y cede la ascitis',ok:true,fb:function(){var b=hep(Object.assign(stateOf(PRES[0]),{pvc:6}));return 'Con PVC 6 el modelo da sinusoide '+fmt(b.Psin,1)+' mmHg, volumen '+Math.round(b.Vh)+' mL y ascitis '+fmt(b.asc,1)+' L/día.'}},{t:'La porta sigue igual de alta porque el hígado tiene daño permanente',ok:false,fb:'Aquí la elevación portal es secundaria a la PVC; al bajarla, baja la porta.'},{t:'El flujo de la arteria hepática debe subir mucho',ok:false,fb:'La arteria hepática solo compensa cambios del flujo portal, no de la PVC.'}]}],
+ end:'Cadena causal del caso: corazón derecho → PVC alta → presión de venas hepáticas y sinusoides alta → congestión y filtración sinusoidal rica en proteína → ascitis. Educativo; no sustituye el juicio clínico.'});
+sync();render();work();ehr();cx();newG();
+var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(draw,100)});
+window.__dbg={hep:hep,PRES:PRES,stateOf:stateOf,set:function(p){S=Object.assign({},BASE,p);sync();render()}};
+
+})();
+</script>
+
+</body></html>

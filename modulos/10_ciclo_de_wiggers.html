@@ -1,0 +1,402 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ciclo de Wiggers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el gráfico de Wiggers como una partitura: ECG, fases, presiones, volumen y ruidos alineados en un mismo eje de tiempo, con un cursor que lee el instante. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B1 · ciclo cardiaco integrado</div>
+  <h1>Ciclo de Wiggers</h1>
+  <p class="lede">ECG, presiones, volumen ventricular, ruidos y pulso venoso en un solo gráfico, para el corazón izquierdo y el derecho. Mueve el cursor, cambia la frecuencia o la precarga y mira qué válvula cambia y por qué.</p>
+  <div class="tags"><span>Unidad 6: 6.119–6.138 (con B3)</span><span>Acople ECG–hemodinamia: capa L7</span><span>Nivel N1–N2</span></div>
+</header>
+
+<section class="panel">
+  <h2>Gráfico integrado</h2>
+  <div class="row">
+    <div class="seg" role="group" aria-label="Lado"><button class="btn" id="sdL" aria-pressed="true">Corazón izquierdo</button><button class="btn" id="sdR" aria-pressed="false">Corazón derecho</button></div>
+    <label class="lab"><input type="checkbox" id="lbl" checked> Mostrar etiquetas de eventos</label>
+  </div>
+  <canvas id="wg" role="img" aria-label="Gráfico de Wiggers con ECG, fases, presiones, pulso venoso, volumen y ruidos"></canvas>
+  <label class="ctl" style="flex:none">Cursor (tiempo desde el inicio de la onda P): <span class="mono" id="tV"></span><input type="range" id="tc" min="0" max="1000" step="1" value="380"></label>
+  <div class="chips" id="cur"></div>
+  <div class="chips" id="legend" style="font-size:.8rem"></div>
+</section>
+
+<section class="panel">
+  <h2>Controles</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Frecuencia cardiaca: <span class="mono" id="hrV"></span><input type="range" id="hr" min="40" max="160" step="5" value="70"></label>
+      <label class="ctl" style="flex:none">Intervalo PR: <span class="mono" id="prV"></span><input type="range" id="pr" min="100" max="300" step="10" value="160"></label>
+      <label class="ctl" style="flex:none">Contractilidad: <span class="mono" id="conV"></span><input type="range" id="con" min="50" max="200" step="5" value="100"></label>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Precarga (presión venosa de entrada): <span class="mono" id="preV"></span><input type="range" id="pre" min="5" max="22" step="1" value="12"></label>
+      <label class="ctl" style="flex:none">Poscarga (resistencia sistémica): <span class="mono" id="aftV"></span><input type="range" id="aft" min="50" max="250" step="5" value="100"></label>
+      <label class="ctl" style="flex:none">Rigidez ventricular: <span class="mono" id="stV"></span><input type="range" id="stf" min="100" max="400" step="10" value="100"></label>
+    </div>
+  </div>
+  <div class="row">
+    <label class="lab"><input type="checkbox" id="fa"> Sin contracción auricular (fibrilación auricular)</label>
+    <label class="lab"><input type="checkbox" id="insp"> Inspiración</label>
+    <button class="btn" id="reset">Valores de reposo</button>
+  </div>
+  <div class="chips" id="met"></div>
+  <p class="why" id="why"></p>
+  <div class="tw"><table id="evT"><thead><tr><th>Evento</th><th>Tiempo</th><th>Respecto al ECG</th></tr></thead><tbody></tbody></table></div>
+  <p class="note">Modelo de elastancia variable en el tiempo con válvulas ideales; cada lado se simula por separado (sin interacción ventricular). La asincronía D–I nace de un retraso fijo de 15 ms en el inicio de la contracción derecha. El pulso venoso incluye una onda c aproximada. Todo aproximado: VERIFICAR contra el libro del curso.</p>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Juego 1: ¿Qué válvula cambia ahora y por qué?</h3>
+      <p class="note">El cursor marca un instante en que cambia una válvula. Elige cuál.</p>
+      <select id="g1Sel" aria-label="Evento"><option value="">Elige el evento…</option></select>
+      <div class="row"><button class="btn primary" id="g1Go">Comprobar</button><button class="btn" id="g1New">Nuevo instante</button></div>
+      <p class="fb" id="g1Fb" aria-live="polite"></p>
+      <h3>Juego 2: Pon el evento sobre el ECG</h3>
+      <p id="g2Task" class="fb"></p>
+      <select id="g2Sel" aria-label="Lugar en el ECG"><option value="">¿Dónde cae sobre el ECG?</option><option value="P">En la onda P</option><option value="Q">Justo tras el inicio del QRS</option><option value="S">Durante el ST (primera parte de la T)</option><option value="T">Hacia el final de la onda T</option><option value="D">Después de la T (diástole temprana)</option></select>
+      <div class="row"><button class="btn primary" id="g2Go">Comprobar</button><button class="btn" id="g2New">Nuevo evento</button></div>
+      <p class="fb" id="g2Fb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"Las válvulas se abren y cierran por una orden eléctrica": las mueve el gradiente de presión entre las cámaras.</li>
+    <li>"Al subir la FC se acortan sístole y diástole por igual": se acorta sobre todo la diástole (el diastasis desaparece primero).</li>
+    <li>"La contracción auricular llena el ventrículo": en reposo aporta una fracción pequeña; pesa más si el ventrículo es rígido o la FC es alta.</li>
+    <li>"El cierre aórtico y el pulmonar son simultáneos": el pulmonar es algo posterior, y la inspiración ensancha el desdoblamiento.</li>
+    <li>"La eyección dura toda la sístole": la primera parte es isovolumétrica y la eyección empieza cuando la presión ventricular supera la aórtica.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Cada lado usa una presión de entrada fija: no hay acople entre el ventrículo derecho y el izquierdo.</li>
+    <li>Las válvulas son ideales, sin inercia ni regurgitación.</li>
+    <li>Los ruidos se dibujan como ráfagas fijas en los cierres; sin S3 ni S4.</li>
+    <li>El ECG es esquemático; el intervalo QT usa una fórmula tipo Bazett.</li>
+    <li>La respiración se modela como cambios de precarga y de duración de la sístole (VERIFICAR magnitudes).</li>
+    <li>Sin caso clínico de cierre en esta versión.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.119–6.138). Sin aval institucional.</p>
+</footer>
+</div>
+<script>
+(function(){
+function eFn(u,Ts){ // normalised double hill
+  if(u<0)return 0;var n1=1.32,n2=21.9,t1=.269*Ts,t2=.452*Ts;
+  function raw(x){var a=Math.pow(x/t1,n1),b=Math.pow(x/t2,n2);return a/(1+a)/(1+b)}
+  if(!eFn.mx||eFn.k!==Ts){var m=0;for(var i=0;i<400;i++)m=Math.max(m,raw(i/400*Ts*1.5));eFn.mx=m;eFn.k=Ts}
+  return raw(u)/eFn.mx}
+var SIDES={
+ L:{Es:2.9,Ed:.07,V0:10,Eas:.6,Ead:.25,Va0:10,Rin:.05,Rav:.005,Rout:.008,C:1.15,Rd:1.0,Pd:5,Pin:12,Vv:130,Va:50,Vo:140,dEM:.025,Ts0:1},
+ R:{Es:.85,Ed:.03,V0:10,Eas:.35,Ead:.15,Va0:8,Rin:.04,Rav:.005,Rout:.006,C:4,Rd:.09,Pd:7,Pin:6,Vv:120,Va:35,Vo:30,dEM:.04,Ts0:1}};
+function simSide(side,o){
+  var p=Object.assign({},SIDES[side]);
+  var HR=o.hr,RR=60/HR,PR=Math.min(o.pr/1000,RR*.55),QT=.38*Math.sqrt(RR),Ts=QT*(o.tsF||2.3);
+  p.Es*=o.con;p.Ed*=o.stiff;if(o.insp)Ts*=(side==='R'?1.06:.96);p.Rd*=(side==='L'?o.aft:1);p.Pin=side==='L'?o.pre+(o.insp?-2.5:0):o.pre*.6+(o.insp?4:0);if(side==='R'&&o.insp)p.Pd-=1.5;
+  if(side==='R'){p.Rd*=1}
+  var tAc=.12,tP=.09,dt=.0005,N=Math.round(RR/dt),beats=14,out=null;
+  var Vv=p.Vv,Va=p.Va,Vo=p.Vo;
+  for(var b=0;b<beats;b++){
+    var rec=b===beats-1,A={t:[],Pv:[],Pa:[],Po:[],V:[],qi:[],qo:[]};
+    for(var i=0;i<N;i++){
+      var t=i*dt;
+      var ev=eFn(((t-(PR+p.dEM))%RR+RR)%RR,Ts);
+      var ua=((t-tP)%RR+RR)%RR,ea=(!o.fa&&ua<tAc)?Math.pow(Math.sin(Math.PI*ua/tAc),2):0;
+      var Ev=p.Ed+(p.Es-p.Ed)*ev,Ea=p.Ead+(p.Eas-p.Ead)*ea;
+      var Pv=Ev*(Vv-p.V0),Pa=Ea*(Va-p.Va0),Po=Vo/p.C;
+      var qin=Math.max(Pa-Pv,0)/p.Rav,qout=Math.max(Pv-Po,0)/p.Rout,qven=(p.Pin-Pa)/p.Rin,qper=(Po-p.Pd)/p.Rd;
+      Vv+=(qin-qout)*dt;Va+=(qven-qin)*dt;Vo+=(qout-qper)*dt;
+      if(rec&&i%2===0){A.t.push(t*1000);A.Pv.push(Pv);A.Pa.push(Pa);A.Po.push(Po);A.V.push(Vv);A.qi.push(qin);A.qo.push(qout)}
+    }
+    out=A;
+  }
+  out.RR=RR;out.PR=PR;out.QT=QT;out.p=p;return out}
+
+function events(s,tQRS){
+  var n=s.t.length,e={},i,k;
+  function at(i){return s.t[((i%n)+n)%n]}
+  var ao=-1;for(i=0;i<n;i++)if(s.qo[i]>1&&s.t[i]>tQRS){ao=i;break}
+  var mc=-1;for(i=ao;i>ao-n;i--)if(s.qi[((i%n)+n)%n]>1){mc=i;break}
+  e.MC=mc>=0?at(mc):null;e.AO=ao>=0?at(ao):null;
+  var ac=-1;if(ao>=0)for(i=ao;i<ao+n;i++)if(s.qo[i%n]<1){ac=i;break}
+  e.AC=ac>=0?at(ac):null;
+  var mo=-1;if(ac>=0)for(i=ac;i<ac+n;i++)if(s.qi[i%n]>1){mo=i;break}
+  e.MO=mo>=0?at(mo):null;
+  return e}
+
+
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c){return Math.min(940,Math.floor(c.parentElement.clientWidth-30))}
+var P={side:'L',hr:70,pr:160,con:1,pre:12,aft:1,stf:1,fa:false,insp:false,show:true,t:380};
+var D=null;
+var NAMES={L:{MC:'Cierra la mitral',AO:'Abre la aórtica',AC:'Cierra la aórtica',MO:'Abre la mitral'},R:{MC:'Cierra la tricúspide',AO:'Abre la pulmonar',AC:'Cierra la pulmonar',MO:'Abre la tricúspide'}};
+var ABB={L:{MC:'CM',AO:'AAo',AC:'CAo',MO:'AM'},R:{MC:'CT',AO:'AP',AC:'CP',MO:'AT'}};
+var PH=['Contracción isovolumétrica','Eyección rápida','Eyección reducida','Relajación isovolumétrica','Llenado rápido','Llenado lento (diastasis)','Sístole auricular'];
+var PCOL=['--guess','--blood','--blood','--guess','--vec','--vec','--muted'];
+function inInt(t,a,b){return a<=b?(t>=a&&t<b):(t>=a||t<b)}
+function classify(s,E){
+  var n=s.t.length,ph=new Array(n),tPms=70+20,tAc=120,fa=P.fa,i;
+  var pkT=0,pk=0;for(i=0;i<n;i++)if(s.Po[i]>pk&&inInt(s.t[i],E.AO,E.AC)){pk=s.Po[i];pkT=s.t[i]}
+  var qmax=0,rapidEnd=null,j,k=0;
+  for(i=0;i<n;i++)if(s.t[i]>=E.MO-.5||(E.MO<E.AC&&false)){k=i;break}
+  for(j=0;j<n;j++){i=(k+j)%n;var t=s.t[i];if(t>=tPms&&t<tPms+tAc&&j>5&&!fa)break;if(s.qi[i]>qmax)qmax=s.qi[i];if(qmax>5&&s.qi[i]<.35*qmax&&j>10){rapidEnd=t;break}}
+  for(i=0;i<n;i++){var t2=s.t[i];
+    if(s.qo[i]>1)ph[i]=inInt(t2,E.AO,pkT)?1:2;
+    else if(inInt(t2,E.MC,E.AO))ph[i]=0;
+    else if(inInt(t2,E.AC,E.MO))ph[i]=3;
+    else if(!fa&&t2>=tPms&&t2<E.MC)ph[i]=6;
+    else if(inInt(t2,E.MO,rapidEnd===null?tPms:rapidEnd))ph[i]=4;
+    else ph[i]=5}
+  return ph}
+function compute(){
+  var o={hr:P.hr,pr:P.pr,con:P.con,aft:P.aft,pre:P.pre,stiff:P.stf,fa:P.fa,insp:P.insp};
+  D={};['L','R'].forEach(function(sd){var s=simSide(sd,o),E=events(s,P.pr),ph=classify(s,E),V=s.V,ed=Math.max.apply(null,V),es=Math.min.apply(null,V),fr=[0,0,0],tot=0;
+    for(var i=0;i<s.t.length;i++){var q=s.qi[i];if(q>0){tot+=q;if(ph[i]===4)fr[0]+=q;else if(ph[i]===5)fr[1]+=q;else if(ph[i]===6)fr[2]+=q}}
+    var syst=(E.AC-E.MC+s.RR*1000)%(s.RR*1000);
+    D[sd]={s:s,E:E,ph:ph,ed:ed,es:es,fr:fr.map(function(v){return tot>0?v/tot*100:0}),syst:syst,dias:s.RR*1000-syst,ivc:(E.AO-E.MC+s.RR*1000)%(s.RR*1000),ej:(E.AC-E.AO+s.RR*1000)%(s.RR*1000),ivr:(E.MO-E.AC+s.RR*1000)%(s.RR*1000)}});
+  D.RR=60000/P.hr;D.tQ=Math.min(P.pr,D.RR*.55);D.tT=D.tQ+D.L.s.QT*1000;
+}
+function ecgVal(t){var ph=t,RR=D.RR,q=D.tQ,QT=D.L.s.QT*1000;function g(mu,sg,a){return a*Math.exp(-Math.pow((ph-mu)/sg,2)/2)}
+  return g(45,18,.12)+g(q+4,6,-.12)+g(q+16,7,1)+g(q+32,7,-.22)+g(D.tT-70,48,.28)}
+function evList(){var L=D.L.E,R=D.R.E,tA=70;
+  return [{k:'AK',t:tA,n:'Inicio de la contracción auricular',side:'A'},{k:'MC',t:L.MC,n:NAMES.L.MC,side:'L'},{k:'TC',t:R.MC,n:NAMES.R.MC,side:'R'},{k:'PO',t:R.AO,n:NAMES.R.AO,side:'R'},{k:'AO',t:L.AO,n:NAMES.L.AO,side:'L'},{k:'AC',t:L.AC,n:NAMES.L.AC,side:'L'},{k:'PC',t:R.AC,n:NAMES.R.AC,side:'R'},{k:'TO',t:R.MO,n:NAMES.R.MO,side:'R'},{k:'MO',t:L.MO,n:NAMES.L.MO,side:'L'}]}
+function place(t){if(t<D.tQ-5)return t>=20?'P':'P';if(t<D.tQ+45)return 'Q';var te=D.tT;if(t<te-50)return 'S';if(t<te+35)return 'T';return 'D'}
+var LAB={P:'en la onda P',Q:'justo tras el inicio del QRS',S:'durante el ST (primera parte de la T)',T:'hacia el final de la onda T',D:'después de la T (diástole temprana)'};
+
+function draw(){
+  var c=$('wg'),W=cw(c);if(W<280||!D)return;
+  var sd=P.side,d=D[sd],s=d.s,E=d.E,RR=D.RR,n=s.t.length;
+  var small=W<520,hs=[small?56:70,16,small?150:210,small?80:104,small?70:96,small?44:56],gap=6,tot=hs.reduce(function(a,b){return a+b},0)+gap*5+24,x=fit(c,W,tot);
+  x.clearRect(0,0,W,tot);
+  var X0=44,Wp=W-56,R=[],y=4;hs.forEach(function(h){R.push({x:X0,y:y,w:Wp,h:h});y+=h+gap});
+  function px(t){return X0+t/RR*Wp}
+  function plot(arr,r,lo,hi,col,lw,dash){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();for(var i=0;i<n;i++){var xx=px(s.t[i]),yy=r.y+r.h-(clamp(arr[i],lo,hi)-lo)/(hi-lo)*r.h;i?x.lineTo(xx,yy):x.moveTo(xx,yy)}x.stroke();x.setLineDash([])}
+  /* bandas de fase */
+  for(var i=0;i<n;i++){var cI=d.ph[i];x.fillStyle=css(PCOL[cI]);x.globalAlpha=.1+.06*(cI%2);var xa=px(s.t[i]);x.fillRect(xa,R[0].y,Wp/n+.6,R[4].y+R[4].h-R[0].y);x.globalAlpha=1}
+  /* tira de fases */
+  var r1=R[1],st=0;for(i=1;i<=n;i++){if(i===n||d.ph[i]!==d.ph[st]){var a=px(s.t[st]),b=i===n?px(RR):px(s.t[i]);x.fillStyle=css(PCOL[d.ph[st]]);x.globalAlpha=.55+.15*(d.ph[st]%2);x.fillRect(a,r1.y,b-a,r1.h);x.globalAlpha=1;
+    if(b-a>46){x.fillStyle=css('--fg');x.font='600 9px '+css('--font-body');x.textAlign='center';x.textBaseline='middle';var lab=['IVC','Eyec. rápida','Eyec. reducida','IVR','Llen. rápido','Diastasis','Aurícula'][d.ph[st]];x.fillText(lab,(a+b)/2,r1.y+r1.h/2+.5)}
+    st=i}}
+  /* ejes y paneles */
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.strokeStyle=css('--line');x.lineWidth=1;
+  var pr=sd==='L'?[0,140]:[0,40],pt=sd==='L'?[0,40,80,120]:[0,10,20,30,40];
+  x.textAlign='right';x.textBaseline='middle';
+  pt.forEach(function(v){var yy=R[2].y+R[2].h-(v-pr[0])/(pr[1]-pr[0])*R[2].h;x.beginPath();x.moveTo(R[2].x,yy);x.lineTo(R[2].x+R[2].w,yy);x.stroke();x.fillText(v,R[2].x-4,yy)});
+  x.save();x.translate(8,R[2].y+R[2].h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText('mmHg',0,0);x.restore();
+  /* ECG */
+  var re=R[0];x.strokeStyle=css('--fg');x.lineWidth=1.6;x.beginPath();for(i=0;i<=400;i++){var t=RR*i/400,yy=re.y+re.h*.72-ecgVal(t)*re.h*.55;i?x.lineTo(px(t),yy):x.moveTo(px(t),yy)}x.stroke();
+  x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='top';x.fillText('ECG',re.x+2,re.y);
+  /* presiones */
+  var pa=s.Po,pv=s.Pv,pat=s.Pa;
+  plot(pa,R[2],pr[0],pr[1],css('--blood'),2);plot(pv,R[2],pr[0],pr[1],css('--vec'),2);
+  var cb=pat.map(function(v,i){return v+(inInt(s.t[i],E.MC,E.MC+40)?1.4*Math.pow(Math.sin(Math.PI*((s.t[i]-E.MC+RR)%RR)/40),2):0)});
+  plot(cb,R[2],pr[0],pr[1],css('--guess'),2);
+  x.font='600 10px '+css('--font-body');x.textAlign='left';x.textBaseline='top';
+  x.fillStyle=css('--blood');x.fillText(sd==='L'?'Aorta':'Arteria pulmonar',R[2].x+4,R[2].y+2);x.fillStyle=css('--vec');x.fillText(sd==='L'?'Ventrículo izquierdo':'Ventrículo derecho',R[2].x+4,R[2].y+14);x.fillStyle=css('--guess');x.fillText(sd==='L'?'Aurícula izquierda':'Aurícula derecha',R[2].x+4,R[2].y+26);
+  /* eventos */
+  if(P.show){var evs=[['MC',E.MC],['AO',E.AO],['AC',E.AC],['MO',E.MO]];evs.forEach(function(e,k){var xx=px(e[1]);x.strokeStyle=css('--fg');x.globalAlpha=.55;x.setLineDash([3,3]);x.beginPath();x.moveTo(xx,R[0].y);x.lineTo(xx,R[5].y+R[5].h);x.stroke();x.setLineDash([]);x.globalAlpha=1;
+    x.fillStyle=css('--fg');x.font='700 9px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';x.fillText(ABB[sd][e[0]],xx,R[2].y+R[2].h-14-(k%2)*10)})}
+  /* pulso venoso */
+  var rv=R[3],lo=Math.min.apply(null,cb)-1,hi=Math.max.apply(null,cb)+2;
+  x.strokeStyle=css('--line');x.beginPath();x.moveTo(rv.x,rv.y+rv.h);x.lineTo(rv.x+rv.w,rv.y+rv.h);x.stroke();
+  plot(cb,rv,lo,hi,css('--guess'),2.2);x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='left';x.textBaseline='top';x.fillText((sd==='L'?'Pulso auricular izquierdo':'Pulso venoso (aurícula derecha)')+'  '+Math.round(lo+1)+'–'+Math.round(hi-2)+' mmHg',rv.x+4,rv.y+1);
+  var ia=0,iv=0,mA=-1e9,mV=-1e9;for(i=0;i<n;i++){var tt=s.t[i];if(tt>=90&&tt<=E.MC+30&&cb[i]>mA){mA=cb[i];ia=i}if(inInt(tt,E.AO,E.MO)&&tt>E.MC+60&&cb[i]>mV){mV=cb[i];iv=i}}
+  function mark(i,l,dy){if(i<0)return;x.fillStyle=css('--fg');x.font='700 11px '+css('--font-display');x.textAlign='center';x.textBaseline='bottom';x.fillText(l,px(s.t[i]),rv.y+rv.h-(cb[i]-lo)/(hi-lo)*rv.h-3+(dy||0))}
+  if(!P.fa)mark(ia,'a');mark(iv,'v');
+  var mc=-1;for(i=0;i<n;i++)if(Math.abs(s.t[i]-(E.MC+20))<1){mc=i;break}if(mc>=0)mark(mc,'c',-0);
+  var ix=-1,mn=1e9;for(i=0;i<n;i++)if(s.t[i]>E.MC+30&&s.t[i]<(iv>=0?s.t[iv]:E.AC)&&cb[i]<mn){mn=cb[i];ix=i}
+  if(ix>=0){x.fillStyle=css('--muted');x.font='600 10px '+css('--font-body');x.textAlign='center';x.textBaseline='top';x.fillText('x',px(s.t[ix]),rv.y+rv.h-(cb[ix]-lo)/(hi-lo)*rv.h+2)}
+  var iy=-1;mn=1e9;for(i=0;i<n;i++)if(inInt(s.t[i],E.MO,E.MO+110)&&cb[i]<mn){mn=cb[i];iy=i}
+  if(iy>=0){x.fillStyle=css('--muted');x.textAlign='center';x.textBaseline='top';x.fillText('y',px(s.t[iy]),rv.y+rv.h-(cb[iy]-lo)/(hi-lo)*rv.h+2)}
+  /* volumen */
+  var rVo=R[4],vlo=Math.min.apply(null,s.V)-8,vhi=Math.max.apply(null,s.V)+8;
+  plot(s.V,rVo,vlo,vhi,css('--fg'),2);x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='left';x.textBaseline='top';x.fillText('Volumen ventricular '+Math.round(d.es)+'–'+Math.round(d.ed)+' mL',rVo.x+4,rVo.y+1);
+  /* ruidos */
+  var rs=R[5],mid=rs.y+rs.h/2;x.strokeStyle=css('--line');x.beginPath();x.moveTo(rs.x,mid);x.lineTo(rs.x+rs.w,mid);x.stroke();
+  function burst(t0,amp,col){x.strokeStyle=col;x.lineWidth=1.4;x.beginPath();for(var k=0;k<=60;k++){var tt=k*1.0,yy=mid-amp*rs.h*.45*Math.exp(-tt/14)*Math.sin(2*Math.PI*tt/12);k?x.lineTo(px(t0+tt),yy):x.moveTo(px(t0+tt),yy)}x.stroke()}
+  var LL=D.L.E,RRr=D.R.E;burst(LL.MC,.9,css('--fg'));burst(RRr.MC+0,.6,css('--muted'));burst(LL.AC,.8,css('--fg'));burst(RRr.AC,.55,css('--muted'));
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='left';x.textBaseline='top';x.fillText('Ruidos: S1 (cierres AV) · S2 (cierres semilunares)',rs.x+4,rs.y+1);
+  /* eje de tiempo */
+  x.textAlign='center';x.textBaseline='top';var yb=R[5].y+R[5].h+4;for(var tm=0;tm<RR;tm+=100){x.fillText(tm,px(tm),yb);x.strokeStyle=css('--line');x.beginPath();x.moveTo(px(tm),R[5].y+R[5].h);x.lineTo(px(tm),yb);x.stroke()}x.textAlign='right';x.fillText('ms',R[5].x+R[5].w,yb+12);
+  /* cursor */
+  var tc=P.t/1000*RR,xc=px(tc);x.strokeStyle=css('--fg');x.lineWidth=1.4;x.beginPath();x.moveTo(xc,R[0].y);x.lineTo(xc,R[5].y+R[5].h);x.stroke();
+  x.fillStyle=css('--fg');x.beginPath();x.moveTo(xc-5,R[0].y-2);x.lineTo(xc+5,R[0].y-2);x.lineTo(xc,R[0].y+5);x.closePath();x.fill();
+}
+function readAll(){
+  var d=D[P.side],s=d.s,RR=D.RR,tc=P.t/1000*RR,i=clamp(Math.round(tc/ (RR/s.t.length)),0,s.t.length-1);
+  $('hrV').textContent=P.hr+' lpm';$('prV').textContent=P.pr+' ms';$('conV').textContent=Math.round(P.con*100)+' %';$('preV').textContent=P.pre+' mmHg';$('aftV').textContent=Math.round(P.aft*100)+' %';$('stV').textContent='× '+fmt(P.stf,1);$('tV').textContent=Math.round(tc)+' ms';
+  var vv=function(on){return '<span class="val"><span class="dot'+(on?' on':'')+'"></span>'+(on?'abierta':'cerrada')+'</span>'};
+  $('cur').innerHTML=chip('Fase',PH[d.ph[i]],'ok')+'<span class="chip ok">'+(P.side==='L'?'Mitral':'Tricúspide')+' '+vv(s.qi[i]>1)+'</span><span class="chip ok">'+(P.side==='L'?'Aórtica':'Pulmonar')+' '+vv(s.qo[i]>1)+'</span>'+chip('Ventrículo',fmt(s.Pv[i],0)+' mmHg',true)+chip(P.side==='L'?'Aorta':'A. pulmonar',fmt(s.Po[i],0)+' mmHg',true)+chip('Aurícula',fmt(s.Pa[i],0)+' mmHg',true)+chip('Volumen',Math.round(s.V[i])+' mL',true);
+  var sv=d.ed-d.es,ef=sv/d.ed*100,sd=P.side;
+  var other=D[sd==='L'?'R':'L'];
+  $('met').innerHTML=chip('Vol. sistólico',Math.round(sv)+' mL',sv>45,'EF '+Math.round(ef)+' %')+chip('Sístole (cierre AV → cierre semilunar)',Math.round(d.syst)+' ms',true)+chip('Diástole',Math.round(d.dias)+' ms',d.dias>250,d.dias<250?'corta':'')+chip('Contr. isovol.',Math.round(d.ivc)+' ms',d.ivc<90)+chip('Relaj. isovol.',Math.round(d.ivr)+' ms',d.ivr<110)+chip('Llenado: rápido / lento / auricular',Math.round(d.fr[0])+' / '+Math.round(d.fr[1])+' / '+Math.round(d.fr[2])+' %',true)+chip('Asincronía D–I',fmt(D.R.E.MC-D.L.E.MC,0)+' ms al cerrar las AV · '+fmt(D.R.E.AC-D.L.E.AC,0)+' ms al cerrar las semilunares',true);
+  var w=['Cada válvula cambia cuando se invierte el gradiente de presión entre cámaras: las AV se cierran cuando la presión ventricular supera la auricular y las semilunares se abren cuando supera la arterial.'];
+  if(P.hr>=120)w.push('Con FC alta la diástole se acorta mucho y el llenado lento (diastasis) desaparece primero; el llenado rápido y la contracción auricular quedan juntos.');
+  if(P.fa)w.push('Sin contracción auricular se pierde la fracción de llenado auricular y desaparece la onda a.');
+  if(P.pr>=220)w.push('Con PR largo la contracción auricular queda lejos del QRS y el llenado ventricular puede completarse antes de que empiece la sístole.');
+  if(P.insp)w.push('En la inspiración el ventrículo derecho se llena más y expulsa más tiempo; el izquierdo, menos: el cierre pulmonar se retrasa y el aórtico se adelanta (desdoblamiento de S2).');
+  if(P.aft>1.4)w.push('Con más poscarga la contracción isovolumétrica se alarga: el ventrículo necesita más presión para abrir la aórtica y expulsa menos.');
+  if(P.stf>1.5)w.push('Con el ventrículo rígido el llenado rápido es peor y la contracción auricular aporta una fracción mayor.');
+  $('why').textContent=w.join(' ');
+  $('sdL').setAttribute('aria-pressed',P.side==='L');$('sdR').setAttribute('aria-pressed',P.side==='R');
+  var evs=evList().slice().sort(function(a,b){return a.t-b.t}),tb=document.querySelector('#evT tbody');tb.innerHTML='';
+  evs.forEach(function(e){var tr=document.createElement('tr');tr.innerHTML='<td>'+e.n+' <span class="note">('+(e.side==='L'?'izq.':e.side==='R'?'der.':'aurícula')+')</span></td><td class="n">'+Math.round(e.t)+' ms</td><td>'+LAB[place(e.t)]+'</td>';tb.appendChild(tr)});
+  $('legend').innerHTML='<span class="chip ok"><span class="sw" style="background:var(--blood)"></span>'+(sd==='L'?'Aorta':'A. pulmonar')+'</span><span class="chip ok"><span class="sw" style="background:var(--vec)"></span>Ventrículo</span><span class="chip ok"><span class="sw" style="background:var(--guess)"></span>Aurícula</span>'+(P.show?'<span class="chip ok">'+(sd==='L'?'CM cierra mitral · AAo abre aórtica · CAo cierra aórtica · AM abre mitral':'CT cierra tricúspide · AP abre pulmonar · CP cierra pulmonar · AT abre tricúspide')+'</span>':'');
+}
+function render(){compute();readAll();draw()}
+function bind(id,key,div){$(id).oninput=function(){P[key]=this.value/div;stopFlag();render()}}
+function stopFlag(){}
+bind('hr','hr',1);bind('pr','pr',1);bind('con','con',100);bind('pre','pre',1);bind('aft','aft',100);bind('stf','stf',100);
+$('tc').oninput=function(){P.t=+this.value;readAll();draw()};
+$('fa').onchange=function(){P.fa=this.checked;render()};$('insp').onchange=function(){P.insp=this.checked;render()};
+$('lbl').onchange=function(){P.show=this.checked;draw();readAll()};
+$('sdL').onclick=function(){P.side='L';render()};$('sdR').onclick=function(){P.side='R';render()};
+function sync(){$('hr').value=P.hr;$('pr').value=P.pr;$('con').value=P.con*100;$('pre').value=P.pre;$('aft').value=P.aft*100;$('stf').value=P.stf*100;$('fa').checked=P.fa;$('insp').checked=P.insp;$('tc').value=P.t}
+$('reset').onclick=function(){Object.assign(P,{hr:70,pr:160,con:1,pre:12,aft:1,stf:1,fa:false,insp:false,show:true});$('lbl').checked=true;sync();render()};
+/* retos */
+function setP(o){Object.assign(P,o);sync();render()}
+var QS=[
+ {q:'Subes la frecuencia de 70 a 150 lpm. ¿Qué se acorta más, en términos relativos?',o:['La diástole (sobre todo el llenado lento)','La sístole','Ambas se acortan por igual'],a:0,ap:function(){setP({hr:150,pr:140})},e:function(){var a=D.L;return 'La sístole pasa a unos '+Math.round(a.syst)+' ms y la diástole a unos '+Math.round(a.dias)+' ms (a 70 lpm eran ≈ 300 y 550). El llenado lento casi desaparece.'}},
+ {q:'Quitas la contracción auricular (como en fibrilación auricular) en reposo con ventrículo normal. ¿Cuánto llenado ventricular se pierde?',o:['Una fracción pequeña (≈ 10–25 %)','Casi todo el llenado','Nada: el llenado es solo pasivo'],a:0,ap:function(){setP({hr:70,pr:160,stf:1,fa:true})},e:function(){return 'En reposo el llenado rápido hace la mayor parte; la contribución auricular es pequeña. Prueba ahora subir la rigidez ventricular o la FC: la pérdida pesa más.'}},
+ {q:'Duplicas la poscarga. ¿Qué pasa con la contracción isovolumétrica y con el volumen sistólico?',o:['La contracción isovolumétrica se alarga y baja el volumen sistólico','Se acorta y sube el volumen sistólico','No cambian'],a:0,ap:function(){setP({fa:false,aft:2})},e:function(){return 'El ventrículo debe alcanzar una presión mayor para abrir la aórtica, así que la fase isovolumétrica dura más (ahora ≈ '+Math.round(D.L.ivc)+' ms) y expulsa menos.'}},
+ {q:'Activas la inspiración. ¿Qué pasa con el segundo ruido?',o:['Se desdobla: el pulmonar se retrasa y el aórtico se adelanta','Desaparece','Se fusiona en un solo ruido'],a:0,ap:function(){setP({aft:1,insp:true})},e:function(){return 'El cierre pulmonar queda ≈ '+Math.round(D.R.E.AC-D.L.E.AC)+' ms después del aórtico (en espiración, unos 25 ms).'}}
+];
+var qi=0;
+function showQ(){var q=QS[qi];$('qText').textContent=q.q;$('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> '+t+'</label>'}).join('');$('qFb').textContent=''}
+$('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}var q=QS[qi],ok=+r.value===q.a;q.ap();$('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+q.e()+' Mira el gráfico.'};
+$('qNext').onclick=function(){qi=(qi+1)%QS.length;showQ()};
+/* juegos */
+var g1=null,g2=null;
+var EVN=[['MC','Se cierra la mitral'],['TC','Se cierra la tricúspide'],['PO','Se abre la pulmonar'],['AO','Se abre la aórtica'],['AC','Se cierra la aórtica'],['PC','Se cierra la pulmonar'],['TO','Se abre la tricúspide'],['MO','Se abre la mitral']];
+EVN.forEach(function(e){var o=document.createElement('option');o.value=e[0];o.textContent=e[1];$('g1Sel').appendChild(o)});
+var WHY={MC:'La presión del VI supera la de la aurícula: la mitral se cierra (S1) y empieza la contracción isovolumétrica.',TC:'La presión del VD supera la de la aurícula derecha, un poco después que en el lado izquierdo.',PO:'La presión del VD supera la de la arteria pulmonar (más baja): se abre antes que la aórtica.',AO:'La presión del VI supera la aórtica: termina la fase isovolumétrica y empieza la eyección rápida.',AC:'La presión del VI cae por debajo de la aórtica: se cierra la aórtica (S2).',PC:'La presión del VD cae por debajo de la pulmonar; ocurre algo después del cierre aórtico.',TO:'La presión del VD cae por debajo de la auricular: empieza el llenado rápido.',MO:'La presión del VI cae por debajo de la auricular: se abre la mitral y comienza el llenado rápido.'};
+function newG1(){var l=evList().filter(function(e){return e.k!=='AK'});var p=l.filter(function(e){return e!==g1});g1=p[Math.floor(Math.random()*p.length)];P.show=false;$('lbl').checked=false;P.t=clamp(g1.t/D.RR*1000,0,1000);$('tc').value=P.t;$('g1Sel').value='';$('g1Fb').textContent='Observa las presiones alrededor del cursor.';readAll();draw()}
+$('g1New').onclick=function(){compute();newG1()};
+$('g1Go').onclick=function(){var v=$('g1Sel').value;if(!v){$('g1Fb').textContent='Elige un evento.';return}P.show=true;$('lbl').checked=true;draw();readAll();
+  $('g1Fb').innerHTML=(v===g1.k?'<span class="ok">Correcto.</span> ':'<span class="no">No: era '+g1.n.toLowerCase()+'.</span> ')+WHY[g1.k]};
+function newG2(){var l=evList();var p=l.filter(function(e){return e!==g2});g2=p[Math.floor(Math.random()*p.length)];$('g2Task').textContent='Evento: '+g2.n.toLowerCase()+' ('+(g2.side==='L'?'izquierda':g2.side==='R'?'derecha':'aurícula')+').';$('g2Sel').value='';$('g2Fb').textContent=''}
+$('g2New').onclick=function(){compute();newG2()};
+$('g2Go').onclick=function(){var v=$('g2Sel').value;if(!v){$('g2Fb').textContent='Elige una opción.';return}var tr=place(g2.t);
+  $('g2Fb').innerHTML=(v===tr?'<span class="ok">Correcto.</span> ':'<span class="no">No.</span> ')+'Cae '+LAB[tr]+' (≈ '+Math.round(g2.t)+' ms desde el inicio de la P). Regla de L7: el QRS inicia la contracción isovolumétrica; el final de la T se aproxima al cierre aórtico.'};
+compute();sync();showQ();newG2();render();
+function redraw(){draw()}
+if(window.ResizeObserver)new ResizeObserver(redraw).observe(document.body);else window.addEventListener('resize',redraw);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redraw);
+window.__dbg={P:P,compute:compute,get D(){return D},evList:evList,place:place};
+
+})();
+</script>
+
+</body></html>

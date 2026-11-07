@@ -1,0 +1,637 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Iones y lectura</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el potencial de acción manda. Cada ión o fármaco mueve una curva celular y de ahí sale el trazo; la lectura sistemática ata cada paso a una perilla. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --gridMinor:rgba(205,95,108,.16); --gridMajor:rgba(205,95,108,.38);
+  --trace:#15201E; --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --guess:#C2480F; --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --gridMinor:rgba(255,125,135,.12); --gridMajor:rgba(255,125,135,.30);
+    --trace:#E9F3F0; --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --guess:#FF9A5C; --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --gridMinor:rgba(255,125,135,.12); --gridMajor:rgba(255,125,135,.30);
+  --trace:#E9F3F0; --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --guess:#FF9A5C; --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+#vIon,#vLeer{width:100%;margin:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:600 .95rem var(--font-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--vec)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%;width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono)}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.steps{display:grid;grid-template-columns:minmax(0,10.5em) minmax(0,1fr) 2.2em;gap:8px 10px;align-items:center;font-size:.92rem}
+.steps .sl{font-weight:600;color:var(--muted)}
+.steps .sl small{display:block;font-weight:400;font-size:.75rem;font-family:var(--font-mono)}
+@media (max-width:560px){.steps{grid-template-columns:minmax(0,1fr) 2.2em}.steps .sl{grid-column:1/-1;margin-top:6px}}
+.mark{font-weight:700;text-align:center}
+.knob{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr);gap:4px 10px;font-size:.9rem}
+.knob b{color:var(--muted);font-weight:600}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulos A9 + A10 · iones, fármacos y lectura</div>
+  <h1>Iones y lectura</h1>
+  <p class="lede">Cada ión y cada fármaco mueve una curva del potencial de acción, y de esa curva sale el trazo. Después, un ECG desconocido se lee en siete pasos, cada uno atado a una perilla del modelo.</p>
+  <div class="tags"><span>Unidad 6: 6.112, 6.91–6.111</span><span>Nivel N2–N3</span><span>Perillas: origen, conducción, masa, tejido, ión o fármaco</span></div>
+</header>
+
+<div class="tabs" role="tablist" aria-label="Modo">
+  <button class="tab" role="tab" id="tabIon" aria-selected="true">Electrolitos y fármacos</button>
+  <button class="tab" role="tab" id="tabLeer" aria-selected="false">Lectura sistemática</button>
+</div>
+
+<div id="vIon" class="wrap" style="gap:20px">
+  <section class="panel">
+    <h2 id="tIon">Normal</h2>
+    <div class="tw" id="wIon"><canvas id="cIon" role="img" aria-label="Derivaciones II, V2 y V5 con el potencial de acción"></canvas></div>
+    <div class="chips" id="chipsIon"></div>
+    <p class="why" id="whyIon"></p>
+  </section>
+
+  <div class="grid">
+    <div class="col">
+      <div class="panel">
+        <h2>Perillas del medio</h2>
+        <label class="ctl" style="flex:none">Potasio sérico: <span class="mono" id="kV"></span>
+          <input type="range" id="k" min="2" max="9.5" step="0.1" value="4"></label>
+        <label class="ctl" style="flex:none">Calcio sérico: <span class="mono" id="caV"></span>
+          <input type="range" id="ca" min="6" max="14" step="0.1" value="9.5"></label>
+        <label class="ctl" style="flex:none">Fármaco que bloquea la salida de K⁺ (alarga el QT): <span class="mono" id="qdV"></span>
+          <input type="range" id="qd" min="0" max="1" step="0.05" value="0"></label>
+        <label class="ctl" style="flex:none">Frecuencia: <span class="mono" id="hrV"></span>
+          <input type="range" id="hr" min="45" max="120" step="1" value="70"></label>
+        <label class="lab"><input type="checkbox" id="dig"> Digoxina</label>
+        <div class="chips" id="presets"></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel">
+        <h3>Potencial de acción ventricular</h3>
+        <canvas id="cAp" role="img" aria-label="Potencial de acción ventricular actual frente al normal"></canvas>
+        <div class="chips" id="apChips"></div>
+        <p class="note">Línea continua: actual. Línea discontinua: normal (K⁺ 4 mmol/L, Ca²⁺ 9,5 mg/dL).</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>Torsades de pointes</h2>
+    <p class="note">Una extrasístole que cae sobre una T tardía puede iniciar una taquicardia polimorfa si el QT está largo. Sube el QT con el fármaco o con calcio y potasio bajos y dispara la extrasístole.</p>
+    <div class="tw" id="wTor"><canvas id="cTor" role="img" aria-label="Tira de ritmo con extrasístole sobre la onda T"></canvas></div>
+    <div class="row"><button class="btn primary" id="tors">Disparar extrasístole sobre la T</button><button class="btn" id="torsReset">Reiniciar</button><span class="note" id="torMsg"></span></div>
+  </section>
+
+  <section class="panel">
+    <h2>Predice y observa</h2>
+    <div class="cols2">
+      <div class="col">
+        <fieldset id="qBox" style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+        <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+        <p class="fb" id="qFb" aria-live="polite"></p>
+      </div>
+      <div class="col">
+        <h3>Del potencial de acción al trazo</h3>
+        <div class="tw"><table>
+          <thead><tr><th>Cambio</th><th>Potencial de acción</th><th>Trazo</th></tr></thead>
+          <tbody>
+            <tr><td class="n">K⁺ alto</td><td>Reposo menos negativo, Na⁺ inactivado, repolarización rápida</td><td>T picuda, P plana, PR largo, QRS ancho</td></tr>
+            <tr><td class="n">K⁺ bajo</td><td>Repolarización lenta</td><td>T plana, onda U, ST deprimido</td></tr>
+            <tr><td class="n">Ca²⁺ bajo</td><td>Meseta más larga</td><td>QT largo (ST largo)</td></tr>
+            <tr><td class="n">Ca²⁺ alto</td><td>Meseta más corta</td><td>QT corto</td></tr>
+            <tr><td class="n">Digoxina</td><td>Meseta y repolarización acortadas</td><td>ST en cubeta, QT corto</td></tr>
+            <tr><td class="n">Bloqueo de IKr</td><td>Fase 3 lenta</td><td>QT largo, riesgo de torsades</td></tr>
+          </tbody></table></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="vLeer" class="wrap" style="gap:20px" hidden>
+  <section class="panel">
+    <h2 id="tLeer">ECG desconocido</h2>
+    <div class="tw" id="w12"><canvas id="c12" role="img" aria-label="Doce derivaciones y tira de ritmo"></canvas></div>
+    <p class="note">Papel a 25 mm/s y 10 mm/mV. Las 12 derivaciones muestran el latido tipo (2,5 s cada una); abajo, una tira de ritmo de II (6 s).</p>
+  </section>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Siete pasos</h2>
+      <div class="steps" id="steps"></div>
+      <fieldset style="margin-top:6px"><legend>Antes de comprobar, ¿qué tan seguro estás?</legend>
+        <label><input type="radio" name="conf" value="Seguro"> Seguro</label>
+        <label><input type="radio" name="conf" value="Algo seguro" checked> Algo seguro</label>
+        <label><input type="radio" name="conf" value="Adivinando"> Adivinando</label>
+      </fieldset>
+      <div class="row">
+        <button class="btn" id="hintBtn">Pista</button>
+        <button class="btn primary" id="checkBtn">Comprobar</button>
+        <button class="btn" id="newBtn">Nuevo caso</button>
+      </div>
+      <p class="fb" id="chFb" aria-live="polite"></p>
+      <p class="note" id="stats"></p>
+    </div>
+    <div class="panel">
+      <h2>Las perillas del caso</h2>
+      <div id="knobsHidden" class="note">Al comprobar se muestra qué perilla produjo cada hallazgo: origen, conducción, masa, tejido o ión y fármaco.</div>
+      <div class="knob" id="knobs" hidden></div>
+    </div>
+  </div>
+</div>
+
+<section class="cols2">
+  <div class="panel">
+    <h3>Errores comunes que desmonta</h3>
+    <ul>
+      <li>"La hiperpotasemia solo da T picuda": a medida que sube aparecen P plana, PR largo, QRS ancho y onda sinusoidal.</li>
+      <li>"Más calcio alarga el QT": al revés. Más calcio acorta la meseta; menos calcio alarga el segmento ST.</li>
+      <li>"El QT normal no depende de la frecuencia": se corrige con la frecuencia (QTc, fórmula de Bazett).</li>
+      <li>"La T picuda es siempre potasio": también aparece en isquemia hiperaguda (A8).</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>Simplificaciones de este modelo</h3>
+    <ul>
+      <li>Un solo potencial ventricular y efectos continuos del potasio y del calcio; en la clínica los umbrales varían con la velocidad del cambio y con otros iones (Mg²⁺).</li>
+      <li>Calcio en mg/dL como calcio total; no se corrige por albúmina.</li>
+      <li>La digoxina solo produce ST en cubeta y acortamiento del QT; no modela el bloqueo AV ni las arritmias por toxicidad.</li>
+      <li>Torsades como patrón dibujado, no como simulación del circuito.</li>
+      <li>Umbrales de intervalos: PR 120–200 ms, QRS &lt; 120 ms, QTc &lt; 450 ms (VERIFICAR el criterio del curso).</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.112, 6.91–6.111). Sin aval institucional. Sin ECG reales: todos los trazos son sintéticos del modelo.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function nz(v,m){return[v[0]*m,v[1]*m,v[2]*m]}
+function ad(a,b){return[a[0]+b[0],a[1]+b[1],a[2]+b[2]]}
+function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}
+function g(t,c,w){var x=(t-c)/w;return x*x>16?0:Math.exp(-x*x)}
+function sg(x){return 1/(1+Math.exp(-x))}
+function sin2(u){return Math.pow(Math.sin(Math.PI*u),2)}
+function win(u,a,b){return(u<=a||u>=b)?0:sin2((u-a)/(b-a))}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+var LD={I:[1,0,0],II:[.5,.866,0],III:[-.5,.866,0],aVR:[-.866,-.5,0],aVL:[.866,-.5,0],aVF:[0,1,0],
+ V1:[-.7,0,.7],V2:[-.4,0,.9],V3:[-.1,0,1],V4:[.3,0,.95],V5:[.7,.05,.7],V6:[.98,.1,.1]};
+var NAMES=['I','II','III','aVR','aVL','aVF','V1','V2','V3','V4','V5','V6'];
+var LAY=[['I','aVR','V1','V4'],['II','aVL','V2','V5'],['III','aVF','V3','V6']];
+var TERR={ant:[0,.1,1],lat:[.85,-.45,.25],inf:[-.1,1,0],post:[-.2,0,-1]};
+var VS=[-.2,.08,.28],VLV=[1.0,.75,-.6],VRV=[-.3,.05,.6],VB=[.1,-.35,-.4],VT=[.32,.22,.22];
+var PR_=[.06,.11,.07],PL_=[.03,.03,-.1];
+
+function defP(){return{rh:'sin',rate:70,lv:1,rv:1,ra:1,la:1,vol:1,type:'none',terr:'ant',stage:2,bb:'none',K:4,Ca:9.5,dig:0,qtd:0}}
+
+/* ---- derivación del modelo desde el potencial de acción ---- */
+function derive(p){
+  var M={};
+  M.Vrest=61.5*Math.log(clamp(p.K,1.5,10)/140)/Math.LN10;
+  M.h=1/(1+Math.exp((M.Vrest+80)/4));
+  M.hn=clamp(M.h/.917,.08,1.05);
+  M.cv=Math.sqrt(M.hn);
+  M.pa=clamp(1-(p.K-5.5)/2,0,1);
+  var pr0=p.rh==='av1'?.30:.16;
+  M.PR=pr0/Math.pow(clamp(M.cv,.3,1),1.4);
+  M.tq=Math.min(M.PR,.3);
+  var dBase=.09+.015*(p.lv-1)+.01*(p.rv-1);
+  if(p.bb==='lbbb')dBase=.15;if(p.bb==='rbbb')dBase=Math.max(dBase,.135);
+  M.D=Math.min(.26,dBase/clamp(M.cv,.3,1));
+  var apdF=p.K>4?clamp(1-.07*(p.K-4),.5,1):1+.025*(4-p.K);
+  var caF=clamp(1+.1*(9.5-p.Ca),.5,1.7);
+  var qtF=1+.55*p.qtd+(p.K<3.2?.15*(3.2-p.K):0);
+  var dg=p.dig?.85:1;
+  M.apdF=apdF*caF*qtF*dg;
+  M.tw=.052*(1-.3*clamp((p.K-4.5)/3,0,1))*(1+.5*p.qtd);
+  M.RR=60/p.rate;var rf=Math.sqrt(M.RR/.857);
+  var td=Math.max(.02,rf*(.17*M.apdF+.199)-(M.D+2.1*M.tw));
+  M.Tc=M.tq+M.D+td;
+  M.QT=(M.Tc+2.1*M.tw)-M.tq;M.QTc=M.QT/Math.sqrt(M.RR);
+  M.lag=.03+.04*clamp((p.la-1)/1.5,0,1);
+  /* vectores */
+  var tAmp=p.K>4?1+.9*clamp((p.K-4.5)/2.5,0,1.3):1-.6*clamp((4-p.K)/1.5,0,1);
+  if(p.dig)tAmp*=.7;tAmp*=1-.3*p.qtd;
+  M.tAmp=tAmp;
+  M.tv=nz(VT,tAmp);M.st=[0,0,0];M.qv=[0,0,0];M.prv=[0,0,0];M.lvv=VLV;M.vs=VS;M.late=null;M.lvA=.18;M.lvB=.82;
+  var uA=.14*clamp((4-p.K)/1.5,0,1.3)+.05*p.qtd;
+  M.uA=uA;M.uv=nz(VT,uA);
+  M.st=ad(M.st,nz([1,.7,-.5],-.1*clamp((4-p.K)/1.5,0,1.3)));
+  M.dgv=p.dig?nz(VLV,-.2):[0,0,0];
+  var d=TERR[p.terr],sgn=p.terr==='post'?-1:1;
+  var sL=clamp((p.lv-1.5)/.7,0,1),sR=clamp((p.rv-1.8)/1.2,0,1);
+  if(sL>0){M.st=ad(M.st,nz([-1,-.3,0],.15*sL));M.tv=ad(M.tv,nz([-.55,-.03,0],sL))}
+  if(sR>0){M.st=ad(M.st,nz([.1,-.1,-.6],.15*sR));M.tv=ad(M.tv,ad(nz(VT,-.4*sR),[0,0,-.55*sR]))}
+  if(p.type==='trans'){var s=p.stage;
+    if(s===1)M.tv=ad(M.tv,nz(d,.55*sgn));
+    if(s===2){M.st=ad(M.st,nz(d,.26));M.tv=ad(M.tv,nz(d,.3*sgn))}
+    if(s===3){M.st=ad(M.st,nz(d,.2));M.qv=nz(d,-.6)}
+    if(s===4){M.tv=ad(M.tv,nz(d,-.75*sgn));M.qv=nz(d,-.6)}
+    if(s===5)M.qv=nz(d,-.6);
+  }
+  if(p.type==='sub'){M.st=ad(M.st,nz(d,-.2));M.tv=ad(M.tv,nz(d,-.25))}
+  if(p.type==='peri'){var pv=[.5,.45,.45];M.st=ad(M.st,nz(pv,.25));M.prv=nz(pv,-.12)}
+  if(M.qv[0]||M.qv[1]||M.qv[2]){var dn=nz(d,1/Math.sqrt(dot(d,d))),pp=dot(VLV,dn);M.lvv=ad(VLV,nz(dn,-.75*pp))}
+  if(p.bb==='lbbb'){M.vs=[.22,-.05,-.28];M.lvA=.42;M.lvB=1;M.lvv=nz(M.lvv,1.3);M.tv=nz(VT,-.9*tAmp);M.st=ad(M.st,nz(VLV,-.06))}
+  if(p.bb==='rbbb'){M.lvA=.12;M.lvB=.7;M.late=nz([-.35,0,.9],1.2);M.tv=ad(M.tv,[-.2,0,-.45])}
+  return M;
+}
+function vec(tb,p,M,noP){
+  var v=[0,0,0],u=(tb-M.tq)/M.D;
+  if(!noP&&M.pa>0){
+    v=ad(v,nz(nz(PR_,p.ra),M.pa*g(tb,.035,.026)));
+    v=ad(v,nz(nz(PL_,p.la>1?p.la*1.1:1),M.pa*g(tb,.035+M.lag,.026)));
+  }
+  if((M.prv[0]||M.prv[1])&&tb>.1&&tb<M.tq-.015)v=ad(v,nz(M.prv,win((tb-.1)/(M.tq-.115),0,1)));
+  if(u>=0&&u<=1){
+    v=ad(v,nz(M.vs,win(u,0,.32)));
+    v=ad(v,nz(M.lvv,p.lv*win(u,M.lvA,M.lvB)));
+    v=ad(v,nz(VRV,p.rv*win(u,.2,.8)));
+    v=ad(v,nz(VB,win(u,.68,1)*(1+.3*(p.lv-1))));
+    if(M.late)v=ad(v,nz(M.late,win(u,.62,1)));
+    if(M.qv[0]||M.qv[1]||M.qv[2])v=ad(v,nz(M.qv,u<=.8?Math.abs(Math.sin(Math.PI*u/.8)):0));
+  }
+  var J=M.tq+M.D,sw=sg((tb-J)/.006)*(1-sg((tb-(M.Tc+.03))/.02));
+  v=ad(v,nz(M.st,sw));
+  v=ad(v,nz(M.tv,g(tb,M.Tc,M.tw)));
+  if(M.uA>0)v=ad(v,nz(M.uv,g(tb,M.Tc+.2,.045)));
+  if(p.dig)v=ad(v,nz(M.dgv,g(tb,J+.09,.07)));
+  return v;
+}
+function beatsOf(p,M,Tmax,seed){
+  var b=[],rr=60/p.rate,i;
+  if(p.rh==='af'){var R=rng(seed||11),t=.3;while(t<Tmax+1){b.push({t0:t-M.tq,noP:true});t+=rr*(.55+.9*R())}}
+  else{for(i=0;;i++){var t0=.2+i*rr;if(t0>Tmax+1)break;b.push({t0:t0,noP:false})}}
+  return b;
+}
+function sigAt(L,t,p,M,beats,seed){
+  var v=[0,0,0],i,b,tb;
+  for(i=0;i<beats.length;i++){b=beats[i];tb=t-b.t0;if(tb>-.02&&tb<1.0)v=ad(v,vec(tb,p,M,b.noP))}
+  var s=p.vol*dot(v,LD[L]);
+  if(p.rh==='af')s+=.04*(L==='V1'?1.6:L==='II'?1:.6)*(Math.sin(2*Math.PI*5.3*t+1)+.8*Math.sin(2*Math.PI*7.9*t+2.2)+.6*Math.sin(2*Math.PI*10.7*t+.4));
+  return s;
+}
+function trace(p,M){
+  var out={},N=1000,v=[],i;
+  for(i=0;i<N;i++)v.push(vec(i/1000,p,M,false));
+  NAMES.forEach(function(L){var a=[];for(i=0;i<N;i++)a.push(p.vol*dot(v[i],LD[L]));out[L]=a});
+  return out;
+}
+function measure(p,M,T){
+  var res={},J=M.tq+M.D,x0=Math.round(M.tq*1000),x1=Math.round(J*1000);
+  NAMES.forEach(function(L){
+    var a=T[L],r=0,s=0,i;
+    for(i=x0;i<=x1;i++){if(a[i]>r)r=a[i];if(a[i]<s)s=a[i]}
+    var q=0,run=0,started=false;
+    for(i=x0;i<x0+60;i++){
+      if(a[i]<-.02){if(i-x0<16||started){started=true;run++;if(a[i]<q)q=a[i]}}
+      else if(started)break;
+    }
+    var tst=J+Math.min(.06,Math.max(.02,M.Tc-J-2.2*M.tw)),stv=a[Math.min(999,Math.round(tst*1000))],tpk=a[Math.min(999,Math.round(M.Tc*1000))];
+    var o={R:r*10,S:-s*10,Qd:run,Qa:-q*10,ST:stv*10,T:tpk*10};
+    o.qPat=started&&run>=40&&-q>=.2&&!!(M.qv[0]||M.qv[1]||M.qv[2]);
+    o.elev=o.ST>=1;o.dep=o.ST<=-.5;
+    var expPos=['I','II','aVL','aVF','V3','V4','V5','V6'];
+    o.tInv=(expPos.indexOf(L)>=0&&o.T<=-1)||(L==='V2'&&o.T<=-2);
+    res[L]=o;
+  });
+  return res;
+}
+function axis(M,T){var sx=0,sy=0,x0=Math.round(M.tq*1000),x1=Math.round((M.tq+M.D)*1000);for(var i=x0;i<=x1;i++){sx+=T.I[i];sy+=T.aVF[i]}return Math.round(Math.atan2(sy,sx)*180/Math.PI)}
+function pMeasure(p0){
+  var p=Object.assign({},p0,{type:'none',lv:1,rv:1,bb:'none',qtd:0,dig:0,Ca:9.5}),M=derive(p),a=trace(p,M).II,d=0,pk=0;
+  for(var i=0;i<Math.round((M.tq-.01)*1000);i++){if(Math.abs(a[i])>.02)d++;if(a[i]>pk)pk=a[i]}
+  return{dur:d,amp:pk*10};
+}
+
+/* ---- dibujo común ---- */
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function gridDraw(x,x0,y0,w,h,mm){
+  var a=css('--gridMinor'),b=css('--gridMajor');x.fillStyle=css('--panel');x.fillRect(x0,y0,w,h);x.lineWidth=1;
+  for(var i=0;i*mm<=w;i++){x.strokeStyle=i%5===0?b:a;x.beginPath();x.moveTo(x0+i*mm+.5,y0);x.lineTo(x0+i*mm+.5,y0+h);x.stroke()}
+  for(var j=0;j*mm<=h;j++){x.strokeStyle=j%5===0?b:a;x.beginPath();x.moveTo(x0,y0+j*mm+.5);x.lineTo(x0+w,y0+j*mm+.5);x.stroke()}
+}
+function drawLead(x,L,x0,y0,w,h,mm,fn,off){
+  gridDraw(x,x0,y0,w,h,mm);var base=y0+h/2;
+  x.strokeStyle=css('--trace');x.lineWidth=1.5;x.lineJoin='round';x.beginPath();
+  for(var px=0;px<=w;px++){var t=px/mm*.04+off,y=clamp(base-fn(L,t)*10*mm,y0+2,y0+h-2);if(px===0)x.moveTo(x0+px,y);else x.lineTo(x0+px,y)}
+  x.stroke();
+  x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(x0+.5,y0+.5,w-1,h-1);
+  x.font='600 12px '+css('--font-mono');x.textBaseline='top';x.textAlign='left';x.fillStyle=css('--trace');x.fillText(L,x0+5,y0+4);
+}
+
+/* ---- Pestaña A9 ---- */
+var I={p:Object.assign(defP(),{rate:70}),tors:false};
+var ION=null;
+function ionCompute(){var p=I.p,M=derive(p);ION={p:p,M:M,beats:beatsOf(p,M,6.5)}}
+function drawIon(){
+  var c=$('cIon'),W0=Math.floor($('wIon').clientWidth-2);if(W0<100||!ION)return;
+  var mm=Math.max(W0/150,3.5),W=Math.round(150*mm),h=Math.round(26*mm),gap=6,H=3*h+2*gap;
+  var x=fit(c,W,H);
+  ['II','V2','V5'].forEach(function(L,k){
+    drawLead(x,L,0,k*(h+gap),W,h,mm,function(LL,t){return sigAt(LL,t,ION.p,ION.M,ION.beats)},0);
+  });
+}
+function chip(l,v,ok,txt){return '<span class="chip '+(ok?'ok':'no')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function readIon(){
+  var M=ION.M,p=ION.p,hr=p.rate;
+  var pr=Math.round(M.PR*1000),qrs=Math.round(M.D*1000),qt=Math.round(M.QT*1000),qtc=Math.round(M.QTc*1000);
+  var noP=M.pa<=.05;
+  var h='';
+  h+=chip('FC',hr+' lpm',true);
+  h+=chip('PR',noP?'—':pr+' ms',noP||(pr>=120&&pr<=200),noP?'sin P':pr>200?'PR largo':'');
+  h+=chip('QRS',qrs+' ms',qrs<120,qrs>=120?'QRS ancho':'');
+  h+=chip('QT',qt+' ms',true);
+  h+=chip('QTc',qtc+' ms',qtc<=450&&qtc>=340,qtc>450?'QT largo':qtc<340?'QT corto':'');
+  $('chipsIon').innerHTML=h;
+  var lines=[],K=p.K,Ca=p.Ca;
+  if(K>=5.5){
+    lines.push('El K⁺ extracelular alto despolariza el reposo ('+Math.round(M.Vrest)+' mV en vez de '+Math.round(derive(defP()).Vrest)+' mV). Los canales de Na⁺ pasan a estado inactivado: queda un '+Math.round(M.hn*100)+' % de la corriente de entrada, la fase 0 es más lenta y la conducción baja a '+Math.round(M.cv*100)+' %.');
+    lines.push(K>=9?'Con K⁺ ≥ 9 el QRS y la T se funden en una onda sinusoidal y sigue el paro.':K>=7.5?'La P desaparece (las aurículas son más sensibles) y el QRS se ensancha.':K>=6.2?'La P se aplana y el PR se alarga.':'La repolarización se acelera (más corriente de K⁺): T alta y estrecha.');
+  }else if(K<=3.4){
+    lines.push('Con K⁺ bajo el reposo se hiperpolariza, pero la salida de K⁺ cae y la repolarización se enlentece: T plana, onda U y ST deprimido. Los QRS y la conducción casi no cambian.');
+  }
+  if(Ca<=8.4)lines.push('Con Ca²⁺ bajo la meseta del potencial de acción se alarga: más tiempo entre el QRS y la T, así que el segmento ST y el QT son largos.');
+  if(Ca>=10.8)lines.push('Con Ca²⁺ alto la meseta se acorta: la T aparece pronto, QT corto.');
+  if(p.dig)lines.push('La digoxina acorta la meseta y distorsiona la repolarización: ST en "cubeta" (cóncavo) y QT algo más corto.');
+  if(p.qtd>.2)lines.push('El bloqueo de la corriente de salida de K⁺ enlentece la fase 3: potencial de acción largo, QT largo y riesgo de postdespolarizaciones y torsades.');
+  if(!lines.length)lines.push('Medio normal: K⁺ 4 mmol/L, Ca²⁺ 9,5 mg/dL, sin fármacos. Mueve una perilla para ver qué curva del potencial de acción cambia.');
+  $('whyIon').innerHTML=lines.join(' ');
+  var t=[];
+  if(K>=5.5)t.push('Hiperpotasemia');if(K<=3.4)t.push('Hipopotasemia');if(Ca<=8.4)t.push('Hipocalcemia');if(Ca>=10.8)t.push('Hipercalcemia');if(p.dig)t.push('Digoxina');if(p.qtd>.2)t.push('Fármaco que alarga el QT');
+  $('tIon').textContent=t.length?t.join(' + '):'Normal';
+  $('kV').textContent=K.toFixed(1)+' mmol/L';$('caV').textContent=Ca.toFixed(1)+' mg/dL';$('qdV').textContent=Math.round(p.qtd*100)+' %';$('hrV').textContent=p.rate+' lpm';
+}
+function drawAp(){
+  var c=$('cAp'),W=Math.min(460,Math.floor($('cAp').parentElement.clientWidth-30));if(W<200||!ION)return;
+  var H=Math.round(W*.55),x=fit(c,W,H),pad={l:44,r:10,t:10,b:26},iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+  var X=function(t){return pad.l+t/.5*iw},Y=function(v){return pad.t+(40-v)/165*ih};
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.lineWidth=1;x.textAlign='right';x.textBaseline='middle';
+  [-100,-50,0].forEach(function(v){x.beginPath();x.moveTo(pad.l,Y(v));x.lineTo(W-pad.r,Y(v));x.stroke();x.fillText(v+' mV',pad.l-4,Y(v))});
+  x.textAlign='center';x.textBaseline='top';[0,.1,.2,.3,.4,.5].forEach(function(t){x.fillText(Math.round(t*1000),X(t),H-pad.b+6)});
+  function ap(M){return function(t){
+    var V0=M.Vrest,hn=M.hn,Vp=30*Math.pow(hn,.4),up=.003/hn,apd=.3*M.apdF,t2=apd*.8;
+    if(t<0)return V0;if(t<up)return V0+(Vp-V0)*(t/up);
+    if(t<t2)return Vp+(-5-Vp)*((t-up)/(t2-up));
+    if(t<apd)return -5+(V0+5)*(.5-.5*Math.cos(Math.PI*(t-t2)/(apd-t2)));
+    return V0}}
+  var Mn=derive(defP());
+  function plot(M,col,dash){x.strokeStyle=col;x.lineWidth=dash?1.5:2.4;x.setLineDash(dash||[]);x.beginPath();var f=ap(M);for(var px=0;px<=iw;px++){var t=px/iw*.5,y=Y(f(t)-0);if(px===0)x.moveTo(pad.l+px,y);else x.lineTo(pad.l+px,y)}x.stroke();x.setLineDash([])}
+  plot(Mn,css('--muted'),[5,4]);plot(ION.M,css('--vec'));
+  var M=ION.M;
+  $('apChips').innerHTML=chip('Reposo',Math.round(M.Vrest)+' mV',Math.abs(M.Vrest-Mn.Vrest)<4)+chip('Fase 0',Math.round(M.hn*100)+' %',M.hn>.85)+chip('Duración',Math.round(300*M.apdF)+' ms',Math.abs(M.apdF-1)<.12);
+}
+function renderIon(){ionCompute();readIon();drawIon();drawAp();drawTor()}
+['k','ca','qd','hr'].forEach(function(id){$(id).oninput=function(){var v=+this.value;if(id==='k')I.p.K=v;if(id==='ca')I.p.Ca=v;if(id==='qd')I.p.qtd=v;if(id==='hr')I.p.rate=v;I.tors=false;$('torMsg').textContent='';renderIon()}});
+$('dig').onchange=function(){I.p.dig=this.checked?1:0;renderIon()};
+function syncIonUI(){$('k').value=I.p.K;$('ca').value=I.p.Ca;$('qd').value=I.p.qtd;$('hr').value=I.p.rate;$('dig').checked=!!I.p.dig}
+var PRE=[['Normal',{K:4,Ca:9.5,qtd:0,dig:0,rate:70}],['K⁺ 6 (leve)',{K:6,Ca:9.5,qtd:0,dig:0,rate:70}],['K⁺ 7,5 (moderada)',{K:7.5,Ca:9.5,qtd:0,dig:0,rate:70}],['K⁺ 9 (grave)',{K:9,Ca:9.5,qtd:0,dig:0,rate:70}],['K⁺ 2,6 (bajo)',{K:2.6,Ca:9.5,qtd:0,dig:0,rate:70}],['Ca²⁺ 6,5 (bajo)',{K:4,Ca:6.5,qtd:0,dig:0,rate:70}],['Ca²⁺ 13 (alto)',{K:4,Ca:13,qtd:0,dig:0,rate:70}],['Digoxina',{K:4,Ca:9.5,qtd:0,dig:1,rate:70}],['Fármaco + K⁺ bajo',{K:3,Ca:8.6,qtd:.9,dig:0,rate:55}]];
+PRE.forEach(function(it){var b=document.createElement('button');b.className='btn';b.textContent=it[0];b.onclick=function(){Object.assign(I.p,it[1]);I.tors=false;$('torMsg').textContent='';syncIonUI();renderIon()};$('presets').appendChild(b)});
+
+/* ---- torsades ---- */
+function torSig(t,p,M,bs,ts){
+  /* bs: latidos antes de ts; ts: tiempo de la extrasístole o null */
+  var s=0;
+  if(ts===null)return sigAt('II',t,p,M,bs);
+  var end=ts+3.4,L=p.QTc||M.QTc,torsades=M.QTc>.45;
+  if(t<ts-.01)return sigAt('II',t,p,M,bs.filter(function(b){return b.t0<ts-.3}));
+  s+=1.0*g(t,ts+.06,.028)-.4*g(t,ts+.15,.035)-.35*g(t,ts+.3,.05);
+  if(torsades&&t>ts+.18&&t<end){var u=t-(ts+.18),env=Math.pow(Math.abs(Math.sin(Math.PI*u/1.1)),.9);s+=.95*env*Math.sin(2*Math.PI*3.6*u)}
+  var rest=torsades?end+.9:ts+.7+ (60/p.rate)*.9;
+  var b2=[];for(var tt=rest;tt<9;tt+=60/p.rate)b2.push({t0:tt,noP:false});
+  s+=sigAt('II',t,p,M,b2);
+  return s;
+}
+function drawTor(){
+  var c=$('cTor'),W0=Math.floor($('wTor').clientWidth-2);if(W0<100||!ION)return;
+  var mm=Math.max(W0/250,2.6),W=Math.round(250*mm),h=Math.round(30*mm);
+  var x=fit(c,W,h),p=ION.p,M=ION.M,bs=beatsOf(p,M,10,3),ts=null;
+  if(I.tors){var b3=bs[3];ts=b3.t0+M.Tc-.03}
+  drawLead(x,'II',0,0,W,h,mm,function(L,t){return torSig(t,p,M,bs,ts)},0);
+  if(ts!==null){x.fillStyle=css('--guess');x.font='600 11px '+css('--font-mono');x.textAlign='left';x.textBaseline='bottom';x.fillText('R sobre T',ts/.04*mm-20,h-4)}
+}
+$('tors').onclick=function(){
+  I.tors=true;drawTor();
+  var q=Math.round(ION.M.QTc*1000);
+  $('torMsg').textContent=q>450?'QTc '+q+' ms: la extrasístole cae sobre la T y desencadena torsades (aquí se autolimita).':'QTc '+q+' ms: la extrasístole no inicia torsades porque el tejido ya recuperó. Prolonga el QT y vuelve a probar.';
+};
+$('torsReset').onclick=function(){I.tors=false;$('torMsg').textContent='';drawTor()};
+
+/* ---- retos de predicción ---- */
+var QS=[
+ {q:'El potasio sube a 7,5 mmol/L. ¿Qué verás?',o:['T picuda, P casi ausente y QRS ancho','Onda U y ST deprimido','QT largo con T ancha'],a:0,set:{K:7.5,Ca:9.5,qtd:0,dig:0,rate:70},e:'El reposo se despolariza, el Na⁺ se inactiva y la conducción se enlentece (P, PR, QRS). La repolarización se acelera: T alta y estrecha.'},
+ {q:'El calcio baja a 6,5 mg/dL. ¿Qué cambia?',o:['Se alarga el segmento ST y con él el QT','Se acorta el QT','Cambia el QRS'],a:0,set:{K:4,Ca:6.5,qtd:0,dig:0,rate:70},e:'Con menos calcio la meseta del potencial de acción se alarga: el ST es largo y el QT también. Con calcio alto ocurre lo contrario.'},
+ {q:'Una persona toma digoxina. ¿Qué se ve en el ST?',o:['ST en "cubeta" y QT algo corto','ST elevado en un territorio','Onda delta'],a:0,set:{K:4,Ca:9.5,qtd:0,dig:1,rate:70},e:'La digoxina acorta la meseta y distorsiona la repolarización: ST cóncavo, QT más corto. No cambia el QRS.'}
+];
+var qi=0;
+function showQ(){var q=QS[qi];$('qText').textContent=q.q;$('qOpts').innerHTML=q.o.map(function(t,i){return '<label class="opt"><input type="radio" name="qo" value="'+i+'"> '+t+'</label>'}).join('');$('qFb').textContent=''}
+$('qGo').onclick=function(){
+  var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+  var q=QS[qi],ok=+r.value===q.a;Object.assign(I.p,q.set);I.tors=false;syncIonUI();renderIon();
+  $('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+q.e+' Mira el cambio arriba.';
+};
+$('qNext').onclick=function(){qi=(qi+1)%QS.length;showQ()};
+
+/* ---- Pestaña A10 ---- */
+var CASES=[
+ {n:'FA rápida con hipertrofia del VI',p:{rh:'af',rate:125,lv:1.9}},
+ {n:'Hiperpotasemia con PR largo',p:{K:6.6,rate:75}},
+ {n:'Bloqueo de rama izquierda',p:{bb:'lbbb',rate:72}},
+ {n:'Infarto inferior antiguo con bradicardia sinusal',p:{type:'trans',terr:'inf',stage:5,rate:52}},
+ {n:'Taquicardia sinusal con pericarditis',p:{type:'peri',rate:112}},
+ {n:'Hipertrofia del VD con aurícula derecha agrandada',p:{rv:3.5,ra:2.2,rate:88}},
+ {n:'Digoxina con FA de respuesta lenta',p:{rh:'af',rate:70,dig:1}},
+ {n:'Hipocalcemia con QT largo',p:{Ca:6,rate:65}},
+ {n:'Hipopotasemia con onda U',p:{K:2.6,rate:78}},
+ {n:'Hipertrofia del VI con BAV de 1.er grado',p:{rh:'av1',lv:2,rate:68}},
+ {n:'Fármaco que alarga el QT con bradicardia',p:{qtd:.9,K:3.3,rate:50}},
+ {n:'Bloqueo de rama derecha con aurícula izquierda agrandada',p:{bb:'rbbb',la:2.4,rate:70}},
+ {n:'Infarto anterior agudo con taquicardia sinusal',p:{type:'trans',terr:'ant',stage:2,rate:105}}
+];
+var STEPS=[
+ {k:'rit',l:'1 · Ritmo',s:'perilla: origen',o:['Sinusal normal','Bradicardia sinusal','Taquicardia sinusal','Sinusal con PR largo','Fibrilación auricular']},
+ {k:'p',l:'2 · Onda P',s:'perilla: masa auricular o ión',o:['Normal','Picuda (≥ 2,5 mm)','Ancha y bífida','Aplanada','No hay P (línea fibrilatoria)']},
+ {k:'eje',l:'3 · Eje',s:'perilla: masa o conducción',o:['Normal (−30° a +90°)','Desviado a la izquierda','Desviado a la derecha']},
+ {k:'qrs',l:'4 · Duración del QRS',s:'perilla: conducción',o:['Estrecho (< 120 ms)','Ancho con patrón de rama derecha','Ancho con patrón de rama izquierda','Ancho sin patrón de rama']},
+ {k:'alt',l:'5 · QRS alto o con Q',s:'perilla: masa o tejido',o:['Normal','Voltaje alto (HVI)','R dominante en V1 (HVD)','Bajo voltaje','Q patológica']},
+ {k:'st',l:'6 · Segmento ST',s:'perilla: tejido o fármaco',o:['Normal','Elevado','Deprimido','En cubeta']},
+ {k:'t',l:'7 · Onda T',s:'perilla: ión o fármaco',o:['Normal','Picuda y estrecha','Aplanada con onda U','Invertida','QT largo']}
+];
+var CH={cs:null,p:null,M:null,T:null,R:null,truth:null,revealed:false,stats:{'Seguro':[0,0],'Algo seguro':[0,0],'Adivinando':[0,0]},beats:null};
+function truthOf(p,M,T,R){
+  var t={},pm=pMeasure(p),ax=axis(M,T),sok=R.V1.S+R.V6.R;
+  var maxLimb=Math.max.apply(null,['I','II','III','aVR','aVL','aVF'].map(function(L){return Math.max(R[L].R,R[L].S)}));
+  t.rit=p.rh==='af'?4:M.PR>.205?3:p.rate<60?1:p.rate>100?2:0;
+  t.p=p.rh==='af'?4:M.pa<.5?3:pm.amp>=2.5?1:pm.dur>=120?2:0;
+  t.eje=ax>=-30&&ax<=90?0:ax<-30?1:2;
+  t.qrs=M.D<.12?0:p.bb==='rbbb'?1:p.bb==='lbbb'?2:3;
+  var qp=NAMES.some(function(L){return R[L].qPat});
+  t.alt=qp?4:maxLimb<5?3:(p.bb==='none'&&R.V1.R>R.V1.S&&R.V1.R>=7)?2:(p.bb==='none'&&sok>=34)?1:0;
+  var el=NAMES.filter(function(L){return R[L].elev}).length,dp=NAMES.filter(function(L){return R[L].dep}).length;
+  t.st=p.dig?3:el>=2?1:dp>=2?2:0;
+  var ti=NAMES.some(function(L){return R[L].tInv});
+  t.t=M.QTc>.45?4:M.tAmp>=1.5?1:M.uA>.1?2:ti?3:0;
+  return t;
+}
+function newCase(){
+  var pool=CASES.filter(function(c){return c!==CH.cs}),cs=pool[Math.floor(Math.random()*pool.length)];
+  var p=Object.assign(defP(),cs.p),M=derive(p),T=trace(p,M),R=measure(p,M,T);
+  CH.cs=cs;CH.p=p;CH.M=M;CH.T=T;CH.R=R;CH.truth=truthOf(p,M,T,R);CH.revealed=false;CH.beats=beatsOf(p,M,6.5,Math.floor(Math.random()*500));
+  buildSteps();
+  $('chFb').textContent='Recorre los siete pasos. Cada uno se ata a una perilla del modelo.';
+  $('tLeer').textContent='ECG desconocido';
+  $('knobs').hidden=true;$('knobsHidden').hidden=false;
+  draw12();
+}
+function buildSteps(){
+  var h='';
+  STEPS.forEach(function(s){h+='<div class="sl">'+s.l+'<small>'+s.s+'</small></div><select id="s_'+s.k+'"><option value="">Elige…</option>'+s.o.map(function(o,i){return '<option value="'+i+'">'+o+'</option>'}).join('')+'</select><div class="mark" id="m_'+s.k+'"></div>'});
+  $('steps').innerHTML=h;
+}
+function draw12(){
+  var c=$('c12'),W0=Math.floor($('w12').clientWidth-2);if(W0<100||!CH.T)return;
+  var mm=Math.max(W0/250,2.8),cw=Math.round(62.5*mm),W=cw*4,ch=Math.round(30*mm),H=ch*3+ch+8;
+  var x=fit(c,W,H),M=CH.M,RR=60/CH.p.rate,off=.1;
+  LAY.forEach(function(row,ri){row.forEach(function(L,ci){
+    var x0=ci*cw,y0=ri*ch;gridDraw(x,x0,y0,cw,ch,mm);var base=y0+ch/2;
+    x.strokeStyle=css('--trace');x.lineWidth=1.5;x.lineJoin='round';x.beginPath();
+    for(var px=0;px<=cw;px++){var tt=px/mm*.04,tb=(((tt-off)%RR)+RR)%RR,i=Math.min(999,Math.round(tb*1000)),y=clamp(base-CH.T[L][i]*10*mm,y0+2,y0+ch-2);if(px===0)x.moveTo(x0+px,y);else x.lineTo(x0+px,y)}
+    x.stroke();x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(x0+.5,y0+.5,cw-1,ch-1);
+    x.font='600 12px '+css('--font-mono');x.textBaseline='top';x.textAlign='left';x.fillStyle=css('--trace');x.fillText(L,x0+5,y0+4);
+  })});
+  drawLead(x,'II',0,3*ch+8,W,ch,mm,function(L,t){return sigAt(L,t,CH.p,CH.M,CH.beats)},0);
+}
+$('hintBtn').onclick=function(){
+  var pm=pMeasure(CH.p),M=CH.M;
+  $('chFb').innerHTML='<b>Pista.</b> FC ≈ '+CH.p.rate+' lpm (promedio); QRS '+Math.round(M.D*1000)+' ms; QTc '+Math.round(M.QTc*1000)+' ms; P en II: '+pm.amp.toFixed(1)+' mm y '+pm.dur+' ms.';
+};
+$('checkBtn').onclick=function(){
+  if(CH.revealed)return;
+  var n=0,ans=0;
+  STEPS.forEach(function(s){var v=$('s_'+s.k).value;if(v!=='')ans++});
+  if(ans<STEPS.length){$('chFb').textContent='Responde los siete pasos antes de comprobar.';return}
+  var bad=[];
+  STEPS.forEach(function(s){var v=+$('s_'+s.k).value,ok=v===CH.truth[s.k],m=$('m_'+s.k);m.textContent=ok?'✓':'✗';m.className='mark '+(ok?'ok':'no');if(ok)n++;else bad.push(s.l.replace(/^\d · /,'')+': era '+s.o[CH.truth[s.k]])});
+  CH.revealed=true;
+  var conf=(document.querySelector('input[name=conf]:checked')||{}).value||'Algo seguro';
+  CH.stats[conf][0]++;if(n>=6)CH.stats[conf][1]++;
+  $('tLeer').textContent=CH.cs.n;
+  var msg=(n===7?'<span class="ok">Lectura completa.</span> ':'<span class="'+(n>=5?'ok':'no')+'">'+n+' de 7.</span> ')+(bad.length?'Corrige: '+bad.join('; ')+'.':'Los siete pasos coinciden con el modelo.');
+  if(n===7&&conf==='Adivinando')msg+=' Acertaste sin confianza: el orden de los pasos te sostiene.';
+  if(n<=4&&conf==='Seguro')msg+=' Estabas seguro y fallaste varios pasos: no te saltes ninguno.';
+  $('chFb').innerHTML=msg;
+  var t='Calibración (≥ 6 de 7): ',any=false;Object.keys(CH.stats).forEach(function(k){var s=CH.stats[k];if(s[0]){any=true;t+=k+' '+s[1]+'/'+s[0]+' · '}});
+  $('stats').textContent=any?t.replace(/ · $/,''):'';
+  showKnobs();
+};
+function showKnobs(){
+  var p=CH.p,M=CH.M,o=[];
+  o.push(['Origen',p.rh==='af'?'Fibrilación auricular ('+p.rate+' lpm de respuesta)':p.rh==='av1'?'Sinusal con retraso en el nodo AV':'Sinusal a '+p.rate+' lpm']);
+  o.push(['Conducción',p.bb==='lbbb'?'Bloqueo de rama izquierda':p.bb==='rbbb'?'Bloqueo de rama derecha':M.cv<.9?'Más lenta por hiperpotasemia (PR '+Math.round(M.PR*1000)+' ms, QRS '+Math.round(M.D*1000)+' ms)':'Normal']);
+  var ms=[];if(p.lv>1.15)ms.push('VI × '+p.lv.toFixed(1));if(p.rv>1.3)ms.push('VD × '+p.rv.toFixed(1));if(p.ra>1.3)ms.push('AD agrandada');if(p.la>1.3)ms.push('AI agrandada');if(p.vol<.85)ms.push('voltaje bajo');
+  o.push(['Masa',ms.length?ms.join(', '):'Normal']);
+  var ts=p.type==='none'?'Sin daño':p.type==='trans'?'Oclusión '+({ant:'anterior',lat:'lateral',inf:'inferior',post:'posterior'})[p.terr]+', etapa '+p.stage:p.type==='sub'?'Isquemia subendocárdica':'Pericarditis';
+  o.push(['Tejido',ts]);
+  var io=[];if(p.K>=5.5)io.push('K⁺ '+p.K.toFixed(1));if(p.K<=3.4)io.push('K⁺ '+p.K.toFixed(1));if(p.Ca<=8.4)io.push('Ca²⁺ '+p.Ca.toFixed(1));if(p.Ca>=10.8)io.push('Ca²⁺ '+p.Ca.toFixed(1));if(p.dig)io.push('digoxina');if(p.qtd>.2)io.push('fármaco que alarga el QT');
+  o.push(['Ión o fármaco',io.length?io.join(', '):'Normal']);
+  $('knobs').innerHTML=o.map(function(r){return '<b>'+r[0]+'</b><span>'+r[1]+'</span>'}).join('');
+  $('knobs').hidden=false;$('knobsHidden').hidden=true;
+}
+$('newBtn').onclick=newCase;
+
+/* ---- pestañas ---- */
+function setTab(t){
+  $('tabIon').setAttribute('aria-selected',t==='ion');$('tabLeer').setAttribute('aria-selected',t==='leer');
+  $('vIon').hidden=t!=='ion';$('vLeer').hidden=t!=='leer';
+  if(t==='leer'&&!CH.cs)newCase();else if(t==='leer')draw12();else renderIon();
+}
+$('tabIon').onclick=function(){setTab('ion')};$('tabLeer').onclick=function(){setTab('leer')};
+function all(){if(!$('vIon').hidden)renderIon();else draw12()}
+showQ();syncIonUI();renderIon();
+if(window.ResizeObserver){new ResizeObserver(function(){all()}).observe(document.body)}else window.addEventListener('resize',all);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
+new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(all);
+window.__dbg={derive:derive,defP:defP,trace:trace,measure:measure,axis:axis,pMeasure:pMeasure,truthOf:truthOf,CASES:CASES,STEPS:STEPS};
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,356 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Asa presión–volumen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el asa presión–volumen como un rectángulo deformable cuyos lados son dos líneas (ESPVR y EDPVR) y una pendiente de carga (Ea). */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B3 · asa presión–volumen y función ventricular</div>
+  <h1>Asa presión–volumen</h1>
+  <p class="lede">Construye el asa del ventrículo izquierdo desde dos líneas, la relación telesistólica (ESPVR) y la telediastólica (EDPVR), y mueve tres perillas: precarga, poscarga y contractilidad. Cada una cambia el asa de una forma distinta.</p>
+  <div class="tags"><span>Unidad 6: 6.119–6.138 (con B1)</span><span>Requiere B1</span><span>Nivel N2</span></div>
+</header>
+
+<section class="panel">
+  <h2>El asa y sus perillas</h2>
+  <canvas id="pv" role="img" aria-label="Asa presión–volumen del ventrículo izquierdo con ESPVR, EDPVR y línea de Ea"></canvas>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Precarga (presión telediastólica): <span class="mono" id="pdV"></span><input type="range" id="pd" min="3" max="30" step="1" value="8"></label>
+      <label class="ctl" style="flex:none">Poscarga (elastancia arterial Ea): <span class="mono" id="eaV"></span><input type="range" id="ea" min="60" max="320" step="5" value="140"></label>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Contractilidad (pendiente Ees): <span class="mono" id="eesV"></span><input type="range" id="ees" min="80" max="500" step="10" value="250"></label>
+      <label class="ctl" style="flex:none">Rigidez diastólica (EDPVR): <span class="mono" id="stV"></span><input type="range" id="st" min="100" max="350" step="10" value="100"></label>
+    </div>
+  </div>
+  <div class="row"><button class="btn" id="ref" aria-pressed="true">Mostrar asa normal de referencia</button><button class="btn" id="rst">Valores normales</button></div>
+  <div class="chips" id="read"></div>
+  <p class="why" id="why"></p>
+  <div class="tw"><table><thead><tr><th>Esquina</th><th>Evento</th><th>Qué ocurre</th></tr></thead><tbody>
+    <tr><td class="n">1</td><td>Fin de la diástole</td><td>Se cierra la mitral; el punto cae sobre la EDPVR (volumen y presión telediastólicos)</td></tr>
+    <tr><td class="n">2</td><td>Contracción isovolumétrica → abre la aórtica</td><td>La presión sube sin cambiar el volumen hasta igualar la presión aórtica diastólica</td></tr>
+    <tr><td class="n">3</td><td>Eyección → cierra la aórtica</td><td>El volumen cae; el punto telesistólico cae sobre la ESPVR</td></tr>
+    <tr><td class="n">4</td><td>Relajación isovolumétrica → abre la mitral</td><td>La presión cae sin cambiar el volumen y empieza el llenado</td></tr></tbody></table></div>
+  <p class="note">Modelo estático: ESPVR lineal (V₀ = 10 mL), EDPVR exponencial, línea de Ea desde el volumen telediastólico, presión diastólica aórtica ≈ 72 % de la telesistólica. La forma exacta de la eyección es aproximada. Valores normales: VERIFICAR contra el libro del curso.</p>
+</section>
+
+<section class="panel">
+  <h2>Curva de función ventricular</h2>
+  <canvas id="fn" role="img" aria-label="Volumen sistólico contra presión telediastólica"></canvas>
+  <div class="chips" id="fnRead"></div>
+  <p class="why" id="fnWhy"></p>
+</section>
+
+<section class="panel">
+  <h2>Función diastólica: relajación contra rigidez</h2>
+  <div class="chips" id="dMode"></div>
+  <canvas id="dia" role="img" aria-label="Presión ventricular durante la diástole"></canvas>
+  <div class="chips" id="dRead"></div>
+  <p class="why" id="dWhy"></p>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <h3>Una perilla, tres consecuencias</h3>
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Dibuja el asa antes de verla</h3>
+      <p class="note" id="drTask"></p>
+      <canvas id="dr" role="img" aria-label="Lienzo para marcar las cuatro esquinas del asa"></canvas>
+      <div class="row"><button class="btn" id="drUndo">Quitar último punto</button><button class="btn" id="drNew">Nuevo caso</button></div>
+      <p class="fb" id="drFb" aria-live="polite"></p>
+    </div>
+  </div>
+  <h3>¿Contractilidad o poscarga?</h3>
+  <p class="note">Estas dos asas tienen la misma fracción de eyección. La gris es la normal. Mira la pendiente de la línea telesistólica y la presión telesistólica.</p>
+  <div class="cols2">
+    <canvas id="gm" role="img" aria-label="Asa alterada frente a la normal"></canvas>
+    <div class="col">
+      <div class="chips" id="gCase"></div>
+      <select id="gSel" aria-label="Qué cambió"><option value="">¿Qué cambió?</option><option value="ces">Contractilidad ↓</option><option value="pos">Poscarga ↑</option><option value="pre">Precarga ↓</option><option value="cu">Contractilidad ↑</option></select>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><button class="btn" id="gNew">Nuevo caso</button></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"La fracción de eyección mide la contractilidad": depende de la poscarga y la precarga; dos asas con la misma FE pueden tener contractilidades distintas.</li>
+    <li>"Más precarga = más contractilidad": más precarga ensancha el asa sobre la misma ESPVR, sin cambiar su pendiente.</li>
+    <li>"Más poscarga y más contractilidad son lo mismo": la poscarga mueve el punto telesistólico a lo largo de la misma ESPVR; la contractilidad cambia su pendiente.</li>
+    <li>"dP/dt máx mide la contractilidad sin más": depende de la precarga; ningún índice clínico es totalmente independiente de la carga.</li>
+    <li>"Una presión telediastólica alta indica insuficiencia sistólica": también ocurre en la disfunción diastólica; solo dice la precarga que necesita ese gasto.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Asa construida desde relaciones estáticas, no integrada en el tiempo (B1 lo hace).</li>
+    <li>La forma de la eyección y la presión diastólica aórtica son aproximadas.</li>
+    <li>Ees lineal con volumen de intercepción fijo; en la práctica puede ser curvilínea.</li>
+    <li>La función diastólica usa formas analíticas de relajación exponencial más llenado.</li>
+    <li>La curva de función ventricular no incluye la dependencia de la FC.</li>
+    <li>Sin caso clínico de cierre en esta versión.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.119–6.138). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,mx){return Math.min(mx||940,Math.floor(c.parentElement.clientWidth-(c.parentElement.classList.contains('panel')?30:2)))}
+var V0=10,AE=.4,BE=.026,NORM={pd:8,ea:1.4,ees:2.5,st:1};
+var P={pd:8,ea:1.4,ees:2.5,st:1,ref:true};
+function ped(V,st){return AE*st*(Math.exp(BE*(V-V0))-1)}
+function vOfP(p,st){return V0+Math.log(1+p/(AE*st))/BE}
+function model(q){
+  var EDV=vOfP(q.pd,q.st),ESV=(q.ea*EDV+q.ees*V0)/(q.ea+q.ees),SV=EDV-ESV,Pes=q.ees*(ESV-V0),Pdia=Pes*.72,Ppk=Pes*1.1+4;
+  var pts=[],i,s;
+  for(i=0;i<=40;i++){var V=ESV+(EDV-ESV)*i/40;pts.push([V,Math.max(ped(V,q.st),0)])}   /* llenado */
+  pts.push([EDV,q.pd]);pts.push([EDV,Pdia]);                                             /* isovolumetrica */
+  var h=.36*(Pes-Pdia)+.12*Pes;
+  for(i=1;i<=40;i++){s=i/40;var V=EDV-SV*s,Pp=Pdia+(Pes-Pdia)*s+h*Math.sin(Math.PI*s)*(1-.35*s);pts.push([V,Pp])}   /* eyeccion */
+  pts.push([ESV,Pes]);pts.push([ESV,Math.max(ped(ESV,q.st),0)]);                         /* relajacion */
+  var area=0;for(i=0;i<pts.length;i++){var a=pts[i],b=pts[(i+1)%pts.length];area+=a[0]*b[1]-b[0]*a[1]}area=Math.abs(area)/2;
+  var Pmax=0;pts.forEach(function(p){Pmax=Math.max(Pmax,p[1])});
+  return{EDV:EDV,ESV:ESV,SV:SV,EF:SV/EDV*100,Pes:Pes,Pdia:Pdia,Pmax:Pmax,pts:pts,work:area*1.333e-4,dpdt:q.ees*(EDV-V0)*7,Ea:q.ea,Ees:q.ees,PTD:q.pd,a:{EDV:EDV,ESV:ESV}}}
+function axes(x,r,xr,yr,xt,yt,xl,yl){x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.lineWidth=1;x.textAlign='right';x.textBaseline='middle';
+  yt.forEach(function(v){var y=r.y+r.h-(v-yr[0])/(yr[1]-yr[0])*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(v,r.x-4,y)});
+  x.textAlign='center';x.textBaseline='top';xt.forEach(function(v){var xx=r.x+(v-xr[0])/(xr[1]-xr[0])*r.w;x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h+3);x.stroke();x.fillText(v,xx,r.y+r.h+5)});
+  if(xl){x.textAlign='right';x.fillText(xl,r.x+r.w,r.y+r.h+17)}
+  if(yl){x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText(yl,0,0);x.restore()}}
+var XR=[0,200],YR=[0,200];
+function mp(r,V,Pv){return[r.x+(V-XR[0])/(XR[1]-XR[0])*r.w,r.y+r.h-(Pv-YR[0])/(YR[1]-YR[0])*r.h]}
+function drawLoop(x,r,m,q,opt){
+  opt=opt||{};
+  /* EDPVR */
+  x.strokeStyle=css('--blood');x.lineWidth=1.6;x.setLineDash([5,4]);x.beginPath();for(var i=0;i<=80;i++){var V=V0+i*(190-V0)/80,pp=ped(V,q.st);if(pp>YR[1])break;var p=mp(r,V,pp);i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1])}x.stroke();
+  /* ESPVR */
+  x.strokeStyle=css('--vec');x.beginPath();var a=mp(r,V0,0),b=mp(r,V0+YR[1]/q.ees,YR[1]);x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke();x.setLineDash([]);
+  if(opt.noLoop)return;
+  /* Ea */
+  if(!opt.noEa){x.strokeStyle=css('--muted');x.lineWidth=1.2;x.setLineDash([2,3]);var e0=mp(r,m.EDV,0),e1=mp(r,m.ESV,m.Pes);x.beginPath();x.moveTo(e0[0],e0[1]);x.lineTo(e1[0],e1[1]);x.stroke();x.setLineDash([])}
+  /* asa */
+  x.fillStyle=opt.fill||css('--guessSoft');x.strokeStyle=opt.col||css('--guess');x.lineWidth=opt.lw||2.6;x.beginPath();m.pts.forEach(function(pt,i){var p=mp(r,pt[0],pt[1]);i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1])});x.closePath();if(!opt.noFill)x.fill();x.stroke();
+  if(opt.corners){[[m.EDV,q.pd,'1'],[m.EDV,m.Pdia,'2'],[m.ESV,m.Pes,'3'],[m.ESV,ped(m.ESV,q.st),'4']].forEach(function(c){var p=mp(r,c[0],c[1]);x.fillStyle=css('--fg');x.beginPath();x.arc(p[0],p[1],10,0,7);x.fillStyle=css('--panel');x.fill();x.strokeStyle=css('--fg');x.lineWidth=1.4;x.stroke();x.fillStyle=css('--fg');x.font='700 11px '+css('--font-mono');x.textAlign='center';x.textBaseline='middle';x.fillText(c[2],p[0],p[1]+.5)})}
+}
+var MODEL;
+function render(){MODEL=model(P);readPv();drawPv();drawFn();readD();drawD();drawGm();drawDr()}
+function drawPv(){
+  var c=$('pv'),W=cw(c);if(W<260)return;var H=Math.round(clamp(W*.62,260,440)),x=fit(c,W,H),r={x:44,y:8,w:W-58,h:H-38};x.clearRect(0,0,W,H);
+  axes(x,r,XR,YR,[0,50,100,150,200],[0,50,100,150,200],'volumen (mL)','presión (mmHg)');
+  if(P.ref){var mr=model(NORM);drawLoop(x,r,mr,NORM,{col:css('--muted'),fill:'rgba(128,128,128,.08)',lw:1.4,noEa:true,noFill:false})}
+  drawLoop(x,r,MODEL,P,{corners:true});
+  x.font='600 10px '+css('--font-body');x.textAlign='left';x.textBaseline='bottom';x.fillStyle=css('--vec');var tb=mp(r,V0+150/P.ees,150);x.fillText('ESPVR (pendiente Ees)',tb[0]+6,tb[1]+14);x.fillStyle=css('--blood');var te=mp(r,150,ped(150,P.st));x.fillText('EDPVR',te[0]-34,te[1]-4);x.fillStyle=css('--muted');var ta=mp(r,MODEL.EDV-6,6);x.fillText('línea de Ea',ta[0]-70,ta[1]-14);
+}
+function readPv(){
+  var m=MODEL,n=model(NORM);
+  $('pdV').textContent=P.pd+' mmHg';$('eaV').textContent=fmt(P.ea,2)+' mmHg/mL';$('eesV').textContent=fmt(P.ees,2)+' mmHg/mL';$('stV').textContent='× '+fmt(P.st,1);
+  $('read').innerHTML=chip('Vol. telediastólico',Math.round(m.EDV)+' mL',Math.abs(m.EDV/n.EDV-1)<.15)+chip('Vol. telesistólico',Math.round(m.ESV)+' mL',Math.abs(m.ESV/n.ESV-1)<.25)+chip('Vol. sistólico',Math.round(m.SV)+' mL',m.SV>50)+chip('FE',Math.round(m.EF)+' %',m.EF>=50)+chip('Pres. telesistólica',Math.round(m.Pes)+' mmHg',m.Pes<130)+chip('Trabajo sistólico',fmt(m.work,2)+' J',true)+chip('Ea / Ees',fmt(P.ea/P.ees,2),P.ea/P.ees<.8,'acople')+chip('dP/dt máx (aprox.)',Math.round(m.dpdt)+' mmHg/s',true,'depende de la precarga');
+  var w=[];
+  if(Math.abs(P.pd-NORM.pd)>1&&P.ees===NORM.ees&&P.ea===NORM.ea)w.push('Cambiar la precarga mueve el punto telediastólico a lo largo de la EDPVR: el asa se ensancha o se estrecha sobre la misma línea telesistólica y el volumen sistólico cambia.');
+  if(Math.abs(P.ea-NORM.ea)>.1)w.push('Más poscarga (Ea mayor) hace la línea de Ea más empinada: el punto telesistólico sube sobre la misma ESPVR, el volumen telesistólico crece y el volumen sistólico baja.');
+  if(Math.abs(P.ees-NORM.ees)>.1)w.push(P.ees<NORM.ees?'Menos contractilidad: la ESPVR se acuesta, el ventrículo expulsa menos y el volumen telesistólico sube.':'Más contractilidad: la ESPVR se empina, el ventrículo expulsa más y el volumen telesistólico baja.');
+  if(P.st>1.4)w.push('Con el ventrículo más rígido, la EDPVR sube: la misma presión telediastólica corresponde a un volumen menor.');
+  if(!w.length)w.push('El asa se cierra entre las dos líneas: la EDPVR abajo, la ESPVR arriba y la línea de Ea como carga arterial. El área es el trabajo sistólico.');
+  $('why').textContent=w.join(' ');
+  $('ref').setAttribute('aria-pressed',P.ref);
+}
+['pd','ea','ees','st'].forEach(function(k){$(k).oninput=function(){var v=+this.value;P[k]=k==='pd'?v:v/100;render()}});
+$('ref').onclick=function(){P.ref=!P.ref;render()};
+function sync(){$('pd').value=P.pd;$('ea').value=Math.round(P.ea*100);$('ees').value=Math.round(P.ees*100);$('st').value=Math.round(P.st*100)}
+$('rst').onclick=function(){Object.assign(P,NORM);sync();render()};
+/* curva de funcion */
+function drawFn(){
+  var c=$('fn'),W=cw(c,620);if(W<260)return;var H=Math.round(clamp(W*.5,220,340)),x=fit(c,W,H),r={x:44,y:8,w:W-58,h:H-38};x.clearRect(0,0,W,H);
+  var xr=[0,30],yr=[0,130];function m(p,v){return[r.x+(p-xr[0])/(xr[1]-xr[0])*r.w,r.y+r.h-(v-yr[0])/(yr[1]-yr[0])*r.h]}
+  x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.textAlign='right';x.textBaseline='middle';[0,40,80,120].forEach(function(v){var p=m(0,v);x.beginPath();x.moveTo(r.x,p[1]);x.lineTo(r.x+r.w,p[1]);x.stroke();x.fillText(v,r.x-4,p[1])});
+  x.textAlign='center';x.textBaseline='top';[0,10,20,30].forEach(function(v){var p=m(v,0);x.fillText(v,p[0],r.y+r.h+5)});x.textAlign='right';x.fillText('presión telediastólica (mmHg)',r.x+r.w,r.y+r.h+17);
+  x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText('volumen sistólico (mL)',0,0);x.restore();
+  function curve(q,col,lw,dash){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();for(var p=2;p<=30;p+=.5){var mm=model(Object.assign({},q,{pd:p})),pt=m(p,mm.SV);p===2?x.moveTo(pt[0],pt[1]):x.lineTo(pt[0],pt[1])}x.stroke();x.setLineDash([])}
+  curve(Object.assign({},NORM,{ees:4}),css('--vec'),1.4,[4,3]);curve(NORM,css('--muted'),1.6,[4,3]);curve(Object.assign({},NORM,{ees:1.2}),css('--blood'),1.4,[4,3]);
+  curve(P,css('--guess'),2.8);
+  var pt=m(P.pd,MODEL.SV);x.fillStyle=css('--guess');x.beginPath();x.arc(pt[0],pt[1],5,0,7);x.fill();
+  x.font='600 10px '+css('--font-body');x.textAlign='left';x.fillStyle=css('--vec');x.fillText('inotrópico (Ees 4)',r.x+r.w-120,m(30,model(Object.assign({},NORM,{ees:4,pd:30})).SV)[1]-6);x.fillStyle=css('--muted');x.fillText('normal',r.x+r.w-52,m(30,model(Object.assign({},NORM,{pd:30})).SV)[1]+12);x.fillStyle=css('--blood');x.fillText('insuficiencia (Ees 1,2)',r.x+r.w-130,m(30,model(Object.assign({},NORM,{ees:1.2,pd:30})).SV)[1]+14);
+  var n=model(NORM);$('fnRead').innerHTML=chip('PTD',P.pd+' mmHg',true)+chip('VS',Math.round(MODEL.SV)+' mL',MODEL.SV>50)+chip('GC a 70 lpm',fmt(MODEL.SV*70/1000,1)+' L/min',MODEL.SV*70/1000>4);
+  $('fnWhy').textContent=(Math.abs(P.ees-NORM.ees)>.1||Math.abs(P.ea-NORM.ea)>.1)?'Cambiar la contractilidad o la poscarga cambia de curva (la curva se desplaza). Cambiar solo la precarga es moverse sobre la curva.':'Mueve la precarga y mira el punto deslizarse sobre la curva; cambia la contractilidad o la poscarga y la curva entera cambia. Una PTD alta no distingue disfunción sistólica de diastólica; solo indica la precarga que se necesita para ese gasto.';
+}
+/* funcion diastolica */
+var DM={n:{n:'Normal',tau:30,st:1,pd:0},rel:{n:'Relajación anormal',tau:85,st:1,pd:0},rig:{n:'Rigidez',tau:30,st:2.8,pd:0}},dm='n';
+Object.keys(DM).forEach(function(k){var b=document.createElement('button');b.className='btn';b.dataset.k=k;b.textContent=DM[k].n;b.onclick=function(){dm=k;readD();drawD()};$('dMode').appendChild(b)});
+function dPres(t,d){
+  var Pes=100,ESV=50,SV=70,tA=380,P0=Pes;
+  var fr=.6*(1-Math.exp(-Math.max(t-50,0)/38))+.15*clamp((t-130)/250,0,1)+(t>=tA?.25*Math.pow(Math.sin(Math.PI/2*Math.min((t-tA)/70,1)),2):0);
+  var V=ESV+SV*fr,pf=AE*d.st*(Math.exp(BE*(V-V0))-1),pr=Pes*Math.exp(-t/d.tau);
+  return pr+pf}
+function drawD(){
+  var c=$('dia'),W=cw(c,620);if(W<260)return;var H=Math.round(clamp(W*.42,200,300)),x=fit(c,W,H),r={x:44,y:8,w:W-58,h:H-36},T=520,yr=[0,30],d=DM[dm];x.clearRect(0,0,W,H);
+  x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.textAlign='right';x.textBaseline='middle';
+  [0,10,20,30].forEach(function(v){var y=r.y+r.h-v/yr[1]*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(v,r.x-4,y)});x.textAlign='center';x.textBaseline='top';[0,100,200,300,400,500].forEach(function(v){x.fillText(v,r.x+v/T*r.w,r.y+r.h+5)});x.textAlign='right';x.fillText('ms desde el cierre aórtico',r.x+r.w,r.y+r.h+17);
+  function plot(dd,col,lw,dash){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.beginPath();for(var t=0;t<=T;t+=2){var p=dPres(t,dd),yy=r.y+r.h-clamp(p,0,yr[1])/yr[1]*r.h;t?x.lineTo(r.x+t/T*r.w,yy):x.moveTo(r.x+t/T*r.w,yy)}x.stroke();x.setLineDash([])}
+  plot(DM.n,css('--muted'),1.3,[5,4]);plot(d,css('--guess'),2.6);
+  var vt=0,vm=1e9,t;for(t=0;t<=T;t+=2){var p=dPres(t,d);if(t>40&&p<vm){vm=p;vt=t}}
+  var px=r.x+vt/T*r.w,py=r.y+r.h-clamp(vm,0,yr[1])/yr[1]*r.h;x.fillStyle=css('--fg');x.beginPath();x.arc(px,py,4,0,7);x.fill();x.font='600 10px '+css('--font-body');x.textAlign='center';x.textBaseline='top';x.fillText('valle',px,py+6);
+  d._v=[vt,vm];
+}
+function readD(){
+  var d=DM[dm],t,vt=0,vm=1e9,pa=dPres(375,d),pe=dPres(480,d);for(t=40;t<=520;t+=2){var p=dPres(t,d);if(p<vm){vm=p;vt=t}}
+  $('dRead').innerHTML=chip('Valle de presión',fmt(vm,1)+' mmHg a los '+vt+' ms',true)+chip('Antes de la onda A',fmt(pa,1)+' mmHg',pa<10)+chip('Presión telediastólica',fmt(pe,1)+' mmHg',pe<12);
+  $('dWhy').textContent=dm==='n'?'En diástole normal la presión cae rápido, el valle ocurre pronto y luego sube con el llenado.':dm==='rel'?'Con relajación anormal la presión sigue cayendo durante la diástole temprana y el valle ocurre a mitad de la diástole.':'Con rigidez la presión antes de la A puede ser normal, pero la onda A es alta y la presión telediastólica muy elevada.';
+  document.querySelectorAll('#dMode .btn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===dm?'true':'false')});
+}
+/* retos */
+var QS=[
+ {q:'Subes solo la precarga (presión telediastólica 8 → 18 mmHg). ¿Qué cambia?',o:['El asa se ensancha sobre la misma ESPVR y sube el volumen sistólico','La ESPVR se empina y baja el volumen telesistólico','El punto telesistólico sube a lo largo de la ESPVR'],a:0,ap:function(){Object.assign(P,NORM,{pd:18});sync();render()},e:function(){return 'El volumen telediastólico pasa a '+Math.round(MODEL.EDV)+' mL y el sistólico a '+Math.round(MODEL.SV)+' mL; la pendiente de la ESPVR no cambia.'}},
+ {q:'Subes solo la poscarga (Ea de 1,4 a 2,4 mmHg/mL). ¿Qué pasa con el punto telesistólico?',o:['Se mueve hacia arriba a lo largo de la misma ESPVR: más presión, más volumen y menor volumen sistólico','Se mueve hacia abajo: el ventrículo expulsa más','La ESPVR cambia de pendiente'],a:0,ap:function(){Object.assign(P,NORM,{ea:2.4});sync();render()},e:function(){return 'La presión telesistólica sube a '+Math.round(MODEL.Pes)+' mmHg y el volumen telesistólico a '+Math.round(MODEL.ESV)+' mL: ESPVR intacta, carga mayor.'}},
+ {q:'Subes la contractilidad (Ees de 2,5 a 4). ¿Qué pasa con el asa?',o:['La ESPVR se empina, baja el volumen telesistólico y sube la FE','El asa se ensancha por la derecha','No cambia nada si la precarga es la misma'],a:0,ap:function(){Object.assign(P,NORM,{ees:4});sync();render()},e:function(){return 'El volumen telesistólico baja a '+Math.round(MODEL.ESV)+' mL y la FE sube a '+Math.round(MODEL.EF)+' %.'}}
+];
+var qi=0;
+function showQ(){var q=QS[qi];$('qText').textContent=q.q;$('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> '+t+'</label>'}).join('');$('qFb').textContent=''}
+$('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}var q=QS[qi],ok=+r.value===q.a;q.ap();$('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+q.e()+' Mira el asa arriba.'};
+$('qNext').onclick=function(){qi=(qi+1)%QS.length;showQ()};
+/* dibujar el asa */
+var DR={q:null,m:null,clicks:[],done:false,rect:null};
+function newDr(){var pd=[6,8,10,14,18][Math.floor(Math.random()*5)],ea=[1,1.4,1.8,2.2][Math.floor(Math.random()*4)],ees=[1.6,2.5,3.5][Math.floor(Math.random()*3)];DR.q={pd:pd,ea:ea,ees:ees,st:1};DR.m=model(DR.q);DR.clicks=[];DR.done=false;
+  $('drTask').textContent='Con presión telediastólica '+pd+' mmHg, Ea '+fmt(ea,1)+' y Ees '+fmt(ees,1)+' mmHg/mL (las líneas ESPVR y EDPVR están dibujadas), marca las cuatro esquinas en orden: 1 fin de la diástole, 2 apertura aórtica, 3 cierre aórtico, 4 apertura mitral.';$('drFb').textContent='';drawDr()}
+function drawDr(){
+  var c=$('dr'),W=cw(c,460);if(W<220||!DR.q)return;var H=Math.round(W*.8),x=fit(c,W,H),r={x:38,y:6,w:W-48,h:H-32};x.clearRect(0,0,W,H);DR.rect=r;
+  axes(x,r,XR,YR,[0,50,100,150,200],[0,100,200],'mL','mmHg');
+  if(DR.done){drawLoop(x,r,DR.m,DR.q,{corners:true,noEa:false})}else drawLoop(x,r,DR.m,DR.q,{noLoop:true});
+  DR.clicks.forEach(function(p,i){var q=mp(r,p[0],p[1]);x.fillStyle=css('--guess');x.beginPath();x.arc(q[0],q[1],8,0,7);x.fill();x.fillStyle=css('--bg');x.font='700 10px '+css('--font-mono');x.textAlign='center';x.textBaseline='middle';x.fillText(i+1,q[0],q[1]+.5)});
+  if(DR.clicks.length>1){x.strokeStyle=css('--guess');x.lineWidth=1.4;x.setLineDash([3,3]);x.beginPath();DR.clicks.forEach(function(p,i){var q=mp(r,p[0],p[1]);i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])});if(DR.clicks.length===4)x.closePath();x.stroke();x.setLineDash([])}
+}
+$('dr').addEventListener('click',function(e){if(DR.done||DR.clicks.length>=4)return;var b=this.getBoundingClientRect(),r=DR.rect,px=e.clientX-b.left,py=e.clientY-b.top;
+  var V=XR[0]+(px-r.x)/r.w*(XR[1]-XR[0]),Pv=YR[0]+(r.y+r.h-py)/r.h*(YR[1]-YR[0]);if(V<0||V>200||Pv<0||Pv>200)return;DR.clicks.push([V,Pv]);
+  if(DR.clicks.length===4){var m=DR.m,tgt=[[m.EDV,DR.q.pd],[m.EDV,m.Pdia],[m.ESV,m.Pes],[m.ESV,ped(m.ESV,1)]],ok=0,msg=[];
+    DR.clicks.forEach(function(p,i){var good=Math.abs(p[0]-tgt[i][0])<=12&&Math.abs(p[1]-tgt[i][1])<=16;if(good)ok++;else msg.push('punto '+(i+1)+' (debía estar cerca de '+Math.round(tgt[i][0])+' mL y '+Math.round(tgt[i][1])+' mmHg)')});
+    DR.done=true;$('drFb').innerHTML=(ok===4?'<span class="ok">Las cuatro esquinas, bien.</span> ':'<span class="no">'+ok+' de 4 cerca.</span> ')+(msg.length?msg.join('; ')+'. ':'')+'Pistas: 1 y 4 comparten volumen en los extremos de la eyección; 3 cae sobre la ESPVR; 1 cae sobre la EDPVR.'}
+  drawDr()});
+$('drUndo').onclick=function(){if(!DR.done){DR.clicks.pop();drawDr()}};$('drNew').onclick=newDr;
+/* juego contractilidad o poscarga */
+var CASES=[{id:'ces',q:{pd:8,ea:1.4,ees:1.6,st:1},n:'Contractilidad ↓'},{id:'pos',q:{pd:8,ea:2.3,ees:2.5,st:1},n:'Poscarga ↑'},{id:'pre',q:{pd:3,ea:1.4,ees:2.5,st:1},n:'Precarga ↓'},{id:'cu',q:{pd:8,ea:1.4,ees:4,st:1},n:'Contractilidad ↑'}],gc=null;
+function newG(){var pool=CASES.filter(function(c){return c!==gc});gc=pool[Math.floor(Math.random()*pool.length)];var m=model(gc.q);$('gSel').value='';$('gFb').textContent='';
+  $('gCase').innerHTML=chip('FE',Math.round(m.EF)+' %','wn')+chip('Vol. sistólico',Math.round(m.SV)+' mL','wn')+chip('Pres. telesistólica',Math.round(m.Pes)+' mmHg','wn');drawGm()}
+function drawGm(){var c=$('gm'),W=Math.min(460,Math.floor(c.parentElement.clientWidth-2));if(W<220||!gc)return;var H=Math.round(W*.8),x=fit(c,W,H),r={x:38,y:6,w:W-48,h:H-32};x.clearRect(0,0,W,H);
+  axes(x,r,XR,YR,[0,50,100,150,200],[0,100,200],'mL','mmHg');
+  drawLoop(x,r,model(NORM),NORM,{col:css('--muted'),fill:'rgba(128,128,128,.10)',lw:1.4,noEa:true});
+  var m=model(gc.q);drawLoop(x,r,m,gc.q,{noEa:true})}
+$('gNew').onclick=newG;
+$('gGo').onclick=function(){var v=$('gSel').value;if(!v){$('gFb').textContent='Elige una opción.';return}
+  var ex={ces:'La ESPVR se acuesta (pendiente menor): el ventrículo expulsa menos con la misma carga. La presión telesistólica baja.',pos:'La ESPVR es la misma, pero el punto telesistólico sube a lo largo de ella: más presión telesistólica y menos volumen sistólico.',pre:'El asa es más estrecha: menor volumen telediastólico sobre la misma ESPVR y menor volumen sistólico, sin cambiar la pendiente.',cu:'La ESPVR se empina: el volumen telesistólico baja y la fracción de eyección sube.'};
+  $('gFb').innerHTML=(v===gc.id?'<span class="ok">Correcto.</span> ':'<span class="no">No: era '+gc.n.toLowerCase()+'.</span> ')+ex[gc.id]+(gc.id==='ces'||gc.id==='pos'?' Ambas bajan la FE por igual en estos ejemplos, pero la presión telesistólica las distingue.':'')};
+sync();showQ();newDr();newG();render();
+function redraw(){drawPv();drawFn();drawD();drawGm();drawDr()}
+if(window.ResizeObserver)new ResizeObserver(redraw).observe(document.body);else window.addEventListener('resize',redraw);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redraw);
+window.__dbg={model:model,NORM:NORM,CASES:CASES,P:P};
+})();
+</script>
+
+</body></html>

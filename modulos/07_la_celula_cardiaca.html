@@ -1,0 +1,550 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>La célula cardiaca</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el potencial de acción como curva que se edita. Cada conductancia es una perilla y el periodo refractario aparece sombreado bajo la curva. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulos F2 + F3 · fundamentos celulares</div>
+  <h1>La célula cardiaca</h1>
+  <p class="lede">El potencial de acción es una curva que se construye con corrientes. Cambia una conductancia y mira qué fase se mueve. Luego sigue el calcio hasta la fuerza y descubre por qué el corazón no se tetaniza.</p>
+  <div class="tags"><span>Unidad 6: 6.4–6.20, 6.24–6.29</span><span>Nivel N1–N2</span><span>Perillas: conductancias, K⁺ y Ca²⁺ extracelulares</span></div>
+</header>
+
+<section class="panel">
+  <h2>Potencial de acción</h2>
+  <div class="chips" id="cellChips"></div>
+  <canvas id="ap" role="img" aria-label="Potencial de acción con el periodo refractario sombreado"></canvas>
+  <div class="chips" id="apRead"></div>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Conductancia al Na⁺ (fase 0): <span class="mono" id="gnaV"></span>
+        <input type="range" id="gna" min="0" max="150" step="5" value="100"></label>
+      <label class="ctl" style="flex:none">Conductancia al Ca²⁺ tipo L (fase 2): <span class="mono" id="gcaV"></span>
+        <input type="range" id="gca" min="0" max="150" step="5" value="100"></label>
+      <label class="ctl" style="flex:none">Conductancia al K⁺ (fases 1 y 3): <span class="mono" id="gkV"></span>
+        <input type="range" id="gk" min="20" max="200" step="5" value="100"></label>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">K⁺ extracelular: <span class="mono" id="koV"></span>
+        <input type="range" id="ko" min="2" max="9" step="0.1" value="4"></label>
+      <label class="ctl" style="flex:none">Ca²⁺ extracelular: <span class="mono" id="caoV"></span>
+        <input type="range" id="cao" min="0.5" max="4" step="0.1" value="1.8"></label>
+      <label class="ctl" id="gfLab" style="flex:none" hidden>Corriente "funny" (If) del marcapasos: <span class="mono" id="gfV"></span>
+        <input type="range" id="gf" min="20" max="200" step="5" value="100"></label>
+    </div>
+  </div>
+  <div class="chips" id="presets"></div>
+  <p class="why" id="apWhy"></p>
+  <p class="note">Modelo fenomenológico: cada fase se dibuja a partir de la corriente dominante (0: entrada rápida de Na⁺; 1: salida transitoria de K⁺; 2: entrada de Ca²⁺ equilibrada por salida de K⁺, con baja conductancia al K⁺; 3: salida de K⁺; 4: reposo). Nomenclatura de corrientes: VERIFICAR con el libro del curso.</p>
+</section>
+
+<section class="panel">
+  <h2>Acople excitación–contracción</h2>
+  <canvas id="ecc" role="img" aria-label="Potencial de acción, calcio intracelular y fuerza en el mismo eje de tiempo"></canvas>
+  <div class="chips" id="eccRead"></div>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Fármaco inotrópico positivo: <span class="mono" id="inoV"></span>
+        <input type="range" id="ino" min="0" max="100" step="5" value="0"></label>
+      <label class="ctl" style="flex:none">Longitud del sarcómero: <span class="mono" id="lenV"></span>
+        <input type="range" id="len" min="75" max="110" step="1" value="100"></label>
+      <label class="lab"><input type="checkbox" id="lus"> Relajación más rápida (lusitropismo, tono simpático)</label>
+    </div>
+    <div class="col">
+      <ol>
+        <li>El potencial de acción abre canales de Ca²⁺ tipo L, sobre todo en los túbulos T.</li>
+        <li>El Ca²⁺ que entra libera más Ca²⁺ del retículo sarcoplásmico.</li>
+        <li>El Ca²⁺ se une a la troponina C: contracción.</li>
+        <li>La bomba del retículo y el intercambiador Na⁺/Ca²⁺ lo retiran: relajación.</li>
+      </ol>
+    </div>
+  </div>
+  <p class="why" id="eccWhy"></p>
+</section>
+
+<section class="panel">
+  <h2>Intenta tetanizar</h2>
+  <canvas id="tet" role="img" aria-label="Fuerza del músculo esquelético y cardiaco con estimulación repetida"></canvas>
+  <div class="row">
+    <label class="ctl" style="flex:1 1 220px">Frecuencia de estimulación: <span class="mono" id="fV"></span>
+      <input type="range" id="fr" min="1" max="60" step="1" value="5"></label>
+    <div class="chips" id="tetRead"></div>
+  </div>
+  <p class="why" id="tetWhy"></p>
+</section>
+
+<section class="panel">
+  <h2>Longitud, tensión y rigidez</h2>
+  <div class="grid">
+    <div class="col">
+      <canvas id="ls" role="img" aria-label="Curvas de tensión activa y pasiva contra longitud"></canvas>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">Longitud de la fibra (precarga): <span class="mono" id="l2V"></span>
+        <input type="range" id="l2" min="80" max="115" step="1" value="95"></label>
+      <label class="ctl" style="flex:none">Rigidez de la pared: <span class="mono" id="stV"></span>
+        <input type="range" id="st" min="1" max="3" step="0.1" value="1"></label>
+      <div class="chips" id="lsRead"></div>
+      <p class="why" id="lsWhy"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <fieldset id="qBox" style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Juego: ¿qué fase cambió?</h3>
+      <canvas id="gm" role="img" aria-label="Potencial de acción alterado frente al normal"></canvas>
+      <div class="row">
+        <select id="gCause" aria-label="Causa"><option value="">Causa…</option><option value="ca">Bloqueo de canales de Ca²⁺</option><option value="k">Hiperpotasemia</option><option value="na">Bloqueo de canales de Na⁺</option><option value="kb">Bloqueo de canales de K⁺</option></select>
+        <select id="gPhase" aria-label="Fase"><option value="">Fase…</option><option value="0">Fase 0</option><option value="2">Fase 2</option><option value="3">Fase 3</option><option value="4">Fase 4 (reposo)</option></select>
+      </div>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><button class="btn" id="gNew">Nuevo caso</button></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Comparar tejidos excitables</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Tejido</th><th>Duración del PA</th><th>Contracción</th><th>Refractario</th><th>¿Tétanos?</th></tr></thead>
+    <tbody>
+      <tr><td class="n">Nervio</td><td class="n">1–2 ms</td><td>—</td><td class="n">≈ 1–2 ms</td><td>—</td></tr>
+      <tr><td class="n">Músculo esquelético</td><td class="n">2–5 ms</td><td class="n">≈ 20–100 ms</td><td class="n">≈ 3 ms (mucho menor que la contracción)</td><td>Sí, con estímulos rápidos las contracciones se suman</td></tr>
+      <tr><td class="n">Ventricular</td><td class="n">250–300 ms</td><td class="n">≈ 250–300 ms</td><td class="n">≈ 250 ms</td><td>No: el refractario dura casi lo que la contracción</td></tr>
+      <tr><td class="n">Auricular</td><td class="n">≈ 150 ms</td><td class="n">más corta</td><td class="n">≈ 150 ms</td><td>No</td></tr>
+      <tr><td class="n">Nodo SA</td><td class="n">≈ 150 ms</td><td>—</td><td>—</td><td>No dispara por Na⁺: la fase 0 depende de Ca²⁺</td></tr>
+    </tbody></table></div>
+  <p class="note">Valores de referencia que varían según la fuente: VERIFICAR con el libro del curso.</p>
+</section>
+
+<section class="cols2">
+  <div class="panel">
+    <h3>Errores comunes que desmonta</h3>
+    <ul>
+      <li>"La meseta es una pausa": es un equilibrio entre la entrada de Ca²⁺ y la salida de K⁺, con una conductancia baja al K⁺.</li>
+      <li>"El Ca²⁺ de la contracción viene todo del exterior": entra poco y dispara la liberación del retículo.</li>
+      <li>"Con más estímulos el corazón se contrae más fuerte": se contrae igual, y si se excede el refractario simplemente no responde.</li>
+      <li>"Starling es un reflejo": es una propiedad de la fibra: más estiramiento, más fuerza.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>Simplificaciones de este modelo</h3>
+    <ul>
+      <li>Fases dibujadas por tramos; no se resuelven las ecuaciones de cada canal.</li>
+      <li>El periodo refractario absoluto se marca hasta −55 mV y el relativo hasta cerca del reposo.</li>
+      <li>El transitorio de Ca²⁺ y la fuerza siguen formas típicas (Hill), no un modelo de ciclos de puentes.</li>
+      <li>La rigidez pasiva usa una curva exponencial genérica (VERIFICAR el vínculo con la EDPVR de B3).</li>
+      <li>El tétanos esquelético usa suma lineal con saturación.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.4–6.20, 6.24–6.29). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+
+/* ---- modelo de potencial de acción ---- */
+var CELLS={vent:{n:'Ventricular',apd:280,vpl:8,gna:1},atr:{n:'Auricular',apd:150,vpl:-8,gna:1},pur:{n:'Fibra de Purkinje',apd:350,vpl:12,gna:1.3},sa:{n:'Nodo SA',apd:150,vpl:0,gna:0}};
+var S={cell:'vent',gna:1,gca:1,gk:1,ko:4,cao:1.8,gf:1};
+function mkAp(p,cellId){
+  var C=CELLS[cellId],o={cell:cellId,p:p};
+  o.Vrest=61.5*Math.log((p.ko+.725)/140.06)/Math.LN10;
+  var h=1/(1+Math.exp((o.Vrest+80)/4)),hn=h/.917;
+  o.hn=hn;o.gNaE=p.gna*hn*C.gna;
+  o.gKe=p.gk*Math.sqrt(p.ko/4);o.gCaE=p.gca*Math.pow(p.cao/1.8,.5);
+  if(cellId==='sa'){
+    o.mdp=-62;o.thr=-40;o.slope=.03*p.gf*(1+.1*(p.ko-4)*0);
+    o.Vp=10*Math.pow(Math.max(o.gCaE,.05),.5);
+    o.APD=clamp(C.apd*Math.pow(Math.max(o.gCaE,.1),.6)/Math.pow(o.gKe,.8),40,400);
+    o.T=(o.thr-o.mdp)/o.slope+o.APD;o.fires=o.gCaE>.15&&o.slope>0;
+    o.dvdt=(o.Vp-o.thr)/8;
+    o.f=function(t){if(!o.fires)return o.mdp+o.slope*Math.min(t,600);var u=t%o.T,tr=(o.thr-o.mdp)/o.slope;if(u<tr)return o.mdp+o.slope*u;var a=u-tr;
+      if(a<o.APD*.25)return o.thr+(o.Vp-o.thr)*(a/(o.APD*.25));
+      return o.Vp+(o.mdp-o.Vp)*(.5-.5*Math.cos(Math.PI*clamp((a-o.APD*.25)/(o.APD*.75),0,1)))};
+    o.tmax=1300;o.fires=o.fires;return o;
+  }
+  o.fires=o.gNaE>=.08;
+  o.ts=.6/Math.max(.1,Math.min(1.3,o.gNaE));
+  o.Vp=35*Math.pow(clamp(o.gNaE,.05,1.3),.35);
+  var pl=C.vpl+20*(o.gCaE-1)-14*(o.gKe-1);
+  o.Vpl=clamp(pl,-35,28);
+  o.APD=clamp(C.apd*Math.pow(Math.max(o.gCaE,.02),.8)/Math.pow(o.gKe,.9),12,700);
+  var t1=o.ts+9,t2=o.APD*.82;if(t2<t1+2)t2=t1+2;
+  o.t2=t2;
+  o.f=function(t){
+    if(!o.fires)return o.Vrest;
+    if(t<0)return o.Vrest;
+    if(t<o.ts)return o.Vrest+(o.Vp-o.Vrest)*(t/o.ts);
+    if(t<t1)return o.Vp+(o.Vpl-o.Vp)*((t-o.ts)/(t1-o.ts));
+    if(t<t2)return o.Vpl+(-10-o.Vpl)*((t-t1)/(t2-t1));
+    if(t<o.APD+4){var d=o.APD+4-t2;return -10+(o.Vrest+10)*(.5-.5*Math.cos(Math.PI*clamp((t-t2)/d,0,1)))}
+    return o.Vrest;
+  };
+  o.dvdt=o.fires?(o.Vp-o.Vrest)/o.ts:0;
+  o.tmax=500;
+  /* refractario */
+  var arp=null,rrp=null,t;
+  if(o.fires){for(t=o.ts;t<900;t+=.5){var v=o.f(t);if(arp===null&&t>t1&&v<-55)arp=t;if(rrp===null&&t>t1&&v<o.Vrest+6){rrp=t;break}}
+    o.arp=arp===null?o.APD:arp;o.rrp=rrp===null?o.APD+4:rrp;}
+  return o;
+}
+var NORMAL=function(c){return mkAp({gna:1,gca:1,gk:1,ko:4,cao:1.8,gf:1},c)};
+function curAp(){return mkAp({gna:S.gna,gca:S.gca,gk:S.gk,ko:S.ko,cao:S.cao,gf:S.gf},S.cell)}
+
+function axes(x,r,xr,yr,xt,yt,xl,yl,fy){
+  x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.lineWidth=1;
+  x.textAlign='right';x.textBaseline='middle';
+  yt.forEach(function(v){var y=r.y+r.h-(v-yr[0])/(yr[1]-yr[0])*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(fy?fy(v):v,r.x-4,y)});
+  x.textAlign='center';x.textBaseline='top';
+  xt.forEach(function(v){var xx=r.x+(v-xr[0])/(xr[1]-xr[0])*r.w;x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h+3);x.stroke();x.fillText(v,xx,r.y+r.h+5)});
+  if(xl){x.textAlign='right';x.fillText(xl,r.x+r.w,r.y+r.h+16)}
+  if(yl){x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.fillText(yl,0,0);x.restore()}
+}
+function plotFn(x,r,xr,yr,f,col,lw,dash){
+  x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash||[]);x.lineJoin='round';x.beginPath();
+  var n=Math.round(r.w);
+  for(var i=0;i<=n;i++){var t=xr[0]+(xr[1]-xr[0])*i/n,v=f(t),y=r.y+r.h-(clamp(v,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h;if(i===0)x.moveTo(r.x+i,y);else x.lineTo(r.x+i,y)}
+  x.stroke();x.setLineDash([]);
+}
+function band(x,r,xr,a,b,col){var x0=r.x+(a-xr[0])/(xr[1]-xr[0])*r.w,x1=r.x+(b-xr[0])/(xr[1]-xr[0])*r.w;x.fillStyle=col;x.fillRect(x0,r.y,Math.max(0,x1-x0),r.h)}
+
+/* ---- panel 1 ---- */
+function drawAp(){
+  var c=$('ap'),W=Math.min(940,Math.floor(c.parentElement.clientWidth-30));if(W<260)return;
+  var H=Math.round(clamp(W*.38,200,330)),x=fit(c,W,H),r={x:46,y:10,w:W-60,h:H-42};
+  var ap=curAp(),nm=NORMAL(S.cell),xr=[0,ap.tmax],yr=[-110,50];
+  x.clearRect(0,0,W,H);
+  if(S.cell!=='sa'&&ap.fires){
+    band(x,r,xr,ap.ts,ap.arp,css('--bloodSoft'));band(x,r,xr,ap.arp,ap.rrp,css('--guessSoft'));
+  }
+  var xt=S.cell==='sa'?[0,300,600,900,1200]:[0,100,200,300,400,500];
+  axes(x,r,xr,yr,xt,[-100,-50,0,40],'ms','mV',null);
+  plotFn(x,r,xr,yr,nm.f,css('--muted'),1.4,[5,4]);
+  plotFn(x,r,xr,yr,ap.f,css('--vec'),2.6);
+  var yy=r.y+r.h-(0-yr[0])/(yr[1]-yr[0])*r.h;
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');
+  if(S.cell!=='sa'&&ap.fires){
+    var lab=[[0,'0'],[ap.ts+4,'1'],[(ap.ts+ap.t2)/2,'2'],[(ap.t2+ap.APD)/2,'3']];
+    x.textAlign='center';x.textBaseline='bottom';
+    lab.forEach(function(l){var xx=r.x+(l[0]-xr[0])/(xr[1]-xr[0])*r.w;var vv=l[1]==='0'?30:ap.f(l[0]);var yv=r.y+r.h-(clamp(vv,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h;
+      if(l[1]==='0'){x.textAlign='left';x.fillText('fase 0',xx+6,yv+12);x.textAlign='center'}else x.fillText('fase '+l[1],xx+(l[1]==='3'?18:0),yv-6)});
+    x.textAlign='left';x.fillText('fase 4',r.x+r.w*.78,r.y+r.h-(ap.Vrest-yr[0])/(yr[1]-yr[0])*r.h-6);
+  }
+  if(!ap.fires&&S.cell!=='sa'){x.fillStyle=css('--bad');x.font='600 12px '+css('--font-body');x.textAlign='center';x.fillText('No dispara: queda poca corriente de Na⁺ disponible',r.x+r.w/2,r.y+r.h/2)}
+  if(S.cell==='sa'&&!ap.fires){x.fillStyle=css('--bad');x.font='600 12px '+css('--font-body');x.textAlign='center';x.fillText('El nodo no dispara: falta Ca²⁺ o corriente de marcapasos',r.x+r.w/2,r.y+r.h/2)}
+}
+function readAp(){
+  var ap=curAp(),nm=NORMAL(S.cell),h='';
+  h+=chip('Reposo',fmt(ap.Vrest,0)+' mV',Math.abs(ap.Vrest-nm.Vrest)<3);
+  if(S.cell==='sa'){
+    h+=chip('FC',ap.fires?Math.round(60000/ap.T)+' lpm':'—',ap.fires&&Math.abs(60000/ap.T-60000/nm.T)<8,ap.fires?'':'sin disparo');
+    h+=chip('Pendiente fase 4',fmt(ap.slope*1000,0)+' mV/s',true);
+    h+=chip('Duración',ap.fires?Math.round(ap.APD)+' ms':'—',true);
+  }else{
+    h+=chip('Fase 0',ap.fires?Math.round(ap.dvdt)+' V/s':'—',ap.fires&&ap.dvdt>.7*nm.dvdt);
+    h+=chip('Meseta',ap.fires?fmt(ap.Vpl,0)+' mV':'—',ap.fires&&Math.abs(ap.Vpl-nm.Vpl)<10);
+    h+=chip('Duración',ap.fires?Math.round(ap.APD)+' ms':'—',ap.fires&&Math.abs(ap.APD-nm.APD)<.25*nm.APD);
+    h+=chip('Refractario absoluto',ap.fires?Math.round(ap.arp)+' ms':'—',true);
+  }
+  $('apRead').innerHTML=h;
+  var w=[],K=S.ko;
+  if(S.cell==='sa'){
+    w.push('El nodo SA no tiene una fase 4 plana: la corriente "funny" (canales HCN, que se activan al hiperpolarizar y dejan entrar cationes) despolariza la célula hasta el umbral y esa pendiente fija la frecuencia. La fase 0 depende del Ca²⁺, no del Na⁺.');
+    if(S.gf>1.1)w.push('Más corriente funny: pendiente más empinada y más frecuencia.');if(S.gf<.9)w.push('Menos corriente funny: pendiente más suave y menos frecuencia.');
+  }else{
+    w.push(S.cell==='atr'?'El potencial auricular es más corto y sin meseta clara: tiene más salida de K⁺ y menos entrada de Ca²⁺ sostenida.':S.cell==='pur'?'Las fibras de Purkinje tienen la fase 0 más rápida (más Na⁺) y el potencial más largo: así conducen rápido y filtran los latidos muy prematuros.':'La meseta mantiene la membrana despolarizada unos 250 ms. Eso alarga el periodo refractario hasta casi el final de la contracción.');
+    if(S.gna<.85)w.push('Menos conductancia al Na⁺: la fase 0 sube más lento, la conducción se enlentece (QRS ancho).');
+    if(S.gca<.85)w.push('Menos Ca²⁺ tipo L: la meseta se acorta o desaparece y la contracción pierde fuerza.');
+    if(S.gca>1.2)w.push('Más Ca²⁺ tipo L: meseta más alta y larga.');
+    if(S.gk<.85)w.push('Menos conductancia al K⁺: la repolarización se enlentece y el potencial se alarga (QT largo).');
+    if(S.gk>1.2)w.push('Más conductancia al K⁺: la repolarización se acelera y el potencial se acorta.');
+    if(K>5.5)w.push('K⁺ alto despolariza el reposo ('+fmt(ap.Vrest,0)+' mV): el Na⁺ se inactiva, la fase 0 se frena y la repolarización se acelera.');
+    if(K<3)w.push('K⁺ bajo hiperpolariza el reposo y disminuye la corriente de salida: la repolarización final se enlentece.');
+  }
+  $('apWhy').textContent=w.join(' ');
+  $('gnaV').textContent=Math.round(S.gna*100)+' %';$('gcaV').textContent=Math.round(S.gca*100)+' %';$('gkV').textContent=Math.round(S.gk*100)+' %';
+  $('koV').textContent=fmt(S.ko,1)+' mmol/L';$('caoV').textContent=fmt(S.cao,1)+' mmol/L';$('gfV').textContent=Math.round(S.gf*100)+' %';
+  $('gfLab').hidden=S.cell!=='sa';
+  document.querySelectorAll('#cellChips .btn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.c===S.cell?'true':'false')});
+}
+Object.keys(CELLS).forEach(function(k){var b=document.createElement('button');b.className='btn';b.dataset.c=k;b.textContent=CELLS[k].n;b.onclick=function(){S.cell=k;render()};$('cellChips').appendChild(b)});
+$('cellChips').className='chips';
+[['gna','gna',100],['gca','gca',100],['gk','gk',100],['gf','gf',100]].forEach(function(a){$(a[0]).oninput=function(){S[a[1]]=this.value/100;render()}});
+$('ko').oninput=function(){S.ko=+this.value;render()};$('cao').oninput=function(){S.cao=+this.value;render()};
+var PRE=[['Normal',{gna:1,gca:1,gk:1,ko:4,cao:1.8,gf:1}],['Bloqueo de Ca²⁺',{gna:1,gca:.1,gk:1,ko:4,cao:1.8,gf:1}],['Bloqueo de Na⁺',{gna:.3,gca:1,gk:1,ko:4,cao:1.8,gf:1}],['Bloqueo de K⁺',{gna:1,gca:1,gk:.4,ko:4,cao:1.8,gf:1}],['Hiperpotasemia (8)',{gna:1,gca:1,gk:1,ko:8,cao:1.8,gf:1}],['Hipopotasemia (2,5)',{gna:1,gca:1,gk:1,ko:2.5,cao:1.8,gf:1}],['Calcio bajo',{gna:1,gca:1,gk:1,ko:4,cao:.8,gf:1}]];
+PRE.forEach(function(it){var b=document.createElement('button');b.className='btn';b.textContent=it[0];b.onclick=function(){Object.assign(S,it[1]);syncUI();render()};$('presets').appendChild(b)});
+function syncUI(){$('gna').value=S.gna*100;$('gca').value=S.gca*100;$('gk').value=S.gk*100;$('ko').value=S.ko;$('cao').value=S.cao;$('gf').value=S.gf*100}
+
+/* ---- panel 2: acople ---- */
+var E={ino:0,len:100,lus:false};
+function eccModel(){
+  var ap=mkAp({gna:S.gna,gca:S.gca,gk:S.gk,ko:S.ko,cao:S.cao,gf:S.gf},'vent');
+  var A=.8*Math.pow(Math.max(ap.gCaE,0),1.1)*(1+1.4*E.ino/100);
+  var tau=130/(E.lus?1.5:1),c0=.1,N=700,ca=[],F=[],Fh=[],i,t,ff=0;
+  var lenf=clamp((E.len-70)/30,.15,1.05);
+  var shape=function(tt){return tt<0?0:(1-Math.exp(-tt/10))*Math.exp(-tt/tau)},pk=0;
+  for(i=0;i<N;i++)pk=Math.max(pk,shape(i));
+  for(i=0;i<N;i++){t=i;var c=ap.fires?c0+A*shape(t-ap.ts)/pk:c0;ca.push(c);
+    var h=Math.pow(c,3)/(Math.pow(c,3)+Math.pow(.5,3));Fh.push(h*lenf);
+    ff+=(h*lenf-ff)/35;F.push(ff)}
+  var Fmax=0;for(i=0;i<N;i++)Fmax=Math.max(Fmax,F[i]);
+  var tpk=0;for(i=0;i<N;i++)if(F[i]===Fmax){tpk=i;break}
+  var tend=0;for(i=N-1;i>=0;i--)if(F[i]>.1*Fmax){tend=i;break}
+  return{ap:ap,ca:ca,F:F,Fmax:Fmax,tpk:tpk,tend:tend,Apk:A+c0,lenf:lenf};
+}
+var EBASE=null;
+function eccBase(){if(!EBASE){var o={ino:E.ino,len:E.len,lus:E.lus},s0={gna:S.gna,gca:S.gca,gk:S.gk,ko:S.ko,cao:S.cao};E.ino=0;E.len=100;E.lus=false;Object.assign(S,{gna:1,gca:1,gk:1,ko:4,cao:1.8});EBASE=eccModel();E.ino=o.ino;E.len=o.len;E.lus=o.lus;Object.assign(S,s0)}return EBASE}
+function drawEcc(){
+  var c=$('ecc'),W=Math.min(940,Math.floor(c.parentElement.clientWidth-30));if(W<260)return;
+  var M=eccModel(),B=eccBase(),H=Math.round(clamp(W*.62,330,520)),x=fit(c,W,H),gap=14,hh=Math.floor((H-34-2*gap)/3);
+  var xr=[0,600],rs=[{x:50,y:6,w:W-64,h:hh},{x:50,y:6+hh+gap,w:W-64,h:hh},{x:50,y:6+2*(hh+gap),w:W-64,h:hh}];
+  var xt=[0,100,200,300,400,500,600];
+  if(M.ap.fires){rs.forEach(function(r){band(x,r,xr,M.ap.ts,M.ap.arp,css('--bloodSoft'));band(x,r,xr,M.ap.arp,M.ap.rrp,css('--guessSoft'))})}
+  axes(x,rs[0],xr,[-110,50],xt,[-100,-50,0],'','mV');
+  axes(x,rs[1],xr,[0,1.2],xt,[0,.5,1],'','Ca²⁺ (µM)',function(v){return fmt(v,1)});
+  axes(x,rs[2],xr,[0,1.1],xt,[0,.5,1],'ms','Fuerza',function(v){return Math.round(v*100)+'%'});
+  plotFn(x,rs[0],xr,[-110,50],M.ap.f,css('--vec'),2.2);
+  plotFn(x,rs[1],xr,[0,1.2],function(t){return B.ca[clamp(Math.round(t),0,699)]},css('--muted'),1.2,[5,4]);
+  plotFn(x,rs[1],xr,[0,1.2],function(t){return M.ca[clamp(Math.round(t),0,699)]},css('--blood'),2.2);
+  plotFn(x,rs[2],xr,[0,1.1],function(t){return B.F[clamp(Math.round(t),0,699)]/B.Fmax},css('--muted'),1.2,[5,4]);
+  plotFn(x,rs[2],xr,[0,1.1],function(t){return M.F[clamp(Math.round(t),0,699)]/B.Fmax},css('--guess'),2.6);
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='left';x.textBaseline='top';
+  if(M.ap.fires)x.fillText('refractario (rojo: absoluto, naranja: relativo)',rs[0].x+8,rs[0].y+4);
+}
+function readEcc(){
+  var M=eccModel(),B=eccBase();
+  var rel=M.Fmax/B.Fmax;
+  $('eccRead').innerHTML=chip('Fuerza máxima',Math.round(rel*100)+' %',Math.abs(rel-1)<.15,'del normal')+chip('Pico de Ca²⁺',fmt(M.Apk,2)+' µM',true)+chip('Pico de fuerza',M.Fmax>0.02?Math.round(M.tpk)+' ms':'—',true,'tras el estímulo')+chip('Contracción',M.Fmax>.02?Math.round(M.tend)+' ms':'—',true)+chip('Refractario',M.ap.fires?Math.round(M.ap.rrp)+' ms':'—',true);
+  var w=[];
+  w.push('El Ca²⁺ intracelular sube durante la meseta y la fuerza lo sigue con retraso. La contracción dura casi lo mismo que el periodo refractario: antes de que termine, no puede haber otra respuesta.');
+  if(S.gca<.5)w.push('Con poco Ca²⁺ tipo L entra menos Ca²⁺ y el retículo libera menos: la fuerza cae.');
+  if(S.cao<1.2)w.push('Con Ca²⁺ extracelular bajo, la fuerza baja porque entra menos calcio por cada potencial.');
+  if(E.ino>20)w.push('El inotrópico aumenta el transitorio de Ca²⁺ y la fuerza (inotropismo).');
+  if(E.lus)w.push('La relajación rápida retira el Ca²⁺ antes (lusitropismo): la contracción es más corta.');
+  if(E.len<90)w.push('Con el sarcómero acortado hay menos puentes activos: la fuerza baja (relación longitud–tensión).');
+  $('eccWhy').textContent=w.join(' ');
+  $('inoV').textContent=E.ino+' %';$('lenV').textContent=E.len+' % de la longitud óptima';
+}
+$('ino').oninput=function(){E.ino=+this.value;render()};$('len').oninput=function(){E.len=+this.value;render()};$('lus').onchange=function(){E.lus=this.checked;render()};
+
+/* ---- panel 3: tétanos ---- */
+var TE={f:5};
+function tetSim(freq,cardiac){
+  var dur=2,dt=.002,n=Math.round(dur/dt),F=new Array(n).fill(0),stim=[],cap=[],last=-9,i,j;
+  for(var t=.05;t<dur;t+=1/freq)stim.push(t);
+  stim.forEach(function(ts){
+    if(cardiac){if(ts-last>=.26){cap.push(ts);last=ts}}
+    else cap.push(ts);
+  });
+  var rise=cardiac?.06:.02,dec=cardiac?.15:.09,pkn=1;if(!cardiac){pkn=0;for(var q=0;q<400;q++){var uu=q*.001;pkn=Math.max(pkn,(1-Math.exp(-uu/rise))*Math.exp(-uu/dec))}}
+  for(i=0;i<n;i++){var tt=i*dt,s=0;for(j=0;j<cap.length;j++){var u=tt-cap[j];if(u>0)s+=(1-Math.exp(-u/rise))*Math.exp(-u/dec)}F[i]=cardiac?s:4*(1-Math.exp(-(s/pkn)/4))}
+  var mx=0;for(i=0;i<n;i++)mx=Math.max(mx,F[i]);
+  return{F:F,stim:stim,cap:cap,dur:dur,dt:dt,mx:mx};
+}
+function drawTet(){
+  var c=$('tet'),W=Math.min(940,Math.floor(c.parentElement.clientWidth-30));if(W<260)return;
+  var H=Math.round(clamp(W*.5,260,400)),x=fit(c,W,H),gap=14,hh=Math.floor((H-34-gap)/2);
+  var rs=[{x:50,y:6,w:W-64,h:hh},{x:50,y:6+hh+gap,w:W-64,h:hh}],xr=[0,2],xt=[0,.5,1,1.5,2];
+  var sk=tetSim(TE.f,false),ca=tetSim(TE.f,true),norm=Math.max(sk.mx,1);
+  [['Músculo esquelético',sk,0],['Músculo cardiaco',ca,1]].forEach(function(it){
+    var r=rs[it[2]],d=it[1];axes(x,r,xr,[0,1.2],xt,[0,.5,1],it[2]?'s':'','Fuerza',function(v){return Math.round(v*100)+'%'});
+    var mxv=it[2]?1:1;
+    plotFn(x,r,xr,[0,1.2],function(t){var i=clamp(Math.round(t/d.dt),0,d.F.length-1);return d.F[i]/(it[2]?Math.max(ca.mx,.0001):4)},css(it[2]?'--guess':'--vec'),2.4);
+    d.stim.forEach(function(ts){var xx=r.x+ts/2*r.w,cap=d.cap.indexOf(ts)>=0;x.strokeStyle=cap?css('--fg'):css('--muted');x.lineWidth=1;x.setLineDash(cap?[]:[2,3]);x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h-8);x.stroke();x.setLineDash([])});
+    x.fillStyle=css('--fg');x.font='600 11px '+css('--font-body');x.textAlign='left';x.textBaseline='top';x.fillText(it[0],r.x+8,r.y+4);
+  });
+}
+function readTet(){
+  var sk=tetSim(TE.f,false),ca=tetSim(TE.f,true);
+  var tw=tetSim(1,false).mx,fused=sk.mx/Math.max(tw,.001);
+  $('fV').textContent=TE.f+' Hz';
+  var capN=ca.cap.length,stN=ca.stim.length;
+  $('tetRead').innerHTML=chip('Esquelético',fused>2?'tétanos':'contracciones separadas',fused>2?'wn':'ok','×'+fmt(fused,1)+' una sacudida')+chip('Cardiaco',capN+' de '+stN+' estímulos capturan',capN===stN?'ok':'wn');
+  var w=[];
+  w.push('El músculo esquelético tiene refractario de unos 3 ms y contracción de decenas de ms: cada estímulo nuevo cae sobre una contracción en curso y las fuerzas se suman hasta fundirse (tétanos).');
+  w.push(TE.f>4?'El músculo cardiaco no puede responder durante su refractario (≈ 260 ms): captura un estímulo y descarta los que llegan antes. Nunca suma, así que nunca se tetaniza.':'A frecuencias bajas ambos músculos responden a cada estímulo y se relajan entre uno y otro.');
+  $('tetWhy').textContent=w.join(' ');
+}
+$('fr').oninput=function(){TE.f=+this.value;readTet();drawTet()};
+
+/* ---- panel 4: longitud-tensión ---- */
+var LS={l:95,st:1};
+function active(L,ino){var a=clamp((L-70)/30,0,1);if(L>100)a=1-clamp((L-100)/30,0,1)*.4;return a}
+function passive(L,k){var e=(L-80)/30;return k*.05*(Math.exp(4*Math.max(e,0))-1)}
+function drawLs(){
+  var c=$('ls'),W=Math.min(460,Math.floor(c.parentElement.clientWidth-2));if(W<220)return;
+  var H=Math.round(W*.75),x=fit(c,W,H),r={x:44,y:10,w:W-56,h:H-42},xr=[70,120],yr=[0,2.2];
+  axes(x,r,xr,yr,[80,90,100,110,120],[0,.5,1,1.5,2],'longitud (%)','tensión',function(v){return fmt(v,1)});
+  plotFn(x,r,xr,yr,function(L){return active(L)},css('--vec'),2.4);
+  plotFn(x,r,xr,yr,function(L){return passive(L,LS.st)},css('--blood'),2.4);
+  plotFn(x,r,xr,yr,function(L){return active(L)+passive(L,LS.st)},css('--muted'),1.4,[5,4]);
+  var px=r.x+(LS.l-xr[0])/(xr[1]-xr[0])*r.w,a=active(LS.l),pp=passive(LS.l,LS.st);
+  x.fillStyle=css('--vec');x.beginPath();x.arc(px,r.y+r.h-(a-yr[0])/(yr[1]-yr[0])*r.h,5,0,Math.PI*2);x.fill();
+  x.fillStyle=css('--blood');x.beginPath();x.arc(px,r.y+r.h-(clamp(pp,0,yr[1])-yr[0])/(yr[1]-yr[0])*r.h,5,0,Math.PI*2);x.fill();
+  x.font='600 11px '+css('--font-body');x.textAlign='left';x.fillStyle=css('--vec');x.fillText('activa',r.x+6,r.y+14);x.fillStyle=css('--blood');x.fillText('pasiva',r.x+6,r.y+28);x.fillStyle=css('--muted');x.fillText('total',r.x+6,r.y+42);
+}
+function readLs(){
+  var a=active(LS.l),pp=passive(LS.l,LS.st),L0=LS.l,eps=(L0-80)/30,rig=LS.st*.05*4*Math.exp(4*Math.max(eps,0))/30*100;
+  $('l2V').textContent=LS.l+' %';$('stV').textContent='× '+fmt(LS.st,1);
+  $('lsRead').innerHTML=chip('Tensión activa',fmt(a,2),true)+chip('Tensión pasiva',fmt(pp,2),pp<.5?'ok':'wn')+chip('Rigidez local',fmt(rig,2),LS.st<1.3?'ok':'wn','dT/dL');
+  var w=[];
+  w.push('Más estiramiento (más precarga) da más tensión activa: la fibra funciona en la rama ascendente de la curva, y de eso nace Frank–Starling: el gasto sigue al retorno venoso.');
+  if(LS.st>1.3)w.push('Con la pared más rígida (hipertrofia, isquemia) la curva pasiva sube antes: el mismo estiramiento genera más tensión pasiva, lo que corresponde a una EDPVR más empinada (B3).');
+  if(LS.l>108)w.push('Cerca de la longitud máxima la tensión pasiva crece muy rápido y limita el llenado.');
+  $('lsWhy').textContent=w.join(' ');
+}
+$('l2').oninput=function(){LS.l=+this.value;readLs();drawLs()};$('st').oninput=function(){LS.st=+this.value;readLs();drawLs()};
+
+/* ---- retos ---- */
+var QS=[
+ {q:'Bloqueas los canales de Ca²⁺ tipo L. ¿Qué cambia?',o:['Desaparece la meseta, el potencial se acorta y la fuerza cae','La fase 0 se hace más lenta y el QRS se ensancha','El reposo se despolariza'],a:0,set:{cell:'vent',gna:1,gca:.1,gk:1,ko:4,cao:1.8},e:'La meseta nace de la entrada de Ca²⁺ equilibrada por la salida de K⁺. Sin Ca²⁺ entrando, el potencial se parece al de un nervio o un músculo esquelético: corto. Y como entra menos Ca²⁺, la fuerza cae.'},
+ {q:'Bloqueas los canales de K⁺ de la repolarización. ¿Qué pasa con el potencial y el refractario?',o:['Se acorta el potencial y el refractario','Se alarga el potencial y el refractario','No cambian'],a:1,set:{cell:'vent',gna:1,gca:1,gk:.4,ko:4,cao:1.8},e:'La fase 3 depende de la salida de K⁺. Sin ella, la repolarización se retrasa: potencial más largo, refractario más largo y QT largo en el ECG.'},
+ {q:'Estimulas el corazón a 20 Hz. ¿Qué ocurre?',o:['Se tetaniza igual que el músculo esquelético','Captura solo algunos estímulos y nunca suma contracciones','Se contrae con más fuerza en cada estímulo'],a:1,set:null,e:'El refractario cardiaco dura casi lo que la contracción, así que los estímulos que llegan antes se descartan y no hay suma.',after:function(){TE.f=20;$('fr').value=20;readTet();drawTet()}}
+];
+var qi=0;
+function showQ(){var q=QS[qi];$('qText').textContent=q.q;$('qOpts').innerHTML=q.o.map(function(t,i){return '<label class="opt"><input type="radio" name="qo" value="'+i+'"> '+t+'</label>'}).join('');$('qFb').textContent=''}
+$('qGo').onclick=function(){
+  var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+  var q=QS[qi],ok=+r.value===q.a;if(q.set){Object.assign(S,q.set);syncUI();render()}if(q.after)q.after();
+  $('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+q.e+' Mira el cambio arriba.';
+};
+$('qNext').onclick=function(){qi=(qi+1)%QS.length;showQ()};
+
+var SC=[{id:'ca',p:{gca:.1},ph:2,e:'La meseta (fase 2) desapareció: menos entrada de Ca²⁺ tipo L.'},{id:'k',p:{ko:8},ph:4,e:'El reposo está despolarizado (fase 4) y la fase 0 más lenta: hiperpotasemia.'},{id:'na',p:{gna:.3},ph:0,e:'La fase 0 está lenta y baja: bloqueo de canales de Na⁺.'},{id:'kb',p:{gk:.4},ph:3,e:'La repolarización (fase 3) se alargó: menos salida de K⁺.'}];
+var gs=null;
+function newG(){
+  var pool=SC.filter(function(s){return s!==gs}),n=pool[Math.floor(Math.random()*pool.length)];gs=n;
+  $('gCause').value='';$('gPhase').value='';$('gFb').textContent='Compara la curva continua con la normal (discontinua).';drawGm(false)
+}
+function drawGm(){
+  var c=$('gm'),W=Math.min(460,Math.floor(c.parentElement.clientWidth-2));if(W<220||!gs)return;
+  var H=Math.round(W*.6),x=fit(c,W,H),r={x:44,y:8,w:W-56,h:H-38},xr=[0,500],yr=[-110,50];
+  var ap=mkAp(Object.assign({gna:1,gca:1,gk:1,ko:4,cao:1.8,gf:1},gs.p),'vent'),nm=NORMAL('vent');
+  axes(x,r,xr,yr,[0,100,200,300,400,500],[-100,-50,0],'ms','mV');
+  plotFn(x,r,xr,yr,nm.f,css('--muted'),1.4,[5,4]);plotFn(x,r,xr,yr,ap.f,css('--blood'),2.6);
+  if(!ap.fires){x.fillStyle=css('--bad');x.font='600 12px '+css('--font-body');x.textAlign='center';x.fillText('No dispara',r.x+r.w/2,r.y+r.h/2)}
+}
+$('gNew').onclick=newG;
+$('gGo').onclick=function(){
+  var c=$('gCause').value,p=$('gPhase').value;if(!c||p===''){$('gFb').textContent='Elige la causa y la fase.';return}
+  var okC=c===gs.id,okP=+p===gs.ph;
+  $('gFb').innerHTML=(okC&&okP?'<span class="ok">Correcto.</span> ':'<span class="no">'+(okC?'La causa es esa, pero no la fase.':okP?'La fase es esa, pero no la causa.':'No.')+'</span> ')+gs.e;
+};
+
+function render(){readAp();drawAp();readEcc();drawEcc();readTet();drawTet();readLs();drawLs();drawGm()}
+syncUI();newG();showQ();render();
+if(window.ResizeObserver)new ResizeObserver(function(){drawAp();drawEcc();drawTet();drawLs();drawGm()}).observe(document.body);else window.addEventListener('resize',render);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render);
+new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+window.__dbg={mkAp:mkAp,eccModel:eccModel,tetSim:tetSim,S:S};
+})();
+</script>
+
+</body></html>

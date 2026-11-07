@@ -1,0 +1,573 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Masa y tejido</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el mismo papel de ECG; las 12 derivaciones en formato clínico con etiquetas que marcan lo que se desvía de lo normal. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --gridMinor:rgba(205,95,108,.16); --gridMajor:rgba(205,95,108,.38);
+  --trace:#15201E; --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --guess:#C2480F; --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --gridMinor:rgba(255,125,135,.12); --gridMajor:rgba(255,125,135,.30);
+    --trace:#E9F3F0; --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --guess:#FF9A5C; --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --gridMinor:rgba(255,125,135,.12); --gridMajor:rgba(255,125,135,.30);
+  --trace:#E9F3F0; --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --guess:#FF9A5C; --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:600 .95rem var(--font-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--vec)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.grp{display:flex;flex-direction:column;gap:5px}
+.grp .gl{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.q{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr);gap:4px 10px;font-size:.92rem}
+.q b{font-weight:600;color:var(--muted)}
+.q span{min-width:0}
+@media (max-width:520px){.q{grid-template-columns:minmax(0,1fr)}}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+tr.hit td{background:var(--vecSoft)}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulos A7 + A8 · masa y tejido</div>
+  <h1>Masa y tejido</h1>
+  <p class="lede">Más masa da más corriente y más amplitud. Tejido dañado cambia la corriente de reposo y de activación. Mueve la masa, el medio o el territorio y mira las 12 derivaciones.</p>
+  <div class="tags"><span>Unidad 6: 6.97–6.108</span><span>Nivel N1–N2</span><span>Perillas: masa, tejido, medio</span></div>
+</header>
+
+<div class="tabs" role="tablist" aria-label="Modo">
+  <button class="tab" role="tab" id="tabMasa" aria-selected="true">Masa y tamaño</button>
+  <button class="tab" role="tab" id="tabTej" aria-selected="false">Tejido: isquemia, lesión, necrosis</button>
+  <button class="tab" role="tab" id="tabReto" aria-selected="false">Reto: ¿qué territorio?</button>
+</div>
+
+<section class="panel">
+  <h2 id="title">Corazón normal</h2>
+  <div class="tw" id="wrapEcg"><canvas id="ecg" role="img" aria-label="Doce derivaciones del ECG"></canvas></div>
+  <p class="note">Papel a 25 mm/s y 10 mm/mV; 2,5 s por derivación. Las etiquetas marcan ST elevado (↑), ST deprimido (↓), onda Q patológica y T invertida respecto de lo esperado.</p>
+  <p class="why" id="mech"></p>
+</section>
+
+<div class="grid">
+  <div class="col">
+    <div class="panel" id="pMasa">
+      <h2>Perillas de masa</h2>
+      <div class="row">
+        <label class="ctl">Masa del ventrículo izquierdo: <span class="mono" id="lvV"></span>
+          <input type="range" id="lv" min="1" max="2.2" step="0.05" value="1"></label>
+        <label class="ctl">Masa del ventrículo derecho: <span class="mono" id="rvV"></span>
+          <input type="range" id="rv" min="1" max="4" step="0.1" value="1"></label>
+        <label class="ctl">Aurícula derecha: <span class="mono" id="raV"></span>
+          <input type="range" id="ra" min="1" max="2.6" step="0.1" value="1"></label>
+        <label class="ctl">Aurícula izquierda: <span class="mono" id="laV"></span>
+          <input type="range" id="la" min="1" max="2.6" step="0.1" value="1"></label>
+        <label class="ctl">Voltaje del medio: <span class="mono" id="volV"></span>
+          <input type="range" id="vol" min="0.3" max="1.2" step="0.05" value="1"></label>
+      </div>
+      <div class="chips" id="presetsM"></div>
+    </div>
+    <div class="panel" id="pTej" hidden>
+      <h2>Perillas de tejido</h2>
+      <div class="row">
+        <label class="ctl" style="flex:1 1 200px">Tipo de daño
+          <select id="type">
+            <option value="none">Sin daño</option>
+            <option value="trans">Oclusión coronaria (transmural)</option>
+            <option value="sub">Isquemia subendocárdica</option>
+            <option value="peri">Pericarditis</option>
+          </select></label>
+        <label class="ctl" style="flex:1 1 200px">Territorio
+          <select id="terr">
+            <option value="ant">Anterior (V1–V4)</option>
+            <option value="lat">Lateral (I, aVL, V5–V6)</option>
+            <option value="inf">Inferior (II, III, aVF)</option>
+            <option value="post">Posterior (espejo en V1–V3)</option>
+          </select></label>
+      </div>
+      <label class="ctl" id="stageLab" style="flex:none">Tiempo desde la oclusión: <span id="stageV"></span>
+        <input type="range" id="stage" min="0" max="5" step="1" value="2"></label>
+      <p class="note" id="stageTxt"></p>
+      <div class="chips" id="presetsT"></div>
+    </div>
+    <div class="panel" id="pReto" hidden>
+      <h2>Reto</h2>
+      <label class="ctl" style="flex:none">Tu diagnóstico
+        <select id="guess"></select></label>
+      <fieldset><legend>Antes de comprobar, ¿qué tan seguro estás?</legend>
+        <label><input type="radio" name="conf" value="Seguro"> Seguro</label>
+        <label><input type="radio" name="conf" value="Algo seguro" checked> Algo seguro</label>
+        <label><input type="radio" name="conf" value="Adivinando"> Adivinando</label>
+      </fieldset>
+      <div class="row">
+        <button class="btn" id="hintBtn">Pista</button>
+        <button class="btn primary" id="checkBtn">Comprobar</button>
+        <button class="btn" id="newBtn">Nuevo caso</button>
+      </div>
+      <p class="fb" id="chFb" aria-live="polite"></p>
+      <p class="note" id="stats"></p>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel" id="pFind">
+      <h2>Hallazgos</h2>
+      <div class="q" id="find"></div>
+      <div id="findHidden" class="note" hidden>Los hallazgos se muestran al comprobar. Mira primero dónde se eleva o desciende el ST y qué derivaciones tienen Q.</div>
+    </div>
+    <div class="panel" id="pTable">
+      <h3>Medidas por derivación</h3>
+      <div class="tw"><table id="tbl"><thead><tr><th>Deriv.</th><th>R (mm)</th><th>S (mm)</th><th>Q (ms / mm)</th><th>ST (mm)</th><th>T (mm)</th></tr></thead><tbody></tbody></table></div>
+      <p class="note">ST medido 60 ms después del punto J. Criterios de referencia: ST elevado ≥ 1 mm, deprimido ≤ −0,5 mm; Q patológica ≥ 40 ms y ≥ 2 mm (VERIFICAR el criterio del curso).</p>
+    </div>
+  </div>
+</div>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <fieldset id="qBox" style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Evolución del infarto con elevación del ST</h3>
+      <div class="tw"><table>
+        <thead><tr><th>Etapa</th><th>Tiempo</th><th>Qué se ve</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1</td><td>minutos</td><td>T hiperaguda: alta y ancha en el territorio.</td></tr>
+          <tr><td class="n">2</td><td>minutos a horas</td><td>ST elevado con descenso recíproco.</td></tr>
+          <tr><td class="n">3</td><td>horas a días</td><td>Aparecen las ondas Q; el ST sigue elevado.</td></tr>
+          <tr><td class="n">4</td><td>días</td><td>El ST vuelve a la línea y la T se invierte.</td></tr>
+          <tr><td class="n">5</td><td>semanas o más</td><td>La Q suele persistir como cicatriz.</td></tr>
+        </tbody></table></div>
+      <p class="note">La escala de tiempo cambia con la reperfusión y con el territorio. Un infarto puede no producir onda Q (isquemia subendocárdica).</p>
+    </div>
+  </div>
+</section>
+
+<section class="cols2">
+  <div class="panel">
+    <h3>Errores comunes que desmonta</h3>
+    <ul>
+      <li>"Más voltaje es siempre hipertrofia": el voltaje = masa × proximidad × medio. Delgados y jóvenes tienen voltaje alto sin hipertrofia.</li>
+      <li>"El ST elevado siempre es infarto": la pericarditis lo eleva en todo el corazón y con PR deprimido.</li>
+      <li>"Toda Q es necrosis": la q septal estrecha en I, aVL, V5 y V6 es normal.</li>
+      <li>"Sin Q no hay infarto": el infarto subendocárdico puede no tener onda Q.</li>
+      <li>"La T invertida siempre es mala": en aVR y V1 es normal (a veces en III y V2).</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>Simplificaciones de este modelo</h3>
+    <ul>
+      <li>Vectores fijos para septo, VI, VD y base; la hipertrofia solo cambia su magnitud y duración.</li>
+      <li>El daño es un vector de corriente de lesión estático; no hay evolución en minutos dentro del latido.</li>
+      <li>Territorios como direcciones únicas: la anatomía coronaria real varía y las derivaciones se solapan.</li>
+      <li>Los criterios de voltaje (Sokolow-Lyon, R en V1) tienen sensibilidad limitada y dependen de la constitución.</li>
+      <li>Sin bloqueos de rama ni arritmias (ver A6 y A5), ni electrolitos ni fármacos (A9).</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.97–6.108). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function nz(v,m){return[v[0]*m,v[1]*m,v[2]*m]}
+function ad(a,b){return[a[0]+b[0],a[1]+b[1],a[2]+b[2]]}
+function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}
+function g(t,c,w){var x=(t-c)/w;return x*x>16?0:Math.exp(-x*x)}
+function sg(x){return 1/(1+Math.exp(-x))}
+function sin2(u){return Math.pow(Math.sin(Math.PI*u),2)}
+function win(u,a,b){return(u<=a||u>=b)?0:sin2((u-a)/(b-a))}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+
+var LD={I:[1,0,0],II:[.5,.866,0],III:[-.5,.866,0],aVR:[-.866,-.5,0],aVL:[.866,-.5,0],aVF:[0,1,0],
+ V1:[-.7,0,.7],V2:[-.4,0,.9],V3:[-.1,0,1],V4:[.3,0,.95],V5:[.7,.05,.7],V6:[.98,.1,.1]};
+var LAY=[['I','aVR','V1','V4'],['II','aVL','V2','V5'],['III','aVF','V3','V6']];
+var NAMES=['I','II','III','aVR','aVL','aVF','V1','V2','V3','V4','V5','V6'];
+var TERR={ant:[0,.1,1],lat:[.85,-.45,.25],inf:[-.1,1,0],post:[-.2,0,-1]};
+var TERRN={ant:'anterior',lat:'lateral',inf:'inferior',post:'posterior'};
+var VS=[-.2,.08,.28],VLV=[1.0,.75,-.6],VRV=[-.3,.05,.6],VB=[.1,-.35,-.4],VT=[.32,.22,.22];
+var PR_=[.06,.11,.07],PL_=[.03,.03,-.1];
+
+var S={tab:'masa',lv:1,rv:1,ra:1,la:1,vol:1,type:'none',terr:'ant',stage:2,
+  ch:{id:null,revealed:false,p:null},stats:{'Seguro':[0,0],'Algo seguro':[0,0],'Adivinando':[0,0]}};
+
+/* ---- modelo ---- */
+function params(p){
+  var M={};
+  M.tq=.17;M.D=Math.min(.12,.09+.015*(p.lv-1)+.01*(p.rv-1));
+  M.Tc=M.tq+M.D+.14;M.lag=.03+.04*clamp((p.la-1)/1.5,0,1);
+  M.st=[0,0,0];M.lvv=VLV;M.tv=nz(VT,1);M.qv=[0,0,0];M.prv=[0,0,0];M.Tgain=1;
+  var d=TERR[p.terr],sgn=p.terr==='post'?-1:1;
+  var sL=clamp((p.lv-1.5)/.7,0,1),sR=clamp((p.rv-1.8)/1.2,0,1);
+  if(sL>0){M.st=ad(M.st,nz([-1,-.3,0],.15*sL));M.tv=ad(M.tv,nz([-.55,-.03,0],sL))}
+  if(sR>0){M.st=ad(M.st,nz([.1,-.1,-.6],.15*sR));M.tv=ad(M.tv,ad(nz(VT,-.4*sR),[0,0,-.55*sR]))}
+  if(p.type==='trans'){
+    var s=p.stage;
+    if(s===1)M.tv=ad(M.tv,nz(d,.55*sgn));
+    if(s===2){M.st=ad(M.st,nz(d,.26));M.tv=ad(M.tv,nz(d,.3*sgn))}
+    if(s===3){M.st=ad(M.st,nz(d,.2));M.qv=nz(d,-.6)}
+    if(s===4){M.tv=ad(M.tv,nz(d,-.75*sgn));M.qv=nz(d,-.6)}
+    if(s===5)M.qv=nz(d,-.6);
+  }
+  if(p.type==='sub'){M.st=ad(M.st,nz(d,-.2));M.tv=ad(M.tv,nz(d,-.25))}
+  if(p.type==='peri'){var pv=[.5,.45,.45];M.st=ad(M.st,nz(pv,.25));M.prv=nz(pv,-.12)}
+  if(M.qv[0]||M.qv[1]||M.qv[2]){var dn=nz(d,1/Math.sqrt(dot(d,d))),pr=dot(VLV,dn);M.lvv=ad(VLV,nz(dn,-.75*pr))}
+  return M;
+}
+function vec(tb,p,M){
+  var v=[0,0,0],u=(tb-M.tq)/M.D,i;
+  var pr=nz(PR_,p.ra),pl=nz(PL_,p.la>1?p.la*1.1:1);
+  v=ad(v,nz(pr,g(tb,.035,.026)));v=ad(v,nz(pl,g(tb,.035+M.lag,.026)));
+  if(M.prv[0]||M.prv[1])v=ad(v,nz(M.prv,win((tb-.1)/(M.tq-.1-.015),0,1)>0?win((tb-.1)/(M.tq-.115),0,1):0));
+  if(u>=0&&u<=1){
+    v=ad(v,nz(VS,win(u,0,.32)));
+    v=ad(v,nz(M.lvv,p.lv*win(u,.18,.82)));
+    v=ad(v,nz(VRV,p.rv*win(u,.2,.8)));
+    v=ad(v,nz(VB,win(u,.68,1)*(1+.3*(p.lv-1))));
+    if(M.qv[0]||M.qv[1]||M.qv[2])v=ad(v,nz(M.qv,u<=.8?Math.abs(Math.sin(Math.PI*u/.8)):0));
+  }
+  var J=M.tq+M.D,sw=sg((tb-J)/.006)*(1-sg((tb-(M.Tc+.03))/.02));
+  v=ad(v,nz(M.st,sw));
+  v=ad(v,nz(M.tv,g(tb,M.Tc,.048)));
+  return v;
+}
+function trace(p,M){
+  var out={},N=800,v=[],i;
+  for(i=0;i<N;i++)v.push(vec(i/1000,p,M));
+  NAMES.forEach(function(L){var a=[];for(i=0;i<N;i++)a.push(p.vol*dot(v[i],LD[L]));out[L]=a});
+  out._v=v;return out;
+}
+function sample(arr,tb){var i=Math.round(tb*1000)%800;return arr[i]}
+function measure(p,M,T){
+  var res={},J=M.tq+M.D,x0=Math.round(M.tq*1000),x1=Math.round(J*1000);
+  NAMES.forEach(function(L){
+    var a=T[L],r=0,s=0,i;
+    for(i=x0;i<=x1;i++){if(a[i]>r)r=a[i];if(a[i]<s)s=a[i]}
+    var q=0,qd=0,run=0,started=false;
+    for(i=x0;i<x0+60;i++){
+      if(a[i]<-.02){if(i-x0<16||started){started=true;run++;if(a[i]<q)q=a[i]}else{} }
+      else if(started)break;
+    }
+    var pre=(i<x0+60&&started);
+    var stv=a[Math.round((J+.06)*1000)],tpk=a[Math.round(M.Tc*1000)];
+    res[L]={R:r*10,S:-s*10,Qd:run,Qa:-q*10,ST:stv*10,T:tpk*10};
+    res[L].qPat=started&&run>=40&&-q>=.2&&!!(M.qv[0]||M.qv[1]||M.qv[2]);
+    res[L].elev=res[L].ST>=1;res[L].dep=res[L].ST<=-.5;
+    var expPos=['I','II','aVL','aVF','V3','V4','V5','V6'];
+    res[L].tInv=(expPos.indexOf(L)>=0&&res[L].T<=-1)||(L==='V2'&&res[L].T<=-2);
+  });
+  return res;
+}
+function axis(p,M,T){
+  var sx=0,sy=0,x0=Math.round(M.tq*1000),x1=Math.round((M.tq+M.D)*1000);
+  for(var i=x0;i<=x1;i++){sx+=T.I[i];sy+=T.aVF[i]}
+  return Math.round(Math.atan2(sy,sx)*180/Math.PI);
+}
+function pMeasure(p0){
+  var p=Object.assign({},p0,{type:'none',lv:1,rv:1}),M=params(p),T=trace(p,M),a=T.II,d=0,peak=0;
+  for(var i=0;i<Math.round((M.tq-.01)*1000);i++){if(Math.abs(a[i])>.02)d++;if(a[i]>peak)peak=a[i]}
+  return{dur:d,amp:peak*10};
+}
+
+/* ---- dibujo ---- */
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function gridDraw(x,x0,y0,w,h,mm){
+  var a=css('--gridMinor'),b=css('--gridMajor');x.fillStyle=css('--panel');x.fillRect(x0,y0,w,h);x.lineWidth=1;
+  for(var i=0;i*mm<=w;i++){x.strokeStyle=i%5===0?b:a;x.beginPath();x.moveTo(x0+i*mm+.5,y0);x.lineTo(x0+i*mm+.5,y0+h);x.stroke()}
+  for(var j=0;j*mm<=h;j++){x.strokeStyle=j%5===0?b:a;x.beginPath();x.moveTo(x0,y0+j*mm+.5);x.lineTo(x0+w,y0+j*mm+.5);x.stroke()}
+}
+function curP(){return S.tab==='reto'?S.ch.p:S}
+var cache={};
+function compute(){
+  var p=curP();if(!p)return null;
+  var M=params(p),T=trace(p,M),R=measure(p,M,T);
+  cache={p:p,M:M,T:T,R:R};return cache;
+}
+function drawEcg(){
+  var c=$('ecg'),W0=Math.floor($('wrapEcg').clientWidth-2);if(W0<100||!cache.T)return;
+  var mm=Math.max(W0/250,2.8),cw=Math.round(62.5*mm),W=cw*4,ch=Math.round(30*mm),H=ch*3;
+  var x=fit(c,W,H),T=cache.T,R=cache.R,cT=css('--trace'),cG=css('--guess'),cV=css('--vec');
+  var hide=S.tab==='reto'&&!S.ch.revealed,off=.12;
+  LAY.forEach(function(row,ri){row.forEach(function(L,ci){
+    var x0=ci*cw,y0=ri*ch,base=y0+ch/2;
+    gridDraw(x,x0,y0,cw,ch,mm);
+    x.strokeStyle=cT;x.lineWidth=1.5;x.lineJoin='round';x.beginPath();
+    for(var px=0;px<=cw;px++){
+      var tt=px/mm*.04,tb=(((tt-off)%.8)+.8)%.8,v=sample(T[L],tb),y=base-v*10*mm;
+      y=clamp(y,y0+2,y0+ch-2);if(px===0)x.moveTo(x0+px,y);else x.lineTo(x0+px,y);
+    }
+    x.stroke();
+    x.strokeStyle=css('--line');x.lineWidth=1;x.strokeRect(x0+.5,y0+.5,cw-1,ch-1);
+    x.font='600 12px '+css('--font-mono');x.textBaseline='top';x.textAlign='left';x.fillStyle=cT;x.fillText(L,x0+5,y0+4);
+    if(!hide){
+      var r=R[L],tag=[];
+      if(r.elev)tag.push('ST↑');if(r.dep)tag.push('ST↓');if(r.qPat)tag.push('Q');if(r.tInv)tag.push('T inv');
+      if(tag.length){x.fillStyle=r.elev||r.qPat?cG:cV;x.font='600 11px '+css('--font-mono');x.fillText(tag.join(' '),x0+5,y0+19)}
+    }
+  })});
+}
+
+/* ---- hallazgos ---- */
+function listOf(R,f){return NAMES.filter(function(L){return R[L][f]})}
+function territory(R,p){
+  var el=listOf(R,'elev'),dp=listOf(R,'dep'),has=function(a,b){return a.filter(function(x){return b.indexOf(x)>=0}).length};
+  var se=0,sd=0;el.forEach(function(L){se+=R[L].ST});dp.forEach(function(L){sd-=R[L].ST});
+  if(el.length>=5&&dp.indexOf('aVR')>=0&&has(el,['I','II','aVF'])>=2&&has(el,['V4','V5','V6'])>=2)return 'patrón difuso (pericarditis): no respeta un territorio';
+  if(p&&p.type==='none'&&p.lv>1.5&&has(dp,['V5','V6'])>=1)return 'patrón de sobrecarga del VI (ST descendido y T invertida lateral)';
+  if(p&&p.type==='none'&&p.rv>1.8&&has(dp,['V1','V2','V3'])>=1)return 'patrón de sobrecarga del VD (ST y T alterados en V1–V3)';
+  if(se>=sd&&el.length){
+    var t=[];
+    if(has(el,['V1','V2','V3','V4'])>=2)t.push('anterior');
+    if(has(el,['I','aVL','V5','V6'])>=2)t.push('lateral');
+    if(has(el,['II','III','aVF'])>=2)t.push('inferior');
+    return t.length?'elevación del ST '+t.join(' + ')+' (con descenso recíproco en el lado opuesto)':'elevación aislada del ST';
+  }
+  if(dp.length){
+    if(has(dp,['V1','V2','V3'])>=2&&!has(dp,['I','II','III','aVL','aVF']))return 'descenso en V1–V3: isquemia anterior subendocárdica o espejo de una pared posterior (R alta y T alta en V1–V3 sugieren posterior)';
+    return 'descenso del ST en '+dp.join(', ')+': isquemia subendocárdica';
+  }
+  if(listOf(R,'qPat').length)return 'ondas Q con ST normal: infarto evolucionado o antiguo';
+  return 'sin cambios del ST ni Q patológica';
+}
+function renderFind(){
+  var p=cache.p,M=cache.M,T=cache.T,R=cache.R,ax=axis(p,M,T),pm=pMeasure(p);
+  var sok=R.V1.S+R.V6.R,sokOk=sok>=35;
+  var maxLimb=Math.max.apply(null,['I','II','III','aVR','aVL','aVF'].map(function(L){return Math.max(R[L].R,R[L].S)}));
+  var rows=[];
+  rows.push(['Eje frontal del QRS',ax+'° '+(ax>=-30&&ax<=90?'(normal)':ax<-30?'(desviación izquierda)':'(desviación derecha)')]);
+  rows.push(['Duración del QRS',Math.round(M.D*1000)+' ms']);
+  rows.push(['S V1 + R V6',sok.toFixed(0)+' mm '+(sokOk?'≥ 35: criterio de voltaje de HVI (sensibilidad limitada)':'< 35 mm')]);
+  rows.push(['R en V1 · R/S',R.V1.R.toFixed(0)+' mm · '+(R.V1.S>.5?(R.V1.R/R.V1.S).toFixed(1):'—')+(R.V1.R>R.V1.S&&R.V1.R>=7?' (R dominante en V1)':'')]);
+  rows.push(['Onda P en II',pm.dur+' ms · '+pm.amp.toFixed(1)+' mm'+(pm.amp>=2.5?' (picuda: aurícula derecha)':pm.dur>=120?' (ancha: aurícula izquierda)':'')]);
+  rows.push(['Voltaje',maxLimb<5?'<span class="no">Bajo voltaje en derivaciones de miembros (&lt; 5 mm)</span>':'Normal (máx. '+maxLimb.toFixed(0)+' mm en miembros)']);
+  var el=listOf(R,'elev'),dp=listOf(R,'dep'),q=listOf(R,'qPat'),ti=listOf(R,'tInv');
+  rows.push(['ST elevado',el.length?el.join(', '):'ninguna']);
+  rows.push(['ST deprimido',dp.length?dp.join(', '):'ninguna']);
+  rows.push(['Q patológica',q.length?q.join(', '):'ninguna']);
+  rows.push(['T invertida (anómala)',ti.length?ti.join(', '):'ninguna']);
+  rows.push(['Territorio probable',territory(R,p)]);
+  $('find').innerHTML=rows.map(function(r){return '<b>'+r[0]+'</b><span>'+r[1]+'</span>'}).join('');
+  var tb=$('tbl').querySelector('tbody'),h='';
+  NAMES.forEach(function(L){var r=R[L],hit=r.elev||r.dep||r.qPat||r.tInv;
+    h+='<tr'+(hit?' class="hit"':'')+'><td class="n">'+L+'</td><td class="n">'+r.R.toFixed(1)+'</td><td class="n">'+r.S.toFixed(1)+'</td><td class="n">'+(r.Qd?r.Qd+' / '+r.Qa.toFixed(1):'—')+(r.qPat?' *':'')+'</td><td class="n">'+(r.ST>=0?'+':'')+r.ST.toFixed(1)+'</td><td class="n">'+(r.T>=0?'+':'')+r.T.toFixed(1)+'</td></tr>'});
+  tb.innerHTML=h;
+}
+
+/* ---- textos ---- */
+var STAGES=['Sin oclusión','Minutos: T hiperaguda','Minutos a horas: ST elevado','Horas a días: ST elevado y Q','Días: ST normal, T invertida, Q','Semanas: solo Q (cicatriz)'];
+function mechText(p){
+  if(S.tab==='reto')return '';
+  var t=[];
+  if(S.tab==='masa'){
+    if(p.lv>1.15)t.push('Más miocitos en la pared libre izquierda generan más corriente y el vector crece hacia la izquierda: R alta en V5–V6 y S profunda en V1–V2. El QRS se alarga un poco.');
+    if(p.lv>1.5)t.push('Con mucha masa, la repolarización se altera (ST descendido y T invertida en V5–V6: patrón de "sobrecarga").');
+    if(p.rv>1.3)t.push('Más masa derecha empuja el vector hacia la derecha y adelante: R dominante en V1, eje a la derecha.');
+    if(p.rv>2.4)t.push('Con mucha masa derecha aparece T invertida en V1–V3.');
+    if(p.ra>1.3)t.push('Aurícula derecha agrandada: P picuda (≥ 2,5 mm) en II.');
+    if(p.la>1.3)t.push('Aurícula izquierda agrandada: P ancha (≥ 120 ms), bífida en II y con fase final negativa en V1.');
+    if(p.vol<.85)t.push('Un medio que atenúa (derrame pericárdico, enfisema, obesidad) baja la amplitud de todo el trazo sin cambiar la duración ni el eje. Voltaje = masa × proximidad × conductividad del medio.');
+    if(!t.length)t.push('Corazón normal: el vector crece con la masa. Sube la masa de una cámara, agranda una aurícula o cambia el medio para ver qué se mueve.');
+  }else{
+    var tn=TERRN[p.terr];
+    if(p.type==='none')t.push('Sin daño: ST isoeléctrico y T concordante.');
+    if(p.type==='trans')t.push(['','Primeros minutos: la isquemia transmural hace una T alta y ancha ("hiperaguda") en las derivaciones que miran el territorio '+tn+'.','Corriente de lesión: la zona dañada tiene un potencial de reposo distinto. El vector del ST apunta hacia ella y eleva el ST en las derivaciones que la miran. Las opuestas muestran descenso recíproco.','Necrosis: el tejido muerto no genera corriente. El electrodo "ve" a través de la zona hacia la cavidad: onda Q (ventana eléctrica), ancha (≥ 40 ms) y profunda (≥ 2 mm). El ST aún está elevado.','La corriente de lesión desaparece (ST a la línea) y la repolarización queda alterada: T invertida; la Q se mantiene.','Queda la cicatriz: la Q persiste aunque el ST y la T pueden normalizarse.'][p.stage]);
+    if(p.type==='sub')t.push('La isquemia subendocárdica deja una corriente que apunta hacia la cavidad, lejos del electrodo: ST deprimido en las derivaciones que miran el territorio ('+tn+'). No hay Q: el infarto subendocárdico puede ocurrir sin onda Q.');
+    if(p.type==='peri')t.push('La inflamación del pericardio afecta toda la superficie epicárdica: ST elevado en casi todas las derivaciones, descenso en aVR (y V1) y PR deprimido. No respeta un territorio coronario ni hay imagen en espejo.');
+  }
+  return t.join(' ');
+}
+var TITLES={masa:function(p){
+  var a=[];if(p.lv>1.15)a.push('Hipertrofia del VI');if(p.rv>1.3)a.push('Hipertrofia del VD');if(p.ra>1.3)a.push('Aurícula derecha agrandada');if(p.la>1.3)a.push('Aurícula izquierda agrandada');if(p.vol<.85)a.push('Voltaje bajo');
+  return a.length?a.join(' + '):'Corazón normal'},
+ tej:function(p){return p.type==='none'?'Corazón normal':p.type==='trans'?'Oclusión coronaria '+TERRN[p.terr]+' · '+STAGES[p.stage]:p.type==='sub'?'Isquemia subendocárdica '+TERRN[p.terr]:'Pericarditis'}};
+
+/* ---- UI ---- */
+function syncUI(){
+  $('lvV').textContent=S.lv.toFixed(2)+'×';$('rvV').textContent=S.rv.toFixed(1)+'×';$('raV').textContent=S.ra.toFixed(1)+'×';$('laV').textContent=S.la.toFixed(1)+'×';
+  $('volV').textContent=Math.round(S.vol*100)+' %';
+  $('lv').value=S.lv;$('rv').value=S.rv;$('ra').value=S.ra;$('la').value=S.la;$('vol').value=S.vol;
+  $('type').value=S.type;$('terr').value=S.terr;$('stage').value=S.stage;
+  $('stageLab').hidden=S.type!=='trans';$('stageV').textContent=STAGES[S.stage];
+  $('stageTxt').textContent=S.type==='trans'?'Mueve el tiempo y mira la evolución.':'';
+  $('terr').disabled=S.type==='peri'||S.type==='none';
+}
+function render(){
+  var hide=S.tab==='reto'&&!S.ch.revealed;
+  syncUI();
+  var c=compute();if(!c)return;
+  var p=c.p;
+  $('title').textContent=hide?'Trazo desconocido':(S.tab==='masa'?TITLES.masa(p):TITLES.tej(p));
+  $('mech').hidden=hide||S.tab==='reto';$('mech').textContent=mechText(p);
+  $('pFind').hidden=false;$('find').hidden=hide;$('findHidden').hidden=!hide;$('pTable').hidden=hide;
+  if(!hide)renderFind();
+  drawEcg();
+}
+['lv','rv','ra','la','vol'].forEach(function(k){$(k).oninput=function(){S[k]=+this.value;render()}});
+$('type').onchange=function(){S.type=this.value;if(S.type==='trans'&&S.stage===0)S.stage=2;render()};
+$('terr').onchange=function(){S.terr=this.value;render()};
+$('stage').oninput=function(){S.stage=+this.value;render()};
+function setTab(t){
+  S.tab=t;
+  $('tabMasa').setAttribute('aria-selected',t==='masa');$('tabTej').setAttribute('aria-selected',t==='tej');$('tabReto').setAttribute('aria-selected',t==='reto');
+  $('pMasa').hidden=t!=='masa';$('pTej').hidden=t!=='tej';$('pReto').hidden=t!=='reto';
+  if(t==='reto'&&!S.ch.id)newCase();else render();
+}
+$('tabMasa').onclick=function(){S.type='none';S.stage=2;setTab('masa')};
+$('tabTej').onclick=function(){S.lv=1;S.rv=1;S.ra=1;S.la=1;S.vol=1;if(S.type==='none'){S.type='trans';S.terr='ant';S.stage=2}setTab('tej')};
+$('tabReto').onclick=function(){setTab('reto')};
+
+var PM=[['Normal',{lv:1,rv:1,ra:1,la:1,vol:1}],['Hipertrofia del VI',{lv:2,rv:1,ra:1,la:1,vol:1}],['Hipertrofia del VD',{lv:1,rv:3.5,ra:1,la:1,vol:1}],['Aurícula izquierda',{lv:1,rv:1,ra:1,la:2.4,vol:1}],['Aurícula derecha',{lv:1,rv:1,ra:2.4,la:1,vol:1}],['Derrame pericárdico',{lv:1,rv:1,ra:1,la:1,vol:.45}],['EPOC',{lv:1,rv:1.6,ra:1.8,la:1,vol:.6}]];
+var PT=[['Normal',{type:'none'}],['Oclusión anterior (ST↑)',{type:'trans',terr:'ant',stage:2}],['Oclusión inferior (ST↑)',{type:'trans',terr:'inf',stage:2}],['Infarto lateral con Q',{type:'trans',terr:'lat',stage:3}],['Infarto inferior antiguo',{type:'trans',terr:'inf',stage:5}],['Posterior',{type:'trans',terr:'post',stage:2}],['Isquemia subendocárdica',{type:'sub',terr:'lat',stage:0}],['Pericarditis (contraejemplo)',{type:'peri',terr:'ant',stage:0}]];
+function mkPresets(box,list){list.forEach(function(it){var b=document.createElement('button');b.className='btn';b.textContent=it[0];b.onclick=function(){for(var k in it[1])S[k]=it[1][k];render()};$(box).appendChild(b)})}
+mkPresets('presetsM',PM);mkPresets('presetsT',PT);
+
+/* ---- retos de predicción ---- */
+var QS=[
+ {q:'Duplicas la masa del ventrículo izquierdo. ¿Qué cambia?',o:['R más alta en V5–V6 y S más profunda en V1–V2, con QRS apenas más largo','El QRS se ensancha mucho y aparece onda delta','Solo cambia la onda P'],a:0,set:{lv:2,rv:1,ra:1,la:1,vol:1,type:'none'},tab:'masa',e:'Más masa genera más corriente y el vector crece hacia la izquierda. La amplitud sube; la duración casi no cambia porque la masa no cambia la velocidad de conducción. La onda delta es de preexcitación (A6).'},
+ {q:'Se acumula líquido en el pericardio (el medio atenúa a 45 %). ¿Qué pasa?',o:['El voltaje baja en todas las derivaciones sin cambiar el eje ni la duración','Aparece ST elevado en el territorio anterior','El QRS se ensancha'],a:0,set:{lv:1,rv:1,ra:1,la:1,vol:.45,type:'none'},tab:'masa',e:'La corriente generada es la misma, pero el medio atenúa lo que llega a la piel. Voltaje = masa × proximidad × conductividad del medio.'},
+ {q:'Ocluyes la descendente anterior en las primeras horas. ¿Dónde se eleva el ST y qué se ve en el opuesto?',o:['En V1–V4 (y a veces I y aVL), con descenso recíproco en II, III y aVF','En II, III y aVF, con descenso en V1–V4','En todas las derivaciones por igual'],a:0,set:{type:'trans',terr:'ant',stage:2,lv:1,rv:1,ra:1,la:1,vol:1},tab:'tej',e:'El vector de la corriente de lesión apunta al territorio anterior: eleva el ST en las derivaciones que lo miran y lo baja en las del lado opuesto (inferiores), que es la imagen recíproca.'}
+];
+var qi=0;
+function showQ(){
+  var q=QS[qi];$('qText').textContent=q.q;
+  $('qOpts').innerHTML=q.o.map(function(t,i){return '<label class="opt"><input type="radio" name="qo" value="'+i+'"> '+t+'</label>'}).join('');
+  $('qFb').textContent='';
+}
+$('qGo').onclick=function(){
+  var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+  var q=QS[qi],ok=+r.value===q.a;
+  for(var k in q.set)S[k]=q.set[k];
+  $('tab'+(q.tab==='masa'?'Masa':'Tej')).setAttribute('aria-selected','true');
+  setTab(q.tab);
+  $('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+q.e+' Mira el cambio arriba.';
+};
+$('qNext').onclick=function(){qi=(qi+1)%QS.length;showQ()};
+
+/* ---- reto de territorio ---- */
+var CASES=[
+ {id:'ant',p:{type:'trans',terr:'ant',stage:2}},{id:'ant',p:{type:'trans',terr:'ant',stage:3}},
+ {id:'lat',p:{type:'trans',terr:'lat',stage:2}},{id:'lat',p:{type:'trans',terr:'lat',stage:3}},
+ {id:'inf',p:{type:'trans',terr:'inf',stage:2}},{id:'inf',p:{type:'trans',terr:'inf',stage:3}},
+ {id:'post',p:{type:'trans',terr:'post',stage:2}},
+ {id:'sub',p:{type:'sub',terr:'lat'}},
+ {id:'peri',p:{type:'peri',terr:'ant'}},
+ {id:'old',p:{type:'trans',terr:'inf',stage:4}},{id:'old',p:{type:'trans',terr:'ant',stage:5}},
+ {id:'none',p:{type:'none',terr:'ant'}}
+];
+var OPT=[['ant','Elevación del ST anterior'],['lat','Elevación del ST lateral'],['inf','Elevación del ST inferior'],['post','Infarto posterior (descenso en V1–V3)'],['sub','Isquemia subendocárdica (descenso del ST)'],['peri','Pericarditis (patrón difuso)'],['old','Infarto evolucionado o antiguo (Q con ST normal)'],['none','Normal']];
+var OPTN={};OPT.forEach(function(o){OPTN[o[0]]=o[1]});
+(function(){var s=$('guess');s.innerHTML='<option value="">Elige…</option>'+OPT.map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>'}).join('')})();
+function newCase(){
+  var pool=CASES.filter(function(c){return !(S.ch.cs&&c===S.ch.cs)});
+  var c=pool[Math.floor(Math.random()*pool.length)];
+  S.ch={id:c.id,cs:c,revealed:false,p:{lv:1,rv:1,ra:1,la:1,vol:1,type:c.p.type,terr:c.p.terr,stage:c.p.stage||0}};
+  $('guess').value='';$('chFb').textContent='Busca dónde se eleva o desciende el ST, qué derivaciones tienen Q y si hay imagen en espejo.';
+  render();
+}
+$('newBtn').onclick=newCase;
+$('hintBtn').onclick=function(){
+  var R=cache.R,el=listOf(R,'elev'),dp=listOf(R,'dep'),q=listOf(R,'qPat');
+  $('chFb').innerHTML='<b>Pista.</b> ST elevado: '+(el.length?el.join(', '):'ninguna')+'. ST deprimido: '+(dp.length?dp.join(', '):'ninguna')+'. Q patológica: '+(q.length?q.join(', '):'ninguna')+'.';
+};
+$('checkBtn').onclick=function(){
+  if(S.ch.revealed)return;
+  var v=$('guess').value;if(!v){$('chFb').textContent='Elige primero un diagnóstico.';return}
+  var conf=(document.querySelector('input[name=conf]:checked')||{}).value||'Algo seguro',ok=v===S.ch.id;
+  S.ch.revealed=true;S.stats[conf][0]++;if(ok)S.stats[conf][1]++;
+  render();
+  var terr=territory(cache.R,cache.p),msg=ok?'<span class="ok">Correcto.</span> ':'<span class="no">No.</span> ';
+  msg+='Es: '+OPTN[S.ch.id]+'.'+(ok?'':' Elegiste: '+OPTN[v]+'.')+' Hallazgos: '+terr+'.';
+  if(S.ch.id==='peri'&&v!=='peri')msg+=' El ST se eleva en casi todo el corazón y baja solo en aVR: no respeta un territorio ni hay imagen en espejo.';
+  if(S.ch.id==='old'&&v!=='old')msg+=' El ST ya volvió a la línea; lo que queda es la Q (y la T invertida): es un infarto evolucionado, no agudo.';
+  if(S.ch.id==='post'&&v!=='post')msg+=' El descenso en V1–V3 sin elevación es la imagen en espejo de una pared posterior.';
+  if(ok&&conf==='Adivinando')msg+=' Acertaste sin confianza: aplica el orden ST → Q → T.';
+  if(!ok&&conf==='Seguro')msg+=' Estabas seguro y fallaste: revisa qué derivaciones miran el territorio.';
+  $('chFb').innerHTML=msg;
+  var t='Calibración: ',any=false;Object.keys(S.stats).forEach(function(k){var s=S.stats[k];if(s[0]){any=true;t+=k+' '+s[1]+'/'+s[0]+' · '}});
+  $('stats').textContent=any?t.replace(/ · $/,''):'';
+};
+
+showQ();render();
+if(window.ResizeObserver)new ResizeObserver(function(){drawEcg()}).observe($('wrapEcg'));else window.addEventListener('resize',render);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render);
+new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+window.__dbg={S:S,params:params,trace:trace,measure:measure,territory:territory,axis:axis,pMeasure:pMeasure,CASES:CASES,listOf:listOf};
+})();
+</script>
+
+</body></html>

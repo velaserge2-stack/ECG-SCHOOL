@@ -1,0 +1,579 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ritmo y conducción</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el mismo papel de ECG; aquí cada ritmo se lee con cinco preguntas y un diagrama de escalera que muestra por dónde viajó el impulso. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --gridMinor:rgba(205,95,108,.16); --gridMajor:rgba(205,95,108,.38);
+  --trace:#15201E; --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --guess:#C2480F; --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --gridMinor:rgba(255,125,135,.12); --gridMajor:rgba(255,125,135,.30);
+    --trace:#E9F3F0; --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --guess:#FF9A5C; --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --gridMinor:rgba(255,125,135,.12); --gridMajor:rgba(255,125,135,.30);
+  --trace:#E9F3F0; --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --guess:#FF9A5C; --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line)}
+.tab{font:600 .95rem var(--font-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--vec)}
+button:focus-visible,input:focus-visible,canvas:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.grp{display:flex;flex-direction:column;gap:5px}
+.grp .gl{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.q{display:grid;grid-template-columns:minmax(0,13.5em) minmax(0,1fr);gap:4px 10px;font-size:.92rem}
+.q b{font-weight:600;color:var(--muted)}
+.q span{min-width:0}
+@media (max-width:520px){.q{grid-template-columns:minmax(0,1fr)}}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono)}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulos A5 + A6 · ritmo y conducción</div>
+  <h1>Ritmo y conducción</h1>
+  <p class="lede">Un ritmo se lee con cinco preguntas. Cambia el origen del impulso o el punto donde se bloquea y mira el trazo, el diagrama de escalera y el gasto cardiaco estimado.</p>
+  <div class="tags"><span>Unidad 6: 6.97–6.111</span><span>Nivel N1–N2</span><span>Perillas: origen, conducción, tiempo</span></div>
+</header>
+
+<div class="tabs" role="tablist" aria-label="Modo">
+  <button class="tab" role="tab" id="tabExp" aria-selected="true">Explorar</button>
+  <button class="tab" role="tab" id="tabReto" aria-selected="false">Reto: identifica el ritmo</button>
+</div>
+
+<section class="panel">
+  <h2 id="rName">Ritmo sinusal normal</h2>
+  <div class="tw" id="stripWrap"><canvas id="strip" role="img" aria-label="Trazos de las derivaciones II, V1 y V6 con diagrama de escalera"></canvas></div>
+  <div class="row">
+    <label class="lab" id="marksLab"><input type="checkbox" id="marks" checked> Marcar ondas P</label>
+    <span class="note">Papel a 25 mm/s y 10 mm/mV, 6 segundos. En pantallas pequeñas el trazo se desplaza de lado.</span>
+  </div>
+  <p class="why" id="mech"></p>
+</section>
+
+<div class="grid">
+  <div class="col">
+    <div class="panel">
+      <h2>Las cinco preguntas</h2>
+      <div class="q" id="five"></div>
+      <div id="fiveHidden" class="note" hidden>Mira los trazos y responde mentalmente las cinco preguntas: ¿hay P?, ¿cada P conduce?, ¿es regular?, ¿QRS ancho o estrecho?, ¿rápido o lento? Luego elige el ritmo.</div>
+    </div>
+    <div class="panel" id="hemo">
+      <h2>Efecto hemodinámico</h2>
+      <div class="row" style="align-items:baseline;gap:18px">
+        <div><div class="note">FC ventricular</div><div class="mono" style="font-size:1.8rem;font-weight:600" id="hrBig"></div></div>
+        <div><div class="note">Gasto cardiaco estimado</div><div class="mono" style="font-size:1.8rem;font-weight:600;color:var(--vec)" id="coBig"></div></div>
+      </div>
+      <p id="hemoTxt"></p>
+      <p class="note">GC = FC × volumen sistólico. Modelo didáctico con VS de 70 mL en ritmo sinusal y un factor por ritmo (VERIFICAR magnitudes).</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel" id="explore">
+      <h2>Elige el ritmo</h2>
+      <div id="groups" class="col"></div>
+      <label class="ctl" id="rateLab"><span id="rateName">Frecuencia</span>: <span class="mono" id="rateVal"></span>
+        <input type="range" id="rate" min="30" max="180" step="1" value="75"></label>
+      <div class="grp"><div class="gl">¿Quién manda? Apaga marcapasos</div>
+        <div class="chips">
+          <button class="btn" id="sa1" aria-pressed="true">Nodo SA manda</button>
+          <button class="btn" id="sa2" aria-pressed="false">Apago el SA</button>
+          <button class="btn" id="sa3" aria-pressed="false">Apago SA y unión</button>
+        </div>
+        <p class="note" id="saTxt"></p>
+      </div>
+    </div>
+    <div class="panel" id="challenge" hidden>
+      <h2>Reto</h2>
+      <label class="ctl" style="flex:none">Tu diagnóstico
+        <select id="guess"></select></label>
+      <fieldset><legend>Antes de comprobar, ¿qué tan seguro estás?</legend>
+        <label><input type="radio" name="conf" value="Seguro"> Seguro</label>
+        <label><input type="radio" name="conf" value="Algo seguro" checked> Algo seguro</label>
+        <label><input type="radio" name="conf" value="Adivinando"> Adivinando</label>
+      </fieldset>
+      <div class="row">
+        <button class="btn" id="hintBtn">Pista</button>
+        <button class="btn primary" id="checkBtn">Comprobar</button>
+        <button class="btn" id="newBtn">Nuevo caso</button>
+      </div>
+      <p class="fb" id="chFb" aria-live="polite"></p>
+      <p class="note" id="stats"></p>
+    </div>
+  </div>
+</div>
+
+<section class="panel">
+  <h2>Reentrada: por qué un circuito se sostiene</h2>
+  <p class="note">Un impulso que da la vuelta a un circuito se mantiene solo si encuentra tejido ya recuperado. Cambia la velocidad o el periodo refractario y observa.</p>
+  <div class="grid" style="align-items:center">
+    <canvas id="ring" role="img" aria-label="Circuito de reentrada animado" style="max-width:100%;margin:0 auto"></canvas>
+    <div class="col">
+      <label class="ctl">Velocidad de conducción: <span class="mono" id="vV"></span>
+        <input type="range" id="vel" min="0.1" max="1.0" step="0.05" value="0.5"></label>
+      <label class="ctl">Periodo refractario: <span class="mono" id="rpV"></span>
+        <input type="range" id="rp" min="150" max="400" step="10" value="250"></label>
+      <label class="ctl">Longitud del circuito: <span class="mono" id="lV"></span>
+        <input type="range" id="len" min="8" max="30" step="1" value="15"></label>
+      <label class="lab"><input type="checkbox" id="block" checked> Bloqueo unidireccional en un punto</label>
+      <div class="row"><button class="btn primary" id="fire">Lanzar extrasístole</button><button class="btn" id="stop">Detener</button></div>
+      <div class="q" id="reRead"></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Dónde se bloquea y qué se ve</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Alteración</th><th>Dónde</th><th>Qué se ve</th><th>QRS</th></tr></thead>
+    <tbody>
+      <tr><td class="n">BAV 1.º</td><td>Nodo AV</td><td>PR &gt; 200 ms, cada P conduce.</td><td class="n">estrecho</td></tr>
+      <tr><td class="n">Mobitz I</td><td>Nodo AV</td><td>PR se alarga hasta que una P no conduce.</td><td class="n">estrecho</td></tr>
+      <tr><td class="n">Mobitz II</td><td>Bajo el nodo (His–Purkinje)</td><td>PR constante y una P que no conduce de pronto.</td><td class="n">a menudo ancho</td></tr>
+      <tr><td class="n">BAV 3.º</td><td>Nodo AV o más abajo</td><td>P y QRS independientes; escape de la unión (estrecho) o ventricular (ancho).</td><td class="n">según el escape</td></tr>
+      <tr><td class="n">BRD</td><td>Rama derecha</td><td>rSR′ en V1; S ancha en I y V6.</td><td class="n">≥ 120 ms</td></tr>
+      <tr><td class="n">BRI</td><td>Rama izquierda</td><td>Sin q septal; R ancha y mellada en V6; T discordante.</td><td class="n">≥ 120 ms</td></tr>
+      <tr><td class="n">WPW</td><td>Vía accesoria</td><td>PR corto y onda delta.</td><td class="n">ancho por la delta</td></tr>
+    </tbody></table></div>
+</section>
+
+<section class="cols2">
+  <div class="panel">
+    <h3>Errores comunes que desmonta</h3>
+    <ul>
+      <li>"Regular y a 75 lpm es sinusal": un flúter 4:1 también lo es. Busca la P.</li>
+      <li>"QRS ancho es siempre ventricular": un bloqueo de rama o la conducción aberrante también lo ensanchan.</li>
+      <li>"Un escape es una arritmia mala": es el respaldo que mantiene el gasto cuando falla el marcapasos dominante.</li>
+      <li>"La extrasístole detiene el corazón": el latido siguiente sale más fuerte por el mayor llenado tras la pausa.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>Simplificaciones de este modelo</h3>
+    <ul>
+      <li>Morfologías fijas por tipo de latido, sin variaciones de eje ni de amplitud.</li>
+      <li>La reentrada es un anillo unidimensional; en el corazón son circuitos tridimensionales.</li>
+      <li>Rangos de automatismo: SA 60–100, unión 40–60, ventricular 20–40 lpm (VERIFICAR con el libro del curso).</li>
+      <li>Sin cardioversión, desfibrilación ni electrolitos (se practican en C9 y C16, y en A9).</li>
+      <li>Estimación del gasto cardiaco solo con fines didácticos.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.97–6.111). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+var T=6.2;
+var KD={
+ n:{dur:.09,w:0,c:{II:[[.02,-.08,.008],[.045,1.1,.012],[.07,-.2,.01]],V1:[[.02,.2,.008],[.05,-1.0,.014],[.075,-.1,.01]],V6:[[.015,-.15,.007],[.045,1.2,.013],[.07,-.05,.01]]},t:{II:.3,V1:-.12,V6:.3},tw:.05},
+ rb:{dur:.14,w:1,c:{II:[[.03,.7,.014],[.1,-.3,.02]],V1:[[.02,.2,.01],[.05,-.45,.012],[.11,.95,.02]],V6:[[.03,1.0,.014],[.11,-.5,.025]]},t:{II:.1,V1:-.35,V6:.25},tw:.06},
+ lb:{dur:.15,w:1,c:{II:[[.04,.6,.016],[.085,.65,.02]],V1:[[.03,-.2,.01],[.075,-1.1,.03]],V6:[[.04,.8,.016],[.085,.85,.02]]},t:{II:-.35,V1:.4,V6:-.4},tw:.06},
+ pv:{dur:.16,w:1,c:{II:[[.05,-.25,.015],[.1,1.0,.03],[.14,-.2,.02]],V1:[[.08,-1.2,.035]],V6:[[.08,1.0,.035]]},t:{II:-.5,V1:.5,V6:-.45},tw:.065},
+ wp:{dur:.13,w:1,c:{II:[[.025,.35,.02],[.075,1.0,.014],[.1,-.1,.01]],V1:[[.03,.15,.02],[.07,-.8,.018]],V6:[[.03,.35,.02],[.075,1.1,.015]]},t:{II:-.15,V1:.2,V6:-.2},tw:.05}
+};
+KD.pc=KD.lb;
+var PA={II:.15,V1:.07,V6:.08};
+var FS={II:1,V1:-.6,V6:.4};
+var FBS={II:1,V1:1.6,V6:.6};
+var VFS={II:1,V1:.7,V6:.8};
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function mk(){return{P:[],Q:[],f:null}}
+function beat(ev,t,pr,k){ev.P.push({t:t,c:true,q:ev.Q.length});ev.Q.push({t:t+pr,k:k,o:'c',p:ev.P.length-1})}
+function sinus(r,pr,k){var ev=mk(),rr=60/r;for(var t=.3;t<T;t+=rr)beat(ev,t,pr,k||'n');return ev}
+
+var RH=[
+{id:'sin',g:'Sinusal',name:'Ritmo sinusal normal',r:[40,120,75,'Frecuencia sinusal'],vs:1,
+ gen:function(r){return sinus(r,.16)},
+ mech:'El nodo SA dispara primero porque su fase 4 es la más empinada. Cada P conduce a un QRS estrecho y el RR es regular.',
+ hemo:'Llenado ventricular coordinado con la contracción auricular: es la referencia.'},
+{id:'stach',g:'Sinusal',name:'Taquicardia sinusal',r:[101,180,130,'Frecuencia sinusal'],vs:.85,
+ gen:function(r){return sinus(r,.14)},
+ mech:'La fase 4 del nodo SA sube más rápido (simpático, fiebre, ejercicio). Mismas ondas, RR corto. Si empieza y termina de golpe es paroxística, no sinusal.',
+ hemo:'La diástole se acorta más que la sístole: menos llenado por latido y más demanda de O₂ del miocardio.'},
+{id:'sbrad',g:'Sinusal',name:'Bradicardia sinusal',r:[30,59,48,'Frecuencia sinusal'],vs:1.1,
+ gen:function(r){return sinus(r,.18)},
+ mech:'La fase 4 es más lenta (tono vagal, atletas, fármacos). Mismas ondas y RR largo.',
+ hemo:'Cada latido llena más, así que el GC se sostiene si el VS compensa. Sintomática si el GC cae.'},
+{id:'sarr',g:'Sinusal',name:'Arritmia sinusal',r:[50,100,70,'Frecuencia sinusal media'],vs:1,
+ gen:function(r){var ev=mk(),t=.3,i=0;while(t<T){beat(ev,t,.16,'n');t+=60/r*(1+.2*Math.sin(2*Math.PI*i/4.5));i++}return ev},
+ mech:'La frecuencia sube al inspirar y baja al espirar (acople con la respiración; ver D2). Hay P antes de cada QRS. Es una variante normal, sobre todo en jóvenes.',
+ hemo:'Sin efecto: refleja un tono vagal sano.'},
+{id:'pac',g:'Extrasístoles',name:'Extrasístole auricular',r:[50,100,72,'Frecuencia sinusal'],vs:.97,
+ gen:function(r){var ev=mk(),rr=60/r,t=.3,i=0;while(t<T){beat(ev,t,i%5===3?.18:.16,'n');if(i%5===3)ev.P[ev.P.length-1].pp=1;t+=((i+1)%5===3)?.62*rr:rr;i++}return ev},
+ mech:'Un foco auricular dispara antes de tiempo: P′ prematura con QRS estrecho. Reinicia el nodo SA, así que la pausa que sigue no es compensadora.',
+ hemo:'Poco efecto. El latido prematuro llena un poco menos.'},
+{id:'pvc',g:'Extrasístoles',name:'Extrasístole ventricular',r:[50,100,72,'Frecuencia sinusal'],vs:.9,
+ gen:function(r){var ev=mk(),rr=60/r,i=0;for(var t=.3;t<T;t+=rr){
+   if(i%4===2){ev.P.push({t:t,c:false,q:-1});ev.Q.push({t:t-.28*rr,k:'pv',o:'v',p:-1})}else beat(ev,t,.16,'n');i++}
+   ev.Q.sort(function(a,b){return a.t-b.t});return ev},
+ mech:'Un foco ventricular dispara antes de tiempo: QRS ancho sin P antes y T discordante. No reinicia el SA, así que la pausa es compensadora. La P que cae dentro del complejo no conduce porque el ventrículo está refractario.',
+ hemo:'El latido prematuro llena poco y eyecta poco: puede no palparse (déficit de pulso). El siguiente sale más fuerte por el mayor llenado tras la pausa.'},
+{id:'av1',g:'Bloqueos AV',name:'Bloqueo AV de 1.º grado',r:[50,100,70,'Frecuencia sinusal'],vs:1,
+ gen:function(r){return sinus(r,.32)},
+ mech:'El nodo AV retrasa de más el impulso: PR > 200 ms, pero cada P conduce a un QRS.',
+ hemo:'Casi sin efecto. La contracción auricular queda más lejos de la sístole, pero el llenado se mantiene.'},
+{id:'mob1',g:'Bloqueos AV',name:'Bloqueo AV Mobitz I (Wenckebach)',r:[60,100,80,'Frecuencia auricular'],vs:.95,
+ gen:function(r){var ev=mk(),rr=60/r,n=0,pr=[.16,.25,.34];for(var t=.3;t<T;t+=rr){var j=n%4;if(j<3)beat(ev,t,pr[j],'n');else ev.P.push({t:t,c:false,q:-1});n++}return ev},
+ mech:'Fatiga progresiva del nodo AV: el PR se alarga latido a latido hasta que una P no conduce; luego el nodo se recupera. QRS estrecho porque el bloqueo es en el nodo. Suele ser benigno.',
+ hemo:'Leve: se pierde un QRS de cada cuatro.'},
+{id:'mob2',g:'Bloqueos AV',name:'Bloqueo AV Mobitz II',r:[60,100,80,'Frecuencia auricular'],vs:.9,
+ gen:function(r){var ev=mk(),rr=60/r,n=0;for(var t=.3;t<T;t+=rr){if(n%4<3)beat(ev,t,.18,'n');else ev.P.push({t:t,c:false,q:-1});n++}return ev},
+ mech:'Falla intermitente "todo o nada" bajo el nodo (His–Purkinje) con PR constante. Puede progresar de golpe a bloqueo completo: es más grave que Mobitz I.',
+ hemo:'Se pierden latidos sin aviso. Riesgo de pausas largas y síncope.'},
+{id:'av21',g:'Bloqueos AV',name:'Bloqueo AV 2:1',r:[60,110,84,'Frecuencia auricular'],vs:.9,
+ gen:function(r){var ev=mk(),rr=60/r,n=0;for(var t=.3;t<T;t+=rr){if(n%2===0)beat(ev,t,.2,'n');else ev.P.push({t:t,c:false,q:-1});n++}return ev},
+ mech:'Una de cada dos P conduce. No se puede decir si es tipo I o II porque no hay dos PR seguidos para comparar. El QRS ancho sugiere un nivel infranodal.',
+ hemo:'La FC ventricular es la mitad de la auricular: puede ser baja.'},
+{id:'chbw',g:'Bloqueos AV',name:'Bloqueo AV de 3.º grado (escape ventricular)',r:[20,45,34,'Frecuencia del escape'],vs:.9,
+ gen:function(r){var ev=mk();for(var t=.2;t<T;t+=60/80)ev.P.push({t:t,c:false,q:-1});var rr=60/r;for(var u=.6;u<T;u+=rr)ev.Q.push({t:u,k:'pv',o:'v',p:-1});return ev},
+ mech:'Ninguna P conduce: aurículas y ventrículos laten por separado (disociación AV). Un marcapasos ventricular de escape (20–40 lpm) toma el mando; el QRS es ancho.',
+ hemo:'FC baja y sin coordinación AV: la aurícula a veces contrae contra una válvula cerrada (onda A en cañón). GC bajo, con riesgo de síncope.'},
+{id:'chbn',g:'Bloqueos AV',name:'Bloqueo AV de 3.º grado (escape de la unión)',r:[35,60,46,'Frecuencia del escape'],vs:.95,
+ gen:function(r){var ev=mk();for(var t=.2;t<T;t+=60/80)ev.P.push({t:t,c:false,q:-1});var rr=60/r;for(var u=.55;u<T;u+=rr)ev.Q.push({t:u,k:'n',o:'j',p:-1});return ev},
+ mech:'El bloqueo está en el nodo AV y el escape sale de la unión (40–60 lpm), por encima de la división del His: el QRS es estrecho. Es más estable que un escape ventricular.',
+ hemo:'FC baja pero más segura. Disociación AV con ondas A en cañón ocasionales.'},
+{id:'escn',g:'Escapes',name:'Escape de la unión AV',r:[35,60,46,'Frecuencia del escape'],vs:.95,
+ gen:function(r){var ev=mk(),rr=60/r;for(var u=.4;u<T;u+=rr)ev.Q.push({t:u,k:'n',o:'j',p:-1});return ev},
+ mech:'El nodo SA falló. La unión AV (40–60 lpm), con una fase 4 más lenta, ya no está suprimida y toma el mando. No hay P antes del QRS, que es estrecho.',
+ hemo:'FC lenta sin el aporte de la contracción auricular: GC más bajo.'},
+{id:'escv',g:'Escapes',name:'Escape ventricular',r:[20,45,32,'Frecuencia del escape'],vs:.9,
+ gen:function(r){var ev=mk(),rr=60/r;for(var u=.5;u<T;u+=rr)ev.Q.push({t:u,k:'pv',o:'v',p:-1});return ev},
+ mech:'Fallaron el SA y la unión. Un marcapasos ventricular (20–40 lpm) toma el mando por supresión competitiva: QRS ancho, lento y sin P. Es la última línea de respaldo.',
+ hemo:'FC muy baja y activación ventricular lenta: GC bajo e inestable.'},
+{id:'fl',g:'Taquiarritmias',name:'Flúter auricular 4:1',r:[75,150,75,'Frecuencia ventricular'],vs:.9,
+ gen:function(r){var ev=mk();ev.f='fl';var ratio=Math.max(2,Math.min(6,Math.round(300/r))),n=0;for(var t=.12;t<T;t+=.2){if(n%ratio===0)ev.Q.push({t:t+.12,k:'n',o:'c',p:-1});n++}return ev},
+ mech:'Un circuito de reentrada auricular a unos 300/min deja ondas F en dientes de sierra. El nodo AV filtra y conduce una de cada 2 a 4: la FC ventricular sale 150, 100 o 75.',
+ hemo:'La aurícula no vacía bien: se pierde parte de su contribución al llenado. Con 150 lpm, el llenado cae.'},
+{id:'af',g:'Taquiarritmias',name:'Fibrilación auricular',r:[50,160,95,'Frecuencia ventricular media'],vs:.8,
+ gen:function(r,seed){var ev=mk(),R=rng(seed||7);ev.f='af';var t=.3;while(t<T){ev.Q.push({t:t,k:'n',o:'c',p:-1});t+=60/r*(.55+.9*R())}return ev},
+ mech:'Muchos frentes de reentrada desorganizados en las aurículas (400–600/min): sin P, línea de base fibrilatoria y RR irregularmente irregular. El nodo AV filtra al azar.',
+ hemo:'Se pierde la contracción auricular (≈ 15–20 % del llenado) y la irregularidad empeora el llenado. Riesgo de trombos en la aurícula izquierda.'},
+{id:'vt',g:'Taquiarritmias',name:'Taquicardia ventricular',r:[110,220,170,'Frecuencia ventricular'],vs:.55,
+ gen:function(r){var ev=mk(),rr=60/r;for(var t=.2;t<T;t+=rr)ev.Q.push({t:t,k:'pv',o:'v',p:-1});return ev},
+ mech:'Un foco o un circuito ventricular rápido: QRS ancho y regular, 140–200 lpm, sin P relacionadas. La activación sigue miocardio lento.',
+ hemo:'La diástole casi desaparece: el llenado cae y el GC con él. Puede degenerar en fibrilación ventricular.'},
+{id:'vf',g:'Taquiarritmias',name:'Fibrilación ventricular',r:[0,0,0,''],vs:0,
+ gen:function(){var ev=mk();ev.f='vf';return ev},
+ mech:'Múltiples frentes caóticos en el ventrículo: no hay QRS ni eyección. Es paro cardiaco. Se trata con desfibrilación (descarga no sincronizada) [6.109].',
+ hemo:'GC = 0. Sin eyección, el paro es inmediato.'},
+{id:'rb',g:'Conducción ventricular',name:'Bloqueo de rama derecha',r:[50,110,72,'Frecuencia sinusal'],vs:.97,
+ gen:function(r){return sinus(r,.16,'rb')},
+ mech:'La rama derecha no conduce: el tabique y el VI se activan normal y el VD se activa tarde por miocardio lento. Da rSR′ en V1 y S ancha en I y V6, con QRS ≥ 120 ms.',
+ hemo:'Efecto leve: el VD se contrae un poco más tarde.'},
+{id:'lb',g:'Conducción ventricular',name:'Bloqueo de rama izquierda',r:[50,110,72,'Frecuencia sinusal'],vs:.88,
+ gen:function(r){return sinus(r,.16,'lb')},
+ mech:'La rama izquierda no conduce: el tabique se activa de derecha a izquierda (se pierde la q septal) y el VI se activa tarde por miocardio. R ancha y mellada en V6, QRS ≥ 120 ms y T discordante.',
+ hemo:'Disincronía mecánica: el tabique y la pared libre se contraen en momentos distintos y el VS cae. Es la base de la resincronización.'},
+{id:'wpw',g:'Conducción ventricular',name:'Preexcitación (Wolff-Parkinson-White)',r:[50,110,72,'Frecuencia sinusal'],vs:1,
+ gen:function(r){return sinus(r,.1,'wp')},
+ mech:'Una vía accesoria salta el nodo AV: parte del ventrículo se activa pronto por miocardio lento (onda delta) y el PR se acorta. El resto del QRS llega por el sistema normal.',
+ hemo:'En ritmo sinusal casi sin efecto. El riesgo es que una vía rápida conduzca una fibrilación auricular a frecuencias muy altas.'},
+{id:'pc',g:'Conducción ventricular',name:'Marcapasos ventricular',r:[50,110,70,'Frecuencia programada'],vs:.9,
+ gen:function(r){var ev=mk(),rr=60/r;for(var t=.3;t<T;t+=rr){ev.Q.push({t:t,k:'pc',o:'v',p:-1,sp:1})}return ev},
+ mech:'Una espiga del marcapasos precede a un QRS ancho: el estímulo nace en el ápice del VD y se propaga por miocardio, como un bloqueo de rama izquierda.',
+ hemo:'La activación desde el ápice es menos sincrónica que la normal: VS algo menor.'}
+];
+var BYID={};RH.forEach(function(h){BYID[h.id]=h});
+
+var S={mode:'exp',id:'sin',rates:{},seed:5,ch:{id:null,revealed:false},stats:{'Seguro':[0,0],'Algo seguro':[0,0],'Adivinando':[0,0]}};
+RH.forEach(function(h){S.rates[h.id]=h.r[2]});
+function curId(){return S.mode==='reto'?S.ch.id:S.id}
+function genEv(id){var h=BYID[id];return h.gen(S.rates[id],S.seed)}
+
+/* ---- ondas ---- */
+function g(t,c,w){var x=(t-c)/w;return x*x>16?0:Math.exp(-x*x)}
+function lead(L,t,ev){
+  var v=0,i,j,q,K,cs,p;
+  for(i=0;i<ev.P.length;i++){p=ev.P[i];if(Math.abs(t-p.t-.045)<.12)v+=PA[L]*g(t,p.t+.045,.028)}
+  for(i=0;i<ev.Q.length;i++){q=ev.Q[i];var dt=t-q.t;if(dt>-.04&&dt<.55){K=KD[q.k];cs=K.c[L];for(j=0;j<cs.length;j++)v+=cs[j][1]*g(t,q.t+cs[j][0],cs[j][2]);v+=K.t[L]*g(t,q.t+K.dur+.12,K.tw)}}
+  if(ev.f==='fl'){var fr=(t/.2)%1;v+=.15*FS[L]*-(fr<.85?fr/.85:(1-fr)/.15)}
+  if(ev.f==='af'){v+=.05*FBS[L]*(Math.sin(2*Math.PI*5.3*t+1)+.8*Math.sin(2*Math.PI*7.9*t+2.2)+.6*Math.sin(2*Math.PI*10.7*t+.4))}
+  if(ev.f==='vf'){v+=.55*VFS[L]*(Math.sin(2*Math.PI*4.2*t)*(.6+.4*Math.sin(2*Math.PI*.7*t))+.6*Math.sin(2*Math.PI*6.1*t+1))}
+  return v;
+}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function gridDraw(x,x0,y0,w,h,mm){
+  var a=css('--gridMinor'),b=css('--gridMajor');x.fillStyle=css('--panel');x.fillRect(x0,y0,w,h);x.lineWidth=1;
+  for(var i=0;i*mm<=w;i++){x.strokeStyle=i%5===0?b:a;x.beginPath();x.moveTo(x0+i*mm+.5,y0);x.lineTo(x0+i*mm+.5,y0+h);x.stroke()}
+  for(var j=0;j*mm<=h;j++){x.strokeStyle=j%5===0?b:a;x.beginPath();x.moveTo(x0,y0+j*mm+.5);x.lineTo(x0+w,y0+j*mm+.5);x.stroke()}
+}
+
+/* ---- análisis ---- */
+function analyze(ev){
+  var Q=ev.Q.filter(function(q){return q.t<T}),P=ev.P,nQ=Q.length,nc=P.filter(function(p){return p.c}).length,out={};
+  var hr=0;
+  if(nQ>=2)hr=Math.round((nQ-1)*60/(Q[nQ-1].t-Q[0].t));
+  out.hr=hr;
+  if(ev.f==='vf'){out.p='No: actividad caótica';out.c='No hay QRS';out.reg='No hay QRS';out.w='No hay QRS';out.rate='No hay QRS';return out}
+  out.p=ev.f==='af'?'No: línea de base fibrilatoria':ev.f==='fl'?'No: ondas F en dientes de sierra':P.length?'Sí':'No';
+  if(ev.f==='af')out.c='Sin P que conducir';
+  else if(ev.f==='fl')out.c='Las ondas F conducen 1 de cada '+Math.round(.2*0+Math.round(60/hr/.2))+' (filtro del nodo AV)';
+  else if(!P.length)out.c='Sin P: el QRS nace en la unión o en el ventrículo';
+  else if(nc===0)out.c='Ninguna P conduce: disociación AV';
+  else if(nc<P.length)out.c='No: '+P.length+' P y '+nc+' conducidas';
+  else out.c='Sí, 1:1'+(nQ>nc?' (y hay QRS sin P)':'');
+  var rrs=[];for(var i=1;i<nQ;i++)rrs.push(Q[i].t-Q[i-1].t);
+  var m=rrs.reduce(function(a,b){return a+b},0)/rrs.length,sd=Math.sqrt(rrs.reduce(function(a,b){return a+(b-m)*(b-m)},0)/rrs.length);
+  out.reg=(sd/m<.07)?'Sí':'No: irregular';
+  var nw=Q.filter(function(q){return KD[q.k].w}).length;
+  out.w=nw===0?'Estrecho (< 120 ms)':nw===nQ?'Ancho (≥ 120 ms)':'Mixto: algunos latidos anchos';
+  out.rate=hr+' lpm: '+(hr<60?'lento':hr>100?'rápido':'normal');
+  return out;
+}
+function renderFive(ev){
+  var a=analyze(ev);
+  $('five').innerHTML='<b>1 · ¿Hay P?</b><span>'+a.p+'</span><b>2 · ¿Cada P conduce?</b><span>'+a.c+'</span><b>3 · ¿Es regular?</b><span>'+a.reg+'</span><b>4 · ¿QRS ancho o estrecho?</b><span>'+a.w+'</span><b>5 · ¿Rápido o lento?</b><span>'+a.rate+'</span>';
+  return a;
+}
+function renderHemo(id,a){
+  var h=BYID[id],vs=70*h.vs,co=a.hr*vs/1000;
+  $('hrBig').textContent=a.hr?a.hr+' lpm':'—';
+  $('coBig').textContent=(id==='vf'?0:co).toFixed(1)+' L/min';
+  $('hemoTxt').textContent=h.hemo;
+}
+
+/* ---- dibujo ---- */
+var LEADS=['II','V1','V6'];
+function drawStrip(){
+  var c=$('strip'),W0=Math.floor($('stripWrap').clientWidth-2);if(W0<100)return;
+  var mm=Math.max(W0/150,4),W=Math.round(150*mm),sh=Math.round(26*mm),gap=8,lad=96,H=3*sh+2*gap+10+lad;
+  var x=fit(c,W,H),id=curId(),ev=genEv(id),cT=css('--trace'),cMu=css('--muted'),cG=css('--guess'),cV=css('--vec');
+  var show=$('marks').checked&&S.mode==='exp';
+  LEADS.forEach(function(L,k){
+    var y0=k*(sh+gap),base=y0+sh/2;
+    gridDraw(x,0,y0,W,sh,mm);
+    x.strokeStyle=cT;x.lineWidth=1.5;x.lineJoin='round';x.beginPath();
+    for(var px=0;px<=W;px++){var t=px/mm*.04,y=base-lead(L,t,ev)*10*mm;y=Math.max(y0+2,Math.min(y0+sh-2,y));if(px===0)x.moveTo(px,y);else x.lineTo(px,y)}
+    x.stroke();
+    x.fillStyle=cT;x.font='600 12px '+css('--font-mono');x.textBaseline='top';x.textAlign='left';x.fillText(L,5,y0+4);
+    if(k===0){
+      ev.Q.forEach(function(q){if(KD[q.k]&&q.sp){var sx=q.t/.04*mm;x.strokeStyle=cG;x.lineWidth=2;x.beginPath();x.moveTo(sx-6,y0+sh*.75);x.lineTo(sx-6,y0+sh*.1);x.stroke()}});
+      if(show){x.fillStyle=cV;x.font='600 11px '+css('--font-mono');x.textAlign='center';x.textBaseline='bottom';
+        ev.P.forEach(function(p){x.fillText(p.pp?"P′":'P',(p.t+.045)/.04*mm,y0+sh-6)})}
+    }
+  });
+  /* escalera */
+  var yo=3*sh+2*gap+10,xT=function(t){return t/.04*mm};
+  x.fillStyle=css('--panel');x.fillRect(0,yo,W,lad);x.strokeStyle=css('--line');x.lineWidth=1;
+  var yA=yo+14,yN1=yo+36,yN2=yo+60,yV=yo+84;
+  [yA,yN1,yN2,yV].forEach(function(yy,i){if(i===1||i===2){return}x.beginPath();x.moveTo(0,yy);x.lineTo(W,yy);x.stroke()});
+  x.fillStyle=cMu;x.globalAlpha=.12;x.fillRect(0,yN1,W,yN2-yN1);x.globalAlpha=1;
+  x.fillStyle=cMu;x.font='600 10px '+css('--font-mono');x.textAlign='left';x.textBaseline='bottom';
+  x.fillText('AURÍCULAS',4,yA-1);x.fillText('NODO AV',4,yN1+11);x.fillText('VENTRÍCULOS',4,yV-1);
+  x.lineWidth=2;
+  function ln(x1,y1,x2,y2,col){x.strokeStyle=col;x.beginPath();x.moveTo(xT(x1),y1);x.lineTo(xT(x2),y2);x.stroke()}
+  ev.P.forEach(function(p){
+    var qq=p.c&&p.q>=0?ev.Q[p.q]:null;
+    ln(p.t+.04,yA,p.t+.07,yN1,cV);
+    if(qq){ln(p.t+.07,yN1,qq.t-.01,yN2,cV);ln(qq.t-.01,yN2,qq.t+.03,yV,cV)}
+    else{x.strokeStyle=cG;x.lineWidth=2;x.beginPath();var bx=xT(p.t+.07);x.moveTo(bx-4,yN1+5);x.lineTo(bx+4,yN1+5);x.stroke()}
+  });
+  ev.Q.forEach(function(q){
+    if(q.o==='v'){ln(q.t-.03,yV-22,q.t+.02,yV,cG);}
+    else if(q.o==='j'){ln(q.t-.01,yN2,q.t+.03,yV,cG)}
+    else if(q.p<0){ln(q.t-.1,yA,q.t-.06,yN1,cV);ln(q.t-.06,yN1,q.t-.01,yN2,cV);ln(q.t-.01,yN2,q.t+.03,yV,cV)}
+  });
+  if(ev.f==='fl'||ev.f==='af'){x.strokeStyle=cV;x.lineWidth=1;var stp=ev.f==='fl'?.2:.07;for(var t=.1;t<T;t+=stp){var sx=xT(t);x.beginPath();x.moveTo(sx,yA-8);x.lineTo(sx,yA+4);x.stroke()}}
+  x.lineWidth=1;
+}
+function render(){
+  var id=curId();
+  if(!id)return;
+  var h=BYID[id],ev=genEv(id),hide=S.mode==='reto'&&!S.ch.revealed;
+  $('rName').textContent=hide?'Ritmo desconocido':h.name;
+  $('mech').hidden=hide;if(!hide)$('mech').textContent=h.mech;
+  $('five').hidden=hide;$('fiveHidden').hidden=!hide;
+  $('hemo').hidden=hide;
+  $('marksLab').hidden=S.mode!=='exp';
+  var a=analyze(ev);
+  if(!hide){renderFive(ev);renderHemo(id,a)}
+  if(S.mode==='exp'){
+    var r=h.r,rs=$('rate'),has=r[1]>r[0];
+    $('rateLab').hidden=!has;
+    if(has){rs.min=r[0];rs.max=r[1];rs.value=S.rates[id];$('rateName').textContent=r[3];$('rateVal').textContent=S.rates[id]+' lpm'}
+    document.querySelectorAll('#groups .btn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.id===id?'true':'false')});
+    var sa=id==='escn'?2:id==='escv'?3:1;
+    ['sa1','sa2','sa3'].forEach(function(k,i){$(k).setAttribute('aria-pressed',(i+1)===sa?'true':'false')});
+    $('saTxt').textContent=sa===1?'Con el SA activo, su fase 4 más empinada suprime a los demás marcapasos.':sa===2?'Sin el SA, la unión AV (≈ 40–60 lpm) deja de estar suprimida y toma el mando.':'Sin SA ni unión, un foco ventricular (≈ 20–40 lpm) es el último respaldo.';
+  }
+  drawStrip();
+}
+
+/* ---- UI ---- */
+function build(){
+  var gs={},order=[];RH.forEach(function(h){if(!gs[h.g]){gs[h.g]=[];order.push(h.g)}gs[h.g].push(h)});
+  var box=$('groups');
+  order.forEach(function(n){
+    var d=document.createElement('div');d.className='grp';d.innerHTML='<div class="gl">'+n+'</div>';
+    var ch=document.createElement('div');ch.className='chips';
+    gs[n].forEach(function(h){var b=document.createElement('button');b.className='btn';b.dataset.id=h.id;b.setAttribute('aria-pressed','false');b.textContent=h.name.replace('Bloqueo AV de 3.º grado','BAV 3.º').replace('Bloqueo AV ','BAV ').replace('Bloqueo de rama ','Bloqueo rama ').replace(' (Wolff-Parkinson-White)',' (WPW)');b.onclick=function(){S.id=h.id;S.seed++;render()};ch.appendChild(b)});
+    d.appendChild(ch);box.appendChild(d);
+  });
+  var sel=$('guess'),cur='';
+  sel.innerHTML='<option value="">Elige un ritmo…</option>';
+  order.forEach(function(n){var og=document.createElement('optgroup');og.label=n;gs[n].forEach(function(h){var o=document.createElement('option');o.value=h.id;o.textContent=h.name;og.appendChild(o)});sel.appendChild(og)});
+}
+$('rate').oninput=function(){S.rates[S.id]=+this.value;render()};
+$('sa1').onclick=function(){S.id='sin';render()};
+$('sa2').onclick=function(){S.id='escn';render()};
+$('sa3').onclick=function(){S.id='escv';render()};
+$('marks').onchange=render;
+function setMode(m){
+  S.mode=m;
+  $('tabExp').setAttribute('aria-selected',m==='exp');$('tabReto').setAttribute('aria-selected',m==='reto');
+  $('explore').hidden=m!=='exp';$('challenge').hidden=m!=='reto';
+  if(m==='reto'&&!S.ch.id)newCase();else render();
+}
+$('tabExp').onclick=function(){setMode('exp')};$('tabReto').onclick=function(){setMode('reto')};
+function newCase(){
+  var pool=RH.filter(function(h){return h.id!==S.ch.id});
+  var h=pool[Math.floor(Math.random()*pool.length)];
+  S.ch={id:h.id,revealed:false};S.seed=Math.floor(Math.random()*1000);
+  S.rates[h.id]=Math.round(h.r[2]+(h.r[1]-h.r[0])*.12*(Math.random()-.5));
+  if(h.r[1]===h.r[0])S.rates[h.id]=0;
+  $('guess').value='';$('chFb').textContent='Observa el trazo y la escalera, responde las cinco preguntas y elige el ritmo.';
+  render();
+}
+$('newBtn').onclick=newCase;
+$('hintBtn').onclick=function(){
+  var a=analyze(genEv(S.ch.id));
+  $('chFb').innerHTML='<b>Pista.</b> ¿Hay P? '+a.p+'. QRS: '+a.w+'.';
+};
+$('checkBtn').onclick=function(){
+  if(S.ch.revealed)return;
+  var v=$('guess').value;if(!v){$('chFb').textContent='Elige primero un ritmo.';return}
+  var conf=(document.querySelector('input[name=conf]:checked')||{}).value||'Algo seguro',ok=v===S.ch.id,h=BYID[S.ch.id];
+  S.ch.revealed=true;S.stats[conf][0]++;if(ok)S.stats[conf][1]++;
+  var msg=ok?'<span class="ok">Correcto.</span> Es '+h.name+'.':'<span class="no">No.</span> Es '+h.name+'; elegiste '+BYID[v].name+'.';
+  if(!ok){
+    var A=analyze(genEv(v)),B=analyze(genEv(S.ch.id)),diff=[];
+    ['p','c','reg','w'].forEach(function(k,i){if(A[k]!==B[k])diff.push(['¿Hay P?','¿Conduce?','¿Regular?','¿QRS?'][i])});
+    if(diff.length)msg+=' Se distinguen en: '+diff.join(', ')+'.';
+  }
+  if(ok&&conf==='Adivinando')msg+=' Acertaste sin confianza: aplica las cinco preguntas.';
+  if(!ok&&conf==='Seguro')msg+=' Estabas seguro y fallaste: revisa qué pregunta saltaste.';
+  $('chFb').innerHTML=msg;
+  var t='Calibración: ',any=false;Object.keys(S.stats).forEach(function(k){var s=S.stats[k];if(s[0]){any=true;t+=k+' '+s[1]+'/'+s[0]+' · '}});
+  $('stats').textContent=any?t.replace(/ · $/,''):'';
+  render();
+};
+
+/* ---- reentrada ---- */
+var R={on:false,s:0,res:'',last:0,two:false};
+function ringRead(){
+  var v=+$('vel').value,rp=+$('rp').value,L=+$('len').value,wl=v*100*rp/1000,blk=$('block').checked;
+  $('vV').textContent=v.toFixed(2)+' m/s';$('rpV').textContent=rp+' ms';$('lV').textContent=L+' cm';
+  var sus=blk&&wl<L,rate=Math.round(v*100/L*60);
+  $('reRead').innerHTML='<b>Longitud de onda</b><span class="mono">'+wl.toFixed(1)+' cm (v × refractario)</span><b>Circuito</b><span class="mono">'+L+' cm</span><b>¿Se sostiene?</b><span>'+(sus?'<span class="ok">Sí</span>: la onda encuentra tejido recuperado ('+(L-wl).toFixed(1)+' cm de hueco excitable)':'<span class="no">No</span>: '+(!blk?'sin bloqueo unidireccional la onda avanza por ambos lados y se anula':'la onda alcanza tejido aún refractario'))+'</span>'+(sus?'<b>Frecuencia del circuito</b><span class="mono">≈ '+rate+' lpm (v ÷ longitud)</span>':'');
+  return{wl:wl,L:L,v:v,sus:sus,blk:blk};
+}
+function drawRing(ts){
+  var c=$('ring'),W=Math.min(280,Math.floor($('ring').parentElement.clientWidth-2)||280),x=fit(c,W,W),p=ringRead();
+  var cx=W/2,cy=W/2,Rr=W/2-26,cM=css('--muted'),cV=css('--vec'),cG=css('--guess'),cGood=css('--good');
+  if(R.on){
+    var dt=Math.min(.05,(ts-R.last)/1000);R.last=ts;R.s+=p.v*100*dt*.12*8;
+    var lim=p.blk?(p.sus?1e9:p.L):p.L/2;
+    if(R.s>=lim){R.s=lim;R.on=false;R.done=true}
+  }
+  var ang=function(s){return -Math.PI/2+s/p.L*2*Math.PI};
+  x.lineWidth=14;x.lineCap='butt';x.strokeStyle=cGood;x.globalAlpha=.25;x.beginPath();x.arc(cx,cy,Rr,0,Math.PI*2);x.stroke();x.globalAlpha=1;
+  if(R.on||R.done||R.s>0){
+    var heads=p.blk?[1]:[1,-1];
+    heads.forEach(function(d){
+      var h=ang(d*R.s),tl=Math.min(p.wl,p.L*(p.blk?1:.5)),t0=ang(d*(R.s-tl));
+      x.strokeStyle=cG;x.globalAlpha=.8;x.lineWidth=14;x.beginPath();
+      if(d>0)x.arc(cx,cy,Rr,t0,h,false);else x.arc(cx,cy,Rr,h,ang(-(R.s-tl)),false);
+      x.stroke();x.globalAlpha=1;
+      x.fillStyle=cV;x.beginPath();x.arc(cx+Math.cos(h)*Rr,cy+Math.sin(h)*Rr,8,0,Math.PI*2);x.fill();
+    });
+  }
+  x.strokeStyle=css('--fg');x.lineWidth=3;x.beginPath();x.moveTo(cx-8,cy-Rr-14);x.lineTo(cx+8,cy-Rr+14);x.stroke();
+  x.fillStyle=css('--fg');x.font='600 11px '+css('--font-mono');x.textAlign='center';x.textBaseline='middle';
+  x.fillText(p.blk?'bloqueo unidireccional':'sin bloqueo',cx,cy-6);
+  x.fillStyle=cG;x.fillText('■ refractario',cx-46,cy+14);x.fillStyle=cGood;x.fillText('■ excitable',cx+46,cy+14);
+  if(R.done&&!p.sus){x.fillStyle=css('--bad');x.fillText('se extingue',cx,cy+36)}
+  if(R.on)requestAnimationFrame(drawRing);
+}
+$('fire').onclick=function(){R.on=true;R.done=false;R.s=0;R.last=performance.now();requestAnimationFrame(drawRing)};
+$('stop').onclick=function(){R.on=false;R.s=0;R.done=false;drawRing(performance.now())};
+['vel','rp','len','block'].forEach(function(id){$(id).addEventListener('input',function(){R.on=false;R.s=0;R.done=false;drawRing(performance.now())});$(id).addEventListener('change',function(){R.on=false;R.s=0;R.done=false;drawRing(performance.now())})});
+
+function all(){render();drawRing(performance.now())}
+build();render();drawRing(performance.now());
+if(window.ResizeObserver)new ResizeObserver(function(){drawStrip()}).observe($('stripWrap'));else window.addEventListener('resize',all);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);
+new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(all);
+window.__dbg={RH:RH,S:S,genEv:genEv,analyze:analyze};
+})();
+</script>
+
+</body></html>

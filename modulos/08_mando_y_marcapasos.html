@@ -1,0 +1,416 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Mando y marcapasos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: una línea de tiempo del impulso. Cada segmento es una barra cuya longitud sale de distancia ÷ velocidad. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulos F4 + F5 · conducción, automatismo y control autonómico</div>
+  <h1>Mando y marcapasos</h1>
+  <p class="lede">Calcula cuánto tarda el impulso en cada tramo, apaga el nodo SA para ver quién manda y mueve el tono simpático y vagal para ver cómo cambian la frecuencia, el PR y la fuerza.</p>
+  <div class="tags"><span>Unidad 6: 6.21–6.23, 6.25–6.27, 6.30–6.45</span><span>Nivel N1–N2</span><span>Perillas: velocidades, fase 4, tono autonómico, fármacos</span></div>
+</header>
+
+<section class="panel">
+  <h2>F4 · Secuencia de activación: calcula el tiempo</h2>
+  <p class="note">Tiempo = distancia ÷ velocidad. Calcula cada tramo, escríbelo en ms y comprueba. Luego mueve las velocidades.</p>
+  <div class="tw"><table id="segT"><thead><tr><th>Tramo</th><th>Distancia</th><th>Velocidad</th><th>Tu cálculo (ms)</th><th>Real</th><th>Acumulado</th></tr></thead><tbody></tbody></table></div>
+  <div class="row"><button class="btn primary" id="segGo">Comprobar mis cálculos</button><button class="btn" id="segReset">Velocidades normales</button></div>
+  <p class="fb" id="segFb" aria-live="polite"></p>
+  <canvas id="tl" role="img" aria-label="Línea de tiempo de la activación cardiaca"></canvas>
+  <div class="chips" id="segRead"></div>
+  <p class="why" id="segWhy"></p>
+</section>
+
+<section class="panel">
+  <h2>F4 · Qué fija la frecuencia del nodo SA</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Pendiente de fase 4: <span class="mono" id="slV"></span><input type="range" id="sl" min="15" max="60" step="1" value="31"></label>
+      <label class="ctl" style="flex:none">Umbral: <span class="mono" id="thV"></span><input type="range" id="th" min="-50" max="-30" step="1" value="-40"></label>
+      <label class="ctl" style="flex:none">Potencial diastólico máximo: <span class="mono" id="mdV"></span><input type="range" id="md" min="-75" max="-55" step="1" value="-62"></label>
+      <div class="chips" id="saRead"></div>
+    </div>
+    <div class="col"><canvas id="sa" role="img" aria-label="Potencial marcapaso del nodo SA"></canvas><p class="why" id="saWhy"></p></div>
+  </div>
+  <p class="note">Pendiente en µV/ms (= mV/s ÷ 1000 · 1000). Valores de referencia: VERIFICAR con el libro del curso.</p>
+</section>
+
+<section class="panel">
+  <h2>F4 · Apaga el nodo SA: ¿quién manda?</h2>
+  <div class="row">
+    <label class="lab"><input type="checkbox" id="saOff"> Apagar el nodo SA (a los 3 s)</label>
+    <label class="lab"><input type="checkbox" id="avb"> Bloqueo AV completo (el impulso no pasa)</label>
+  </div>
+  <canvas id="esc" role="img" aria-label="Tira de ritmo con escape de marcapasos"></canvas>
+  <div class="chips" id="escRead"></div>
+  <p class="why" id="escWhy"></p>
+  <div class="tw"><table><thead><tr><th>Marcapasos</th><th>Frecuencia propia</th><th>Por qué</th></tr></thead><tbody>
+    <tr><td>Nodo SA</td><td class="n">60–100 lpm</td><td>Fase 4 más empinada: dispara primero y suprime a los demás (supresión competitiva).</td></tr>
+    <tr><td>Unión AV</td><td class="n">40–60 lpm</td><td>Fase 4 más lenta: queda suprimido mientras llega algo más rápido.</td></tr>
+    <tr><td>His–Purkinje / ventrículo</td><td class="n">20–40 lpm</td><td>Fase 4 aún más lenta: solo aparece como escape si falla lo de arriba.</td></tr></tbody></table></div>
+  <p class="note">Rangos orientativos: VERIFICAR con el libro del curso.</p>
+</section>
+
+<section class="panel">
+  <h2>F5 · Control autonómico</h2>
+  <canvas id="ecg" role="img" aria-label="Tira de ECG esquemática con la frecuencia y el PR actuales"></canvas>
+  <div class="chips" id="auRead"></div>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl" style="flex:none">Tono simpático: <span class="mono" id="sV"></span><input type="range" id="sy" min="0" max="100" step="5" value="10"></label>
+      <label class="ctl" style="flex:none">Tono vagal: <span class="mono" id="vV"></span><input type="range" id="va" min="0" max="100" step="5" value="50"></label>
+      <div class="chips" id="drugs"></div>
+    </div>
+    
+  </div>
+  <div class="tw"><table class="chain" id="chain"><thead><tr><th>Receptor</th><th>Proteína G</th><th>2.º mensajero</th><th>Canal / proteína</th><th>Efecto</th></tr></thead><tbody>
+      <tr id="rB"><td class="s">β₁ (noradrenalina, adrenalina)</td><td class="s">Gs</td><td class="s">↑ AMPc → PKA</td><td class="s">↑ If, ↑ ICa-L, fosforilación de proteínas de relajación</td><td class="s">↑ FC, ↑ conducción AV, ↑ contractilidad, relajación más rápida</td></tr>
+      <tr id="rM"><td class="s">M₂ (acetilcolina del vago)</td><td class="s">Gi</td><td class="s">↓ AMPc</td><td class="s">↑ K⁺ (apertura), ↓ If</td><td class="s">↓ FC, ↓ conducción AV; poco efecto directo en el ventrículo</td></tr></tbody></table></div>
+  <p class="why" id="auWhy"></p>
+  <p class="note">Modelo: FC = 100 · (1 + S) ÷ (1 + 1,6 V); retraso AV = 120 · (1 − 0,35 S) · (1 + 0,5 V) ms; contractilidad = 1 + 0,8 S. Coeficientes ilustrativos, no medidos: VERIFICAR. El efecto vagal sobre el ventrículo se desprecia.</p>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div class="cols2">
+    <div class="col">
+      <fieldset style="flex-direction:column"><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+      <div class="row"><button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+      <p class="fb" id="qFb" aria-live="polite"></p>
+    </div>
+    <div class="col">
+      <h3>Juego: Receptor correcto</h3>
+      <div class="chips" id="gCase"></div>
+      <select id="gSel" aria-label="Situación"><option value="">¿Qué situación es?</option></select>
+      <div class="row"><button class="btn primary" id="gGo">Comprobar</button><button class="btn" id="gNew">Nuevo caso</button></div>
+      <p class="fb" id="gFb" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"Mientras más rápida la fibra, más rápida toda la activación": el nodo AV, lento, domina el tiempo total; acelerar Purkinje casi no cambia el PR.</li>
+    <li>"El nodo AV es un defecto": su lentitud deja llenar al ventrículo y filtra frecuencias auriculares muy altas.</li>
+    <li>"El vago frena también la contracción del ventrículo": actúa sobre nodos y aurículas; en el ventrículo casi no hay efecto directo.</li>
+    <li>"Sin inervación el corazón se detiene": un corazón denervado late a unos 100 lpm por su marcapasos propio.</li>
+    <li>"El nodo SA manda porque es el único que dispara": todos pueden hacerlo; manda el más rápido y suprime a los demás.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Distancias y velocidades son una vía idealizada; no hay geometría real.</li>
+    <li>Los tiempos suman en serie un solo camino; las ramas derecha e izquierda se tratan como una.</li>
+    <li>Escape: cada marcapasos dispara cuando pasa su periodo desde la última activación, más una pausa de supresión (valores ilustrativos).</li>
+    <li>Coeficientes del control autonómico ilustrativos; sin interacción simpático–vagal acentuada (VERIFICAR).</li>
+    <li>Sin caso clínico de cierre en esta versión.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.21–6.23, 6.25–6.27, 6.30–6.45). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,mx){return Math.min(mx||940,Math.floor(c.parentElement.clientWidth-(c.parentElement.classList.contains('panel')?30:2)))}
+function axes(x,r,xr,yr,xt,yt,xl,fy){
+  x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.lineWidth=1;
+  x.textAlign='right';x.textBaseline='middle';
+  yt.forEach(function(v){var y=r.y+r.h-(v-yr[0])/(yr[1]-yr[0])*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(fy?fy(v):v,r.x-4,y)});
+  x.textAlign='center';x.textBaseline='top';
+  xt.forEach(function(v){var xx=r.x+(v-xr[0])/(xr[1]-xr[0])*r.w;x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h+3);x.stroke();x.fillText(v,xx,r.y+r.h+5)});
+  if(xl){x.textAlign='right';x.fillText(xl,r.x+r.w,r.y+r.h+16)}
+}
+
+/* ---- F4: segmentos ---- */
+var SEG=[{n:'Aurícula (SA → AV)',d:4,v:1,vn:1,lo:.3,hi:2,col:'--vec'},{n:'Nodo AV',d:.5,v:.05,vn:.05,lo:.01,hi:.2,col:'--guess'},{n:'Haz de His y ramas',d:2,v:2,vn:2,lo:.5,hi:4,col:'--blood'},{n:'Fibras de Purkinje',d:3,v:3,vn:3,lo:1,hi:4,col:'--blood'},{n:'Miocardio ventricular',d:3,v:.4,vn:.4,lo:.2,hi:1,col:'--muted'}];
+function tms(s){return s.d/100/s.v*1000}
+function tot(){var a=0,pr=0,i;SEG.forEach(function(s,k){var t=tms(s);a+=t;if(k<3)pr+=t});return{all:a,pr:pr,qrs:tms(SEG[3])+tms(SEG[4])}}
+function buildSeg(){
+  var tb=document.querySelector('#segT tbody');tb.innerHTML='';
+  SEG.forEach(function(s,i){var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+s.n+'</td><td class="n">'+fmt(s.d,1)+' cm</td><td class="n"><input class="sm" type="range" id="sv'+i+'" min="'+s.lo*100+'" max="'+s.hi*100+'" step="1" value="'+Math.round(s.v*100)+'" aria-label="Velocidad '+s.n+'"> <span id="svv'+i+'"></span></td><td><input class="cin" id="sc'+i+'" inputmode="decimal" aria-label="Tu cálculo '+s.n+'"></td><td class="n" id="sr'+i+'">?</td><td class="n" id="sa'+i+'"></td>';
+    tb.appendChild(tr);
+    $('sv'+i).oninput=function(){s.v=this.value/100;$('sr'+i).textContent='?';$('sc'+i).value='';$('segFb').textContent='';renderSeg()}});
+}
+function renderSeg(){
+  var a=0;SEG.forEach(function(s,i){a+=tms(s);$('svv'+i).textContent=fmt(s.v,2)+' m/s';$('sa'+i).textContent=Math.round(a)+' ms'});
+  drawTl();var T=tot();
+  $('segRead').innerHTML=chip('PR (aur.+AV+His)',Math.round(T.pr)+' ms',T.pr>=110&&T.pr<=200,T.pr>200?'PR largo':T.pr<110?'PR corto':'')+chip('QRS (Purkinje+ventr.)',Math.round(T.qrs)+' ms',T.qrs<=110,T.qrs>110?'QRS ancho':'')+chip('Activación total',Math.round(T.all)+' ms',true);
+  var w=['El nodo AV tarda más que todo el resto del camino: fibras pequeñas, pocas uniones comunicantes y dependencia de Ca²⁺. Ese retraso deja que el ventrículo se llene antes de contraerse y filtra frecuencias auriculares muy altas.'];
+  var base=SEG[1].v===SEG[1].vn;
+  if(SEG[1].v<.04)w.push('Un nodo AV más lento alarga el PR.');
+  if(SEG[3].v>SEG[3].vn*1.3&&base)w.push('Acelerar Purkinje casi no cambia el total: el cuello de botella es el nodo AV.');
+  if(SEG[4].v<SEG[4].vn*.7)w.push('El miocardio ventricular lento ensancha el QRS (como en un bloqueo de rama).');
+  $('segWhy').textContent=w.join(' ');
+}
+$('segGo').onclick=function(){
+  var ok=0,n=0,msg=[];SEG.forEach(function(s,i){var raw=$('sc'+i).value.replace(',','.'),v=parseFloat(raw),t=tms(s);$('sr'+i).textContent=fmt(t,0)+' ms';
+    if(raw===''||isNaN(v)){msg.push(s.n+': vacío')}else{n++;if(Math.abs(v-t)<=Math.max(2,.05*t))ok++;else msg.push(s.n+': '+fmt(s.d,1)+' cm ÷ '+fmt(s.v,2)+' m/s = '+fmt(t,0)+' ms')}});
+  $('segFb').innerHTML=(ok===SEG.length?'<span class="ok">Todo correcto.</span> Recuerda convertir cm a m.':'<span class="no">'+ok+' de '+SEG.length+' correctos.</span> '+msg.join(' · '));
+};
+$('segReset').onclick=function(){SEG.forEach(function(s,i){s.v=s.vn;$('sv'+i).value=Math.round(s.vn*100)});renderSeg()};
+function drawTl(){
+  var c=$('tl'),W=cw(c);if(W<260)return;var H=120,x=fit(c,W,H),r={x:10,y:10,w:W-20,h:52},T=tot(),max=Math.max(300,T.all*1.05),a=0;
+  x.clearRect(0,0,W,H);
+  SEG.forEach(function(s,i){var t=tms(s),x0=r.x+a/max*r.w,ww=Math.max(1.5,t/max*r.w);x.fillStyle=css(s.col);x.globalAlpha=.85;x.fillRect(x0,r.y,ww,r.h);x.globalAlpha=1;a+=t;
+    x.strokeStyle=css('--panel');x.lineWidth=1;x.strokeRect(x0,r.y,ww,r.h)});
+  x.font='10px '+css('--font-mono');x.fillStyle=css('--muted');x.textAlign='center';x.textBaseline='top';
+  for(var t=0;t<=max;t+=50){var xx=r.x+t/max*r.w;x.fillText(t,xx,r.y+r.h+4)}
+  x.textAlign='right';x.fillText('ms',r.x+r.w,r.y+r.h+18);
+  var pa=T.pr/max*r.w+r.x;x.strokeStyle=css('--fg');x.setLineDash([4,3]);x.beginPath();x.moveTo(pa,r.y-4);x.lineTo(pa,r.y+r.h);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--fg');x.textAlign='left';x.fillText('fin de PR',Math.min(pa+4,W-60),r.y+r.h+18);
+  var lx=r.x,names=['aurícula','nodo AV','His','Purkinje','ventrículo'];
+  a=0;SEG.forEach(function(s,i){var t=tms(s),x0=r.x+a/max*r.w,ww=t/max*r.w;a+=t;if(ww>44){x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='600 10px '+css('--font-body');x.fillText(names[i],x0+ww/2,r.y+r.h/2)}});
+}
+
+/* ---- F4: pendiente fase 4 ---- */
+var SA={sl:31,th:-40,md:-62,apd:150};
+function saModel(){var sl=SA.sl/1000,tr=(SA.th-SA.md)/sl,T=tr+SA.apd;return{tr:tr,T:T,fc:60000/T,sl:sl}}
+function drawSa(){
+  var c=$('sa'),W=cw(c,460);if(W<220)return;var H=Math.round(W*.62),x=fit(c,W,H),r={x:44,y:8,w:W-56,h:H-34},m=saModel(),nm={tr:22/.031,T:22/.031+150};
+  var xr=[0,1600],yr=[-80,20];axes(x,r,xr,yr,[0,400,800,1200,1600],[-70,-40,0],'ms');
+  function f(t,md,th,sl,apd,Vp){var T=(th-md)/sl+apd,u=t%T,tr=(th-md)/sl;if(u<tr)return md+sl*u;var a=u-tr;if(a<apd*.25)return th+(Vp-th)*a/(apd*.25);return Vp+(md-Vp)*(.5-.5*Math.cos(Math.PI*clamp((a-apd*.25)/(apd*.75),0,1)))}
+  function plot(fn,col,lw,d){x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(d||[]);x.beginPath();for(var i=0;i<=r.w;i++){var t=xr[0]+(xr[1]-xr[0])*i/r.w,v=fn(t),y=r.y+r.h-(clamp(v,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h;i?x.lineTo(r.x+i,y):x.moveTo(r.x+i,y)}x.stroke();x.setLineDash([])}
+  plot(function(t){return f(t,-62,-40,.031,150,10)},css('--muted'),1.3,[5,4]);
+  plot(function(t){return f(t,SA.md,SA.th,SA.sl/1000,SA.apd,10)},css('--vec'),2.5);
+  var yy=r.y+r.h-(SA.th-yr[0])/(yr[1]-yr[0])*r.h;x.strokeStyle=css('--guess');x.setLineDash([3,3]);x.beginPath();x.moveTo(r.x,yy);x.lineTo(r.x+r.w,yy);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--guess');x.font='10px '+css('--font-mono');x.textAlign='left';x.fillText('umbral',r.x+4,yy-10);
+}
+function readSa(){
+  var m=saModel(),nm=60000/(22/.031+150);
+  $('slV').textContent=fmt(SA.sl/1000*1000,0)+' µV/ms';$('thV').textContent=SA.th+' mV';$('mdV').textContent=SA.md+' mV';
+  $('saRead').innerHTML=chip('Frecuencia',Math.round(m.fc)+' lpm',m.fc>=60&&m.fc<=100,m.fc<60?'bradicardia':m.fc>100?'taquicardia':'')+chip('Fase 4',Math.round(m.tr)+' ms',true)+chip('Periodo',Math.round(m.T)+' ms',true);
+  var w=['La frecuencia depende de cuánto tarda la fase 4 en llegar al umbral: depende de la pendiente, del umbral y del potencial diastólico máximo.'];
+  if(SA.sl>35)w.push('Pendiente más empinada: llega antes al umbral y sube la FC (simpático).');if(SA.sl<27)w.push('Pendiente más suave: tarda más y baja la FC.');
+  if(SA.th>-38)w.push('Umbral menos negativo: hay que subir más y baja la FC.');
+  if(SA.md<-66)w.push('Potencial diastólico más negativo (hiperpolarización, como con acetilcolina): parte de más abajo y baja la FC.');
+  $('saWhy').textContent=w.join(' ');
+}
+[['sl','sl'],['th','th'],['md','md']].forEach(function(a){$(a[0]).oninput=function(){SA[a[1]]=+this.value;readSa();drawSa()}});
+
+/* ---- F4: escape ---- */
+function simEsc(off,blk){
+  var T={sa:857,av:1200,v:1900,vb:1700},ev=[],last=0,toff=3000,end=10000,t=0,lastSA=0,sup=700,guard=0;
+  /* eventos auriculares y ventriculares */
+  if(blk){
+    var a=0;while(a<end){if(off&&a>=toff)break;ev.push({t:a,k:'P'});a+=T.sa}
+    if(off){var ta=toff+sup+T.av-T.sa;while(ta<end){ev.push({t:ta,k:'J'});ta+=T.av}}
+    var v=250;while(v<end){ev.push({t:v,k:'V'});v+=T.vb}
+    return ev.sort(function(a,b){return a.t-b.t})}
+  last=0;ev.push({t:0,k:'S'});lastSA=0;
+  while(guard++<400){
+    var cand=[];
+    if(!off||lastSA+T.sa<toff)cand.push({t:lastSA+T.sa,k:'S'});
+    var suppress=off&&last>=toff-T.sa-1?0:0;
+    var tj=last+T.av+(off&&last<toff?sup:0),tv=last+T.v+(off&&last<toff?sup:0);
+    cand.push({t:tj,k:'J'},{t:tv,k:'V'});
+    cand.sort(function(a,b){return a.t-b.t});var c=cand[0];
+    if(c.t>=end)break;if(c.k==='S'){lastSA=c.t}ev.push(c);last=c.t;
+    if(c.k!=='S'&&!off)break;
+  }
+  return ev;
+}
+function drawEsc(){
+  var c=$('esc'),W=cw(c);if(W<260)return;var H=150,x=fit(c,W,H),r={x:12,y:20,w:W-24,h:90},off=$('saOff').checked,blk=$('avb').checked,ev=simEsc(off,blk);
+  x.clearRect(0,0,W,H);var xr=10000,base=r.y+r.h*.7;
+  x.strokeStyle=css('--line');x.beginPath();x.moveTo(r.x,base);x.lineTo(r.x+r.w,base);x.stroke();
+  if(off){var xo=r.x+3000/xr*r.w;x.strokeStyle=css('--bad');x.setLineDash([4,3]);x.beginPath();x.moveTo(xo,r.y-6);x.lineTo(xo,r.y+r.h);x.stroke();x.setLineDash([]);x.fillStyle=css('--bad');x.font='10px '+css('--font-mono');x.textAlign='left';x.fillText('SA apagado',xo+4,r.y-8)}
+  ev.forEach(function(e){var xx=r.x+e.t/xr*r.w;
+    if(e.k==='P'){x.strokeStyle=css('--guess');x.lineWidth=2;x.beginPath();x.moveTo(xx,base);x.lineTo(xx,base-10);x.stroke()}
+    else if(e.k==='S'){if(!blk){x.strokeStyle=css('--guess');x.lineWidth=2;x.beginPath();x.moveTo(xx,base);x.lineTo(xx,base-10);x.stroke();xx+=5}else return;
+      x.strokeStyle=css('--vec');x.lineWidth=2;x.beginPath();x.moveTo(xx,base+4);x.lineTo(xx+1,base-r.h*.6);x.lineTo(xx+3,base+4);x.stroke()}
+    else{var wide=e.k==='V';x.strokeStyle=wide?css('--blood'):css('--vec');x.lineWidth=wide?3:2;x.beginPath();x.moveTo(xx,base+4);x.lineTo(xx+(wide?3:1),base-r.h*.6);x.lineTo(xx+(wide?7:3),base+4);x.stroke()}});
+  x.lineWidth=1;x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';
+  [0,2,4,6,8,10].forEach(function(s){x.fillText(s+' s',r.x+s*1000/xr*r.w,r.y+r.h+6)});
+  x.textAlign='left';x.fillStyle=css('--guess');x.fillText('naranja = P',r.x,H-14);x.fillStyle=css('--vec');x.fillText('verde = QRS angosto',r.x+90,H-14);x.fillStyle=css('--blood');x.fillText('rojo = QRS ancho (ventricular)',r.x+230,H-14);
+}
+function rate(ev,ks,from){var a=ev.filter(function(e){return ks.indexOf(e.k)>=0&&e.t>=from}).map(function(e){return e.t});if(a.length<2)return 0;return 60000*(a.length-1)/(a[a.length-1]-a[0])}
+function readEsc(){
+  var off=$('saOff').checked,blk=$('avb').checked,ev=simEsc(off,blk),h='',w=[];
+  var rv=rate(ev,['S','J','V'],off?4000:0),ra=rate(ev,['P','S'],0);
+  if(!off&&!blk){h=chip('Marcapasos','Nodo SA','ok')+chip('FC',Math.round(rv)+' lpm','ok');w.push('Manda el nodo SA: dispara primero, y los demás marcapasos son reiniciados por cada impulso que les llega antes de que alcancen su umbral (supresión competitiva).')}
+  if(off&&!blk){var j=ev.filter(function(e){return e.k==='J'}).length?'Unión AV':'Ventricular';h=chip('Marcapasos',j,'wn')+chip('FC',Math.round(rv)+' lpm','wn')+chip('P','ausente','wn');w.push('Sin el SA, el siguiente más rápido (la unión AV, 40–60 lpm) toma el mando tras una pausa: es un ritmo de escape, con QRS angosto y sin P antes.');}
+  if(!off&&blk){h=chip('Aurículas',Math.round(ra)+' lpm','ok')+chip('Ventrículos',Math.round(rv||rate(ev,['V'],0))+' lpm','no','disociados');w.push('El impulso no cruza el nodo AV, la única vía eléctrica: las aurículas siguen al SA y los ventrículos van por un escape ventricular lento, con QRS ancho y sin relación con las P.')}
+  if(off&&blk){h=chip('Aurículas','sin SA','no')+chip('Ventrículos',Math.round(rate(ev,['V'],0))+' lpm','no');w.push('Sin SA y con bloqueo AV, los ventrículos dependen solo de su escape lento.')}
+  $('escRead').innerHTML=h;$('escWhy').textContent=w.join(' ');
+}
+$('saOff').onchange=$('avb').onchange=function(){readEsc();drawEsc()};
+
+/* ---- F5 ---- */
+var A={s:.1,v:.5,atr:false,bb:false,iso:false,sv:false};
+function aut(){var S=clamp(A.s+(A.iso?.8:0),0,1.6),V=A.v;if(A.bb)S=0;if(A.atr)V=0;
+  /* propranolol bloquea tambien el isoproterenol; atropina bloquea M2 */
+  var hr=100*(1+S)/(1+1.6*V),pr=120*(1-.35*Math.min(S,1.2))*(1+.5*V),c=1+.8*S;
+  return{S:S,V:V,hr:hr,pr:pr,c:c}}
+function drawEcg(){
+  var c=$('ecg'),W=cw(c);if(W<260)return;var H=130,x=fit(c,W,H),r={x:12,y:14,w:W-24,h:80},m=aut(),rr=60000/m.hr,T=4000;
+  x.clearRect(0,0,W,H);var base=r.y+r.h*.7;x.strokeStyle=css('--line');x.beginPath();x.moveTo(r.x,base);x.lineTo(r.x+r.w,base);x.stroke();
+  function g(t,mu,sg,a){return a*Math.exp(-Math.pow((t-mu)/sg,2)/2)}
+  x.strokeStyle=css('--vec');x.lineWidth=2;x.beginPath();
+  var amp=.55+.3*(m.c-1);
+  for(var i=0;i<=r.w;i++){var t=i/r.w*T,ph=t%rr,v=g(ph,0,18,.14)+g(ph,m.pr,9,.9*amp/ .85)-g(ph,m.pr-14,4,.12)-g(ph,m.pr+14,4,.18)+g(ph,m.pr+210*Math.sqrt(rr/857),38,.2);var y=base-v*r.h*.8;i?x.lineTo(r.x+i,y):x.moveTo(r.x+i,y)}x.stroke();
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='center';x.textBaseline='top';[0,1,2,3,4].forEach(function(s){x.fillText(s+' s',r.x+s*1000/T*r.w,r.y+r.h+8)});
+  x.textAlign='left';x.fillText('P — PR — QRS — T (esquemático)',r.x,2);
+}
+function readAu(){
+  var m=aut();$('sV').textContent=Math.round(A.s*100)+' %';$('vV').textContent=Math.round(A.v*100)+' %';
+  var b=aut.base||(aut.base=(function(){var t=A;A={s:.1,v:.5,atr:false,bb:false,iso:false,sv:false};var o=aut();A=t;return o})());
+  $('auRead').innerHTML=chip('FC',Math.round(m.hr)+' lpm',m.hr>=55&&m.hr<=100,m.hr<50?'baja':m.hr>110?'alta':'')+chip('Retraso AV (PR)',Math.round(m.pr)+' ms',m.pr<=200)+chip('Contractilidad',fmt(m.c,2)+'×',m.c<1.2,'vs. 1,00 sin simpático')+chip('Reposo de referencia',Math.round(b.hr)+' lpm · '+Math.round(b.pr)+' ms',true);
+  var w=[];
+  if(m.S>.4)w.push('El simpático activa β₁ (Gs → AMPc → PKA): más If, más corriente de Ca²⁺ y fosforilación de proteínas de relajación → sube la FC, se acelera la conducción AV (PR menor), aumenta la contractilidad y la relajación es más rápida.');
+  if(m.V>.4)w.push('El vago activa M₂ (Gi): baja el AMPc y abre canales de K⁺ → hiperpolariza y frena el nodo SA y el nodo AV (PR mayor). En el ventrículo casi no hay efecto directo: la contractilidad apenas cambia.');
+  if(!A.atr&&A.v>0&&A.bb)w.push('Con β-bloqueador queda el efecto vagal sin oposición: FC un poco menor que en reposo.');
+  if(A.atr)w.push('La atropina bloquea M₂: se quita el freno vagal y la FC sube hacia la frecuencia propia del SA.');
+  if(A.s===0&&A.v===0&&!A.atr&&!A.bb&&!A.iso)w.push('Sin tono simpático ni vagal el SA late a su frecuencia propia, cerca de 100 lpm (corazón denervado o trasplantado).');
+  if(!w.length)w.push('En reposo domina el tono vagal: por eso la FC en reposo es menor que la frecuencia propia del SA.');
+  $('auWhy').textContent=w.join(' ');
+  $('rB').className=m.S>.3?'hot':'';$('rM').className=m.V>.3?'hot':'';
+  document.querySelectorAll('#rB td').forEach(function(t){t.style.opacity=.35+.65*clamp(m.S,0,1)});document.querySelectorAll('#rM td').forEach(function(t){t.style.opacity=.35+.65*clamp(m.V,0,1)});
+}
+[['sy','s'],['va','v']].forEach(function(a){$(a[0]).oninput=function(){A[a[1]]=this.value/100;render()}});
+var DR=[['Atropina (bloquea M₂)','atr'],['Propranolol (bloquea β)','bb'],['Isoproterenol (agonista β)','iso']];
+DR.forEach(function(d){var b=document.createElement('button');b.className='btn';b.textContent=d[0];b.setAttribute('aria-pressed','false');b.onclick=function(){A[d[1]]=!A[d[1]];b.setAttribute('aria-pressed',A[d[1]]);render()};b.dataset.k=d[1];$('drugs').appendChild(b)});
+function syncA(){$('sy').value=A.s*100;$('va').value=A.v*100;document.querySelectorAll('#drugs .btn').forEach(function(b){b.setAttribute('aria-pressed',A[b.dataset.k])})}
+
+/* ---- retos ---- */
+var QS=[
+ {q:'Un nodo AV más lento (por ejemplo 0,02 m/s en vez de 0,05). ¿Qué cambia?',o:['El PR se alarga y el QRS no cambia','El QRS se ensancha','Nada: el AV no influye en el tiempo total'],a:0,ap:function(){SEG[1].v=.02;$('sv1').value=2;renderSeg()},e:'El retraso AV aparece en el PR: 0,5 cm ÷ 0,02 m/s = 250 ms. El QRS depende de Purkinje y miocardio ventricular.'},
+ {q:'Apagas el nodo SA. ¿Qué pasa?',o:['El corazón se detiene para siempre','Toma el mando un marcapasos más lento, tras una pausa, y la FC baja','Toma el mando otro nodo con la misma frecuencia que el SA'],a:1,ap:function(){$('saOff').checked=true;readEsc();drawEsc()},e:'Los marcapasos inferiores estaban suprimidos y reaparecen como escape: más lentos, con una pausa antes de arrancar.'},
+ {q:'En reposo, bloqueas M₂ con atropina. ¿Qué pasa con la FC?',o:['Baja mucho','Sube, porque se quita el freno vagal','No cambia'],a:1,ap:function(){A.atr=true;syncA();render()},e:'En reposo domina el tono vagal. Quitarlo deja al SA ir hacia su frecuencia propia.'},
+ {q:'Aumentas el tono vagal al máximo. ¿Qué pasa con la contractilidad ventricular?',o:['Cae mucho','Casi no cambia: la inervación vagal es sobre todo nodal y auricular','Sube'],a:1,ap:function(){A.v=1;A.atr=false;syncA();render()},e:'La FC baja y el PR se alarga, pero la contractilidad del ventrículo apenas se mueve: el efecto vagal directo ahí es pequeño.'}
+];
+var qi=0;
+function showQ(){var q=QS[qi];$('qText').textContent=q.q;$('qOpts').innerHTML=q.o.map(function(t,i){return '<label class="opt"><input type="radio" name="qo" value="'+i+'"> '+t+'</label>'}).join('');$('qFb').textContent=''}
+$('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+  var q=QS[qi],ok=+r.value===q.a;q.ap();$('qFb').innerHTML=(ok?'<span class="ok">Correcto.</span> ':'<span class="no">No era esa.</span> ')+q.e+' Mira el cambio arriba.'};
+$('qNext').onclick=function(){qi=(qi+1)%QS.length;showQ()};
+
+var CS=[
+ {id:'ej',n:'Ejercicio (simpático alto)',st:{s:.9,v:.1}},
+ {id:'vg',n:'Tono vagal intenso',st:{s:0,v:1}},
+ {id:'at',n:'Atropina en reposo',st:{s:.1,v:.5,atr:true}},
+ {id:'bb',n:'Propranolol en reposo',st:{s:.1,v:.5,bb:true}},
+ {id:'tx',n:'Corazón denervado (trasplante)',st:{s:0,v:0}}
+];
+var gc=null;
+function stateOf(o){return Object.assign({s:0,v:0,atr:false,bb:false,iso:false},o)}
+function newG(){var pool=CS.filter(function(c){return c!==gc});gc=pool[Math.floor(Math.random()*pool.length)];
+  var t=A;A=stateOf(gc.st);var m=aut();A=t;
+  $('gCase').innerHTML=chip('FC',Math.round(m.hr)+' lpm','wn')+chip('PR',Math.round(m.pr)+' ms','wn')+chip('Contractilidad',fmt(m.c,2)+'×','wn');
+  $('gSel').value='';$('gFb').textContent='Con estos datos, ¿qué situación es?'}
+CS.forEach(function(c){var o=document.createElement('option');o.value=c.id;o.textContent=c.n;$('gSel').appendChild(o)});
+$('gNew').onclick=newG;
+$('gGo').onclick=function(){var v=$('gSel').value;if(!v){$('gFb').textContent='Elige una opción.';return}
+  var ex={ej:'FC alta, PR corto y contractilidad alta: β₁ activado por el simpático.',vg:'FC baja y PR largo con contractilidad normal: M₂ activado, sin efecto ventricular.',at:'FC alta con PR casi normal y contractilidad ≈ 1: se quitó el freno vagal sin aumentar el simpático.',bb:'FC un poco menor y PR algo mayor, sin cambio vagal: se quitó el poco simpático de reposo.',tx:'FC ≈ 100 lpm, PR 120 ms y contractilidad 1,00: SA sin ningún tono.'};
+  $('gFb').innerHTML=(v===gc.id?'<span class="ok">Correcto.</span> ':'<span class="no">No: era '+gc.n.toLowerCase()+'.</span> ')+ex[gc.id]};
+
+function render(){readAu();drawEcg();renderSeg()}
+function all(){buildSeg();renderSeg();readSa();drawSa();readEsc();drawEsc();readAu();drawEcg();showQ();newG()}
+all();
+function redraw(){drawTl();drawSa();drawEsc();drawEcg()}
+if(window.ResizeObserver)new ResizeObserver(redraw).observe(document.body);else window.addEventListener('resize',redraw);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redraw);
+window.__dbg={SEG:SEG,tot:tot,aut:aut,A:A,simEsc:simEsc,saModel:saModel};
+})();
+</script>
+
+</body></html>

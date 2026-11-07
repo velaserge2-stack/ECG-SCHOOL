@@ -1,0 +1,514 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Flujo cerebral</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Concepto: el pulso venoso como un trazo que se lee por ondas (a, c, v) y descensos (x, y), alineado con el ECG y con el flujo venoso. */
+:root{
+  --bg:#F1F4F4; --panel:#FFFFFF; --fg:#16211F; --muted:#586966; --line:#D5DEDC;
+  --vec:#0A7C76; --vecSoft:rgba(10,124,118,.14);
+  --blood:#B23A3A; --bloodSoft:rgba(178,58,58,.16);
+  --guess:#C2480F; --guessSoft:rgba(194,72,15,.14); --good:#2A7A35; --bad:#B3261E;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+    --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+    --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+    --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --panel:#142120; --fg:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --vec:#3FD0C6; --vecSoft:rgba(63,208,198,.16);
+  --blood:#E27A7A; --bloodSoft:rgba(226,122,122,.2);
+  --guess:#FF9A5C; --guessSoft:rgba(255,154,92,.16); --good:#6FD07C; --bad:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.5;
+  padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.lede{max-width:62ch;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}
+.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+header{display:flex;flex-direction:column;gap:10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas{display:block;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);flex:1 1 170px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}
+.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}
+.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}
+.chip.ok{border-color:var(--good)} .chip.no{border-color:var(--bad)} .chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}
+.chip.ok em{color:var(--good)} .chip.no em{color:var(--bad)} .chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.note{font-size:.85rem;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.fb{font-size:.92rem;min-height:2.6em}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem}
+legend{font-size:.85rem;color:var(--muted);padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.lab{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.cin{width:78px;font:600 .9rem var(--font-mono);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--fg)}
+.chain td{text-align:center}.chain td.s{transition:opacity .2s}
+.hot{background:var(--vecSoft);border-radius:4px}
+input[type=range].sm{max-width:150px}
+.val{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:2px solid var(--muted)}.dot.on{background:var(--good);border-color:var(--good)}
+.seg{display:flex;gap:0}.seg .btn{border-radius:0}.seg .btn:first-child{border-radius:5px 0 0 5px}.seg .btn:last-child{border-radius:0 5px 5px 0}
+.meta{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px}
+.meta span{border:1px solid var(--line);border-radius:3px;padding:1px 6px}
+.meta .lv{border-color:var(--vec);color:var(--vec)}
+.chain-l{list-style:none;padding:0;counter-reset:s;gap:6px}
+.chain-l li{counter-increment:s;padding:6px 10px 6px 34px;position:relative;border:1px solid var(--line);border-radius:5px;background:var(--bg)}
+.chain-l li::before{content:counter(s);position:absolute;left:8px;top:6px;width:18px;height:18px;border-radius:50%;background:var(--vec);color:var(--bg);font:700 .72rem var(--font-mono);display:flex;align-items:center;justify-content:center}
+.qopt{display:flex;gap:8px;align-items:flex-start;font-size:.95rem}
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.vs>div{border:1px solid var(--line);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.big{font-family:var(--font-mono);font-size:1.4rem;font-weight:600;font-variant-numeric:tabular-nums}
+.warn{color:var(--guess)}
+.stepcard{border:1px solid var(--line);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.copt{text-align:left;white-space:normal;width:100%}
+.copt[disabled]{opacity:.8;cursor:default}
+.copt.good{border-color:var(--good);background:rgba(42,122,53,.14)}
+.copt.bad{border-color:var(--bad);background:rgba(179,38,30,.12)}
+.bar{display:flex;height:26px;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;min-width:0}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo D4 · circulaciones regionales · cerebro</div>
+  <h1>Flujo cerebral</h1>
+  <p class="lede">El cerebro pide un flujo casi constante y el sistema se lo da con tres trucos: autorregulación, sensibilidad al CO₂ y un árbol arterial con rutas de repuesto. Mueve la presión, los gases y la posición, y mira cuándo el truco deja de alcanzar.</p>
+  <div class="tags"><span>Unidad 6: 6.236–6.240</span><span>Nivel N5</span><span>Perillas: PAM · PCO₂ · PO₂ · posición · PIC</span><span>Requiere D1</span></div>
+</header>
+
+<section class="panel">
+  <h2>Curva flujo–presión</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: PAM, PCO₂, PO₂, posición, PIC, reflejos</span><span>objetivos 6.237–6.240</span></div>
+  <div class="chips" id="pre"></div>
+  <div class="grid">
+    <div class="col">
+      <canvas id="cv" role="img" aria-label="Flujo cerebral frente a presión de perfusión cerebral, con meseta de autorregulación"></canvas>
+      <div class="chips" id="read"></div>
+      <p class="why" id="why"></p>
+    </div>
+    <div class="col">
+      <label class="ctl" style="flex:none">PAM a nivel del corazón: <span class="mono" id="vPam"></span><input type="range" id="pam" min="40" max="190" step="1" value="93"></label>
+      <label class="ctl" style="flex:none">PCO₂ arterial: <span class="mono" id="vCo2"></span><input type="range" id="pco2" min="15" max="80" step="1" value="40"></label>
+      <label class="ctl" style="flex:none">PO₂ arterial: <span class="mono" id="vO2"></span><input type="range" id="po2" min="30" max="300" step="5" value="95"></label>
+      <label class="ctl" style="flex:none">Presión intracraneal (PIC): <span class="mono" id="vPic"></span><input type="range" id="pic" min="5" max="45" step="1" value="10"></label>
+      <label class="ctl" style="flex:none">Posición:
+        <select id="pos"><option value="sup">Acostado (supino)</option><option value="pie">De pie</option><option value="tren">Trendelenburg (cabeza abajo 30°)</option><option value="gpos">Aceleración hacia los pies (+Gz)</option><option value="gneg">Aceleración hacia la cabeza (−Gz)</option></select></label>
+      <label class="ctl" id="gL" style="flex:none" hidden>Fuerza g: <span class="mono" id="vG"></span><input type="range" id="gg" min="1" max="6" step="0.5" value="3"></label>
+      <label class="lab"><input type="checkbox" id="refl" checked> Barorreflejo y tono venoso intactos</label>
+      <label class="lab"><input type="checkbox" id="cush"> Reflejo de Cushing activo (isquemia del bulbo)</label>
+    </div>
+  </div>
+  <div class="cols2">
+    <div class="col"><h3>Sustancia gris y blanca</h3><canvas id="gw" role="img" aria-label="Flujo en sustancia gris y blanca"></canvas></div>
+    <div class="col"><h3>Calibre del vaso de resistencia</h3><canvas id="vs" role="img" aria-label="Calibre relativo de la arteriola cerebral"></canvas><p class="note" id="vsn"></p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Ejemplo trabajado: la presión de perfusión no es la PAM</h2>
+  <div class="meta"><span class="lv">básico</span><span>perillas: posición, PIC</span><span>objetivos 6.237, 6.240</span></div>
+  <ol class="chain-l" id="wk"></ol>
+</section>
+
+<section class="panel">
+  <h2>Sigue la sangre: arterias y territorios</h2>
+  <div class="meta"><span class="lv">básico</span><span>perilla: oclusión de una arteria</span><span>objetivo 6.236</span></div>
+  <p class="note">Vista desde arriba, nariz hacia arriba (la derecha del paciente queda a la derecha de la figura). El color depende del flujo real del territorio: el flujo global del panel superior multiplicado por la fracción que llega por las rutas disponibles.</p>
+  <div class="grid">
+    <div class="col"><canvas id="wl" role="img" aria-label="Polígono de Willis con territorios arteriales"></canvas></div>
+    <div class="col">
+      <label class="lab"><input type="checkbox" id="oR"> Ocluir carótida interna derecha</label>
+      <label class="lab"><input type="checkbox" id="oL"> Ocluir carótida interna izquierda</label>
+      <label class="lab"><input type="checkbox" id="oB"> Ocluir la arteria basilar</label>
+      <label class="lab"><input type="checkbox" id="nA"> Comunicante anterior ausente</label>
+      <label class="lab"><input type="checkbox" id="nP"> Comunicantes posteriores ausentes</label>
+      <div class="chips" id="wlr"></div>
+      <p class="why" id="wlw"></p>
+    </div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Territorio</th><th>Arteria</th><th>Función que se afecta si falta flujo</th></tr></thead><tbody>
+   <tr><td>Anterior</td><td>Cerebral anterior (de la carótida interna)</td><td>Cara medial: pierna contralateral, iniciativa y conducta</td></tr>
+   <tr><td>Medio</td><td>Cerebral media (de la carótida interna)</td><td>Cara lateral: cara y brazo contralaterales, lenguaje (hemisferio dominante)</td></tr>
+   <tr><td>Posterior</td><td>Cerebral posterior (basilar, de las vertebrales)</td><td>Corteza visual y tálamo</td></tr></tbody></table></div>
+  <p class="note">Las dos carótidas internas aportan ≈ 70–80 % del flujo y las vertebrales el resto (VERIFICAR). La figura es un esquema funcional, no anatómico.</p>
+</section>
+
+<section class="panel">
+  <h2>Qué controla el flujo cerebral</h2>
+  <div class="tw"><table><thead><tr><th>Controlador</th><th>Efecto</th><th>Peso</th></tr></thead><tbody>
+   <tr><td>PCO₂ / pH del líquido intersticial</td><td>↑CO₂ (↓pH) dilata; ↓CO₂ constriñe. Cambio de ≈ 2–4 % del flujo por mmHg</td><td>Muy potente</td></tr>
+   <tr><td>PO₂ baja</td><td>Dilata por debajo de ≈ 60 mmHg; la hiperoxia constriñe poco</td><td>Potente solo con hipoxia</td></tr>
+   <tr><td>Autorregulación (miogénica y metabólica)</td><td>Mantiene el flujo casi plano entre ≈ 60 y 150 mmHg de presión de perfusión (VERIFICAR)</td><td>Potente en la meseta</td></tr>
+   <tr><td>Nervioso simpático</td><td>Constricción leve; protege contra la hiperemia cuando la presión es muy alta</td><td>Pequeño</td></tr></tbody></table></div>
+</section>
+
+<section class="panel">
+  <h2>Contraejemplo: dos mareos casi iguales</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: PCO₂ vs PAM</span><span>objetivos 6.237–6.239</span></div>
+  <div class="vs" id="ce"></div>
+  <p class="why">Mismo síntoma y casi el mismo flujo, pero la causa está en perillas distintas. En uno la PAM es normal y la vasoconstricción es química; en el otro el CO₂ es normal y falta presión. El manejo es opuesto: devolver CO₂ en uno, devolver presión en el otro.</p>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <div id="quiz"></div>
+</section>
+
+<section class="panel">
+  <h2>Juego: Rescata el flujo</h2>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: todas</span><span>objetivos 6.237–6.240</span></div>
+  <p class="note">Llevar el flujo a 40–60 mL/100 g/min con la menor cantidad de acciones posible. Cada acción cambia el modelo de arriba.</p>
+  <div class="grid">
+    <div class="col"><p id="gsc" class="why"></p><div class="chips" id="gch"></div><p class="fb" id="gfb" aria-live="polite"></p></div>
+    <div class="col" id="gmv"></div>
+  </div>
+  <div class="row"><button class="btn primary" id="gnew">Nuevo paciente</button></div>
+</section>
+
+<section class="panel">
+  <h2>Caso clínico de cierre</h2>
+  <div class="meta"><span class="lv">avanzado</span><span>perillas: PIC, PAM, PCO₂</span><span>objetivos 6.237–6.240</span></div>
+  <div id="case"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>"Si la PAM es normal, el cerebro recibe lo que necesita": lo que importa es la presión de perfusión (PAM menos PIC) y el CO₂.</li>
+    <li>"La autorregulación mantiene el flujo con cualquier presión": solo dentro de una meseta; fuera de ella el flujo sigue pasivamente a la presión.</li>
+    <li>"El CO₂ alto aumenta la presión arterial y por eso sube el flujo": actúa localmente sobre el vaso, con PAM igual.</li>
+    <li>"Hiperventilar da más oxígeno al cerebro": baja el CO₂, constriñe y reduce el flujo.</li>
+    <li>"El control nervioso manda en la circulación cerebral": pesa poco frente al control local.</li>
+    <li>"La hipertensión intracraneal con presión alta es un fallo del control": el aumento de PA es una respuesta (Cushing) que intenta sostener la perfusión.</li>
+    <li>"Si se ocluye una carótida siempre hay infarto": el polígono puede compensar, según las comunicantes.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Flujo = demanda metabólica (CO₂, O₂) por una función de la presión de perfusión con meseta y bordes suaves; los límites 60–150 mmHg y los umbrales de síntomas son valores de curso, VERIFICAR.</li>
+    <li>Presión de perfusión = PAM a nivel de la cabeza − PIC. La presión venosa se ignora salvo por un factor de sifón que reduce el efecto de la gravedad (≈ 15 mmHg por g en lugar de ≈ 19).</li>
+    <li>El acúmulo venoso al estar de pie se resume en una caída fija de PAM (2 mmHg con reflejos, 30 sin ellos); no hay modelo cardiaco completo.</li>
+    <li>La hipercapnia estrecha la meseta de forma lineal; la hipocapnia no la mueve.</li>
+    <li>La PIC sube un poco con la vasodilatación (volumen sanguíneo), sin curva presión–volumen completa.</li>
+    <li>El reflejo de Cushing es un controlador proporcional a la caída de perfusión, con bradicardia por barorreflejo.</li>
+    <li>Polígono de Willis con fracciones fijas de compensación; no se calcula hemodinámica por tramo.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.236–6.240). Sin aval institucional.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function fmt(x,d){return x.toFixed(d).replace('.',',')}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function cw(c,max){var p=c.parentElement,s=getComputedStyle(p),w=p.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight);return Math.max(200,Math.min(max||940,Math.floor(w)))}
+function axisText(x,s,px,py,al,bl,col){x.fillStyle=col||css('--muted');x.textAlign=al||'left';x.textBaseline=bl||'alphabetic';x.fillText(s,px,py)}
+/* Reto «Predice y observa» con nivel de confianza y calibración */
+function Quiz(el,items){
+  var i=0,tot=0,okc=0,hiN=0,hiOk=0,done=false,id=el.id;
+  el.innerHTML='<div class="cols2"><div class="col"><fieldset style="flex-direction:column"><legend class="qleg"></legend><div class="qo col" style="gap:6px"></div></fieldset>'+
+   '<fieldset><legend>¿Qué tan seguro estás?</legend><label class="opt"><input type="radio" name="'+id+'cf" value="1"> Poco</label><label class="opt"><input type="radio" name="'+id+'cf" value="2" checked> Medio</label><label class="opt"><input type="radio" name="'+id+'cf" value="3"> Mucho</label></fieldset>'+
+   '<div class="row"><button class="btn primary qgo">Comprobar y aplicar</button><button class="btn qnx">Siguiente reto</button></div></div>'+
+   '<div class="col"><div class="meta qmeta"></div><p class="fb qfb" aria-live="polite"></p><p class="note qcal"></p></div></div>';
+  var q=function(s){return el.querySelector(s)};
+  function show(){var it=items[i];done=false;q('.qleg').innerHTML='<b>'+it.name+'</b><br>'+it.q;
+    q('.qo').innerHTML=it.o.map(function(t,k){return '<label class="qopt"><input type="radio" name="'+id+'o" value="'+k+'"> <span>'+t+'</span></label>'}).join('');
+    q('.qmeta').innerHTML='<span class="lv">'+it.lv+'</span><span>perilla: '+it.knob+'</span><span>objetivos '+it.obj+'</span>';
+    q('.qfb').innerHTML=''}
+  q('.qgo').onclick=function(){var r=el.querySelector('input[name='+id+'o]:checked');if(!r){q('.qfb').textContent='Elige primero una respuesta.';return}
+    var it=items[i],ok=+r.value===it.a,cf=+el.querySelector('input[name='+id+'cf]:checked').value;
+    it.ap();if(!done){done=true;tot++;if(ok)okc++;if(cf===3){hiN++;if(ok)hiOk++}}
+    q('.qfb').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No era esa.</b></span> La respuesta era: '+it.o[it.a]+'. ')+it.e()+(!ok&&cf===3?' <span class="warn">Estabas muy seguro: revisa en qué eslabón de la cadena falló tu razonamiento.</span>':'');
+    q('.qcal').textContent='Aciertos: '+okc+' de '+tot+(hiN?' · con mucha seguridad: '+hiOk+' de '+hiN:'')};
+  q('.qnx').onclick=function(){i=(i+1)%items.length;show()};
+  show()}
+/* Caso clínico: datos → decisiones → retroalimentación */
+function Case(el,steps,intro){
+  var k=0,sc=0;
+  function render(){
+    if(k>=steps.length){el.innerHTML='<div class="why"><b>Cierre del caso.</b> Puntaje: '+fmt(sc,1)+' de '+steps.length+'. '+(sc>=steps.length-.5?'Razonaste la cadena completa.':'Repasa los pasos en los que sumaste menos y vuelve a intentarlo.')+'</div><div><button class="btn" id="'+el.id+'r">Reiniciar caso</button></div>';
+      $(el.id+'r').onclick=function(){k=0;sc=0;render()};return}
+    var s=steps[k],t=typeof s.txt==='function'?s.txt():s.txt;
+    el.innerHTML=(k===0&&intro?'<p class="note">'+intro+'</p>':'')+'<div class="stepcard"><div class="meta"><span class="lv">Decisión '+(k+1)+' de '+steps.length+'</span></div><div>'+t+'</div><div class="col" style="gap:6px">'+
+      s.opts.map(function(o,j){return '<button class="btn copt" data-j="'+j+'">'+o.t+'</button>'}).join('')+'</div><div class="cfb" aria-live="polite"></div><div><button class="btn primary cnx" hidden>Continuar</button></div></div>';
+    el.querySelectorAll('.copt').forEach(function(b){b.onclick=function(){var o=s.opts[+b.dataset.j];
+      el.querySelectorAll('.copt').forEach(function(x){x.disabled=true});b.classList.add(o.s>=1?'good':(o.s>0?'':'bad'));sc+=o.s;
+      if(o.fx)o.fx();var fb=typeof o.fb==='function'?o.fb():o.fb;
+      el.querySelector('.cfb').innerHTML='<p class="why"><b>'+(o.s>=1?'Bien.':(o.s>0?'Parcial.':'No.'))+'</b> '+fb+'</p>';el.querySelector('.cnx').hidden=false;
+      el.querySelector('.cnx').onclick=function(){k++;render()}}})}
+  render()}
+function onRedraw(fn){
+  if(window.ResizeObserver)new ResizeObserver(fn).observe(document.body);else window.addEventListener('resize',fn);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',fn);
+  new MutationObserver(fn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fn)}
+
+/* ===== Modelo de flujo cerebral ===== */
+var F0=50,LLA0=60,ULA0=150,HG=15;
+function sMin(a,b,k){return -k*Math.log(Math.exp(-a/k)+Math.exp(-b/k))}
+function sMax(a,b,k){return k*Math.log(Math.exp(a/k)+Math.exp(b/k))}
+function gasFx(pco2,po2){
+  var gC=Math.exp(0.025*(pco2-40));
+  var hO=po2<60?1+Math.pow((60-po2)/30,1.5):1-0.1*Math.min(1,Math.max(0,(po2-100)/200));
+  return Math.min(gC*hO,2.8)}
+function flowCurve(cpp,pco2,po2){
+  var Fd=F0*gasFx(pco2,po2),h=Math.max(0,pco2-40);
+  var LLA=LLA0+1.2*h,ULA=Math.max(LLA+10,ULA0-0.8*h);
+  var g=sMax(sMin(1,cpp/LLA,.012),cpp/ULA,.012);
+  return {f:Math.max(0,Fd*g),Fd:Fd,LLA:LLA,ULA:ULA}}
+function cbfModel(s){
+  var pool=0,dh=0,g=s.g||1;
+  if(s.pos==='pie'){dh=-HG;pool=s.refl?2:30}
+  else if(s.pos==='tren'){dh=7.7;pool=0}
+  else if(s.pos==='gpos'){dh=-HG*g;pool=(s.refl?2:30)*Math.min(g,1.6)}
+  else if(s.pos==='gneg'){dh=HG*g*.6;pool=0}
+  var pamHead=s.pam+dh-pool,boost=0,pic=s.pic,r,cpp,i;
+  for(i=0;i<60;i++){
+    cpp=pamHead+boost-Math.max(pic,5);
+    r=flowCurve(cpp,s.pco2,s.po2);
+    var tgt=s.cush?clamp(20*Math.max(0,r.LLA+25-cpp),0,80):0;
+    boost+=(Math.min(tgt,80)-boost)*.35;
+    pic=s.pic+14*(Math.pow(Math.max(r.f,1)/F0,.4)-1);
+  }
+  cpp=pamHead+boost-Math.max(pic,5);r=flowCurve(cpp,s.pco2,s.po2);
+  var hr=clamp(70+(s.refl?0.4*(93-pamHead):0)-0.7*boost,35,180);
+  var f=r.f,R0=(93-10)/F0,R=cpp>0&&f>0?cpp/f:99;
+  var state=f>=80?'hiperemia':f>=40?'normal':f>=30?'mareo / visión borrosa':f>=20?'síncope':f>=10?'isquemia grave':'isquemia crítica';
+  return {pamHead:pamHead,pamEff:pamHead+boost,boost:boost,pic:pic,cpp:cpp,f:f,Fd:r.Fd,LLA:r.LLA,ULA:r.ULA,hr:hr,pct:f/F0*14,
+    mlmin:f*14,gray:f*1.4,white:f*.5,cvr:R,dRel:Math.pow(R0/R,.25),state:state,
+    pas:Math.round(pamHead+boost)+0}}
+function willis(t,f){
+  var sR=t.oR?0:1,sL=t.oL?0:1,bas=t.oB?0:1,ac=t.nA?0:1,pc=t.nP?0:1;
+  var fr={
+    ACA_R:sR?1:(ac&&sL?.85:0), ACA_L:sL?1:(ac&&sR?.85:0),
+    MCA_R:sR?1:Math.max(pc&&bas?.35:0,ac&&sL?.15:0), MCA_L:sL?1:Math.max(pc&&bas?.35:0,ac&&sR?.15:0),
+    PCA_R:bas?1:(pc&&sR?.6:0), PCA_L:bas?1:(pc&&sL?.6:0)};
+  var out={};for(var k in fr)out[k]={fr:fr[k],f:fr[k]*f};return out}
+var S={pam:93,pco2:40,po2:95,pic:10,pos:'sup',g:3,refl:true,cush:false};
+var DEF=JSON.parse(JSON.stringify(S));
+var M=null,T={oR:false,oL:false,oB:false,nA:false,nP:false};
+var PRE=[
+ {n:'Reposo',s:{}},
+ {n:'Hiperventilación',s:{pco2:20}},
+ {n:'De pie, sin reflejos',s:{pos:'pie',refl:false}},
+ {n:'Hipercapnia',s:{pco2:70}},
+ {n:'Hipoxia grave',s:{po2:35}},
+ {n:'Piloto a +5 g',s:{pos:'gpos',g:5}},
+ {n:'PIC alta + Cushing',s:{pic:35,cush:true}}];
+function setS(o){S=Object.assign({},DEF,o||{});sync();render()}
+function patch(o){Object.assign(S,o);sync();render()}
+function sync(){$('pam').value=S.pam;$('pco2').value=S.pco2;$('po2').value=S.po2;$('pic').value=S.pic;$('pos').value=S.pos;$('gg').value=S.g;$('refl').checked=S.refl;$('cush').checked=S.cush}
+var sevCls=function(f){return f>=40&&f<80?'ok':f>=30?'wn':'no'};
+function curve(){
+  var c=$('cv'),W=cw(c,640),H=W<420?250:300,x=fit(c,W,H),pl=44,pr=12,pt=14,pb=36,w=W-pl-pr,h=H-pt-pb;
+  var xm=200,ym=Math.max(110,Math.ceil(M.Fd*1.15/10)*10+10);
+  var X=function(v){return pl+v/xm*w},Y=function(v){return pt+h-v/ym*h};
+  x.clearRect(0,0,W,H);
+  x.fillStyle=css('--vecSoft');x.fillRect(X(M.LLA),pt,X(M.ULA)-X(M.LLA),h);
+  x.strokeStyle=css('--line');x.lineWidth=1;x.font='11px '+css('--font-mono');
+  for(var v=0;v<=ym;v+=20){x.beginPath();x.moveTo(pl,Y(v));x.lineTo(pl+w,Y(v));x.stroke();axisText(x,v,pl-5,Y(v)+4,'right')}
+  for(v=0;v<=xm;v+=50){axisText(x,v,X(v),pt+h+14,'center')}
+  axisText(x,'presión de perfusión cerebral (mmHg)',pl+w/2,H-6,'center');
+  x.save();x.translate(11,pt+h/2);x.rotate(-Math.PI/2);axisText(x,'mL/100 g/min',0,0,'center');x.restore();
+  /* umbral de síncope */
+  x.setLineDash([4,4]);x.strokeStyle=css('--bad');x.beginPath();x.moveTo(pl,Y(30));x.lineTo(pl+w,Y(30));x.stroke();axisText(x,'síncope ≈ 30',pl+w-2,Y(30)-4,'right',null,css('--bad'));
+  /* referencia normal */
+  x.strokeStyle=css('--muted');x.beginPath();for(var p=0;p<=xm;p+=2){var f=flowCurve(p,40,95).f;p?x.lineTo(X(p),Y(Math.min(f,ym))):x.moveTo(X(p),Y(f))}x.stroke();x.setLineDash([]);
+  /* pasivo */
+  x.strokeStyle=css('--guess');x.lineWidth=1.4;x.setLineDash([2,3]);x.beginPath();x.moveTo(X(0),Y(0));x.lineTo(X(Math.min(xm,ym/M.Fd*M.LLA)),Y(Math.min(ym,M.Fd*Math.min(xm,ym/M.Fd*M.LLA)/M.LLA)));x.stroke();x.setLineDash([]);
+  /* actual */
+  x.strokeStyle=css('--vec');x.lineWidth=2.6;x.beginPath();for(p=0;p<=xm;p+=1){f=flowCurve(p,S.pco2,S.po2).f;var yy=Y(Math.min(f,ym));p?x.lineTo(X(p),yy):x.moveTo(X(p),yy)}x.stroke();
+  var cx=X(clamp(M.cpp,0,xm)),cy=Y(Math.min(M.f,ym));
+  x.fillStyle=css('--blood');x.strokeStyle=css('--panel');x.lineWidth=2;x.beginPath();x.arc(cx,cy,6,0,7);x.fill();x.stroke();
+  axisText(x,fmt(M.f,0)+' a '+fmt(M.cpp,0)+' mmHg',clamp(cx,60,W-70),cy-11,'center',null,css('--fg'));
+  x.font='600 11px '+css('--font-body');
+  axisText(x,'meseta',(X(M.LLA)+X(M.ULA))/2,pt+12,'center',null,css('--vec'));
+  x.font='11px '+css('--font-body');
+  var lg=[['Actual',css('--vec'),0],['Normal (PCO₂ 40)',css('--muted'),1],['Sin autorregulación',css('--guess'),2]];
+  var lx=W<420?pl+w*.34:pl+w*.5;
+  lg.forEach(function(l,i){var ly=Y(0)-38+i*13;x.fillStyle=l[1];x.fillRect(lx,ly-6,12,3);axisText(x,l[0],lx+18,ly-1)});
+}
+function bars(){
+  var c=$('gw'),W=cw(c,420),H=96,x=fit(c,W,H);x.clearRect(0,0,W,H);
+  var mx=Math.max(120,M.gray*1.1),L=70,bw=W-L-50;
+  [['Gris',M.gray,css('--vec')],['Blanca',M.white,css('--guess')]].forEach(function(b,i){var y=10+i*40;
+    axisText(x,b[0],L-6,y+17,'right',null,css('--fg'));x.fillStyle=css('--line');x.fillRect(L,y,bw,24);
+    x.fillStyle=b[2];x.fillRect(L,y,Math.min(bw,b[1]/mx*bw),24);axisText(x,fmt(b[1],0),L+Math.min(bw,b[1]/mx*bw)+6,y+17,'left',null,css('--fg'))});
+}
+function vessel(){
+  var c=$('vs'),W=cw(c,420),H=96,x=fit(c,W,H);x.clearRect(0,0,W,H);
+  var r=function(d){return 8+d*14};
+  x.strokeStyle=css('--muted');x.lineWidth=2;x.beginPath();x.arc(W*.28,48,r(1),0,7);x.stroke();axisText(x,'reposo',W*.28,H-4,'center');
+  x.strokeStyle=css('--vec');x.fillStyle=css('--bloodSoft');x.lineWidth=3;x.beginPath();x.arc(W*.72,48,r(clamp(M.dRel,.4,1.8)),0,7);x.fill();x.stroke();axisText(x,'ahora',W*.72,H-4,'center');
+  $('vsn').textContent='Calibre relativo '+fmt(M.dRel,2)+' × reposo; la resistencia varía con la 4.ª potencia del radio (Poiseuille), así que un cambio pequeño de calibre mueve mucho el flujo.';
+}
+var TERR={ACA:'anterior',MCA:'medio',PCA:'posterior'};
+function willisDraw(){
+  var c=$('wl'),W=cw(c,440),H=Math.round(W*.86),x=fit(c,W,H);x.clearRect(0,0,W,H);
+  var wv=willis(T,M.f),px=function(u){return u*W},py=function(v){return v*H};
+  function terr(key,cx,cy,rx,ry,lab){var o=wv[key],col=o.f>=40?css('--good'):o.f>=25?css('--guess'):css('--bad');
+    x.globalAlpha=.22;x.fillStyle=col;x.beginPath();x.ellipse(px(cx),py(cy),px(rx),py(ry),0,0,7);x.fill();x.globalAlpha=1;x.strokeStyle=col;x.lineWidth=1.5;x.stroke();
+    x.font='600 12px '+css('--font-body');axisText(x,lab,px(cx),py(cy)-2,'center',null,css('--fg'));x.font='11px '+css('--font-mono');axisText(x,fmt(o.f,0),px(cx),py(cy)+13,'center',null,css('--fg'))}
+  terr('ACA_R',.62,.17,.11,.12,'ACA D');terr('ACA_L',.38,.17,.11,.12,'ACA I');
+  terr('MCA_R',.85,.45,.11,.2,'ACM D');terr('MCA_L',.15,.45,.11,.2,'ACM I');
+  terr('PCA_R',.7,.84,.13,.1,'ACP D');terr('PCA_L',.3,.84,.13,.1,'ACP I');
+  function seg(a,b,cc,dash,w){x.strokeStyle=cc;x.lineWidth=w||4;x.setLineDash(dash||[]);x.beginPath();x.moveTo(px(a[0]),py(a[1]));x.lineTo(px(b[0]),py(b[1]));x.stroke();x.setLineDash([])}
+  var ok=css('--blood'),bad=css('--muted');
+  var cR=T.oR?bad:ok,cL=T.oL?bad:ok,cB=T.oB?bad:ok;
+  seg([.5,.3],[.62,.3],T.nA?bad:ok,T.nA?[3,4]:null,3);seg([.38,.3],[.5,.3],T.nA?bad:ok,T.nA?[3,4]:null,3);
+  seg([.38,.3],[.38,.42],cL);seg([.62,.3],[.62,.42],cR);
+  seg([.62,.42],[.62,.58],cR);seg([.38,.42],[.38,.58],cL);
+  seg([.62,.58],[.7,.7],T.nP?bad:ok,T.nP?[3,4]:null,3);seg([.38,.58],[.3,.7],T.nP?bad:ok,T.nP?[3,4]:null,3);
+  seg([.7,.7],[.5,.72],cB,null,3);seg([.3,.7],[.5,.72],cB,null,3);seg([.5,.72],[.5,.95],cB,null,6);
+  seg([.9,.22],[.62,.42],cR,null,5);seg([.1,.22],[.38,.42],cL,null,5);
+  x.font='600 11px '+css('--font-body');axisText(x,'carótida interna D',px(.99),py(.17),'right',null,css('--fg'));axisText(x,'carótida interna I',px(.01),py(.17),'left',null,css('--fg'));
+  axisText(x,'basilar',px(.52),py(.985),'left',null,css('--fg'));
+  if(T.oR){axisText(x,'✕',px(.62),py(.5),'center',null,css('--bad'))}if(T.oL){axisText(x,'✕',px(.38),py(.5),'center',null,css('--bad'))}if(T.oB){axisText(x,'✕',px(.5),py(.84),'center',null,css('--bad'))}
+  var any=false,msgs=[];
+  ['ACA','MCA','PCA'].forEach(function(a){['R','L'].forEach(function(s){var o=wv[a+'_'+s];if(o.fr<1){any=true;msgs.push(a+' '+(s==='R'?'D':'I')+': '+Math.round(o.fr*100)+' % del flujo habitual')}})});
+  $('wlr').innerHTML=chip('Flujo global',fmt(M.f,0)+' mL/100 g/min',sevCls(M.f))+(msgs.length?msgs.map(function(m){return '<span class="chip wn">'+m+'</span>'}).join(''):chip('Territorios','completos','ok'));
+  var mc=Math.min(wv.MCA_R.fr,wv.MCA_L.fr),pcm=Math.min(wv.PCA_R.fr,wv.PCA_L.fr),ac=Math.min(wv.ACA_R.fr,wv.ACA_L.fr);
+  $('wlw').textContent=!any?'Polígono completo y sin oclusiones: cada territorio recibe todo lo suyo.':
+    (T.oR||T.oL)&&!T.nA&&mc===0?'La comunicante anterior rescata la arteria cerebral anterior del lado ocluido (cruza desde la otra carótida), pero la cerebral media casi no tiene ruta de repuesto: queda poco flujo en la cara lateral del hemisferio.':
+    T.oB?'La basilar alimenta las dos cerebrales posteriores. Las comunicantes posteriores traen sangre desde las carótidas, solo si existen y las carótidas están abiertas.':
+    'Mira qué territorio queda sin ruta de repuesto: es el que depende de una sola arteria sin comunicante.';
+  }
+function readout(){
+  var chips=chip('Presión de perfusión',fmt(M.cpp,0)+' mmHg',M.cpp>=LLA0&&M.cpp<=ULA0?'ok':'no',M.cpp<M.LLA?'bajo la meseta':M.cpp>M.ULA?'sobre la meseta':'en la meseta')+
+   chip('Flujo cerebral',fmt(M.f,0)+' mL/100 g/min',sevCls(M.f),M.state)+
+   chip('Total',fmt(M.mlmin,0)+' mL/min',sevCls(M.f),fmt(M.pct,0)+' % del GC')+
+   chip('PAM en la cabeza',fmt(M.pamEff,0)+' mmHg','ok')+chip('PIC',fmt(M.pic,0)+' mmHg',M.pic<=15?'ok':'no')+chip('FC',fmt(M.hr,0)+' lpm',M.hr<55||M.hr>110?'wn':'ok');
+  $('read').innerHTML=chips;
+  var why;
+  if(S.cush&&M.boost>2)why='Cushing: la perfusión cae por la PIC, el bulbo isquémico activa al simpático y la PAM sube '+fmt(M.boost,0)+' mmHg; el barorreflejo responde a esa PAM alta con bradicardia ('+fmt(M.hr,0)+' lpm). La perfusión se sostiene a costa de hipertensión.';
+  else if(M.cpp>M.ULA)why='Por encima de la meseta la autorregulación se desborda: el flujo sigue a la presión y aparece riesgo de edema y hemorragia.';
+  else if(M.cpp<M.LLA)why='Por debajo de la meseta los vasos ya no pueden dilatarse más: el flujo cae casi en proporción a la presión de perfusión ('+fmt(M.cpp,0)+' mmHg).';
+  else if(Math.abs(M.Fd/F0-1)>.08)why='La presión está en la meseta, pero el flujo lo fija el CO₂/O₂: demanda química de '+fmt(M.Fd,0)+' mL/100 g/min.';
+  else why='En la meseta el flujo no depende de la PAM: los vasos de resistencia ajustan su calibre para sostener ≈ 50 mL/100 g/min.';
+  $('why').textContent=why;
+  $('vPam').textContent=S.pam+' mmHg';$('vCo2').textContent=S.pco2+' mmHg';$('vO2').textContent=S.po2+' mmHg';$('vPic').textContent=S.pic+' mmHg';$('vG').textContent=fmt(S.g,1)+' g';
+  $('gL').hidden=!(S.pos==='gpos'||S.pos==='gneg');
+  document.querySelectorAll('#pre .btn').forEach(function(b,i){b.setAttribute('aria-pressed',String(JSON.stringify(Object.assign({},DEF,PRE[i].s))===JSON.stringify(S)))});
+}
+function render(){M=cbfModel(S);readout();curve();bars();vessel();willisDraw()}
+PRE.forEach(function(p){var b=document.createElement('button');b.className='btn';b.textContent=p.n;b.setAttribute('aria-pressed','false');b.onclick=function(){T={oR:false,oL:false,oB:false,nA:false,nP:false};['oR','oL','oB','nA','nP'].forEach(function(k){$(k).checked=false});setS(p.s)};$('pre').appendChild(b)});
+$('pam').oninput=function(){S.pam=+this.value;render()};$('pco2').oninput=function(){S.pco2=+this.value;render()};$('po2').oninput=function(){S.po2=+this.value;render()};$('pic').oninput=function(){S.pic=+this.value;render()};
+$('pos').onchange=function(){S.pos=this.value;render()};$('gg').oninput=function(){S.g=+this.value;render()};$('refl').onchange=function(){S.refl=this.checked;render()};$('cush').onchange=function(){S.cush=this.checked;render()};
+['oR','oL','oB','nA','nP'].forEach(function(k){$(k).onchange=function(){T[k]=this.checked;render()}});
+/* ejemplo trabajado */
+function worked(){
+  var a=cbfModel(Object.assign({},DEF)),b=cbfModel(Object.assign({},DEF,{pic:35})),c=cbfModel(Object.assign({},DEF,{pic:35,pos:'pie'}));
+  $('wk').innerHTML=[
+   'En reposo, acostado: PAM '+fmt(a.pamHead,0)+' mmHg y PIC '+fmt(a.pic,0)+' mmHg, así que la presión de perfusión es '+fmt(a.cpp,0)+' mmHg (no 93) y el flujo es '+fmt(a.f,0)+' mL/100 g/min, ≈ '+fmt(a.mlmin,0)+' mL/min, ≈ '+fmt(a.pct,0)+' % del gasto.',
+   'Sube la PIC a 35 mmHg sin tocar la PAM: la perfusión baja a '+fmt(b.cpp,0)+' mmHg, justo en el borde inferior de la meseta ('+fmt(b.LLA,0)+'). Porque la presión que empuja es la que supera a la que oprime desde fuera. El flujo todavía es '+fmt(b.f,0)+'.',
+   'Ahora se pone de pie con el mismo paciente: la columna de sangre resta unos 15 mmHg en la cabeza (la gravedad actúa sobre la columna entre corazón y cerebro). La perfusión queda en '+fmt(c.cpp,0)+' mmHg y el flujo en '+fmt(c.f,0)+' mL/100 g/min.',
+   'Moraleja: la meseta protege del cambio de PAM, pero cada mmHg de PIC o de gravedad se resta de la misma reserva. Dos riesgos pequeños juntos pueden sacarte de la meseta.'].map(function(t){return '<li>'+t+'</li>'}).join('')}
+/* contraejemplo */
+function counter(){
+  var A=cbfModel(Object.assign({},DEF,{pco2:20})),B=cbfModel(Object.assign({},DEF,{pam:48}));
+  function card(t,m,why,btn,o){return '<div><h3>'+t+'</h3><div class="big">'+fmt(m.f,0)+' <span class="note">mL/100 g/min</span></div><div class="chips">'+chip('PAM',fmt(m.pamEff,0),'ok')+chip('PCO₂',o.pco2||40,(o.pco2||40)<30?'no':'ok')+chip('Perfusión',fmt(m.cpp,0),m.cpp<60?'no':'ok')+chip('FC',fmt(m.hr,0),'ok')+'</div><p class="note">'+why+'</p><button class="btn" data-o=\''+JSON.stringify(o)+'\'>Cargar en el modelo</button></div>'}
+  $('ce').innerHTML=card('Mareo por hiperventilación',A,'PAM normal, presión de perfusión normal; el flujo cae por vasoconstricción química. Hay hormigueo en manos y cara.','',{pco2:20})+
+    card('Mareo por hipotensión',B,'PCO₂ normal; la perfusión cae bajo la meseta y el flujo sigue a la presión. Hay palidez y taquicardia por barorreflejo.','',{pam:48});
+  document.querySelectorAll('#ce button').forEach(function(b){b.onclick=function(){setS(JSON.parse(b.dataset.o));$('cv').scrollIntoView({behavior:'smooth',block:'center'})}})}
+/* retos */
+var Q=[
+ {name:'Hiperventila: ¿por qué se marea?',lv:'básico',knob:'PCO₂',obj:'6.237–6.238',q:'Una persona ansiosa respira rápido y profundo y su PCO₂ baja de 40 a 20 mmHg. Su PAM no cambia. ¿Qué pasa con el flujo cerebral?',o:['Aumenta, porque entra más oxígeno','Disminuye, porque el CO₂ bajo constriñe los vasos cerebrales','No cambia, porque la autorregulación lo sostiene'],a:1,ap:function(){setS({pco2:20})},e:function(){var m=cbfModel(S);return 'Con PCO₂ 20 la demanda química cae a '+fmt(m.Fd,0)+' mL/100 g/min (desde 50) con la perfusión en '+fmt(m.cpp,0)+' mmHg, dentro de la meseta. La autorregulación protege del cambio de PAM, no del CO₂: el CO₂ y el pH locales son los vasodilatadores más potentes. Por eso hay mareo, aunque la sangre esté bien oxigenada.'}},
+ {name:'Se desmaya al levantarse',lv:'intermedio',knob:'posición, barorreflejo',obj:'6.239',q:'Una paciente con neuropatía autonómica (sin barorreflejo ni tono venoso) pasa de acostada a de pie. ¿Qué eslabón de la cadena falla primero?',o:['La autorregulación cerebral pierde su meseta','El acúmulo venoso baja el retorno y la PAM, y la gravedad resta presión en la cabeza','Sube el CO₂ y se cierran los vasos'],a:1,ap:function(){setS({pos:'pie',refl:false})},e:function(){var m=cbfModel(S),ok=cbfModel(Object.assign({},DEF,{pos:'pie'}));return 'Sin reflejos, la PAM efectiva en la cabeza es '+fmt(m.pamHead,0)+' mmHg y la perfusión '+fmt(m.cpp,0)+' mmHg: bajo la meseta, con flujo de '+fmt(m.f,0)+' mL/100 g/min ('+m.state+'). Con reflejos intactos, de pie la perfusión es '+fmt(ok.cpp,0)+' y el flujo '+fmt(ok.f,0)+'. La meseta no falló: la presión que le llega cayó por debajo de ella.'}},
+ {name:'PIC alta: ¿por qué sube la PA y baja la FC?',lv:'avanzado',knob:'PIC, Cushing',obj:'6.240',q:'Un paciente con hematoma intracraneal tiene PIC 35 mmHg. Se activa el reflejo de Cushing. ¿Qué esperas?',o:['PA alta y bradicardia, como intento de sostener la perfusión','PA baja y taquicardia, por el sangrado','Solo cambia la respiración, no la PA'],a:0,ap:function(){setS({pic:35,cush:true})},e:function(){var m=cbfModel(S),n=cbfModel(Object.assign({},DEF,{pic:35}));return 'Sin reflejo, la perfusión sería '+fmt(n.cpp,0)+' mmHg. Con reflejo, la isquemia del bulbo eleva la PAM '+fmt(m.boost,0)+' mmHg ('+fmt(m.pamEff,0)+') y la perfusión sube a '+fmt(m.cpp,0)+'; el barorreflejo responde a esa PA alta con FC '+fmt(m.hr,0)+' lpm. Bajar de golpe esa PA sin tratar la PIC quitaría perfusión.'}},
+ {name:'Subir la PAM',lv:'básico',knob:'PAM',obj:'6.237',q:'La PAM de un voluntario sube de 93 a 130 mmHg con un vasopresor. ¿Cuánto cambia el flujo cerebral?',o:['Sube en proporción, ≈ 40 %','Casi no cambia, porque está dentro de la meseta','Baja, porque el vaso se cierra de más'],a:1,ap:function(){setS({pam:130})},e:function(){var m=cbfModel(S);return 'La perfusión pasa a '+fmt(m.cpp,0)+' mmHg, aún bajo el borde superior ('+fmt(m.ULA,0)+'), y el flujo queda en '+fmt(m.f,0)+' mL/100 g/min. Los vasos de resistencia se estrechan (calibre '+fmt(m.dRel,2)+' × reposo) y la resistencia sube para compensar. Con hipercapnia la meseta se estrecha y esto deja de ser cierto.'}}];
+Quiz($('quiz'),Q);
+/* juego */
+var GSC=[
+ {n:'Joven ansioso con hormigueo',s:{pco2:18}},
+ {n:'Hemorragia: PAM 50',s:{pam:50}},
+ {n:'Se levantó rápido, sin reflejos',s:{pos:'pie',refl:false,pam:80}},
+ {n:'Hematoma: PIC 38, PAM baja',s:{pic:38,pam:62}},
+ {n:'Hipoxia de altura: PO₂ 35, PCO₂ 22',s:{po2:35,pco2:22,pam:90}}];
+var G=null,gm=0,gstate=null;
+var MOVES=[
+ {t:'Acostarlo / piernas elevadas',fx:function(s){s.pos='sup';s.pam+=s.pos==='sup'&&!s.refl?0:0;if(!s.refl)s.pam+=15}},
+ {t:'Líquidos o vasopresor (+25 mmHg de PAM)',fx:function(s){s.pam=Math.min(s.pam+25,150)}},
+ {t:'Respirar en bolsa / calmar (PCO₂ a 40)',fx:function(s){s.pco2=40}},
+ {t:'Bajar la PIC (manitol, drenaje: −15 mmHg)',fx:function(s){s.pic=Math.max(10,s.pic-15)}},
+ {t:'Oxígeno suplementario (PO₂ a 100)',fx:function(s){s.po2=100}}];
+function gRender(){
+  var m=cbfModel(gstate);
+  $('gsc').innerHTML='<b>'+G.n+'.</b> Acciones usadas: '+gm+'.';
+  $('gch').innerHTML=chip('Flujo',fmt(m.f,0),m.f>=40&&m.f<=60?'ok':'no')+chip('PAM',fmt(m.pamHead,0),'ok')+chip('PCO₂',gstate.pco2,'ok')+chip('PO₂',gstate.po2,'ok')+chip('PIC',gstate.pic,'ok')+chip('Perfusión',fmt(m.cpp,0),'ok');
+  $('gmv').innerHTML=MOVES.map(function(v,i){return '<button class="btn copt" data-i="'+i+'">'+v.t+'</button>'}).join('');
+  document.querySelectorAll('#gmv button').forEach(function(b){b.onclick=function(){gm++;MOVES[+b.dataset.i].fx(gstate);var mm=cbfModel(gstate);
+    if(mm.f>=40&&mm.f<=60){gRender();$('gfb').innerHTML='<span class="ok"><b>Flujo recuperado en '+gm+' acción(es).</b></span> '+(gm<=2?'Muy eficiente: atacaste la perilla responsable.':'Se puede con menos: busca la perilla que explica la caída.');document.querySelectorAll('#gmv button').forEach(function(x){x.disabled=true})}
+    else{gRender();$('gfb').innerHTML='Aún '+fmt(mm.f,0)+' mL/100 g/min. Pregúntate qué perilla explica el problema inicial.'}Object.assign(S,gstate);sync();render()}})}
+function gNew(){var prev=G;do{G=GSC[Math.floor(Math.random()*GSC.length)]}while(G===prev);gm=0;gstate=Object.assign({},DEF,G.s);$('gfb').textContent='';Object.assign(S,gstate);sync();render();gRender()}
+$('gnew').onclick=gNew;
+/* caso */
+var cs={};
+Case($('case'),[
+ {txt:function(){return '<b>Hombre de 24 años, traumatismo craneoencefálico.</b> Llega con somnolencia. PA 160/90 (PAM ≈ 113), FC 56, respiración irregular. TAC: hematoma con efecto de masa. PIC medida: 35 mmHg. ¿Cómo interpretas la PA y la FC?'},
+  opts:[{t:'Reflejo de Cushing: la isquemia del tronco sube la PAM y el barorreflejo baja la FC',s:1,fb:function(){return 'Así es. Con PIC 35 la perfusión sería '+fmt(cbfModel(Object.assign({},DEF,{pic:35})).cpp,0)+' mmHg; el reflejo la lleva a '+fmt(cbfModel(Object.assign({},DEF,{pic:35,cush:true})).cpp,0)+'. Es una señal de herniación inminente, no hipertensión primaria.'},fx:function(){setS({pic:35,cush:true,pam:93})}},
+        {t:'Hipertensión esencial con bradicardia por betabloqueador',s:0,fb:'Ignora el contexto: hematoma con efecto de masa, PIC alta y respiración irregular. La tríada hipertensión, bradicardia y respiración irregular indica Cushing.'},
+        {t:'Dolor y ansiedad; hay que sedar y bajar la PA',s:0,fb:'El dolor no explica la bradicardia. Y bajar la PA sin tratar la PIC reduciría la presión de perfusión.'}]},
+ {txt:'El equipo plantea bajar la PA a 120/70 con un antihipertensivo. Tú, desde la fisiología, ¿qué opinas?',
+  opts:[{t:'No: sin bajar antes la PIC, bajar la PAM reduce la perfusión cerebral',s:1,fb:function(){var m=cbfModel(Object.assign({},DEF,{pic:35,pam:80}));return 'Con PAM 80 y PIC 35 la perfusión sería '+fmt(m.cpp,0)+' mmHg y el flujo '+fmt(m.f,0)+' mL/100 g/min. La PA alta aquí es una compensación; se trata la causa (PIC).'},fx:function(){setS({pic:35,pam:80,cush:false})}},
+        {t:'Sí: PA alta siempre daña el cerebro',s:0,fb:'Dentro de la meseta la PA alta no sube el flujo, y aquí la PA sostiene la perfusión. Bajarla agrava la isquemia.'}]},
+ {txt:'Mientras se prepara el traslado a cirugía, ¿qué ventilación recomiendas como medida puente?',
+  opts:[{t:'Hiperventilación breve y moderada (PCO₂ ≈ 30–35)',s:1,fb:function(){var a=cbfModel(Object.assign({},DEF,{pic:35,pco2:32,cush:true})),b=cbfModel(Object.assign({},DEF,{pic:35,cush:true}));return 'La vasoconstricción reduce el volumen sanguíneo cerebral y la PIC baja de '+fmt(b.pic,0)+' a '+fmt(a.pic,0)+' mmHg, pero el flujo también cae de '+fmt(b.f,0)+' a '+fmt(a.f,0)+'. Sirve como puente corto, no como tratamiento.'},fx:function(){setS({pic:35,pco2:32,cush:true})}},
+        {t:'Hiperventilar fuerte hasta PCO₂ 20 para que la PIC baje al máximo',s:0,fb:function(){var a=cbfModel(Object.assign({},DEF,{pic:30,pco2:20,cush:true}));return 'La PIC baja más, pero el flujo cae hasta '+fmt(a.f,0)+' mL/100 g/min: se cambia hipertensión intracraneal por isquemia.'},fx:function(){setS({pic:35,pco2:20,cush:true})}},
+        {t:'Dejar la PCO₂ alta para vasodilatar y proteger el flujo',s:0,fb:'Más CO₂ dilata los vasos y sube el volumen sanguíneo cerebral: eleva aún más la PIC.',fx:function(){setS({pic:35,pco2:60,cush:true})}}]}
+],'Aplica lo que viste con un caso breve. Cada decisión modifica el modelo de arriba.');
+worked();counter();setS({});gNew();setS({});
+onRedraw(function(){if(M)render()});
+window.__dbg={cbfModel:cbfModel,flowCurve:flowCurve,willis:willis,DEF:DEF,get S(){return S}};
+
+})();
+</script>
+
+</body></html>
