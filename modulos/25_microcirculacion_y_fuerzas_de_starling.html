@@ -1,0 +1,214 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Microcirculación y fuerzas de Starling</title>
+<meta name="description" content="Simulador del intercambio capilar con las fuerzas de Starling: filtración, reabsorción y barrera.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#F1F4F4;--panel:#FFFFFF;--fg:#16211F;--muted:#586966;--line:#D5DEDC;--vec:#0A7C76;--vecSoft:rgba(10,124,118,.14);
+ --blood:#B23A3A;--bloodSoft:rgba(178,58,58,.16);--guess:#C2480F;--guessSoft:rgba(194,72,15,.14);--slate:#4A5D8A;--good:#2A7A35;--bad:#B3261E;
+ --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.16);
+ --blood:#E27A7A;--bloodSoft:rgba(226,122,122,.2);--guess:#FF9A5C;--guessSoft:rgba(255,154,92,.16);--slate:#9DB2E8;--good:#6FD07C;--bad:#FF8A80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.16);
+ --blood:#E27A7A;--bloodSoft:rgba(226,122,122,.2);--guess:#FF9A5C;--guessSoft:rgba(255,154,92,.16);--slate:#9DB2E8;--good:#6FD07C;--bad:#FF8A80;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}h2{font-size:1.25rem}h3{font-size:1rem}
+p{margin:0}.lede{max-width:64ch;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}.chip.ok{border-color:var(--good)}.chip.no{border-color:var(--bad)}.chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}.chip.ok em{color:var(--good)}.chip.no em{color:var(--bad)}.chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}.note{font-size:.85rem;color:var(--muted)}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.warn{border-left:3px solid var(--guess);padding:6px 10px;background:var(--guessSoft);font-size:.9rem}
+.formula{font:600 clamp(.92rem,2vw,1.08rem) var(--font-mono);background:var(--bg);border:1px solid var(--line);padding:10px 12px;border-radius:5px;text-align:center;overflow-wrap:anywhere}
+.ver{font-family:var(--font-mono);font-size:.68rem;color:var(--guess);border:1px solid var(--guess);border-radius:3px;padding:0 4px;white-space:nowrap}
+.ok{color:var(--good)}.no{color:var(--bad)}.fb{font-size:.92rem;min-height:2.6em}
+canvas{display:block;max-width:100%}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:.92rem}legend{font-size:.95rem;padding:0;margin-bottom:6px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.steps{display:flex;flex-direction:column;gap:8px;counter-reset:s;padding:0;list-style:none}
+.steps li{counter-increment:s;padding:6px 10px 6px 36px;position:relative;border:1px solid var(--line);border-radius:5px;background:var(--bg)}
+.steps li::before{content:counter(s);position:absolute;left:8px;top:7px;width:20px;height:20px;border-radius:50%;background:var(--vec);color:var(--bg);font:700 .72rem var(--font-mono);display:flex;align-items:center;justify-content:center}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}.sw{display:inline-block;width:12px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+</style></head><body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B18 · microcirculación e intercambio capilar</div>
+  <h1>Microcirculación y fuerzas de Starling</h1>
+  <p class="lede">El intercambio capilar no es magia: son fuerzas. Sigue el agua entre el capilar y el intersticio, cambia la presión hidrostática, la oncótica o la barrera, y mira por qué el balance se inclina hacia la filtración o hacia la reabsorción.</p>
+  <div class="tags"><span>Unidad 6: 6.191–6.198</span><span>Nivel N3</span><span>Perillas: Pc, Pi, πc, πi, σ, Kf</span><span>Requiere B17</span></div>
+</header>
+
+<section class="panel">
+  <h2>El balance a lo largo del capilar</h2>
+  <div class="chips" id="pre"></div>
+  <canvas id="prof" role="img" aria-label="Presiones a lo largo del capilar: hidrostática, oncótica efectiva y balance neto"></canvas>
+  <div class="legend"><span><i class="sw" style="background:var(--blood)"></i>Empuje hidrostático (Pc − Pi)</span><span><i class="sw" style="background:var(--vec)"></i>Retención oncótica σ(πc − πi)</span><span><i class="sw" style="background:var(--guess)"></i>Balance neto</span></div>
+  <div class="chips" id="read"></div>
+  <p class="why" id="why"></p>
+</section>
+
+<section class="panel">
+  <h2>Controles</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl">Presión hidrostática capilar media (Pc): <span class="mono" id="pcV"></span><input type="range" id="pc" min="5" max="40" step="0.5" value="17"></label>
+      <label class="ctl">Presión hidrostática intersticial (Pi): <span class="mono" id="piV"></span><input type="range" id="pi" min="-8" max="10" step="0.5" value="-3"></label>
+      <label class="ctl">Presión oncótica plasmática (πc): <span class="mono" id="pcoV"></span><input type="range" id="pco" min="10" max="35" step="0.5" value="28"></label>
+    </div>
+    <div class="col">
+      <label class="ctl">Presión oncótica intersticial (πi): <span class="mono" id="pioV"></span><input type="range" id="pio" min="0" max="20" step="0.5" value="8"></label>
+      <label class="ctl">Coeficiente de reflexión a proteínas (σ): <span class="mono" id="sgV"></span><input type="range" id="sg" min="0" max="1" step="0.05" value="0.9"></label>
+      <label class="ctl">Coeficiente de filtración (Kf, relativo): <span class="mono" id="kfV"></span><input type="range" id="kf" min="0.2" max="3" step="0.05" value="1"></label>
+    </div>
+  </div>
+  <div class="formula">Jv = Kf · [(Pc − Pi) − σ (πc − πi)]</div>
+  <p class="note">Convención: Jv positivo = filtración hacia el intersticio; negativo = reabsorción hacia el capilar. En el esquema, la presión capilar cae linealmente unos 20 mmHg del extremo arterial al venoso (≈ Pc + 13 → Pc − 7). Valores basales de referencia tipo Guyton: <span class="ver">VERIFICAR</span> con el libro del curso.</p>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>Traduce la ecuación a fisiología</h2>
+    <ol class="steps">
+      <li><b>Pc</b> empuja líquido fuera del capilar. Depende más de la presión venosa que de la arterial, porque la resistencia precapilar es alta: subir la presión venosa sube Pc casi lo mismo.</li>
+      <li><b>Pi</b> suele ser algo negativa en tejido laxo y favorece la filtración; si se vuelve positiva, se opone a ella.</li>
+      <li><b>πc</b> depende sobre todo de la albúmina (más el efecto Donnan) y retiene agua en el plasma.</li>
+      <li><b>πi</b> la ponen las proteínas que escapan al intersticio; atrae agua hacia fuera.</li>
+      <li><b>σ</b> dice cuánto restringe la barrera el paso de proteínas (1 = nada pasa). <b>Kf</b> resume superficie y permeabilidad al agua: no cambia la dirección, solo la magnitud.</li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h2>Contraejemplo: mismo flujo, otro líquido</h2>
+    <p class="note">Dos capilares filtran casi lo mismo, pero por causas distintas. Tipo de ejemplo: casi igual pero distinto.</p>
+    <div class="tw"><table id="cx"></table></div>
+    <p class="why" id="cxW"></p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <fieldset><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+  <div class="row"><label class="ctl" style="flex-direction:row;align-items:center;gap:8px">Tu confianza <select id="qConf"><option value="media">media</option><option value="alta">alta</option><option value="baja">baja</option></select></label>
+    <button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+  <p class="fb" id="qFb" aria-live="polite"></p>
+</section>
+
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>«El capilar filtra en un extremo y reabsorbe todo en el otro»: en reposo queda un pequeño exceso filtrado que retiran los linfáticos (módulo 26).</li>
+    <li>«Más presión arterial = más filtración capilar»: la arteriola amortigua la presión arterial; la presión venosa pesa más sobre Pc.</li>
+    <li>«Kf decide si se filtra o se reabsorbe»: Kf solo escala el flujo; la dirección la deciden las presiones.</li>
+    <li>«Hipoalbuminemia e inflamación dan el mismo edema»: la primera da un líquido pobre en proteína; la segunda, rico.</li>
+    <li>«Starling del capilar es lo mismo que Frank–Starling»: son dos leyes distintas (capilar vs corazón).</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Forma clásica de Starling; no representa el glucocálix ni el modelo revisado (en el que la reabsorción venosa sostenida es menor).</li>
+    <li>Caída lineal de Pc a lo largo del capilar y presiones oncóticas constantes.</li>
+    <li>Un solo capilar «promedio»: no distingue tejidos (riñón, pulmón, hígado tienen otras cifras).</li>
+    <li>Jv en unidades relativas; no calcula volumen de edema (eso lo hace el módulo 26).</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.191–6.198). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro del curso.</p>
+</footer>
+</div>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fmt(x,d){var v=Math.abs(x)<Math.pow(10,-(d||0))/2?0:x;return v.toFixed(d).replace('.',',').replace(/^-0(,0*)?$/,'0$1')}
+function sgn(x,d){return (x>0?'+':'')+fmt(x,d)}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function cw(c,mx){var p=c.parentElement,s=getComputedStyle(p);return Math.max(240,Math.min(mx||940,Math.floor(p.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight))))}
+function axes(x,r,xr,yr,xt,yt,xl,yl,fy){x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.lineWidth=1;x.textAlign='right';x.textBaseline='middle';
+  yt.forEach(function(v){var y=r.y+r.h-(v-yr[0])/(yr[1]-yr[0])*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(fy?fy(v):v,r.x-4,y)});
+  x.textAlign='center';x.textBaseline='top';xt.forEach(function(v){var xx=r.x+(v-xr[0])/(xr[1]-xr[0])*r.w;x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h+3);x.stroke();x.fillText(v,xx,r.y+r.h+5)});
+  if(xl){x.textAlign='right';x.fillText(xl,r.x+r.w,r.y+r.h+18)}
+  if(yl){x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.textBaseline='middle';x.fillText(yl,0,0);x.restore()}}
+function line(x,r,xr,yr,f,col,lw,dash,n){x.strokeStyle=col;x.lineWidth=lw||2;x.setLineDash(dash||[]);x.lineJoin='round';x.beginPath();n=n||200;
+  for(var i=0;i<=n;i++){var t=xr[0]+(xr[1]-xr[0])*i/n,v=f(t),px=r.x+i/n*r.w,py=r.y+r.h-(clamp(v,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke();x.setLineDash([])}
+function dot(x,r,xr,yr,vx,vy,col,rad){x.fillStyle=col;x.beginPath();x.arc(r.x+(vx-xr[0])/(xr[1]-xr[0])*r.w,r.y+r.h-(clamp(vy,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h,rad||5,0,7);x.fill()}
+/* Reto «Predice y observa» con confianza; cada reto aplica su cambio al modelo */
+function Quiz(QS){var qi=0,tot=0,okc=0;
+  function show(){var q=QS[qi];$('qText').innerHTML='<b>Reto '+(qi+1)+' de '+QS.length+'.</b> '+q.q;
+    $('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> <span>'+t+'</span></label>'}).join('');$('qFb').textContent=''}
+  $('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+    var q=QS[qi],ok=+r.value===q.a,cf=$('qConf').value;q.ap();tot++;if(ok)okc++;
+    var cal=ok?(cf==='alta'?' Buena calibración.':cf==='baja'?' Acertaste con poca confianza: confía más en la cadena causal.':''):(cf==='alta'?' Estabas muy seguro: revisa en qué eslabón falló el razonamiento.':'');
+    $('qFb').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No era esa.</b></span> La respuesta es: '+q.o[q.a]+'. ')+q.e()+cal+' <span class="note">Aciertos: '+okc+' de '+tot+'. El modelo de arriba ya aplicó el cambio.</span>'};
+  $('qNext').onclick=function(){qi=(qi+1)%QS.length;show()};show()}
+function onRedraw(fn){var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(fn,80)});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',fn);
+  new MutationObserver(fn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fn)}
+
+var BASE={pc:17,pi:-3,pco:28,pio:8,sg:.9,kf:1},S=Object.assign({},BASE);
+var PRE=[
+ {n:'Reposo',o:{},w:'Reposo: filtra en el extremo arterial y reabsorbe en el venoso; el pequeño exceso neto lo retiran los linfáticos.'},
+ {n:'↑ Presión venosa',o:{pc:25},w:'La presión venosa alta se transmite al capilar: Pc sube y el balance se inclina a la filtración en casi todo el capilar.'},
+ {n:'↓ Albúmina',o:{pco:16},w:'Con menos albúmina cae πc: la fuerza que retiene agua en el plasma es menor y se filtra más.'},
+ {n:'Inflamación',o:{sg:.4,kf:2,pio:12},w:'La barrera se abre: baja σ, sube Kf y escapan proteínas (sube πi). Se filtra mucho más y el líquido es rico en proteína.'},
+ {n:'Hemorragia',o:{pc:10},w:'Tras una hemorragia, la constricción arteriolar y la baja presión venosa bajan Pc: el capilar reabsorbe y repone volumen plasmático (autotransfusión).'}];
+function model(s){var onc=s.sg*(s.pco-s.pio),pa=s.pc+13,pv=s.pc-7,hyd=function(x){return pa+(pv-pa)*x-s.pi};
+  var net=s.pc-s.pi-onc,xs=clamp((pa-s.pi-onc)/((pa-s.pi)-(pv-s.pi)),0,1);
+  return{onc:onc,pa:pa,pv:pv,hyd:hyd,net:net,jv:s.kf*net,netA:pa-s.pi-onc,netV:pv-s.pi-onc,xs:(pa-s.pi-onc)<=0?0:(pv-s.pi-onc)>=0?1:xs}}
+function draw(){var c=$('prof'),W=cw(c,940),H=Math.round(clamp(W*.42,220,330)),x=fit(c,W,H),r={x:44,y:12,w:W-58,h:H-44},m=model(S),xr=[0,1],yr=[-20,50];x.clearRect(0,0,W,H);
+  var y0=r.y+r.h-(0-yr[0])/(yr[1]-yr[0])*r.h;
+  /* sombreado filtración / reabsorción */
+  x.globalAlpha=.10;x.fillStyle=css('--blood');x.fillRect(r.x,r.y,r.w*m.xs,r.h);x.fillStyle=css('--vec');x.fillRect(r.x+r.w*m.xs,r.y,r.w*(1-m.xs),r.h);x.globalAlpha=1;
+  axes(x,r,xr,yr,[],[-20,-10,0,10,20,30,40,50],'','mmHg');
+  x.strokeStyle=css('--fg');x.lineWidth=1;x.beginPath();x.moveTo(r.x,y0);x.lineTo(r.x+r.w,y0);x.stroke();
+  line(x,r,xr,yr,m.hyd,css('--blood'),2.6);line(x,r,xr,yr,function(){return m.onc},css('--vec'),2.6);line(x,r,xr,yr,function(t){return m.hyd(t)-m.onc},css('--guess'),2.6,[6,4]);
+  x.font='600 11px '+css('--font-body');x.fillStyle=css('--muted');x.textBaseline='top';x.textAlign='left';x.fillText('extremo arterial',r.x+4,r.y+r.h+5);x.textAlign='right';x.fillText('extremo venoso',r.x+r.w-4,r.y+r.h+5);
+  x.textAlign='center';x.textBaseline='top';x.font='600 11px '+css('--font-body');
+  if(m.xs>.12){x.fillStyle=css('--blood');x.fillText('filtra',r.x+r.w*m.xs/2,r.y+4)}if(m.xs<.88){x.fillStyle=css('--vec');x.fillText('reabsorbe',r.x+r.w*(1+m.xs)/2,r.y+4)}}
+function read(){var m=model(S),k=PRE.filter(function(p){var t=Object.assign({},BASE,p.o);return Object.keys(t).every(function(q){return Math.abs(t[q]-S[q])<1e-9})})[0];
+  var dir=m.jv>.3?'filtración':m.jv<-.3?'reabsorción':'casi equilibrio';
+  $('read').innerHTML=chip('Neto en extremo arterial',sgn(m.netA,1)+' mmHg',m.netA>0?'wn':'ok')+chip('Neto en extremo venoso',sgn(m.netV,1)+' mmHg',m.netV<0?'ok':'wn')+chip('Neto medio',sgn(m.net,1)+' mmHg',Math.abs(m.net)<3?'ok':m.net>0?'no':'wn')+chip('Jv relativo',sgn(m.jv,1),Math.abs(m.jv)<3?'ok':m.jv>0?'no':'wn',dir)+chip('Capilar que filtra',Math.round(m.xs*100)+' %','ok');
+  $('why').textContent=(k?k.w+' ':'')+'Empuje hidrostático medio '+fmt(S.pc-S.pi,1)+' mmHg frente a retención oncótica efectiva '+fmt(m.onc,1)+' mmHg: el balance neto medio es '+sgn(m.net,1)+' mmHg ('+dir+').';
+  $('pcV').textContent=fmt(S.pc,1)+' mmHg';$('piV').textContent=fmt(S.pi,1)+' mmHg';$('pcoV').textContent=fmt(S.pco,1)+' mmHg';$('pioV').textContent=fmt(S.pio,1)+' mmHg';$('sgV').textContent=fmt(S.sg,2);$('kfV').textContent='× '+fmt(S.kf,2);
+  document.querySelectorAll('#pre .btn').forEach(function(b,i){b.setAttribute('aria-pressed',PRE[i]===k?'true':'false')})}
+function sync(){['pc','pi','pco','pio','sg','kf'].forEach(function(k){$(k).value=S[k]})}
+function render(){read();draw()}
+function set(o){S=Object.assign({},BASE,o);sync();render()}
+PRE.forEach(function(p){var b=document.createElement('button');b.className='btn';b.textContent=p.n;b.onclick=function(){set(p.o)};$('pre').appendChild(b)});
+['pc','pi','pco','pio','sg','kf'].forEach(function(k){$(k).oninput=function(){S[k]=+this.value;render()}});
+(function(){var A=Object.assign({},BASE,{pc:23.5}),B=Object.assign({},BASE,{sg:.62,pio:8,pco:28}),a=model(A),b=model(B);
+  function r(l,u,v){return '<tr><td>'+l+'</td><td class="n">'+u+'</td><td class="n">'+v+'</td></tr>'}
+  $('cx').innerHTML='<thead><tr><th>Medida</th><th>↑ Pc (congestión venosa)</th><th>↓ σ (barrera dañada)</th></tr></thead><tbody>'+r('Pc media',fmt(A.pc,1),fmt(B.pc,1))+r('σ',fmt(A.sg,2),fmt(B.sg,2))+r('Neto medio (mmHg)',sgn(a.net,1),sgn(b.net,1))+r('Jv relativo',sgn(a.jv,1),sgn(b.jv,1))+r('Proteína del líquido filtrado','baja','alta')+'</tbody>';
+  $('cxW').textContent='La filtración es casi igual ('+sgn(a.jv,1)+' frente a '+sgn(b.jv,1)+'), pero en la congestión pasa sobre todo agua y en la barrera dañada pasan además proteínas: sube πi y el edema se autoperpetúa.'})();
+Quiz([
+ {q:'Una persona tiene albúmina muy baja. ¿Qué cambio explica directamente que filtre más?',o:['Sube la presión oncótica plasmática','Baja la presión oncótica plasmática','Sube el coeficiente de reflexión σ'],a:1,ap:function(){set(PRE[2].o)},e:function(){var m=model(S);return 'Con πc '+fmt(S.pco,0)+' mmHg la retención oncótica efectiva cae a '+fmt(m.onc,1)+' mmHg y el neto medio sube a '+sgn(m.net,1)+' mmHg.'}},
+ {q:'Tras una hemorragia baja la presión capilar a 10 mmHg. ¿Qué hace el capilar?',o:['Filtra más para proteger el tejido','Reabsorbe líquido intersticial hacia el plasma','No cambia: Kf es el mismo'],a:1,ap:function(){set(PRE[4].o)},e:function(){var m=model(S);return 'El neto medio es '+sgn(m.net,1)+' mmHg y solo filtra el '+Math.round(m.xs*100)+' % del capilar: el líquido intersticial entra al plasma (autotransfusión), una compensación en minutos.'}},
+ {q:'Duplicas Kf sin cambiar ninguna presión (reposo). ¿Qué pasa?',o:['El flujo neto cambia de dirección','Se duplica la magnitud del flujo neto, con la misma dirección','No cambia nada'],a:1,ap:function(){set({kf:2})},e:function(){var m=model(S);return 'El neto medio sigue en '+sgn(m.net,1)+' mmHg; Jv pasa a '+sgn(m.jv,1)+'. Kf escala, las presiones deciden la dirección.'}}]);
+render();onRedraw(draw);
+})();
+</script>
+</body></html>

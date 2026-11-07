@@ -1,0 +1,223 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Edema y sistema linfático</title>
+<meta name="description" content="Simulador del balance entre filtración capilar, drenaje linfático y márgenes de seguridad contra el edema.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#F1F4F4;--panel:#FFFFFF;--fg:#16211F;--muted:#586966;--line:#D5DEDC;--vec:#0A7C76;--vecSoft:rgba(10,124,118,.14);
+ --blood:#B23A3A;--bloodSoft:rgba(178,58,58,.16);--guess:#C2480F;--guessSoft:rgba(194,72,15,.14);--slate:#4A5D8A;--good:#2A7A35;--bad:#B3261E;
+ --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.16);
+ --blood:#E27A7A;--bloodSoft:rgba(226,122,122,.2);--guess:#FF9A5C;--guessSoft:rgba(255,154,92,.16);--slate:#9DB2E8;--good:#6FD07C;--bad:#FF8A80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.16);
+ --blood:#E27A7A;--bloodSoft:rgba(226,122,122,.2);--guess:#FF9A5C;--guessSoft:rgba(255,154,92,.16);--slate:#9DB2E8;--good:#6FD07C;--bad:#FF8A80;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}h1{font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}h2{font-size:1.25rem}h3{font-size:1rem}
+p{margin:0}.lede{max-width:64ch;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
+.tags{display:flex;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}.tags span{border:1px solid var(--line);padding:2px 8px;border-radius:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}.cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+label.ctl{display:flex;flex-direction:column;gap:2px;font-size:.85rem;color:var(--muted);min-width:0}
+input[type=range]{width:100%;accent-color:var(--vec)}
+select{font:600 .92rem var(--font-body);padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);max-width:100%}
+.btn{font:600 .9rem var(--font-body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--vec)}.btn[aria-pressed="true"]{border-color:var(--vec);background:var(--vecSoft)}.btn.primary{background:var(--vec);color:var(--bg);border-color:var(--vec)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:baseline;font-variant-numeric:tabular-nums}
+.chip b{font-weight:600}.chip.ok{border-color:var(--good)}.chip.no{border-color:var(--bad)}.chip.wn{border-color:var(--guess)}
+.chip em{font-style:normal;font-size:.72rem}.chip.ok em{color:var(--good)}.chip.no em{color:var(--bad)}.chip.wn em{color:var(--guess)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}.note{font-size:.85rem;color:var(--muted)}
+.why{border-left:3px solid var(--vec);padding:6px 10px;background:var(--vecSoft);font-size:.92rem}
+.warn{border-left:3px solid var(--guess);padding:6px 10px;background:var(--guessSoft);font-size:.9rem}
+.formula{font:600 clamp(.92rem,2vw,1.08rem) var(--font-mono);background:var(--bg);border:1px solid var(--line);padding:10px 12px;border-radius:5px;text-align:center;overflow-wrap:anywhere}
+.ver{font-family:var(--font-mono);font-size:.68rem;color:var(--guess);border:1px solid var(--guess);border-radius:3px;padding:0 4px;white-space:nowrap}
+.ok{color:var(--good)}.no{color:var(--bad)}.fb{font-size:.92rem;min-height:2.6em}
+canvas{display:block;max-width:100%}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{font-weight:600;color:var(--muted);white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+ul,ol{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:.92rem}legend{font-size:.95rem;padding:0;margin-bottom:6px}
+.opt{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.steps{display:flex;flex-direction:column;gap:8px;counter-reset:s;padding:0;list-style:none}
+.steps li{counter-increment:s;padding:6px 10px 6px 36px;position:relative;border:1px solid var(--line);border-radius:5px;background:var(--bg)}
+.steps li::before{content:counter(s);position:absolute;left:8px;top:7px;width:20px;height:20px;border-radius:50%;background:var(--vec);color:var(--bg);font:700 .72rem var(--font-mono);display:flex;align-items:center;justify-content:center}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}.sw{display:inline-block;width:12px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+footer{border-top:1px solid var(--line);padding-top:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+</style></head><body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo B19 · circulación linfática y edema</div>
+  <h1>Edema y sistema linfático</h1>
+  <p class="lede">El edema aparece cuando entra al intersticio más líquido del que puede salir. Sube la filtración, obstruye el drenaje o debilita la bomba linfática, y mira cómo el intersticio se defiende hasta que sus márgenes de seguridad se agotan.</p>
+  <div class="tags"><span>Unidad 6: 6.198, 6.204–6.211</span><span>Nivel N3</span><span>Perillas: filtración, Kf, bomba linfática, obstrucción</span><span>Requiere el módulo 25</span></div>
+</header>
+
+<section class="panel">
+  <h2>Entrada contra salida</h2>
+  <div class="chips" id="pre"></div>
+  <div class="grid">
+    <div class="col"><h3>Volumen intersticial en el tiempo</h3><canvas id="tc" role="img" aria-label="Volumen intersticial extra y presión intersticial a lo largo del tiempo"></canvas>
+      <div class="legend"><span><i class="sw" style="background:var(--vec)"></i>Volumen extra (relativo)</span><span><i class="sw" style="background:var(--guess)"></i>Presión intersticial (mmHg)</span></div></div>
+    <div class="col"><h3>Flujo linfático según la presión intersticial</h3><canvas id="lc" role="img" aria-label="Curva de flujo linfático frente a presión intersticial con la filtración superpuesta"></canvas>
+      <div class="legend"><span><i class="sw" style="background:var(--vec)"></i>Drenaje linfático</span><span><i class="sw" style="background:var(--blood)"></i>Filtración capilar</span><span>● equilibrio</span></div></div>
+  </div>
+  <div class="chips" id="read"></div>
+  <p class="why" id="why"></p>
+</section>
+
+<section class="panel">
+  <h2>Controles</h2>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl">Presión neta de filtración media (del módulo 25): <span class="mono" id="netV"></span><input type="range" id="net" min="0" max="30" step="0.5" value="2"></label>
+      <label class="ctl">Coeficiente de filtración (Kf, relativo): <span class="mono" id="kfV"></span><input type="range" id="kf" min="0.5" max="3" step="0.05" value="1"></label>
+      <label class="ctl">Fuga de proteínas por la barrera (1 − σ, relativo): <span class="mono" id="leakV"></span><input type="range" id="leak" min="0.5" max="5" step="0.25" value="1"></label>
+      <label class="ctl">Punto de partida
+        <select id="start"><option value="0">Intersticio normal</option><option value="3">Con edema ya formado</option></select></label>
+    </div>
+    <div class="col">
+      <label class="ctl">Capacidad de la bomba linfática: <span class="mono" id="pumpV"></span><input type="range" id="pump" min="0.3" max="1.5" step="0.05" value="1"></label>
+      <label class="ctl">Obstrucción linfática: <span class="mono" id="blockV"></span><input type="range" id="block" min="0" max="95" step="5" value="0"></label>
+      <label class="ctl">Reserva linfática (cuánto aumenta el drenaje por mmHg de Pi): <span class="mono" id="resV"></span><input type="range" id="res" min="0" max="4" step="0.25" value="2"></label>
+    </div>
+  </div>
+  <div class="formula">d(volumen intersticial)/dt = filtración capilar − drenaje linfático</div>
+  <p class="note">Filtración = Kf · (presión neta + aumento de πi − aumento de Pi): cuando el intersticio se llena, su presión sube y frena la filtración. Drenaje = bomba · (1 − obstrucción) · (1 + reserva · aumento de Pi), y se aplana cuando Pi pasa de 0 mmHg porque el intersticio se vuelve muy distensible. Las proteínas que escapan al intersticio solo salen por la linfa: su concentración fija πi. Unidades relativas y tiempo ilustrativo (horas) <span class="ver">VERIFICAR</span>.</p>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>Los márgenes de seguridad contra el edema</h2>
+    <ol class="steps">
+      <li><b>Presión intersticial baja.</b> Mientras Pi es negativa, el intersticio es poco distensible: un poco de líquido sube mucho Pi, y esa Pi frena la filtración.</li>
+      <li><b>Reserva linfática.</b> El drenaje puede multiplicarse cuando sube Pi, gracias a válvulas, linfangiones contráctiles y bomba externa (músculo, pulso, respiración).</li>
+      <li><b>Lavado de proteínas.</b> Más flujo linfático retira proteínas del intersticio, baja πi y reduce la filtración. Si el linfático falla o la barrera deja escapar proteína, ocurre lo contrario.</li>
+      <li><b>Agotamiento.</b> Cuando Pi supera ≈ 0 mmHg el intersticio se vuelve muy distensible y el drenaje llega a su máximo: el líquido se acumula con poca resistencia y aparece el edema con fóvea.</li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h2>Compara mecanismos</h2>
+    <div class="tw"><table><thead><tr><th>Situación</th><th>Perilla del modelo</th><th>Por qué hay edema</th></tr></thead><tbody>
+      <tr><td>Insuficiencia cardiaca, obstrucción venosa</td><td>↑ presión neta (↑ Pc)</td><td>Más filtración que la que el drenaje retira.</td></tr>
+      <tr><td>Hipoalbuminemia</td><td>↑ presión neta (↓ πc)</td><td>Menos fuerza que retiene agua en el plasma.</td></tr>
+      <tr><td>Inflamación, alergia</td><td>↑ Kf (y ↓ σ)</td><td>La barrera deja pasar más agua y proteína.</td></tr>
+      <tr><td>Linfedema (cirugía, filariasis)</td><td>↑ obstrucción / ↓ bomba</td><td>La filtración es normal, pero no se retira.</td></tr>
+    </tbody></table></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Predice y observa</h2>
+  <fieldset><legend id="qText"></legend><div id="qOpts" class="col" style="gap:6px"></div></fieldset>
+  <div class="row"><label class="ctl" style="flex-direction:row;align-items:center;gap:8px">Tu confianza <select id="qConf"><option value="media">media</option><option value="alta">alta</option><option value="baja">baja</option></select></label>
+    <button class="btn primary" id="qGo">Comprobar y aplicar</button><button class="btn" id="qNext">Siguiente reto</button></div>
+  <p class="fb" id="qFb" aria-live="polite"></p>
+</section>
+
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>«El linfático es un desagüe pasivo»: bombea con linfangiones y válvulas, y aumenta su flujo cuando sube la presión intersticial.</li>
+    <li>«El edema aparece en cuanto la filtración aumenta»: primero actúan tres márgenes de seguridad (Pi, reserva linfática y lavado de proteínas, en conjunto ≈ 17 mmHg en la tabla clásica <span class="ver">VERIFICAR</span>); el edema aparece al agotarlos.</li>
+    <li>«El edema siempre es por insuficiencia cardiaca»: también por hipoalbuminemia, inflamación u obstrucción linfática.</li>
+    <li>«Una vez formado, el edema no se reabsorbe»: si la filtración vuelve a lo normal, el drenaje supera la entrada y el intersticio se vacía.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Un solo compartimento intersticial en unidades relativas; no da litros ni grados clínicos de edema.</li>
+    <li>Curva presión–volumen intersticial en dos tramos (poco distensible bajo 0 mmHg, muy distensible arriba) con pendientes ilustrativas.</li>
+    <li>Las proteínas intersticiales son un solo compartimento bien mezclado; no hay inflamación que cambie en el tiempo ni retención renal de sodio.</li>
+    <li>El tiempo es ilustrativo: la velocidad real depende del tejido y de la causa.</li></ul></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.198, 6.204–6.211). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro del curso.</p>
+</footer>
+</div>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var css=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function fmt(x,d){var v=Math.abs(x)<Math.pow(10,-(d||0))/2?0:x;return v.toFixed(d).replace('.',',').replace(/^-0(,0*)?$/,'0$1')}
+function sgn(x,d){return (x>0?'+':'')+fmt(x,d)}
+function chip(l,v,cls,txt){return '<span class="chip '+(cls||'ok')+'">'+l+' <b>'+v+'</b>'+(txt?' <em>'+txt+'</em>':'')+'</span>'}
+function fit(c,w,h){var r=window.devicePixelRatio||1;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.width=w+'px';c.style.height=h+'px';var x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return x}
+function cw(c,mx){var p=c.parentElement,s=getComputedStyle(p);return Math.max(240,Math.min(mx||940,Math.floor(p.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight))))}
+function axes(x,r,xr,yr,xt,yt,xl,yl,fy){x.font='10px '+css('--font-mono');x.strokeStyle=css('--line');x.fillStyle=css('--muted');x.lineWidth=1;x.textAlign='right';x.textBaseline='middle';
+  yt.forEach(function(v){var y=r.y+r.h-(v-yr[0])/(yr[1]-yr[0])*r.h;x.beginPath();x.moveTo(r.x,y);x.lineTo(r.x+r.w,y);x.stroke();x.fillText(fy?fy(v):v,r.x-4,y)});
+  x.textAlign='center';x.textBaseline='top';xt.forEach(function(v){var xx=r.x+(v-xr[0])/(xr[1]-xr[0])*r.w;x.beginPath();x.moveTo(xx,r.y+r.h);x.lineTo(xx,r.y+r.h+3);x.stroke();x.fillText(v,xx,r.y+r.h+5)});
+  if(xl){x.textAlign='right';x.fillText(xl,r.x+r.w,r.y+r.h+18)}
+  if(yl){x.save();x.translate(10,r.y+r.h/2);x.rotate(-Math.PI/2);x.textAlign='center';x.textBaseline='middle';x.fillText(yl,0,0);x.restore()}}
+function line(x,r,xr,yr,f,col,lw,dash,n){x.strokeStyle=col;x.lineWidth=lw||2;x.setLineDash(dash||[]);x.lineJoin='round';x.beginPath();n=n||200;
+  for(var i=0;i<=n;i++){var t=xr[0]+(xr[1]-xr[0])*i/n,v=f(t),px=r.x+i/n*r.w,py=r.y+r.h-(clamp(v,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke();x.setLineDash([])}
+function dot(x,r,xr,yr,vx,vy,col,rad){x.fillStyle=col;x.beginPath();x.arc(r.x+(vx-xr[0])/(xr[1]-xr[0])*r.w,r.y+r.h-(clamp(vy,yr[0],yr[1])-yr[0])/(yr[1]-yr[0])*r.h,rad||5,0,7);x.fill()}
+/* Reto «Predice y observa» con confianza; cada reto aplica su cambio al modelo */
+function Quiz(QS){var qi=0,tot=0,okc=0;
+  function show(){var q=QS[qi];$('qText').innerHTML='<b>Reto '+(qi+1)+' de '+QS.length+'.</b> '+q.q;
+    $('qOpts').innerHTML=q.o.map(function(t,k){return '<label class="opt"><input type="radio" name="qo" value="'+k+'"> <span>'+t+'</span></label>'}).join('');$('qFb').textContent=''}
+  $('qGo').onclick=function(){var r=document.querySelector('input[name=qo]:checked');if(!r){$('qFb').textContent='Elige primero una respuesta.';return}
+    var q=QS[qi],ok=+r.value===q.a,cf=$('qConf').value;q.ap();tot++;if(ok)okc++;
+    var cal=ok?(cf==='alta'?' Buena calibración.':cf==='baja'?' Acertaste con poca confianza: confía más en la cadena causal.':''):(cf==='alta'?' Estabas muy seguro: revisa en qué eslabón falló el razonamiento.':'');
+    $('qFb').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No era esa.</b></span> La respuesta es: '+q.o[q.a]+'. ')+q.e()+cal+' <span class="note">Aciertos: '+okc+' de '+tot+'. El modelo de arriba ya aplicó el cambio.</span>'};
+  $('qNext').onclick=function(){qi=(qi+1)%QS.length;show()};show()}
+function onRedraw(fn){var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(fn,80)});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',fn);
+  new MutationObserver(fn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fn)}
+
+var BASE={net:2,kf:1,leak:1,pump:1,block:0,res:2,start:0},KEYS=['net','kf','leak','pump','block','res','start'],S=Object.assign({},BASE),T=48,DT=.05,TAU=6,V0=2;
+var PRE=[
+ {n:'Reposo',o:{},w:'Reposo: lo que filtra el capilar lo retira el linfático, junto con la poca proteína que escapa; el intersticio no cambia.'},
+ {n:'Congestión moderada',o:{net:6},w:'La filtración se triplica, pero los márgenes de seguridad la absorben: sube un poco Pi, aumenta el drenaje y se lavan proteínas (baja πi). No hay edema visible.'},
+ {n:'Insuficiencia cardiaca grave',o:{net:24},w:'Con ≈ 22 mmHg extra de presión neta los márgenes se agotan: Pi pasa de 0, el drenaje llega a su máximo y el líquido se acumula.'},
+ {n:'Linfedema',o:{block:90},w:'La filtración es normal, pero casi no hay drenaje: el agua y sobre todo las proteínas se quedan en el intersticio, sube πi y el edema se autoperpetúa.'},
+ {n:'Inflamación',o:{kf:2.4,net:8,leak:4},w:'La barrera deja pasar más agua y mucha más proteína: πi sube en vez de lavarse y el edema aparece con presiones moderadas.'},
+ {n:'Se corrige la causa',o:{start:3},w:'Con edema ya formado y filtración normal, el drenaje alto supera la entrada y el intersticio se vacía poco a poco.'}];
+function Pi(v){return -3+3*clamp(v,0,1)+.25*Math.max(v-1,0)}
+function flows(v,P,s){var dp=Pi(v)+3,c=P/(V0+v),netE=s.net+7.2*(c-1),f=Math.max(0,s.kf*.5*(netE-dp)),cap=s.pump*(1-s.block/100),l=cap*(1+s.res*clamp(dp,0,3.2));
+  return{f:f,l:l,dp:dp,pi:Pi(v),c:c,pio:8*c,leak:s.kf*s.leak,cap:cap}}
+function stepS(st,s,dt){var q=flows(st.v,st.P,s);return{v:Math.max(0,st.v+(q.f-q.l)*dt/TAU),P:Math.max(.05,st.P+(q.leak-q.l*q.c)*dt/TAU),q:q}}
+function run(s){var st={v:s.start,P:V0+s.start},out=[];for(var t=0;t<=T+1e-9;t+=DT){var q=flows(st.v,st.P,s);out.push({t:t,v:st.v,pi:q.pi,f:q.f,l:q.l,pio:q.pio});st=stepS(st,s,DT)}return out}
+function eq(s){var st={v:s.start,P:V0+s.start},q;for(var i=0;i<60000;i++){var n=stepS(st,s,.25);if(Math.abs(n.v-st.v)<1e-7&&Math.abs(n.P-st.P)<1e-7){st=n;break}st=n}q=flows(st.v,st.P,s);return{v:st.v,P:st.P,q:q}}
+function drawT(){var c=$('tc'),W=cw(c,470),H=230,x=fit(c,W,H),r={x:40,y:10,w:W-80,h:H-44},d=run(S),vmax=Math.max(4,Math.ceil(Math.max.apply(null,d.map(function(p){return p.v}))+.5));x.clearRect(0,0,W,H);
+  axes(x,r,[0,T],[0,vmax],[0,12,24,36,48],[0,vmax/2,vmax].map(function(v){return +v.toFixed(1)}),'horas (ilustrativo)','volumen extra');
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='left';x.textBaseline='middle';[-3,0,3,6].forEach(function(p){x.fillText(p,r.x+r.w+5,r.y+r.h-(p+3)/9*r.h)});
+  var y1=r.y+r.h-1/vmax*r.h;x.strokeStyle=css('--bad');x.setLineDash([3,4]);x.beginPath();x.moveTo(r.x,y1);x.lineTo(r.x+r.w,y1);x.stroke();x.setLineDash([]);x.fillStyle=css('--bad');x.textAlign='left';x.fillText('Pi ≈ 0: márgenes agotados',r.x+4,y1-8);
+  function plot(k,lo,hi,col,dash){x.strokeStyle=col;x.lineWidth=2.4;x.setLineDash(dash||[]);x.beginPath();d.forEach(function(p,i){var px=r.x+p.t/T*r.w,py=r.y+r.h-(clamp(p[k],lo,hi)-lo)/(hi-lo)*r.h;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();x.setLineDash([])}
+  plot('v',0,vmax,css('--vec'));plot('pi',-3,6,css('--guess'),[6,4]);return d}
+function drawL(){var c=$('lc'),W=cw(c,470),H=230,x=fit(c,W,H),r={x:40,y:10,w:W-54,h:H-44},xr=[-3,6],e=eq(S),ym=Math.max(3,Math.ceil(Math.max(e.q.cap*(1+S.res*3.2),e.q.f*1.3)+.5));x.clearRect(0,0,W,H);
+  axes(x,r,xr,[0,ym],[-3,0,3,6],[0,ym/2,ym].map(function(v){return +v.toFixed(1)}),'presión intersticial (mmHg)','flujo (relativo)');
+  function vOf(p){return p<=0?(p+3)/3:1+(p)/.25}
+  var cE=e.q.c;line(x,r,xr,[0,ym],function(p){var v=vOf(p);return flows(v,cE*(V0+v),S).l},css('--vec'),2.6);line(x,r,xr,[0,ym],function(p){var v=vOf(p);return flows(v,cE*(V0+v),S).f},css('--blood'),2.6);
+  dot(x,r,xr,[0,ym],clamp(e.q.pi,-3,6),e.q.l,css('--fg'),5)}
+function read(){var d=run(S),last=d[d.length-1],e=eq(S),k=PRE.filter(function(p){var t=Object.assign({},BASE,p.o);return Object.keys(t).every(function(q){return t[q]===S[q]})})[0];
+  var ed=e.v>1.5?'edema con fóvea':e.v>1?'edema leve':e.v>.15?'sin edema visible':'normal';
+  $('read').innerHTML=chip('Filtración al inicio',fmt(d[0].f,2),d[0].f<=1.05?'ok':'wn')+chip('Drenaje al inicio',fmt(d[0].l,2),'ok')+chip('Balance al inicio',sgn(d[0].f-d[0].l,2),Math.abs(d[0].f-d[0].l)<.05?'ok':d[0].f>d[0].l?'no':'ok',d[0].f>d[0].l+.05?'se acumula':d[0].l>d[0].f+.05?'se vacía':'equilibrio')+
+    chip('Equilibrio: volumen extra',fmt(e.v,2),e.v<1?'ok':'no',ed)+chip('Equilibrio: Pi',sgn(e.q.pi,1)+' mmHg',e.q.pi<0?'ok':'no')+chip('Equilibrio: πi',fmt(e.q.pio,1)+' mmHg',Math.abs(e.q.pio-8)<1.5?'ok':'wn',e.q.pio<7?'lavado':e.q.pio>9?'se acumula proteína':'')+chip('Drenaje en equilibrio',fmt(e.q.l,2),e.q.l<e.q.cap*(1+S.res*3)*.97?'ok':'wn','máx. '+fmt(e.q.cap*(1+S.res*3.2),2))+chip('A las 48 h',fmt(last.v,2),'ok');
+  $('why').textContent=(k?k.w+' ':'')+(e.v>1?'El nuevo equilibrio queda con Pi '+sgn(e.q.pi,1)+' mmHg: los márgenes de seguridad se agotaron y el intersticio guarda '+fmt(e.v,1)+' unidades extra.':e.v>.15?'El intersticio se defiende: Pi sube a '+sgn(e.q.pi,1)+' mmHg, el drenaje aumenta y πi baja a '+fmt(e.q.pio,1)+' mmHg por lavado de proteínas; llega a un nuevo equilibrio sin edema visible.':'El drenaje compensa la filtración.');
+  $('netV').textContent=fmt(S.net,1)+' mmHg';$('kfV').textContent='× '+fmt(S.kf,2);$('pumpV').textContent='× '+fmt(S.pump,2);$('blockV').textContent=S.block+' %';$('resV').textContent='× '+fmt(S.res,2)+' por mmHg';$('leakV').textContent='× '+fmt(S.leak,2);
+  document.querySelectorAll('#pre .btn').forEach(function(b,i){b.setAttribute('aria-pressed',PRE[i]===k?'true':'false')})}
+function sync(){KEYS.forEach(function(k){$(k).value=S[k]})}
+function render(){read();drawT();drawL()}
+function set(o){S=Object.assign({},BASE,o);sync();render()}
+PRE.forEach(function(p){var b=document.createElement('button');b.className='btn';b.textContent=p.n;b.onclick=function(){set(p.o)};$('pre').appendChild(b)});
+KEYS.forEach(function(k){$(k).oninput=function(){S[k]=+this.value;render()}});
+Quiz([
+ {q:'La presión neta de filtración sube de 2 a 6 mmHg (la filtración se triplica). ¿Aparece edema?',o:['Sí, de inmediato','No: sube Pi, aumenta el drenaje y se lavan proteínas hasta un nuevo equilibrio','Solo si el linfático está obstruido'],a:1,ap:function(){set(PRE[1].o)},e:function(){var e=eq(S);return 'El equilibrio queda con Pi '+sgn(e.q.pi,1)+' mmHg, πi '+fmt(e.q.pio,1)+' mmHg y volumen extra '+fmt(e.v,2)+': compensado.'}},
+ {q:'Obstruyes el 90 % del drenaje linfático con filtración normal. ¿Qué pasa con las proteínas del intersticio?',o:['Se lavan más rápido','Se acumulan, sube πi y aumenta la filtración','No cambian porque la filtración es normal'],a:1,ap:function(){set(PRE[3].o)},e:function(){var e=eq(S);return 'πi sube a '+fmt(e.q.pio,1)+' mmHg y el intersticio queda con Pi '+sgn(e.q.pi,1)+' mmHg y '+fmt(e.v,1)+' unidades extra: linfedema, rico en proteína.'}},
+ {q:'Un paciente con edema corrige la causa y su filtración vuelve a lo normal. ¿Qué hace el intersticio?',o:['Se queda igual: el edema es permanente','Se vacía, porque con Pi alta el drenaje supera la entrada','Se llena más'],a:1,ap:function(){set(PRE[5].o)},e:function(){var d=run(S);return 'Pasa de '+fmt(d[0].v,1)+' a '+fmt(d[d.length-1].v,2)+' unidades en 48 h: el drenaje alto supera a la filtración frenada.'}}]);
+render();onRedraw(function(){drawT();drawL()});
+})();
+</script>
+</body></html>

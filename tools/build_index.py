@@ -14,8 +14,8 @@ mods = sorted(glob.glob(os.path.join(root, 'modulos', '*.html')))
 G = [
     ('F', 'Fundamentos', 'La célula, la conducción y el circuito: la base de todo lo demás.', ['09', '07', '08']),
     ('A', 'Electrocardiograma', 'Del vector al trazo: deduce cada onda, intervalo y patrón.', ['01', '02', '03', '04', '05']),
-    ('B', 'Hemodinamia', 'La bomba, los vasos y las presiones, del ciclo cardiaco al cateterismo.', ['06', '10', '11', '12', '14', '16', '17', '19', '22', '23']),
-    ('D', 'Regulación y circulaciones regionales', 'Reflejos y órganos en paralelo: cómo se reparte el gasto.', ['21', '13', '20', '15', '18']),
+    ('B', 'Hemodinamia', 'La bomba, los vasos y las presiones, del ciclo cardiaco al cateterismo.', ['06', '10', '11', '12', '28', '14', '16', '17', '19', '22', '25', '26', '23']),
+    ('D', 'Regulación y circulaciones regionales', 'Reflejos y órganos en paralelo: cómo se reparte el gasto.', ['27', '21', '13', '20', '15', '18']),
     ('E', 'Integración fisiológica', 'Un solo estado compartido para tejido, señal, contracción, circulación, control y medición.', ['24']),
 ]
 
