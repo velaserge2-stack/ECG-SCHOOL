@@ -2,7 +2,7 @@
 
 Plataforma interactiva para **entender** el corazón (ECG y hemodinamia como un solo sistema), alineada con los objetivos de la Unidad 6 "Sistema cardiovascular" de la guía de Fisiología como referencia. Sin aval institucional.
 
-**Todo en uno:** abre [`index.html`](index.html). Reúne los 23 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia y Regulación). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
+**Todo en uno:** abre [`index.html`](index.html). Abre con una página de inicio (presentación, cómo se aprende, las perillas y el mapa de módulos) y reúne los 23 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia y Regulación). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
 
 Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 
