@@ -1,0 +1,1327 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Banco Cardio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: una columna de estudio (máx 860px) con barra de pestañas; el trazo ECG es la pieza visual principal, sobre papel milimetrado. */
+:root{
+  --bg:#F1F4F4; --surface:#FFFFFF; --ink:#16211F; --muted:#586966; --line:#D5DEDC;
+  --accent:#0A7C76; --accent-soft:rgba(10,124,118,.14); --ok:#2A7A35; --ok-soft:rgba(42,122,53,.12); --bad:#B3261E; --bad-soft:rgba(179,38,30,.10);
+  --paper:#fffafb; --grid1:#f4d3d8; --grid2:#e39aa6; --trace:#14161a;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1514; --surface:#142120; --ink:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --accent:#3FD0C6; --accent-soft:rgba(63,208,198,.16); --ok:#6FD07C; --ok-soft:rgba(111,208,124,.14); --bad:#FF8A80; --bad-soft:rgba(255,138,128,.14);
+  --paper:#142120; --grid1:rgba(255,125,135,.12); --grid2:rgba(255,125,135,.30); --trace:#f3f4f6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --surface:#142120; --ink:#E5EFEC; --muted:#98ADA8; --line:#2A3C39;
+  --accent:#3FD0C6; --accent-soft:rgba(63,208,198,.16); --ok:#6FD07C; --ok-soft:rgba(111,208,124,.14); --bad:#FF8A80; --bad-soft:rgba(255,138,128,.14);
+  --paper:#142120; --grid1:rgba(255,125,135,.12); --grid2:rgba(255,125,135,.30); --trace:#f3f4f6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body);margin:0}
+.wrap{max-width:860px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+.wrap>*{min-width:0}
+header{display:grid;gap:6px}
+.eyebrow{font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 clamp(30px,6vw,44px)/1.05 var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px;font:13px var(--f-mono);color:var(--muted)}
+.stats span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--surface)}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding-top:6px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+nav.tabs a{font:600 15px var(--f-body);color:var(--muted);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;margin-bottom:-1px}
+nav.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--accent)}
+nav.tabs a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+select,button,.chk{font:inherit;font-size:15px;color:var(--ink)}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
+button{cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 14px}
+button:hover{border-color:var(--muted)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+:root[data-theme="dark"] button.primary{color:#1a0b0f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.primary{color:#1a0b0f}}
+button:disabled{opacity:.45;cursor:default}
+[hidden]{display:none!important}
+.opt:disabled{opacity:1;cursor:default}
+.opt:disabled:not(.right):not(.wrong){opacity:.6}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;border-radius:0;padding:7px 12px}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.chk{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.progress{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:13px var(--f-mono);color:var(--muted)}
+.meter{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:16px}
+.card>*{min-width:0}
+.qmeta{display:flex;flex-wrap:wrap;gap:8px;font:12px var(--f-mono);color:var(--muted);align-items:center}
+.pill{border-radius:999px;padding:2px 9px;background:var(--bg);border:1px solid var(--line)}
+.lvl1{color:var(--ok)}.lvl2{color:#b07a00}.lvl3{color:var(--bad)}
+:root[data-theme="dark"] .lvl2{color:#e7b84a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .lvl2{color:#e7b84a}}
+.stem{font-size:18.5px;line-height:1.5;margin:0;max-width:68ch}
+.ecg{overflow-x:auto;border:1px solid var(--grid2);border-radius:6px;background:var(--paper)}
+.ecg svg{display:block;width:100%;min-width:560px;height:auto}
+.ecg .g1{stroke:var(--grid1);stroke-width:.12;fill:none}
+.ecg .g2{stroke:var(--grid2);stroke-width:.25;fill:none}
+.ecg .tr{stroke:var(--trace);stroke-width:.42;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.ecg text{fill:var(--trace);font:600 3.2px var(--f-mono)}
+.opts{display:grid;gap:8px;list-style:none;margin:0;padding:0}
+.opt{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;text-align:left;width:100%;padding:11px 14px;border-radius:10px;font-size:16.5px;line-height:1.4}
+.opt b{font:600 14px/1.6 var(--f-mono);color:var(--muted)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.right b,.opt.wrong b{color:inherit}
+.teach{border-radius:10px;padding:14px 16px;display:grid;gap:6px;border:1px solid var(--line);background:var(--bg)}
+.teach.ok{border-color:var(--ok)}
+.teach.bad{border-color:var(--bad)}
+.verdict{font:700 16px var(--f-display)}
+.teach.ok .verdict{color:var(--ok)}.teach.bad .verdict{color:var(--bad)}
+.teach h4{margin:0;font:600 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.teach p{margin:0;max-width:68ch}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hint{font:13px var(--f-mono);color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:30px}
+/* simulacro */
+.result-head{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap}
+.big{font:700 54px/1 var(--f-display)}
+table.mini{border-collapse:collapse;width:100%;font-size:15px}
+table.mini td,table.mini th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+table.mini td.n{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.review{display:grid;gap:14px}
+details.rv{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 14px}
+details.rv summary{cursor:pointer;display:flex;gap:10px;align-items:baseline}
+details.rv summary .mk{font:700 14px var(--f-mono)}
+details.rv[open]{display:grid;gap:12px}
+.mk.ok{color:var(--ok)}.mk.bad{color:var(--bad)}
+/* flashcards */
+.flash{perspective:1200px}
+.fc{position:relative;min-height:240px;cursor:pointer;transform-style:preserve-3d;transition:transform .45s ease}
+.fc.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;border:1px solid var(--line);background:var(--surface);display:grid;place-content:center;padding:28px;text-align:center;gap:10px}
+.face.back{transform:rotateY(180deg);background:var(--paper);border-color:var(--grid2)}
+.face .cat{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.face .front-t{font:700 clamp(24px,5vw,34px)/1.15 var(--f-display);text-wrap:balance}
+.face .back-t{font-size:18.5px;line-height:1.5;max-width:56ch}
+.face .tap{font:12px var(--f-mono);color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.fgrid div{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 14px;display:grid;gap:4px}
+.fgrid b{font-family:var(--f-display);font-size:16px}
+.fgrid span{font-size:15px;color:var(--muted)}
+details.navq{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 14px}
+details.navq summary{cursor:pointer;font-weight:600}
+details.navq[open]{display:grid;gap:10px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px;max-height:300px;overflow:auto;padding:2px}
+.qgrid button{font:600 13px var(--f-mono);padding:6px 0;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;min-height:34px}
+.qgrid button.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.qgrid button.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.qgrid button[aria-current="true"]{outline:2px solid var(--accent);outline-offset:1px}
+.qk{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);background:var(--bg);vertical-align:-1px}
+.qk.ok{background:var(--ok-soft);border-color:var(--ok)}.qk.bad{background:var(--bad-soft);border-color:var(--bad)}.qk.cur{outline:2px solid var(--accent)}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){.fc{transition:none}}
+@media (max-width:520px){.card{padding:16px}.stem{font-size:17px}nav.tabs a{padding:10px 10px}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Banco de preguntas · Unidad 6 · fisiología cardiovascular</div>
+    <h1>Banco Cardio</h1>
+    <p class="sub">Preguntas en el estilo de tu examen, con trazos de ECG para leer, y tarjetas con los valores que más se preguntan. Cada respuesta trae su enseñanza, aciertes o no.</p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <nav class="tabs" aria-label="Secciones">
+    <a href="#practica" data-v="practica">Práctica</a>
+    <a href="#simulacro" data-v="simulacro">Simulacro</a>
+    <a href="#flashcards" data-v="flashcards">Flashcards</a>
+  </nav>
+
+  <!-- PRÁCTICA -->
+  <section id="v-practica" class="wrap" style="padding:0;max-width:none">
+    <div class="bar">
+      <select id="p-tema" aria-label="Tema"></select>
+      <div class="seg" id="p-lvl" role="group" aria-label="Dificultad">
+        <button data-l="0" aria-pressed="true">Todas</button><button data-l="1" aria-pressed="false">Fácil</button><button data-l="2" aria-pressed="false">Media</button><button data-l="3" aria-pressed="false">Difícil</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="p-ecg"> Sólo con trazo</label>
+      <label class="chk"><input type="checkbox" id="p-fail"> Sólo falladas</label>
+      <button id="p-shuf">Barajar</button>
+    </div>
+    <div>
+      <div class="progress"><span id="p-pos"></span><span id="p-score"></span></div>
+      <div class="meter"><i id="p-meter"></i></div>
+    </div>
+    <details class="navq" id="p-navq"><summary>Ver todas las preguntas · ir a una en concreto</summary>
+      <div class="bar"><label>Ir a la pregunta n.º <input type="number" id="p-goto" min="1" inputmode="numeric" style="width:6em"></label><button id="p-go">Ir</button><span id="p-go-msg" class="hint"></span></div>
+      <div class="qgrid" id="p-grid" role="list"></div>
+      <div class="hint"><span class="qk"></span> sin responder · <span class="qk ok"></span> acertada · <span class="qk bad"></span> fallada · <span class="qk cur"></span> actual. Se muestran las del filtro activo.</div>
+    </details>
+    <div id="p-card"></div>
+    <div class="nav">
+      <button id="p-prev">← Anterior</button>
+      <span class="hint">Teclas: A–E para responder · → siguiente</span>
+      <button id="p-next" class="primary">Siguiente →</button>
+    </div>
+    <div class="bar"><button id="p-reset">Borrar mi historial de respuestas</button><span id="p-reset-msg" class="hint"></span></div>
+  </section>
+
+  <!-- SIMULACRO -->
+  <section id="v-simulacro" hidden>
+    <div id="s-setup" class="card">
+      <div class="verdict" style="font-size:22px">Simulacro de examen</div>
+      <p style="margin:0;color:var(--muted)">Preguntas al azar sin retroalimentación hasta el final. Al terminar verás tu calificación por tema y la enseñanza de cada pregunta.</p>
+      <div class="bar">
+        <label>Preguntas <select id="s-n"><option>10</option><option selected>20</option><option>40</option><option>60</option></select></label>
+        <label>Tema <select id="s-tema"></select></label>
+        <label>Nivel <select id="s-lvl"><option value="0">Mezclado</option><option value="1">Fácil</option><option value="2">Media</option><option value="3">Difícil</option></select></label>
+      </div>
+      <div><button class="primary" id="s-start">Empezar simulacro</button></div>
+    </div>
+    <div id="s-run" hidden style="display:grid;gap:16px">
+      <div class="progress"><span id="s-pos"></span><span id="s-time"></span></div>
+      <div class="meter"><i id="s-meter"></i></div>
+      <div id="s-card"></div>
+      <div class="nav"><button id="s-prev">← Anterior</button><button id="s-next" class="primary">Siguiente →</button></div>
+      <div class="bar"><button id="s-end">Terminar y calificar</button><span id="s-end-msg" class="hint"></span></div>
+    </div>
+    <div id="s-res" hidden style="display:grid;gap:16px"></div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="v-flashcards" hidden style="display:grid;gap:16px">
+    <div class="bar">
+      <select id="f-cat" aria-label="Categoría"></select>
+      <div class="seg" id="f-mode" role="group" aria-label="Vista">
+        <button data-m="card" aria-pressed="true">Tarjetas</button><button data-m="list" aria-pressed="false">Lista</button>
+      </div>
+      <button id="f-shuf">Barajar</button>
+    </div>
+    <div id="f-cardview" style="display:grid;gap:14px">
+      <div class="progress"><span id="f-pos"></span><span id="f-known"></span></div>
+      <div class="flash"><div class="fc" id="fc" tabindex="0" role="button" aria-label="Voltear tarjeta">
+        <div class="face front"><div class="cat" id="fc-cat"></div><div class="front-t" id="fc-front"></div><div class="tap">Toca para voltear</div></div>
+        <div class="face back"><div class="cat" id="fc-cat2"></div><div class="back-t" id="fc-back"></div></div>
+      </div></div>
+      <div class="nav"><button id="f-prev">← Anterior</button><button id="f-again">Repasar otra vez</button><button id="f-know" class="primary">La sé →</button></div>
+    </div>
+    <div id="f-listview" class="fgrid" hidden></div>
+  </section>
+
+  <footer>Material de estudio para la Unidad 6; no sirve para tomar decisiones clínicas. Los trazos son esquemáticos, generados por código para practicar la lectura (frecuencia, intervalos, morfología), no registros reales. Los valores marcados VERIFICAR pueden variar según el libro de tu curso. Tu avance se guarda sólo en este navegador.</footer>
+</div>
+
+<script>
+const QS=[],FS=[];
+function Q(t,d,q,o,e,s){QS.push({id:QS.length,t,d,q,o,e,s})}
+function F(c,f,b){FS.push({id:FS.length,c,f,b})}
+// Formato: Q(tema, dificultad 1-3, enunciado, [correcta, distractor...], explicación, trazo?)
+// La opción correcta va siempre primero aquí; la página baraja las opciones.
+
+// ── EC · Electrofisiología celular ─────────────────────────
+Q('EC',1,'En el miocito ventricular, la fase 0 del potencial de acción se debe a:',
+ ['Entrada rápida de Na⁺ por canales dependientes de voltaje','Entrada de Ca²⁺ por canales tipo L','Salida de K⁺ por canales rectificadores tardíos','Entrada de cationes por canales funny (If)'],
+ 'En el músculo de trabajo (aurícula, ventrículo, Purkinje) la subida brusca la producen los canales rápidos de Na⁺. Los canales L sostienen la meseta, el K⁺ repolariza y la If sólo existe en tejido marcapaso.');
+Q('EC',1,'Mujer de 30 años con taquicardia sinusal por ansiedad. Para entender el efecto de un bloqueador de canales de calcio sobre el nodo sinusal, recuerde que la fase 0 de las células marcapaso se debe a:',
+ ['Canales lentos de calcio (tipo L)','Canales rápidos de sodio','Canales de fuga de potasio','Canales funny de cationes'],
+ 'En el nodo SA los canales rápidos de Na⁺ están inactivados porque la membrana nunca baja de ≈ −60 mV; la despolarización la hace la corriente lenta de Ca²⁺ tipo L. Los funny generan la fase 4, no la fase 0. Trampa clásica: elegir “rápidos de sodio” por memoria del miocito.');
+Q('EC',1,'La meseta (fase 2) del potencial de acción ventricular se mantiene porque:',
+ ['La entrada de Ca²⁺ por canales tipo L se equilibra con la salida de K⁺','Los canales rápidos de Na⁺ permanecen abiertos','La bomba Na⁺/K⁺ deja de funcionar','Se cierran todos los canales de K⁺'],
+ 'Durante la meseta entra Ca²⁺ (L) y sale K⁺; como las corrientes se compensan, el voltaje se queda casi plano 0.2–0.3 s. Los canales de Na⁺ ya se inactivaron al final de la fase 0.');
+Q('EC',2,'La corriente funny (If) de las células del nodo sinoauricular se caracteriza por:',
+ ['Ser una corriente catiónica entrante que se activa con la hiperpolarización','Activarse con la despolarización a −40 mV','Ser una corriente saliente de K⁺','Ser bloqueada por tetrodotoxina como los canales de Na⁺ rápidos'],
+ 'Es “curiosa” porque se abre al final de la repolarización, cuando la membrana se hace más negativa. Deja entrar sobre todo Na⁺ y genera la rampa de la fase 4 (potencial de marcapaso).');
+Q('EC',1,'El potencial de membrana en reposo de un miocito ventricular es aproximadamente:',
+ ['−90 mV','−60 mV','−40 mV','+20 mV'],
+ 'El miocito de trabajo tiene muchos canales de K⁺ (IK1) abiertos en reposo y queda cerca del equilibrio del K⁺. −60 mV es el potencial diastólico máximo del nodo SA.');
+Q('EC',2,'El nodo SA no tiene un potencial de reposo estable porque:',
+ ['En fase 4 entra una corriente catiónica que lo despolariza poco a poco','Carece de bomba Na⁺/K⁺','Sus canales rápidos de Na⁺ están siempre abiertos','No posee canales de K⁺'],
+ 'La If (más la entrada de Ca²⁺ tipo T al final) sube el voltaje lentamente hasta el umbral de los canales L. Ese es el automatismo.');
+Q('EC',2,'Los canales de Ca²⁺ tipo T contribuyen al automatismo porque:',
+ ['Se abren a potenciales más negativos que los tipo L y completan la última parte de la fase 4','Generan la meseta del miocito ventricular','Son responsables de la repolarización del nodo SA','Se activan sólo con estimulación vagal'],
+ 'Los tipo T (transitorios) tienen umbral bajo: aportan el empujón final de la rampa para alcanzar el umbral de los tipo L, que dan la fase 0.');
+Q('EC',1,'El nodo sinoauricular es el marcapasos normal del corazón porque:',
+ ['Su fase 4 tiene la pendiente más rápida, así que llega primero al umbral','Es el único tejido con automatismo','Tiene el potencial de reposo más negativo','Recibe la mayor inervación simpática'],
+ 'Nodo AV y Purkinje también tienen automatismo, pero más lento. El SA dispara primero y deja a los demás en periodo refractario o suprimidos.');
+Q('EC',2,'Si el nodo SA deja de funcionar y el nodo AV toma el mando, la frecuencia esperada es de:',
+ ['40–60 latidos por minuto','70–80 latidos por minuto','15–40 latidos por minuto','100–120 latidos por minuto'],
+ 'Frecuencias intrínsecas (Guyton): SA 70–80, nodo AV 40–60, Purkinje 15–40. Escape de la unión ≈ 40–60.');
+Q('EC',3,'La supresión por sobreestimulación (overdrive suppression) de los marcapasos latentes se explica porque:',
+ ['Al dispararlos a mayor frecuencia, aumenta la actividad de la bomba Na⁺/K⁺ y se hiperpolarizan','El nodo SA libera acetilcolina sobre ellos','Sus canales funny se destruyen','El vago inerva sólo a los marcapasos latentes'],
+ 'Cada latido mete Na⁺; a más latidos, más trabaja la bomba (electrogénica, saca 3 Na⁺ por 2 K⁺) y la membrana queda más negativa. Por eso tras un paro sinusal el escape tarda unos segundos en aparecer.');
+Q('EC',1,'El periodo refractario largo del músculo cardíaco tiene como consecuencia principal que:',
+ ['El corazón no puede tetanizarse','La contracción dure menos que el potencial de acción','El corazón no responde a la estimulación simpática','La conducción sea más rápida'],
+ 'El potencial de acción dura casi tanto como la contracción; no se pueden sumar sacudidas, así que el corazón siempre se relaja y se vuelve a llenar.');
+Q('EC',2,'Durante el periodo refractario absoluto del miocito ventricular, ningún estímulo genera otro potencial porque:',
+ ['Los canales rápidos de Na⁺ están inactivados (compuerta h cerrada)','La bomba Na⁺/K⁺ está detenida','No hay Ca²⁺ en el retículo sarcoplásmico','Los canales de K⁺ están cerrados'],
+ 'Los canales de Na⁺ necesitan repolarizarse para salir de la inactivación. Hasta entonces la célula es inexcitable.');
+Q('EC',1,'En el acoplamiento excitación–contracción, el Ca²⁺ citosólico inicia la contracción al:',
+ ['Unirse a la troponina C y desplazar a la tropomiosina de los sitios de unión de la actina','Unirse directamente a la miosina','Fosforilar la cadena ligera de miosina','Abrir los canales de Na⁺ del sarcolema'],
+ 'Troponina C + Ca²⁺ → cambio conformacional → la tropomiosina descubre la actina y se forman puentes cruzados. La fosforilación de la cadena ligera es el mecanismo del músculo liso.');
+Q('EC',2,'En el miocito cardíaco, la liberación de Ca²⁺ del retículo sarcoplásmico se produce porque:',
+ ['El Ca²⁺ que entra por canales L de los túbulos T activa los receptores de rianodina (liberación de Ca²⁺ inducida por Ca²⁺)','El receptor de dihidropiridina empuja mecánicamente al receptor de rianodina, sin necesidad de Ca²⁺ externo','La acetilcolina abre los receptores de rianodina','El Na⁺ que entra en fase 0 abre el retículo'],
+ 'El acople mecánico directo es del músculo esquelético. En el corazón el Ca²⁺ que entra es el disparador; la mayor parte del Ca²⁺ de la contracción sale después del retículo. Ojo: tus notas dicen que “no viene del retículo”; lo correcto es que la entrada externa es el gatillo y por eso la fuerza depende del Ca²⁺ extracelular.');
+Q('EC',3,'Un músculo papilar aislado se estimula eléctricamente en una solución sin Ca²⁺. Lo más probable es que:',
+ ['Siga generando potenciales de acción, pero su fuerza caiga hasta desaparecer','Deje de generar potenciales de acción de inmediato','Aumente su fuerza por falta de competencia con el Na⁺','Se contraiga en tétanos'],
+ 'La fase 0 del músculo de trabajo depende de Na⁺, así que el potencial persiste; sin Ca²⁺ externo no hay gatillo para el retículo y la contracción se apaga (desacoplamiento). Diferencia clave con el esquelético.');
+Q('EC',2,'La principal vía para retirar el Ca²⁺ del citosol durante la relajación del miocito es:',
+ ['La bomba SERCA del retículo sarcoplásmico','El canal de Ca²⁺ tipo L','El receptor de rianodina','La troponina I'],
+ 'SERCA recaptura la mayor parte; el intercambiador Na⁺/Ca²⁺ (NCX) saca el resto al exterior.');
+Q('EC',3,'La digital (digoxina) aumenta la fuerza de contracción porque:',
+ ['Inhibe la bomba Na⁺/K⁺, sube el Na⁺ intracelular y el intercambiador Na⁺/Ca²⁺ saca menos Ca²⁺','Abre los canales de Ca²⁺ tipo L','Estimula los receptores β1','Aumenta la sensibilidad de la troponina al Ca²⁺ sin cambiar el Ca²⁺ intracelular'],
+ 'Con menos gradiente de Na⁺, el NCX pierde fuerza para expulsar Ca²⁺; queda más Ca²⁺ para el retículo y la siguiente contracción es más fuerte. También enlentece el nodo AV (efecto vagal).');
+Q('EC',2,'Los discos intercalados permiten que el miocardio funcione como sincitio porque contienen:',
+ ['Uniones comunicantes (gap) de baja resistencia eléctrica','Túbulos T','Receptores de rianodina','Canales funny'],
+ 'Las uniones gap dejan pasar iones de célula a célula; el potencial se propaga como si fuera una sola célula (sincitio auricular y ventricular, separados por el esqueleto fibroso).');
+
+// ── CA · Conducción y control autonómico ───────────────────
+Q('CA',1,'La estructura con la velocidad de conducción más lenta del sistema de conducción es:',
+ ['El nodo AV','El haz de His','Las fibras de Purkinje','El músculo auricular'],
+ 'Nodo AV ≈ 0.01–0.05 m/s; Purkinje 1.5–4 m/s. La lentitud del nodo AV produce el retraso fisiológico (segmento PR).');
+Q('CA',1,'Las fibras con la mayor velocidad de conducción del corazón son:',
+ ['Las fibras de Purkinje','Las del nodo SA','Las del nodo AV','Las del músculo ventricular'],
+ 'Purkinje son fibras grandes con muchas uniones gap; reparten el impulso a todo el ventrículo casi a la vez.');
+Q('CA',2,'La función del retraso en el nodo AV es:',
+ ['Dar tiempo a que las aurículas vacíen su sangre en los ventrículos antes de la sístole ventricular','Proteger al nodo SA de la estimulación retrógrada','Permitir que la repolarización auricular aparezca en el ECG','Aumentar la fuerza de la contracción auricular'],
+ 'Primero se contraen las aurículas (completan el llenado) y luego los ventrículos. Sin el retraso se contraerían a la vez.');
+Q('CA',2,'Según Guyton, el impulso originado en el nodo SA llega al nodo AV aproximadamente a los:',
+ ['0.03 s','0.16 s','0.30 s','0.003 s'],
+ 'Llega al nodo AV a los 0.03 s, se retrasa ≈ 0.13 s en nodo AV y haz penetrante, y alcanza los ventrículos a los ≈ 0.16 s. Tus notas: “0.03 segundos ya está esta parte despolarizada”.');
+Q('CA',2,'En condiciones normales, la única vía eléctrica entre aurículas y ventrículos es el nodo AV y el haz de His porque:',
+ ['El esqueleto fibroso separa ambos sincitios y no es excitable','Las aurículas no tienen uniones gap','El nodo SA sólo conecta con el haz de His','Los ventrículos están aislados por el pericardio'],
+ 'El anillo fibroso es tejido no excitable. Si existe una vía accesoria que lo cruza (haz de Kent) aparece la preexcitación de Wolff-Parkinson-White.');
+Q('CA',3,'¿Cuál NO explica la lentitud de la conducción en el nodo AV?',
+ ['Que sus células tengan abundantes canales rápidos de Na⁺','Que sus fibras sean pequeñas','Que tengan pocas uniones gap','Que su fase 0 dependa de canales lentos de Ca²⁺'],
+ 'El nodo AV tiene fase 0 dependiente de Ca²⁺ (lenta), fibras finas y pocas uniones gap. Tus notas lo relacionan con Fick: menos área de paso, menos velocidad.');
+Q('CA',1,'El término “efecto dromotrópico” se refiere a cambios en:',
+ ['La velocidad de conducción, sobre todo en el nodo AV','La frecuencia cardíaca','La fuerza de contracción','La velocidad de relajación'],
+ 'Crono = frecuencia; ino = fuerza; dromo = conducción; lusi = relajación; batmo = excitabilidad.');
+Q('CA',1,'El efecto lusitrópico positivo del simpático significa que:',
+ ['El ventrículo se relaja más rápido','El ventrículo se contrae con más fuerza','El nodo AV conduce más rápido','La frecuencia aumenta'],
+ 'Se debe a la fosforilación del fosfolambán (más SERCA) y de la troponina I: el Ca²⁺ se retira antes.');
+Q('CA',1,'Paciente con taquicardia de 180 lpm; el médico realiza masaje del seno carotídeo y la frecuencia baja. La vía aferente de este reflejo viaja por:',
+ ['El nervio glosofaríngeo (nervio de Hering)','El nervio vago','El nervio frénico','La cadena simpática cervical'],
+ 'Barorreceptores del seno carotídeo → nervio de Hering → IX → núcleo del tracto solitario → aumento de la descarga vagal. Los barorreceptores del arco aórtico viajan por el vago. Distractor del examen: cuerpo carotídeo = quimiorreceptor, no barorreceptor.');
+Q('CA',2,'El masaje carotídeo disminuye la frecuencia cardíaca porque:',
+ ['El aumento de presión percibido por los barorreceptores aumenta el tono parasimpático','Estimula los quimiorreceptores del cuerpo carotídeo','Comprime la arteria y reduce el flujo cerebral','Bloquea la cadena simpática cervical'],
+ 'Es el reflejo barorreceptor: el cerebro “cree” que la presión subió, frena el simpático y activa el vago. Enlentece el nodo SA y, sobre todo, el nodo AV.');
+Q('CA',2,'Los quimiorreceptores periféricos (cuerpos carotídeo y aórtico) responden principalmente a:',
+ ['Disminución de la PO₂ arterial','Aumento de la presión arterial','Aumento del volumen auricular','Disminución de la temperatura'],
+ 'Los periféricos detectan sobre todo ↓O₂ (y también ↑CO₂ y ↑H⁺); los centrales del bulbo responden al CO₂/H⁺ del líquido cefalorraquídeo.');
+Q('CA',2,'Los barorreceptores carotídeos tienen su máxima sensibilidad (mayor cambio de descarga por mmHg) alrededor de:',
+ ['La presión arterial media normal, ≈ 100 mmHg','40 mmHg','200 mmHg','La presión venosa central'],
+ 'Su rango útil es ≈ 60–180 mmHg y la pendiente máxima está cerca de la presión normal: justo donde más importa amortiguar cambios.');
+Q('CA',3,'Los barorreceptores no sirven para controlar la presión arterial a largo plazo porque:',
+ ['Se reajustan a la nueva presión en 1 a 2 días','Dejan de enviar impulsos después de 1 minuto','Sólo detectan descensos de presión','Su vía aferente se fatiga'],
+ 'Si la presión se mantiene alta, la curva se desplaza y vuelven a descargar como “normal”. El control a largo plazo es renal (volumen).');
+Q('CA',2,'El aumento de la frecuencia cardíaca cuando se distiende la aurícula derecha por más volumen se conoce como:',
+ ['Reflejo de Bainbridge','Reflejo de Cushing','Reflejo de Bezold-Jarisch','Reflejo quimiorreceptor'],
+ 'Receptores de estiramiento auricular → vago aferente → ↑FC. Ayuda a evitar que la sangre se estanque en venas y aurículas.');
+Q('CA',2,'Una persona se pone de pie bruscamente. La respuesta refleja inmediata para sostener la presión es:',
+ ['Disminuye la descarga de los barorreceptores, aumenta el simpático: ↑FC y vasoconstricción','Aumenta la descarga de los barorreceptores y el tono vagal','Se activa el reflejo de Bainbridge y baja la FC','Se libera ADH en segundos y aumenta la volemia'],
+ 'La sangre se acumula en las piernas, baja el retorno venoso y la presión; los barorreceptores “ven” menos estiramiento y el bulbo libera el simpático.');
+Q('CA',3,'Un paciente con corazón trasplantado (denervado) logra aumentar su gasto cardíaco durante el ejercicio principalmente por:',
+ ['El mecanismo de Frank-Starling y las catecolaminas circulantes','La estimulación vagal directa','La reinervación simpática inmediata','La disminución de la precarga'],
+ 'Sin nervios, la bomba muscular aumenta el retorno venoso → más volumen telediastólico → más volumen latido (Starling); además la médula suprarrenal libera adrenalina. Está en tus notas como pregunta del profesor.');
+Q('CA',1,'Un betabloqueador administrado a un paciente con hipertensión produce sobre el corazón un efecto:',
+ ['Cronotrópico e inotrópico negativos','Cronotrópico e inotrópico positivos','Sólo lusitrópico positivo','Dromotrópico positivo'],
+ 'Bloquear β1 baja la frecuencia y la contractilidad (y enlentece el nodo AV). Por eso baja el consumo de O₂ del miocardio.');
+Q('CA',2,'La atropina aumenta la frecuencia cardíaca porque:',
+ ['Bloquea los receptores muscarínicos M2 del nodo SA','Estimula los receptores β1','Abre los canales funny directamente','Libera noradrenalina'],
+ 'Quita el freno vagal tónico. Por eso la FC sube por encima de la frecuencia en reposo.');
+Q('CA',2,'En el nodo SA, la acetilcolina disminuye la frecuencia porque:',
+ ['Abre canales de K⁺ (IK,ACh) y reduce la If: hiperpolariza y aplana la fase 4','Abre canales de Ca²⁺ tipo L','Bloquea la bomba Na⁺/K⁺','Inactiva los canales rápidos de Na⁺'],
+ 'Más K⁺ saliente = punto de partida más negativo; menos If = rampa más lenta. Las dos cosas alargan el tiempo hasta el umbral.');
+Q('CA',2,'La noradrenalina aumenta la frecuencia del nodo SA porque:',
+ ['Vía β1-AMPc aumenta la If y la corriente de Ca²⁺ tipo L, y la fase 4 se hace más empinada','Hiperpolariza la membrana','Bloquea los canales de K⁺ de fuga','Inhibe la bomba SERCA'],
+ 'Más AMPc abre más canales funny y facilita los L: la célula llega antes al umbral.');
+Q('CA',2,'La arritmia sinusal respiratoria normal consiste en que la frecuencia cardíaca:',
+ ['Aumenta en la inspiración y disminuye en la espiración','Aumenta en la espiración y disminuye en la inspiración','Es constante, pero el PR varía con la respiración','Aparece sólo en personas con cardiopatía'],
+ 'En la inspiración baja el tono vagal (y aumenta el retorno venoso). Es frecuente y fisiológica en jóvenes.');
+Q('CA',2,'La vasodilatación de origen nervioso en la mayoría de los vasos sistémicos se produce porque:',
+ ['Disminuye el tono simpático vasoconstrictor','Aumenta la descarga parasimpática sobre las arteriolas','Se liberan catecolaminas en la pared del vaso','Se activan los barorreceptores venosos'],
+ 'Casi todos los vasos sólo reciben inervación simpática. Para dilatar, el centro vasomotor “suelta” el simpático. Lo dicen tus notas: no hay inervación parasimpática vascular, sólo se inhibe la simpática.');
+Q('CA',3,'Aumento de la presión intracraneal con hipertensión arterial y bradicardia. Este conjunto se explica por:',
+ ['El reflejo de Cushing: isquemia del bulbo → simpático intenso; la hipertensión activa los barorreceptores y baja la FC','El reflejo de Bainbridge','Un bloqueo AV completo','La respuesta de los quimiorreceptores periféricos a la hipoxia'],
+ 'Si la presión del cráneo comprime las arterias cerebrales, el centro vasomotor isquémico dispara la presión para mantener el flujo. La bradicardia es la respuesta barorrefleja.');
+
+// ── EB · Bases del ECG ─────────────────────────────────────
+Q('EB',1,'La onda P del electrocardiograma representa:',
+ ['La despolarización de las aurículas','La repolarización de las aurículas','La despolarización del nodo SA','La conducción por el nodo AV'],
+ 'La despolarización del nodo SA es demasiado pequeña para verse; lo que vemos es la de toda la masa auricular.');
+Q('EB',1,'El complejo QRS representa:',
+ ['La despolarización ventricular','La repolarización ventricular','La contracción ventricular','La conducción por el haz de His'],
+ 'Es un evento eléctrico. La contracción (mecánica) empieza justo después.');
+Q('EB',1,'La onda T representa:',
+ ['La repolarización ventricular','La repolarización auricular','La despolarización tardía de Purkinje','La relajación isovolumétrica'],
+ 'La T es eléctrica. Coincide aproximadamente con el final de la eyección.');
+Q('EB',1,'La repolarización auricular normalmente no se ve en el ECG porque:',
+ ['Ocurre al mismo tiempo que el QRS y queda oculta por él','Es demasiado lenta','No genera diferencia de potencial','Sucede después de la onda T'],
+ 'La onda Ta coincide con la despolarización ventricular, que es mucho mayor.');
+Q('EB',1,'El intervalo PR normal en el adulto dura:',
+ ['0.12–0.20 s','0.06–0.10 s','0.20–0.30 s','0.35–0.44 s'],
+ 'Del inicio de la P al inicio del QRS: 3 a 5 cuadritos. Más de 0.20 s = bloqueo AV de primer grado; menos de 0.12 s sugiere preexcitación o ritmo de la unión.');
+Q('EB',1,'La duración normal del complejo QRS es:',
+ ['0.06–0.10 s (menos de 0.12 s)','0.12–0.20 s','0.20–0.30 s','Menos de 0.04 s'],
+ 'Un QRS de 0.12 s o más es ancho: bloqueo de rama, origen ventricular o preexcitación.');
+Q('EB',2,'Sobre el intervalo QT, es correcto que:',
+ ['Se acorta al aumentar la frecuencia cardíaca; por eso se corrige (QTc), con límite normal de ≈ 0.44 s','Es constante con cualquier frecuencia','Va del inicio de la P al final de la T','Es normal hasta 0.60 s'],
+ 'El QT (inicio del QRS a final de la T) refleja toda la sístole eléctrica ventricular. La fórmula de Bazett lo corrige por la FC. QTc largo predispone a arritmias.');
+Q('EB',1,'El segmento ST corresponde en la célula ventricular a:',
+ ['La meseta (fase 2), cuando todo el ventrículo está despolarizado','La fase 0','La fase 4','La repolarización rápida'],
+ 'Con todo el ventrículo despolarizado no hay diferencias de potencial: el ST es isoeléctrico. Si hay corriente de lesión, se desplaza.');
+Q('EB',1,'En un paciente con sospecha de isquemia aguda se valora el inicio del segmento ST respecto a la línea de base. Ese punto se llama:',
+ ['Punto J','Punto de transición','Punto isoeléctrico','Punto de inflexión ST'],
+ 'El punto J une el final del QRS con el inicio del ST. La elevación o depresión del ST se mide ahí (o 0.04–0.08 s después).');
+Q('EB',1,'En el ECG, la diferencia entre un segmento y un intervalo es que:',
+ ['El segmento es una línea entre ondas; el intervalo incluye al menos una onda más un segmento','Son sinónimos','El intervalo nunca incluye ondas','El segmento siempre incluye el QRS'],
+ 'Segmento PR = fin de P a inicio de QRS; intervalo PR = inicio de P a inicio de QRS (incluye la P).');
+Q('EB',1,'En papel de ECG estándar, un cuadro pequeño (1 mm) equivale a:',
+ ['0.04 s horizontal y 0.1 mV vertical','0.20 s horizontal y 0.5 mV vertical','0.02 s horizontal y 1 mV vertical','0.1 s horizontal y 0.04 mV vertical'],
+ 'A 25 mm/s, 1 mm = 1/25 s = 0.04 s. A 10 mm/mV, 1 mm = 0.1 mV.');
+Q('EB',1,'Un cuadro grande (5 mm) del papel de ECG estándar equivale a:',
+ ['0.20 s y 0.5 mV','0.04 s y 0.1 mV','1 s y 1 mV','0.5 s y 0.2 mV'],
+ 'Cinco cuadros grandes = 1 segundo. Dos cuadros grandes en vertical = 1 mV.');
+Q('EB',1,'La velocidad estándar del papel en un ECG es:',
+ ['25 mm/s','50 mm/s','10 mm/s','25 mm/mV'],
+ 'La velocidad se mide en mm/s y la sensibilidad en mm/mV. Mezclar las unidades es la trampa más común en las opciones.');
+Q('EB',1,'Para registrar un ECG estándar y medir el voltaje de la onda R en las 12 derivaciones, la sensibilidad se ajusta a:',
+ ['10 mm/mV (1 mV/cm)','1 mV/25 mm','10 mV/cm','25 mm/s'],
+ 'Sensibilidad estándar: 1 mV produce 10 mm (1 cm) de deflexión. “25 mm/s” es la velocidad del papel, no la sensibilidad.');
+Q('EB',2,'Observe la señal de calibración al inicio del trazo. La calibración empleada fue:',
+ ['Sensibilidad al doble (20 mm/mV)','Calibración estándar','Sensibilidad a la mitad (5 mm/mV)','Papel al doble de velocidad'],
+ 'El pulso de 1 mV mide 20 mm (4 cuadros grandes). Con calibración estándar mediría 10 mm. Si los complejos parecen enormes, mire primero el pulso de calibración.',
+ {r:'sinus',hr:72,gain:20,cal:1});
+Q('EB',2,'Observe la señal de calibración al inicio del trazo. La calibración empleada fue:',
+ ['Sensibilidad a la mitad (5 mm/mV)','Calibración estándar','Sensibilidad al doble','Papel a la mitad de velocidad'],
+ 'El pulso de 1 mV mide sólo 5 mm (1 cuadro grande). Se usa cuando los QRS son tan grandes que se salen del papel, p. ej. hipertrofia.',
+ {r:'sinus',hr:72,gain:5,cal:1});
+Q('EB',3,'Si un trazo se registró a 50 mm/s, un cuadro grande (5 mm) equivale a:',
+ ['0.10 s','0.20 s','0.40 s','0.04 s'],
+ 'A doble velocidad cada milímetro vale la mitad: 1/50 s = 0.02 s. Los complejos se ven más anchos y la FC parece la mitad si aplica la regla de 300 sin corregir.');
+Q('EB',1,'En la nomenclatura del complejo ventricular, la onda Q es:',
+ ['La primera deflexión negativa antes de la primera onda positiva','Cualquier deflexión negativa del complejo','La deflexión negativa después de la R','La segunda deflexión positiva'],
+ 'Q = negativa antes de R; R = primera positiva; S = negativa después de R; R′ = segunda positiva. Si todo el complejo es negativo se llama QS.');
+Q('EB',2,'Un complejo con una pequeña onda positiva, luego una negativa y luego una positiva mayor se nombra:',
+ ['rSR′','qRs','RS','QS'],
+ 'Minúsculas para ondas pequeñas, mayúsculas para grandes. Es el patrón típico de V1 en el bloqueo de rama derecha (“orejas de conejo”).');
+Q('EB',1,'Cuando un frente de despolarización avanza hacia el electrodo explorador (positivo), el registro muestra:',
+ ['Una deflexión positiva','Una deflexión negativa','Una línea isoeléctrica','Una deflexión bifásica siempre'],
+ 'Acercándose = positiva; alejándose = negativa; perpendicular = isodifásica (o casi plana).');
+Q('EB',3,'La onda T normal es positiva en las mismas derivaciones que el QRS, aunque la repolarización tiene signo eléctrico opuesto, porque:',
+ ['La repolarización va del epicardio al endocardio, en sentido contrario a la despolarización','La repolarización va del endocardio al epicardio, igual que la despolarización','La T la genera la aurícula','El electrodo invierte la polaridad en la sístole'],
+ 'El epicardio tiene potenciales de acción más cortos y se repolariza primero. Una onda de signo opuesto viajando en sentido opuesto se registra con la misma polaridad.');
+Q('EB',1,'En la derivación DI de Einthoven:',
+ ['El electrodo negativo está en el brazo derecho y el positivo en el brazo izquierdo','El negativo está en el brazo izquierdo y el positivo en la pierna izquierda','El negativo está en el brazo derecho y el positivo en la pierna izquierda','Es una derivación unipolar'],
+ 'DI: BD(−) → BI(+), 0°. DII: BD(−) → PI(+), +60°. DIII: BI(−) → PI(+), +120°.');
+Q('EB',1,'La derivación DII es útil para valorar el ritmo porque su electrodo explorador está en:',
+ ['La pierna izquierda','El brazo derecho','El brazo izquierdo','La pierna derecha'],
+ 'En DII el vector auricular normal (de arriba-derecha hacia abajo-izquierda) apunta al electrodo de la pierna izquierda: P grandes y positivas. Trampa: el brazo derecho es el electrodo de referencia (negativo), no el explorador.');
+Q('EB',1,'El electrodo de la pierna derecha en el ECG funciona como:',
+ ['Tierra (neutro) para reducir interferencia','Electrodo explorador de DIII','Polo positivo de aVF','Referencia de las precordiales'],
+ 'No forma parte de ninguna derivación; sólo estabiliza el registro.');
+Q('EB',2,'Según la ley de Einthoven, si la onda R mide 0.5 mV en DI y 0.7 mV en DIII, en DII medirá:',
+ ['1.2 mV','0.2 mV','0.35 mV','0.6 mV'],
+ 'DII = DI + DIII en cualquier instante. Sirve para detectar electrodos mal colocados.');
+Q('EB',2,'En el sistema hexaxial, la orientación de la derivación aVF es:',
+ ['+90°','0°','−30°','−150°'],
+ 'DI 0°, DII +60°, aVF +90°, DIII +120°, aVL −30°, aVR −150°.');
+Q('EB',2,'Las derivaciones aVR, aVL y aVF se llaman “aumentadas” porque:',
+ ['El método de Goldberger aumenta su amplitud ≈ 50% respecto a la unipolar sin aumentar','Usan doble sensibilidad','Se registran a doble velocidad','Tienen tres electrodos exploradores'],
+ 'Comparan un miembro contra el promedio de los otros dos, lo que agranda la señal un 50%. Son unipolares de miembros.');
+Q('EB',1,'El electrodo V1 se coloca en:',
+ ['El 4.º espacio intercostal, borde esternal derecho','El 4.º espacio intercostal, borde esternal izquierdo','El 5.º espacio intercostal, línea medioclavicular izquierda','El 2.º espacio intercostal derecho'],
+ 'V1 4.º EIC paraesternal derecho; V2 4.º EIC paraesternal izquierdo; V4 5.º EIC medioclavicular; V3 entre V2 y V4; V5 axilar anterior; V6 axilar media.');
+Q('EB',2,'En un ECG normal, la derivación aVR muestra:',
+ ['P, QRS y T negativas','P, QRS y T positivas','QRS positivo y T negativa','Sólo la onda P negativa'],
+ 'aVR mira desde arriba a la derecha; la activación normal se aleja de ella. Si P es positiva en aVR, piense en electrodos invertidos o en un ritmo no sinusal. Tus notas lo llaman la “mega confirmación”.');
+Q('EB',2,'En las derivaciones precordiales normales, la zona de transición (R ≈ S) suele estar en:',
+ ['V3–V4','V1','V6','aVL'],
+ 'La R crece de V1 a V5–V6 y la S disminuye. Una transición tardía puede indicar rotación o pérdida de fuerzas anteriores.');
+Q('EB',2,'En DII, el voltaje normal aproximado del QRS es de:',
+ ['1.0–1.5 mV','0.1–0.3 mV','3–5 mV','0.01 mV'],
+ 'Valores de Guyton: P 0.1–0.3 mV, QRS 1–1.5 mV, T 0.2–0.3 mV. Equivale a 10–15 mm con calibración estándar.');
+Q('EB',3,'Con calibración estándar, un QRS tiene una R de 8 mm y una S de 3 mm. El voltaje neto del complejo es:',
+ ['+0.5 mV','+1.1 mV','+0.8 mV','−0.3 mV'],
+ 'Neto = positivo − negativo = 8 − 3 = 5 mm; a 10 mm/mV, 0.5 mV. Así se calcula el eje con DI y aVF (tus notas: “a lo positivo le restas lo negativo”).');
+Q('EB',1,'Las derivaciones precordiales registran la actividad eléctrica en el plano:',
+ ['Horizontal (transversal)','Frontal','Sagital','Oblicuo'],
+ 'Las seis de miembros (DI, DII, DIII, aVR, aVL, aVF) están en el plano frontal.');
+
+// ── FR · Frecuencia y ritmo ────────────────────────────────
+Q('FR',1,'Con el papel a 25 mm/s, la frecuencia cardíaca regular puede calcularse como:',
+ ['300 entre el número de cuadros grandes entre dos R','300 entre el número de cuadros pequeños entre dos R','1500 entre el número de cuadros grandes entre dos R','60 entre el número de cuadros grandes'],
+ 'Hay 300 cuadros grandes en un minuto (5 por segundo × 60). Con cuadros pequeños se usa 1500. Secuencia rápida: 300-150-100-75-60-50.');
+Q('FR',1,'Si entre dos ondas R hay 20 cuadros pequeños (papel estándar), la frecuencia es:',
+ ['75 lpm','60 lpm','100 lpm','150 lpm'],
+ '1500 / 20 = 75. Es lo mismo que 4 cuadros grandes: 300 / 4 = 75.');
+Q('FR',1,'Calcule la frecuencia cardíaca en esta tira de DII (25 mm/s):',
+ ['75 lpm','60 lpm','100 lpm','150 lpm'],
+ 'El RR mide 4 cuadros grandes: 300 / 4 = 75.',{r:'sinus',hr:75});
+Q('FR',1,'Calcule la frecuencia cardíaca en esta tira de DII (25 mm/s):',
+ ['100 lpm','75 lpm','150 lpm','300 lpm'],
+ 'El RR mide 3 cuadros grandes: 300 / 3 = 100.',{r:'sinus',hr:100});
+Q('FR',2,'Calcule la frecuencia cardíaca en esta tira de DII (25 mm/s):',
+ ['50 lpm','60 lpm','43 lpm','75 lpm'],
+ 'El RR mide 6 cuadros grandes: 300 / 6 = 50. Es bradicardia sinusal: P antes de cada QRS y FC < 60.',{r:'sinus',hr:50});
+Q('FR',2,'Mujer de 34 años con episodios repetidos de taquicardia, ahora asintomática. En la tira de ritmo, la frecuencia actual es de:',
+ ['152–163 por minuto','110–115 por minuto','75–83 por minuto','171–184 por minuto'],
+ 'El RR mide ≈ 9.5 cuadros pequeños: 1500 / 9.5 ≈ 158. Cuando el RR cae entre dos líneas gruesas, cuente cuadros pequeños o interpole entre 150 y 300/2.',{r:'sinus',hr:158});
+Q('FR',2,'Calcule la frecuencia cardíaca en esta tira de DII (25 mm/s):',
+ ['≈ 43 lpm','≈ 60 lpm','≈ 50 lpm','≈ 35 lpm'],
+ 'El RR mide 7 cuadros grandes: 300 / 7 ≈ 43.',{r:'sinus',hr:42.86});
+Q('FR',3,'Esta tira dura 6 segundos y el ritmo es irregular. La frecuencia ventricular media es de aproximadamente:',
+ ['90 lpm','60 lpm','120 lpm','No se puede calcular si el ritmo es irregular'],
+ 'Con ritmo irregular no sirve la regla de 300. Cuente los QRS en 6 s (son 9) y multiplique por 10: 90. Con una tira de 10 s se multiplica por 6.',{r:'af',n:9});
+Q('FR',3,'Este trazo se registró por error a 50 mm/s. La frecuencia real es:',
+ ['75 lpm','37 lpm','150 lpm','300 lpm'],
+ 'El RR mide 8 cuadros grandes. A 50 mm/s hay 600 cuadros grandes por minuto: 600 / 8 = 75. Si aplica 300 / 8 obtiene 37, la trampa.',{r:'sinus',hr:75,spd:50});
+Q('FR',2,'Una tira de DII larga dura 10 segundos y contiene 12 complejos QRS. La frecuencia es:',
+ ['72 lpm','120 lpm','60 lpm','12 lpm'],
+ '12 × 6 = 72. Tus notas: DII largo dura 10 s.');
+Q('FR',1,'¿Cuál conjunto define el ritmo sinusal?',
+ ['Onda P positiva en DII antes de cada QRS, con PR constante y FC 60–100','QRS estrechos regulares sin onda P','Onda P negativa en DII antes de cada QRS','Ondas F en sierra a 300 por minuto'],
+ 'Cada P debe ir seguida de QRS y la P debe tener eje normal (positiva en DII, negativa en aVR). Si la FC es > 100 es taquicardia sinusal; < 60, bradicardia sinusal.');
+Q('FR',1,'La taquicardia sinusal se define como un ritmo sinusal con frecuencia:',
+ ['Mayor de 100 lpm','Mayor de 60 lpm','Mayor de 150 lpm','Mayor de 300 lpm'],
+ 'Causas fisiológicas: ejercicio, fiebre, ansiedad, dolor, anemia, hipovolemia, hipertiroidismo.');
+Q('FR',2,'Un corredor de 22 años, asintomático, tiene en reposo un ritmo sinusal a 48 lpm. Lo más probable es:',
+ ['Bradicardia sinusal fisiológica por alto tono vagal','Bloqueo AV de tercer grado','Ritmo de escape ventricular','Fibrilación auricular de respuesta lenta'],
+ 'El entrenamiento aumenta el volumen latido y el tono vagal; la FC baja para el mismo gasto. Hay P antes de cada QRS.');
+Q('FR',2,'Clasifique el ritmo de esta tira:',
+ ['Arritmia sinusal (P normales, RR que varía de forma cíclica)','Fibrilación auricular','Bloqueo AV de segundo grado','Extrasístoles ventriculares'],
+ 'Todas las P son iguales y preceden al QRS con PR constante; sólo cambia el RR de forma gradual con la respiración. En la FA no hay P.',{r:'arr'});
+
+// ── EJ · Eje eléctrico ─────────────────────────────────────
+Q('EJ',1,'Con QRS positivo en DI y positivo en aVF, el eje eléctrico está en el cuadrante:',
+ ['Inferior izquierdo (eje normal)','Superior izquierdo','Inferior derecho','Superior derecho'],
+ 'DI dice izquierda/derecha y aVF dice arriba/abajo. DI(+) = izquierda; aVF(+) = abajo. Es el método de cuadrantes que usa el examen.');
+Q('EJ',1,'Con QRS positivo en DI y negativo en aVF, el eje está en el cuadrante:',
+ ['Superior izquierdo','Inferior izquierdo','Inferior derecho','Superior derecho'],
+ 'Izquierda (DI+) y arriba (aVF−). Mire DII para decidir si es normal (entre 0° y −30°) o desviación izquierda patológica.');
+Q('EJ',1,'Con QRS negativo en DI y positivo en aVF, el eje está en el cuadrante:',
+ ['Inferior derecho (desviación a la derecha)','Superior izquierdo','Inferior izquierdo','Superior derecho'],
+ 'Causas: hipertrofia de VD, embolia pulmonar, EPOC, hemibloqueo posterior izquierdo, personas delgadas y altas.');
+Q('EJ',2,'Con QRS negativo tanto en DI como en aVF, el eje se ubica en el cuadrante:',
+ ['Superior derecho (desviación extrema)','Inferior derecho','Superior izquierdo','Inferior izquierdo'],
+ 'Llamado “tierra de nadie”: entre −90° y ±180°. Sugiere ritmo ventricular, hiperpotasemia grave o electrodos invertidos.');
+Q('EJ',2,'Si el QRS es isodifásico en DI y positivo en aVF, el eje está aproximadamente en:',
+ ['+90°','0°','−90°','+180°'],
+ 'El eje es perpendicular a la derivación isodifásica. Perpendicular a DI son ±90°; aVF positivo decide +90°.');
+Q('EJ',2,'Si el QRS es isodifásico en aVF y positivo en DI, el eje está en:',
+ ['0°','+90°','−90°','+60°'],
+ 'Perpendicular a aVF son 0° y 180°; DI positivo indica 0°.');
+Q('EJ',1,'El rango del eje eléctrico normal del QRS en el adulto, según la convención más usada, es:',
+ ['De −30° a +90°','De 0° a +180°','De −90° a 0°','De +90° a +180°'],
+ 'Algunos textos extienden el límite derecho a +100° o +110°. VERIFICAR qué límite usa tu curso.');
+Q('EJ',2,'Una hipertrofia del ventrículo izquierdo tiende a desviar el eje eléctrico:',
+ ['Hacia la izquierda','Hacia la derecha','Hacia arriba y a la derecha','No modifica el eje'],
+ 'Más masa = vector mayor hacia donde está esa masa (tus notas). La hipertrofia del VD lo desvía a la derecha.');
+Q('EJ',2,'En un bloqueo de rama, la porción final del QRS apunta hacia:',
+ ['El ventrículo del lado bloqueado, que es el último en despolarizarse','El ventrículo sano','El nodo SA','La aurícula izquierda'],
+ 'El impulso baja por la rama sana y luego cruza lentamente al lado bloqueado; las fuerzas terminales se dirigen hacia ese lado. Tus notas: “el eje se va hacia el lado bloqueado”.');
+Q('EJ',3,'QRS neto de +5 mm en DI y +5 mm en aVF. El eje está aproximadamente en:',
+ ['+45°','+90°','0°','+60° exactos por definición'],
+ 'Si DI y aVF son iguales y positivos, el vector queda a medio camino entre 0° y +90°.');
+Q('EJ',3,'QRS positivo en DI, negativo en aVF y negativo en DII. Interprete el eje:',
+ ['Desviación izquierda patológica (más allá de −30°)','Eje normal','Desviación a la derecha','Desviación extrema'],
+ 'DII negativo significa que el vector está a más de 90° de +60°, o sea más arriba de −30°. Si DII fuera positivo, sería un eje normal en el límite izquierdo. Causa típica: hemibloqueo anterior izquierdo.');
+Q('EJ',3,'QRS positivo en DI, ligeramente negativo en aVF y positivo en DII. El eje es:',
+ ['Normal (entre 0° y −30°)','Desviación izquierda patológica','Desviación derecha','Indeterminado'],
+ 'Por cuadrantes parece “superior izquierdo”, pero DII positivo lo deja dentro del rango normal. Esta sutileza es la que separa la respuesta de nivel medio de la difícil.');
+Q('EJ',2,'¿Cuál de estas condiciones tiende a desviar el eje a la izquierda?',
+ ['Obesidad o embarazo avanzado (diafragma elevado)','Hombre alto y delgado','Embolia pulmonar','Hipertrofia del ventrículo derecho'],
+ 'El corazón se horizontaliza cuando el diafragma sube. Las otras tres desvían el eje a la derecha.');
+
+// ── AR · Arritmias y bloqueos ──────────────────────────────
+Q('AR',1,'Durante un ECG de rutina llama la atención el intervalo PR. El diagnóstico es:',
+ ['Bloqueo AV de primer grado','Bloqueo AV de segundo grado Mobitz I','Bloqueo de rama derecha','Ritmo sinusal normal'],
+ 'El PR mide ≈ 0.32 s (8 cuadritos) y es constante; todas las P conducen. Es sólo un retraso, sin latidos perdidos.',{r:'sinus',hr:68,pr:.32});
+Q('AR',2,'Identifique el trastorno de conducción en esta tira:',
+ ['Bloqueo AV de segundo grado Mobitz I (Wenckebach)','Bloqueo AV de segundo grado Mobitz II','Bloqueo AV de primer grado','Bloqueo AV completo'],
+ 'El PR se alarga latido a latido hasta que una P no conduce; después el ciclo se reinicia con el PR más corto. Suele ser nodal y benigno.',{r:'mob1'});
+Q('AR',2,'Identifique el trastorno de conducción en esta tira:',
+ ['Bloqueo AV de segundo grado Mobitz II','Bloqueo AV de segundo grado Mobitz I','Bloqueo AV de primer grado','Extrasístole auricular bloqueada'],
+ 'El PR de los latidos conducidos es constante y, de pronto, una P no conduce. Suele ser infrahisiano y puede progresar a bloqueo completo.',{r:'mob2'});
+Q('AR',2,'Identifique el ritmo:',
+ ['Bloqueo AV de tercer grado (completo)','Bloqueo AV de segundo grado Mobitz I','Fibrilación auricular','Ritmo sinusal con extrasístoles'],
+ 'Las P marchan regulares a su ritmo y los QRS anchos marchan regulares a otro, más lento; no hay relación entre ellos (disociación AV). Tus notas: “cada quien a su ritmo”.',{r:'avb3'});
+Q('AR',3,'Hombre de 78 años con debilidad y mareo; su corazón “late muy lento”. Se diagnostica ritmo ventricular lento y se programa marcapasos. La característica que confirma el origen ventricular es:',
+ ['QRS con duración mayor de 0.12 s','Ondas P con voltaje menor de 0.2 mV','PR de 0.10 s','QT mayor de 0.44 s'],
+ 'Si el impulso nace en el ventrículo, no usa el sistema de His-Purkinje y viaja lento de músculo a músculo: QRS ancho y extraño. Las otras opciones no definen origen.');
+Q('AR',1,'Una de las principales características para identificar la fibrilación auricular en el ECG es:',
+ ['Intervalo RR irregularmente irregular','Intervalo PR prolongado','Onda Q patológica','Segmento ST deprimido'],
+ 'Faltan las P (hay ondulación fibrilatoria) y el nodo AV deja pasar impulsos al azar: RR irregular sin patrón.',{r:'af',n:8});
+Q('AR',2,'En un paciente con fibrilación auricular, ¿qué hallazgo esperaría en la exploración?',
+ ['Ausencia de onda “a” en el pulso venoso yugular','Onda “a” gigante','Cuarto ruido muy intenso','Pulso perfectamente regular'],
+ 'Sin contracción auricular organizada no hay onda a ni R4, y el pulso es irregular (con déficit de pulso).');
+Q('AR',1,'Identifique el ritmo auricular de esta tira:',
+ ['Flutter (aleteo) auricular','Fibrilación auricular','Taquicardia sinusal','Fibrilación ventricular'],
+ 'Ondas F regulares en “dientes de sierra” a ≈ 300 por minuto, sin línea isoeléctrica entre ellas. Aquí conducen 4:1.',{r:'flutter',k:4});
+Q('AR',2,'Un flutter auricular con frecuencia auricular de 300 por minuto y conducción AV 2:1 produce una frecuencia ventricular de:',
+ ['150 lpm','300 lpm','75 lpm','100 lpm'],
+ 'Una de cada dos ondas F llega al ventrículo. Una taquicardia regular a 150 debe hacer pensar en flutter 2:1; se confunde con taquicardia sinusal.');
+Q('AR',1,'Identifique el ritmo y la conducta inmediata:',
+ ['Fibrilación ventricular: desfibrilación','Asistolia: desfibrilación','Taquicardia sinusal: betabloqueador','Flutter auricular: masaje carotídeo'],
+ 'Ondulaciones caóticas, sin QRS ni T identificables, sin gasto cardíaco. Es un paro desfibrilable.',{r:'vf'});
+Q('AR',2,'Identifique el ritmo:',
+ ['Taquicardia ventricular','Taquicardia sinusal','Taquicardia por reentrada nodal','Flutter auricular 2:1'],
+ 'QRS anchos (> 0.12 s), regulares, ≈ 170 lpm y sin ondas P delante. Puede degenerar en fibrilación ventricular.',{r:'vt',hr:170});
+Q('AR',1,'Identifique el trazo:',
+ ['Asistolia','Fibrilación ventricular fina','Bloqueo AV completo','Bradicardia sinusal extrema'],
+ 'Línea casi plana sin actividad. No es desfibrilable: se trata con RCP y adrenalina. Confirme en dos derivaciones y con la ganancia correcta.',{r:'asys'});
+Q('AR',2,'El latido anómalo de esta tira corresponde a:',
+ ['Extrasístole ventricular','Extrasístole auricular','Bloqueo AV de segundo grado','Latido de fusión normal'],
+ 'Es prematuro, ancho, sin P delante, con T opuesta al QRS y seguido de pausa compensadora completa (el ciclo que lo contiene mide dos RR normales).',{r:'pvc'});
+Q('AR',2,'El latido adelantado de esta tira corresponde a:',
+ ['Extrasístole auricular','Extrasístole ventricular','Bloqueo de rama intermitente','Ritmo de escape'],
+ 'Tiene una P prematura de forma distinta y un QRS estrecho igual a los demás. La pausa siguiente no es compensadora porque reinicia el nodo SA.',{r:'pac'});
+Q('AR',2,'Mujer de 24 años con palpitaciones. El ECG en reposo muestra este trazo. El hallazgo sugiere:',
+ ['Preexcitación (Wolff-Parkinson-White) por una vía accesoria','Bloqueo AV de primer grado','Bloqueo de rama izquierda','Hipertrofia ventricular izquierda'],
+ 'PR corto (< 0.12 s), empastamiento inicial del QRS (onda delta) y QRS algo ancho. La vía accesoria cruza el anillo fibroso sin el retraso del nodo AV.',{r:'wpw'});
+Q('AR',2,'Identifique el ritmo:',
+ ['Ritmo de la unión (nodal)','Ritmo sinusal','Ritmo ventricular','Fibrilación auricular'],
+ 'QRS estrechos, regulares, a ≈ 50 lpm, sin P visibles delante. El nodo AV toma el mando y el impulso baja por el His-Purkinje normal.',{r:'nodal',hr:50});
+Q('AR',2,'Mujer de 18 años con episodios repetitivos de taquicardia, mareo y visión borrosa. Se toma este trazo. El diagnóstico es:',
+ ['Taquicardia supraventricular (por reentrada nodal)','Fibrilación auricular','Flutter auricular','Arritmia sinusal'],
+ 'QRS estrechos, perfectamente regulares, ≈ 180 lpm, sin P visibles (ocultas en el QRS). En el examen esta opción puede aparecer como “taquicardia nodal”.',{r:'svt',hr:180});
+Q('AR',2,'En una taquicardia supraventricular por reentrada nodal, la maniobra vagal puede terminarla porque:',
+ ['Enlentece la conducción y prolonga el periodo refractario del nodo AV, rompiendo el circuito','Despolariza todo el miocardio a la vez','Acelera el nodo SA','Bloquea los canales de Na⁺ ventriculares'],
+ 'El circuito pasa por el nodo AV. Si el vago lo hace más lento y refractario, el impulso choca contra tejido refractario y se apaga.');
+Q('AR',2,'Este trazo de V1 muestra un QRS ancho con patrón rSR′. El diagnóstico es:',
+ ['Bloqueo de rama derecha','Bloqueo de rama izquierda','Hipertrofia ventricular izquierda','Infarto anterior'],
+ 'El VD se despolariza tarde y produce la R′ terminal en V1 (“orejas de conejo”), con S ancha en DI y V6. QRS ≥ 0.12 s.',{r:'sinus',hr:75,m:'rbbb',lead:'V1'});
+Q('AR',2,'En el bloqueo de rama izquierda completo se espera:',
+ ['QRS ≥ 0.12 s con R ancha y mellada en V5–V6 y ausencia de q septal','rSR′ en V1','PR corto con onda delta','Ondas F en sierra'],
+ 'El septo se activa de derecha a izquierda (desaparece la q septal) y el VI se activa tarde. Altera el ST-T secundariamente.');
+Q('AR',3,'En una tira aparece una pausa sin P ni QRS cuya duración no es múltiplo del ciclo sinusal, seguida de un latido de escape. Esto sugiere:',
+ ['Paro sinusal','Bloqueo AV de segundo grado Mobitz II','Extrasístole ventricular','Fibrilación auricular'],
+ 'Si la pausa mide exactamente dos ciclos, es más típico de bloqueo sinoauricular. Si no, el nodo SA simplemente dejó de disparar.',{r:'pause'});
+Q('AR',1,'Un bloqueo AV se clasifica como trastorno de:',
+ ['La conducción del impulso','La formación del impulso','La repolarización','La contracción auricular'],
+ 'Tus notas: hay arritmias por problemas de conducción (bloqueos), por focos que disparan espontáneamente (extrasístoles) y por despolarización desorganizada (fibrilaciones).');
+Q('AR',3,'Para que se establezca un circuito de reentrada se requiere:',
+ ['Bloqueo unidireccional y conducción lenta suficiente para que el tejido se recupere','Aumento de la pendiente de fase 4 del nodo SA','Hiperpolarización de todo el miocardio','Un periodo refractario muy largo en todo el circuito'],
+ 'El impulso tiene que encontrar una vía bloqueada en un sentido y volver por ella cuando ya salió del periodo refractario. Corazón dilatado, conducción lenta o refractario corto favorecen la reentrada.');
+Q('AR',2,'El desfibrilador termina una fibrilación ventricular porque:',
+ ['Despolariza todo el miocardio a la vez y lo deja refractario, de modo que el nodo SA puede retomar el mando','Hiperpolariza las células de Purkinje','Estimula directamente al vago','Bloquea los canales de Ca²⁺'],
+ 'Tus notas: “dispositivo que despolariza”. Al quedar todo refractario se apagan los múltiples frentes de reentrada.');
+Q('AR',3,'En la fibrilación auricular, la complicación tromboembólica se explica principalmente por:',
+ ['Estasis de sangre en la orejuela izquierda por falta de contracción auricular','Aumento de la velocidad de flujo en la aorta','Hipercontractilidad ventricular','Bradicardia extrema'],
+ 'La sangre estancada activa la coagulación (tus notas, tema venoso). El trombo puede ir al cerebro: ictus.');
+Q('AR',2,'Se considera más peligroso el bloqueo Mobitz II que el Mobitz I porque:',
+ ['Suele ser infrahisiano y puede progresar de pronto a bloqueo completo con escape ventricular lento','Siempre produce fibrilación ventricular','Se asocia a PR muy corto','Responde siempre a la atropina'],
+ 'El Mobitz I suele ser nodal y de buen pronóstico. El Mobitz II con frecuencia requiere marcapasos.');
+Q('AR',2,'Un ritmo de escape ventricular (idioventricular) tiene una frecuencia habitual de:',
+ ['15–40 lpm','40–60 lpm','60–100 lpm','100–150 lpm'],
+ 'Purkinje y músculo ventricular son los marcapasos más lentos. Por eso el bloqueo completo infrahisiano da síntomas (mareo, síncope).');
+
+// ── IS · Isquemia e infarto ────────────────────────────────
+Q('IS',1,'Hombre de 65 años con dolor precordial opresivo al hacer esfuerzo, que dura 15 minutos y cede con el reposo. La alteración del ECG que indicaría isquemia miocárdica es:',
+ ['Onda T negativa','PR prolongado','QRS prolongado','Patrón RSR′'],
+ 'Isquemia = alteración de la repolarización (T invertida o descenso del ST). PR largo es bloqueo AV y RSR′ es bloqueo de rama. Trampa: buscar elevación del ST cuando el dolor ya cedió.',{r:'sinus',hr:75,t:-.3});
+Q('IS',1,'La elevación del segmento ST en un infarto agudo indica:',
+ ['Lesión miocárdica aguda (transmural)','Necrosis antigua','Hiperpotasemia','Bloqueo AV'],
+ 'Isquemia → T; lesión → ST; necrosis → Q. Es la secuencia clásica.',{r:'sinus',hr:80,st:.3,lead:'DIII'});
+Q('IS',1,'Una onda Q patológica, signo de necrosis, se define por:',
+ ['Duración ≥ 0.04 s o profundidad > 25% de la R siguiente','Cualquier onda negativa al inicio del QRS','Duración menor de 0.02 s','Presencia en aVR'],
+ 'Las q septales pequeñas en DI, aVL y V5–V6 son normales; en aVR toda la actividad es negativa por geometría.');
+Q('IS',2,'La “corriente de lesión” que desplaza el ST se produce porque:',
+ ['Sin O₂ ni glucosa falla la bomba Na⁺/K⁺ y el tejido lesionado queda parcialmente despolarizado','El tejido lesionado se repolariza más rápido','Aumenta la conducción por el nodo AV','Se pierde la inervación vagal'],
+ 'Tus notas: sin ATP no se sacan iones y el interior queda más positivo. Entre tejido sano y lesionado fluye corriente en diástole; al despolarizarse todo, el ST queda desplazado respecto a esa base.');
+Q('IS',1,'Un infarto de la cara inferior se identifica por cambios en las derivaciones:',
+ ['DII, DIII y aVF','V1–V4','DI, aVL, V5 y V6','aVR y V1'],
+ 'Son las que miran desde abajo. Tus notas: “inferior: impacto es abajo”.');
+Q('IS',1,'Hombre de 48 años con infarto agudo y elevación del ST en DII, DIII y aVF. La arteria más probablemente obstruida es:',
+ ['Coronaria derecha','Descendente anterior','Circunfleja','Tronco coronario izquierdo'],
+ 'La cara inferior la irriga la coronaria derecha en la mayoría de las personas (dominancia derecha ≈ 80–90%). Si es dominancia izquierda puede ser la circunfleja.',{r:'sinus',hr:72,st:.3,lead:'aVF'});
+Q('IS',1,'Elevación del ST de V1 a V4 indica un infarto anterior por obstrucción de:',
+ ['La arteria descendente anterior','La coronaria derecha','La circunfleja','La marginal obtusa'],
+ 'La DA irriga la cara anterior y el septo (por sus ramas septales).');
+Q('IS',2,'Cambios en DI, aVL, V5 y V6 sugieren un infarto de cara lateral por oclusión de:',
+ ['La circunfleja','La coronaria derecha','La descendente posterior','La arteria del nodo SA'],
+ 'Las ramas diagonales de la DA también irrigan parte de la cara lateral alta (DI, aVL).');
+Q('IS',2,'Un infarto septal se refleja principalmente en las derivaciones:',
+ ['V1 y V2','DII, DIII y aVF','V5 y V6','aVL'],
+ 'V1–V2 están sobre el septo. Septal + anterior = anteroseptal (V1–V4).');
+Q('IS',3,'Depresión del ST en V1–V3 con R alta en V1, en un paciente con dolor torácico típico, debe hacer pensar en:',
+ ['Infarto posterior (imagen en espejo de la cara posterior)','Isquemia subendocárdica anterior aislada','Bloqueo de rama derecha','Hipertrofia del ventrículo izquierdo'],
+ 'Ninguna derivación estándar mira la cara posterior; V1–V3 la ven “al revés”. Se confirma con V7–V9.');
+Q('IS',2,'En un infarto inferior con elevación del ST, la depresión del ST en DI y aVL se interpreta como:',
+ ['Imagen recíproca (especular)','Un segundo infarto lateral','Hiperpotasemia','Error de calibración'],
+ 'Las derivaciones opuestas a la zona lesionada ven el mismo vector de lesión con signo contrario.');
+Q('IS',3,'Un paciente con infarto inferior desarrolla bloqueo AV. La razón anatómica más probable es que:',
+ ['La arteria del nodo AV nace de la coronaria derecha en la mayoría de las personas','El nodo AV lo irriga la descendente anterior','El infarto inferior destruye el nodo SA','Los betabloqueadores lo producen siempre'],
+ 'La rama del nodo AV sale de la coronaria derecha en ≈ 90% (dominancia derecha). Los bloqueos del infarto inferior suelen ser nodales y transitorios.');
+Q('IS',2,'Evolución típica del ECG en un infarto con elevación del ST no reperfundido:',
+ ['ST elevado en horas, luego T invertida, y la Q patológica persiste','Q patológica primero, luego ST elevado','T picuda que persiste meses','El ECG se normaliza por completo en 24 horas'],
+ 'La T hiperaguda y la elevación del ST son lo más precoz. Tus notas: cuando el ST regresa a su sitio “no quiere decir que se está muriendo, se está recuperando”.');
+Q('IS',2,'A un paciente con infarto agudo se le administra aspirina. Su efecto antiagregante se debe a que:',
+ ['Inhibe la COX-1 plaquetaria y disminuye la síntesis de tromboxano A₂','Activa el plasminógeno','Bloquea los receptores de fibrinógeno','Inhibe la trombina directamente'],
+ 'Es irreversible: dura la vida de la plaqueta (≈ 7–10 días). Está como pregunta en tus notas.');
+Q('IS',2,'Si se demuestra un coágulo en la arteria coronaria, el fármaco que lo disuelve es:',
+ ['El activador tisular del plasminógeno','La aspirina','Un betabloqueador','La heparina'],
+ 'El tPA convierte plasminógeno en plasmina, que degrada la fibrina (fibrinólisis). Aspirina y heparina previenen que crezca, no lo disuelven.');
+Q('IS',2,'Tras un infarto, el paciente presenta un soplo sistólico nuevo en foco mitral. La causa más probable es:',
+ ['Insuficiencia mitral por disfunción o ruptura de un músculo papilar','Estenosis aórtica','Estenosis mitral','Insuficiencia aórtica'],
+ 'El músculo papilar isquémico deja de sostener la válvula; la sangre regresa a la aurícula en sístole. Caso de tus notas.');
+Q('IS',3,'Mujer de 62 años, fumadora, con hipertensión y diabetes, cursa un infarto inferior. Se le da un betabloqueador. El beneficio inmediato principal es que:',
+ ['Reduce la FC y la contractilidad, lo que baja el consumo de O₂ y alarga la diástole','Disuelve el trombo','Aumenta la precarga del VI','Dilata directamente la coronaria obstruida'],
+ 'Menos FC = más tiempo de diástole = más perfusión coronaria del VI. Menos trabajo = menos demanda.');
+Q('IS',2,'La taquicardia agrava la isquemia del ventrículo izquierdo porque:',
+ ['Acorta sobre todo la diástole, que es cuando el VI recibe la mayor parte de su flujo coronario','Aumenta la duración de la sístole','Disminuye el consumo de oxígeno','Relaja las arterias epicárdicas'],
+ 'En sístole el músculo comprime los vasos intramurales. El flujo coronario izquierdo es predominantemente diastólico.');
+
+// ── HE · Hipertrofias y electrolitos ──────────────────────
+Q('HE',1,'Paciente con insuficiencia renal. La alteración del ECG que sugiere hiperpotasemia es:',
+ ['Onda T alta, picuda y de base estrecha','Onda U prominente','QT largo','Onda delta'],
+ 'El K⁺ alto acelera la repolarización: T “en tienda de campaña”. Al empeorar, la P se aplana, el QRS se ensancha y puede aparecer la onda sinusoidal.',{r:'sinus',hr:80,t:.9,tw:.035});
+Q('HE',2,'En la hiperpotasemia grave progresiva, el orden habitual de cambios es:',
+ ['T picuda → P aplanada y PR largo → QRS ancho → onda sinusoidal','Onda U → T plana → QT largo','QT corto → onda J → ST en cubeta','Onda delta → PR corto → QRS ancho'],
+ 'El K⁺ alto despolariza el reposo, inactiva canales de Na⁺ y enlentece la conducción. Es urgencia: riesgo de FV o asistolia.');
+Q('HE',1,'Paciente con vómitos y uso de diuréticos. El hallazgo que sugiere hipopotasemia es:',
+ ['T aplanada con onda U prominente','T picuda','QRS ancho con onda sinusoidal','Elevación difusa del ST'],
+ 'Con poco K⁺ extracelular la repolarización se alarga. La U aparece después de la T. Tus notas: el K⁺ está involucrado con la repolarización y modifica la T.',{r:'sinus',hr:75,t:.06,u:.16});
+Q('HE',2,'La hipercalcemia produce en el ECG:',
+ ['Acortamiento del QT (por acortamiento del ST)','QT largo','Onda U','T picuda'],
+ 'El Ca²⁺ modifica la duración de la meseta (tus notas: “el Ca alarga/acorta la meseta”): hipocalcemia = ST y QT largos; hipercalcemia = cortos.');
+Q('HE',2,'La hipocalcemia se reconoce en el ECG por:',
+ ['QT prolongado a expensas del segmento ST','T picuda','Onda delta','QRS ancho'],
+ 'La T conserva su forma; lo que se alarga es el segmento entre el QRS y la T.',{r:'sinus',hr:70,qt:.54});
+Q('HE',2,'Un criterio clásico de voltaje para hipertrofia del ventrículo izquierdo (Sokolow-Lyon) es:',
+ ['S en V1 + R en V5 o V6 > 35 mm','R en V1 > S en V1','P > 2.5 mm en DII','QRS < 0.06 s'],
+ 'Más masa = más voltaje. Tus notas: “QRS muy alto: más masa, más tejido que despolariza”. Suele acompañarse de alteración ST-T y eje a la izquierda.');
+Q('HE',2,'En la hipertrofia del ventrículo derecho se espera:',
+ ['R dominante en V1 y eje desviado a la derecha','S profunda en V1 y R alta en V6 con eje izquierdo','PR corto','Ondas Q en DII, DIII y aVF'],
+ 'El VD hipertrofiado gana peso eléctrico y atrae el vector a la derecha y hacia adelante (V1).');
+Q('HE',2,'Una onda P alta (> 2.5 mm) y picuda en DII sugiere:',
+ ['Crecimiento de la aurícula derecha (P pulmonale)','Crecimiento de la aurícula izquierda','Fibrilación auricular','Hiperpotasemia'],
+ 'La aurícula izquierda crecida da una P ancha (≥ 0.12 s) y bífida en DII (P mitrale).');
+Q('HE',3,'Un ECG con complejos de bajo voltaje en todas las derivaciones y alternancia eléctrica debe hacer sospechar:',
+ ['Derrame pericárdico con taponamiento','Hipertrofia ventricular izquierda','Hiperpotasemia','Preexcitación'],
+ 'El líquido alrededor del corazón aleja y amortigua la señal; el corazón “oscila” dentro del derrame y la amplitud alterna latido a latido.');
+Q('HE',3,'Paciente rescatado de agua helada. Aparece una muesca positiva al final del QRS (onda J de Osborn). La causa más probable es:',
+ ['Hipotermia','Hipercalcemia leve','Hipopotasemia','Bloqueo de rama derecha'],
+ 'La onda J crece cuanto menor es la temperatura y se acompaña de bradicardia. Tus notas mencionan la onda J.');
+Q('HE',3,'Paciente que toma digoxina. El ECG muestra descenso del ST con forma de cubeta y QT corto. Esto indica:',
+ ['Efecto digitálico (no necesariamente intoxicación)','Infarto posterior','Hiperpotasemia','Pericarditis'],
+ 'La intoxicación se sospecha por arritmias (extrasístoles, taquicardia auricular con bloqueo, bloqueo AV), no por la cubeta.');
+
+// ── CI · Ciclo cardíaco y ruidos ──────────────────────────
+Q('CI',1,'Durante la contracción isovolumétrica:',
+ ['Todas las válvulas están cerradas y la presión ventricular sube sin cambio de volumen','La válvula aórtica está abierta y el volumen baja','La mitral está abierta y el ventrículo se llena','La presión ventricular baja sin cambio de volumen'],
+ 'Empieza con el cierre mitral (R1) y termina cuando la presión del VI supera la aórtica (≈ 80 mmHg) y se abre la válvula.');
+Q('CI',1,'La relajación isovolumétrica comienza con:',
+ ['El cierre de la válvula aórtica (segundo ruido)','La apertura de la mitral','El cierre de la mitral','La onda P'],
+ 'Con todas las válvulas cerradas, la presión del VI cae casi a 0 sin que cambie el volumen (≈ 50 mL). Termina cuando se abre la mitral.');
+Q('CI',1,'El primer ruido cardíaco (R1) se produce por:',
+ ['El cierre de las válvulas auriculoventriculares (mitral y tricúspide)','El cierre de las válvulas semilunares','La apertura de las válvulas AV','El llenado ventricular rápido'],
+ 'Marca el inicio de la sístole ventricular. En el tiempo coincide con el final del QRS.');
+Q('CI',1,'El segundo ruido cardíaco (R2) se debe a:',
+ ['El cierre de las válvulas aórtica y pulmonar','El cierre de las válvulas mitral y tricúspide','La contracción auricular','La apertura de la válvula aórtica'],
+ 'Marca el inicio de la diástole. Coincide con la incisura dicrótica de la presión aórtica.');
+Q('CI',2,'El tercer ruido (R3) ocurre durante:',
+ ['El llenado ventricular rápido, al inicio de la diástole','La contracción auricular','La contracción isovolumétrica','La eyección rápida'],
+ 'Puede ser fisiológico en niños, jóvenes y embarazadas; en adultos mayores sugiere insuficiencia cardíaca con ventrículo dilatado.');
+Q('CI',2,'El cuarto ruido (R4) se relaciona con:',
+ ['La contracción auricular contra un ventrículo rígido, al final de la diástole','La apertura de la válvula mitral','El cierre aórtico','La eyección ventricular'],
+ 'Aparece en hipertrofia o isquemia (ventrículo poco distensible). No existe en fibrilación auricular porque no hay contracción auricular.');
+Q('CI',1,'La incisura dicrótica de la curva de presión aórtica se debe a:',
+ ['El cierre de la válvula aórtica','La apertura de la válvula aórtica','La contracción auricular','El reflujo mitral'],
+ 'Al cerrarse, la sangre rebota contra la válvula y produce una pequeña subida de presión. Coincide con R2.');
+Q('CI',2,'En la curva de presión venosa (auricular), la onda “a” se debe a:',
+ ['La contracción auricular','El abombamiento de la tricúspide en la contracción isovolumétrica','El llenado auricular con la tricúspide cerrada','La apertura de la tricúspide'],
+ 'a = contracción auricular; c = la tricúspide se abomba hacia la aurícula en la contracción isovolumétrica; v = la aurícula se llena con la válvula cerrada. Descenso x = relajación auricular; descenso y = apertura de la tricúspide.');
+Q('CI',3,'Un paciente con bloqueo AV completo presenta de forma intermitente ondas “a” gigantes (en cañón) en el pulso yugular. Se explican porque:',
+ ['La aurícula se contrae a veces con la tricúspide cerrada por la sístole ventricular','La aurícula no se contrae','Hay insuficiencia tricuspídea','Aumenta el retorno venoso en la inspiración'],
+ 'En la disociación AV, P y QRS coinciden al azar; cuando la aurícula empuja contra la válvula cerrada, la onda de presión sube al cuello.');
+Q('CI',1,'En reposo, la contracción auricular aporta aproximadamente qué parte del llenado ventricular:',
+ ['≈ 20%','≈ 80%','≈ 50%','0%'],
+ 'La mayor parte del llenado es pasiva (tus notas: “para el llenado ventricular no se ocupa la contracción auricular”). Su aporte crece con la taquicardia o el ventrículo rígido.');
+Q('CI',2,'Si la frecuencia cardíaca aumenta, la fase del ciclo que más se acorta es:',
+ ['La diástole','La sístole','La contracción isovolumétrica','La eyección rápida'],
+ 'A 75 lpm la sístole es ≈ 1/3 y la diástole ≈ 2/3 del ciclo. Al subir la FC la sístole cambia poco y la diástole (sobre todo la diástasis) se reduce mucho. Pregunta de tus notas.');
+Q('CI',2,'Valores típicos de un ventrículo izquierdo adulto en reposo:',
+ ['VTD ≈ 120 mL, VTS ≈ 50 mL, volumen latido ≈ 70 mL, FE ≈ 60%','VTD ≈ 50 mL, VTS ≈ 120 mL, volumen latido ≈ 70 mL','VTD ≈ 250 mL, VTS ≈ 200 mL, FE ≈ 20%','VTD ≈ 70 mL, VTS ≈ 0 mL, FE ≈ 100%'],
+ 'VL = VTD − VTS. FE = VL / VTD. Tus notas: VTD 120–130 mL y reserva de ≈ 50 mL.');
+Q('CI',2,'En el diagrama presión-volumen del ventrículo izquierdo, el lado vertical derecho del asa representa:',
+ ['La contracción isovolumétrica','La relajación isovolumétrica','La eyección','El llenado'],
+ 'Se recorre en sentido antihorario: llenado (abajo, de izquierda a derecha) → contracción isovolumétrica (lado derecho, sube) → eyección (arriba, a la izquierda) → relajación isovolumétrica (lado izquierdo, baja).');
+Q('CI',2,'El área encerrada por el asa presión-volumen del ventrículo izquierdo representa:',
+ ['El trabajo externo de un latido','El gasto cardíaco','La fracción de eyección','El consumo de O₂ total'],
+ 'Presión × volumen = energía. Aumenta con la precarga, la poscarga y la contractilidad.');
+Q('CI',2,'En el tiempo, la onda T del ECG coincide aproximadamente con:',
+ ['El final de la eyección, poco antes del segundo ruido','La contracción isovolumétrica','La sístole auricular','El llenado rápido'],
+ 'Primero va el evento eléctrico y luego el mecánico: el QRS precede a la contracción y la T anuncia el final de la sístole.');
+Q('CI',1,'Presiones normales aproximadas del ventrículo derecho y la arteria pulmonar:',
+ ['VD 25/0–5 mmHg; arteria pulmonar 25/10 mmHg','VD 120/5 mmHg; arteria pulmonar 120/80 mmHg','VD 5/0 mmHg; arteria pulmonar 5/2 mmHg','VD 60/20 mmHg; arteria pulmonar 60/40 mmHg'],
+ 'El circuito pulmonar es de baja presión y baja resistencia; por eso la pared del VD es más delgada.');
+
+// ── GC · Gasto cardíaco, precarga y poscarga ───────────────
+Q('GC',1,'Un volumen latido de 70 mL con frecuencia de 72 lpm da un gasto cardíaco de aproximadamente:',
+ ['5 L/min','7 L/min','0.5 L/min','72 L/min'],
+ 'GC = VL × FC = 70 × 72 = 5040 mL/min.');
+Q('GC',2,'Paciente con volumen latido de 60 mL y gasto cardíaco de 4.5 L/min. Su frecuencia cardíaca es:',
+ ['75 lpm','60 lpm','45 lpm','90 lpm'],
+ '4500 / 60 = 75. Datos del caso de tus notas.');
+Q('GC',2,'Con volumen latido de 60 mL y fracción de eyección de 40%, el volumen telediastólico es:',
+ ['150 mL','100 mL','24 mL','240 mL'],
+ 'FE = VL / VTD → VTD = 60 / 0.40 = 150 mL. VTS = 150 − 60 = 90 mL: ventrículo dilatado con FE reducida.');
+Q('GC',1,'La fracción de eyección se calcula como:',
+ ['Volumen latido / volumen telediastólico × 100','Volumen telesistólico / volumen telediastólico × 100','Gasto cardíaco / frecuencia cardíaca','Volumen telediastólico − volumen telesistólico'],
+ 'La resta (VTD − VTS) es el volumen latido, no la fracción.');
+Q('GC',1,'La precarga del ventrículo izquierdo se define como:',
+ ['La tensión (estiramiento) de la pared al final de la diástole, reflejada por el volumen telediastólico','La resistencia que vence el ventrículo al eyectar','La presión aórtica diastólica','La frecuencia cardíaca'],
+ 'Aumenta con más retorno venoso, más volemia o una contracción auricular más fuerte (tus notas).');
+Q('GC',1,'La poscarga del ventrículo izquierdo aumenta en:',
+ ['Hipertensión arterial sistémica y estenosis aórtica','Hipovolemia','Insuficiencia mitral','Vasodilatación periférica'],
+ 'Poscarga = lo que el ventrículo debe vencer para expulsar sangre. La hipertensión pulmonar aumenta la poscarga del VD.');
+Q('GC',2,'El mecanismo de Frank-Starling establece que:',
+ ['A mayor volumen telediastólico, mayor fuerza de contracción y mayor volumen latido, dentro de límites fisiológicos','A mayor frecuencia, mayor fuerza de contracción','La poscarga no afecta al volumen latido','El corazón expulsa siempre el mismo volumen'],
+ 'Al estirarse, el sarcómero se acerca a su longitud óptima (≈ 2.0–2.2 µm) y aumenta la sensibilidad al Ca²⁺. Si se estira demasiado, la tensión cae (la “U invertida” de tus notas).');
+Q('GC',2,'Según la ley de Laplace aplicada al ventrículo (T = P · r / 2h), un paciente con hipertensión crónica reduce la tensión de su pared mediante:',
+ ['Aumento del grosor de la pared (hipertrofia concéntrica)','Aumento del radio de la cavidad','Disminución de la frecuencia cardíaca','Disminución del grosor de la pared'],
+ 'Más presión aumenta la tensión; engrosar la pared la reparte. Es pregunta textual de tus notas.');
+Q('GC',2,'Un ventrículo dilatado, con la misma presión intraventricular, tiene:',
+ ['Mayor tensión de pared y mayor consumo de O₂','Menor tensión de pared','La misma tensión, porque la presión no cambió','Menor poscarga'],
+ 'Laplace: a mayor radio, mayor tensión. Por eso la dilatación es una desventaja energética.');
+Q('GC',2,'En el asa presión-volumen, un aumento aislado de la poscarga produce:',
+ ['Menor volumen latido y mayor volumen telesistólico','Mayor volumen latido y menor volumen telesistólico','Mayor volumen telediastólico sin cambio de volumen latido','Desplazamiento de la curva de distensibilidad diastólica'],
+ 'El ventrículo deja de eyectar antes porque la presión aórtica es mayor: queda más sangre al final (tus notas: “se queda con mayor cantidad de sangre”). Más contractilidad hace lo contrario.');
+Q('GC',2,'En el ejercicio intenso, el gasto cardíaco de una persona sana puede aumentar hasta aproximadamente:',
+ ['20–25 L/min','6 L/min','10 L/min','60 L/min'],
+ 'En atletas puede pasar de 30 L/min. El flujo aumenta en músculo y piel, baja en el tracto digestivo y el riñón, y el cerebral casi no cambia.');
+Q('GC',3,'Las curvas de función cardíaca (gasto) y de función vascular (retorno venoso) se cruzan en un punto que representa:',
+ ['El gasto cardíaco y la presión auricular derecha en equilibrio','La presión media de llenado sistémico','La presión arterial media','El volumen telediastólico máximo'],
+ 'El corazón bombea lo que le llega. Una hemorragia baja la presión media de llenado (≈ 7 mmHg) y el equilibrio se desplaza a menor gasto; el simpático sube ambas curvas.');
+Q('GC',2,'En la curva de función vascular, el retorno venoso se hace cero cuando:',
+ ['La presión de la aurícula derecha iguala a la presión media de llenado sistémico (≈ 7 mmHg)','La presión auricular derecha es 0 mmHg','La presión arterial media es 0 mmHg','El gasto cardíaco es máximo'],
+ 'Sin gradiente entre la periferia y la aurícula, la sangre no regresa. Tus notas: si la presión auricular es muy positiva, cae el gasto.');
+Q('GC',3,'En la insuficiencia cardíaca con fracción de eyección reducida se forma un círculo vicioso porque:',
+ ['La baja perfusión renal activa el sistema renina-angiotensina-aldosterona, retiene volumen y aumenta la poscarga','La FE baja disminuye la volemia','Los barorreceptores aumentan el tono vagal','La precarga cae y el corazón se recupera solo'],
+ 'Tus notas, p. 44: “aumenta el eje renina-aldosterona... ciclo vicioso”. Los IECA y bloqueadores de angiotensina (losartán) cortan ese ciclo.');
+Q('GC',2,'El gasto cardíaco aumenta en la anemia porque:',
+ ['Baja la viscosidad y la hipoxia tisular vasodilata, lo que aumenta el retorno venoso','Aumenta la resistencia periférica','Disminuye el volumen latido','Aumenta la viscosidad'],
+ 'Tus notas: “en anemia el GC aumenta para compensar la hipoxia”. El hipertiroidismo también aumenta el GC (metabolismo y simpático).');
+
+// ── VA · Valvulopatías y soplos ───────────────────────────
+Q('VA',1,'La estenosis aórtica produce un soplo:',
+ ['Sistólico eyectivo en foco aórtico, irradiado al cuello','Diastólico en foco aórtico','Holosistólico en ápex irradiado a axila','Continuo en el foco pulmonar'],
+ 'La válvula se abre en sístole; si está rígida, el flujo se vuelve turbulento durante la eyección (entre R1 y R2).');
+Q('VA',2,'Paciente de 75 años, hipertenso mal controlado, con disnea, angina y episodios de síncope. Se ausculta soplo sistólico en foco aórtico irradiado al cuello. Respecto a la válvula, la velocidad del flujo comparada con una persona sana está:',
+ ['Aumentada','Disminuida','Igual','Ausente'],
+ 'Mismo flujo por menos área = más velocidad (Q = A · v). Por eso hay turbulencia. Caso de tus notas: además, la poscarga está aumentada y el ECG muestra hipertrofia del VI.');
+Q('VA',3,'En la estenosis aórtica grave, el síncope de esfuerzo se explica porque:',
+ ['El gasto cardíaco no puede aumentar al vasodilatarse el músculo, y cae la presión cerebral','Aumenta demasiado el volumen latido','Se produce bradicardia vagal por la hipertensión','La válvula se cierra en sístole'],
+ 'La válvula limita el flujo; si baja la resistencia periférica en el ejercicio, la presión cae. Durante el síncope el centro vasoconstrictor está muy activado.');
+Q('VA',2,'En la insuficiencia aórtica es característico:',
+ ['Soplo diastólico, aumento de la precarga del VI y presión de pulso amplia','Soplo sistólico, poscarga aumentada y pulso pequeño','Soplo continuo','Disminución de la precarga del VI'],
+ 'La válvula no cierra en diástole y la sangre regresa al VI: más volumen telediastólico. La diastólica cae y la sistólica sube.');
+Q('VA',2,'En la estenosis mitral, la precarga del ventrículo izquierdo:',
+ ['Disminuye, porque llega menos sangre al ventrículo en diástole','Aumenta por regurgitación','No cambia','Aumenta por hipertrofia'],
+ 'El problema está antes del VI: sube la presión de la aurícula izquierda (y la pulmonar) y es frecuente la fibrilación auricular. Soplo diastólico (retumbo) en ápex.');
+Q('VA',1,'La insuficiencia mitral produce un soplo:',
+ ['Holosistólico en el ápex, irradiado a la axila','Diastólico en el foco aórtico','Sistólico eyectivo irradiado al cuello','Continuo en maquinaria'],
+ 'La sangre regresa a la aurícula durante toda la sístole. El VI recibe en diástole su volumen normal más el regurgitado: aumenta la precarga.');
+Q('VA',2,'En el conducto arterioso persistente se espera:',
+ ['Soplo continuo (sistólico y diastólico) y aumento de la precarga del VI','Soplo sólo diastólico y disminución de la precarga','Cianosis desde el nacimiento','Disminución del flujo pulmonar'],
+ 'La aorta tiene más presión que la pulmonar durante todo el ciclo; la sangre pasa a la pulmonar y vuelve al lado izquierdo. Tus notas lo describen así.');
+Q('VA',1,'El foco de auscultación aórtico se localiza en:',
+ ['El 2.º espacio intercostal derecho, junto al esternón','El 2.º espacio intercostal izquierdo','El 5.º espacio intercostal en la línea medioclavicular izquierda','El 4.º espacio intercostal paraesternal izquierdo'],
+ 'Pulmonar: 2.º EIC izquierdo. Tricuspídeo: 4.º–5.º EIC paraesternal izquierdo. Mitral: 5.º EIC medioclavicular (ápex).');
+Q('VA',2,'Un soplo se genera cuando:',
+ ['El flujo laminar se vuelve turbulento por alta velocidad, estrechez o baja viscosidad','La sangre fluye en capas paralelas','Disminuye la velocidad del flujo','Aumenta la viscosidad sanguínea'],
+ 'El número de Reynolds crece con la velocidad y el diámetro y baja con la viscosidad. Por eso la anemia también puede dar soplos funcionales.');
+
+// ── HV · Hemodinamia vascular y circulaciones especiales ───
+Q('HV',1,'Según la ley de Ohm aplicada al flujo sanguíneo:',
+ ['Flujo = diferencia de presión / resistencia','Flujo = presión × resistencia','Resistencia = flujo × presión','Flujo = presión media / volumen'],
+ 'Q = ΔP / R. Para el sistema: GC = (PAM − PAD) / RVS.');
+Q('HV',2,'Si el radio de una arteriola se reduce a la mitad, manteniendo la diferencia de presión, el flujo:',
+ ['Disminuye a 1/16','Disminuye a la mitad','Disminuye a 1/4','No cambia'],
+ 'Poiseuille: R = 8ηL / πr⁴. El radio está a la cuarta potencia: 2⁴ = 16. Por eso las arteriolas controlan el flujo con cambios pequeños de calibre.');
+Q('HV',2,'Con un gasto cardíaco de 5 L/min y un área transversal capilar total de 2500 cm², la velocidad del flujo en los capilares es:',
+ ['2 cm/min','2 cm/s','0.5 cm/min','20 cm/min'],
+ 'v = Q / A = 5000 cm³/min / 2500 cm² = 2 cm/min (≈ 0.3 mm/s). Convierta litros a cm³ antes de dividir. Ejercicio de tus notas.');
+Q('HV',3,'La aorta tiene un radio de 1 cm y conduce 5 L/min. Su velocidad media de flujo es aproximadamente:',
+ ['1590 cm/min (≈ 26 cm/s)','5 cm/min','2 cm/min','159 cm/s'],
+ 'A = π r² = 3.14 cm². v = 5000 / 3.14 ≈ 1592 cm/min. Comparada con 2 cm/min en capilares: más área total = menos velocidad, justo lo que permite el intercambio.');
+Q('HV',2,'Al conectar varios lechos vasculares en paralelo, la resistencia total:',
+ ['Es menor que la de cualquiera de los lechos','Es la suma de las resistencias','Es igual a la mayor','Es igual al promedio'],
+ '1/Rt = 1/R1 + 1/R2 + … Los órganos están en paralelo; en serie (como la circulación porta) las resistencias se suman.');
+Q('HV',1,'Con una presión arterial de 120/80 mmHg, la presión arterial media es aproximadamente:',
+ ['93 mmHg','100 mmHg','40 mmHg','120 mmHg'],
+ 'PAM ≈ PAD + (PAS − PAD)/3 = 80 + 13.3. La diástole dura más que la sístole, por eso no es el promedio simple. La presión de pulso es 40.');
+Q('HV',2,'La mayor caída de presión a lo largo de la circulación sistémica ocurre en:',
+ ['Las arteriolas','La aorta','Los capilares','Las venas cavas'],
+ 'Son los vasos de resistencia, con músculo liso que regula su radio.');
+Q('HV',2,'La mayor parte del volumen sanguíneo (≈ 64%) se encuentra en:',
+ ['Las venas','Las arterias','Los capilares','El corazón'],
+ 'Las venas tienen poca pared muscular y son muy distensibles (capacitancia). Distribución de tus notas: corazón ≈ 7%, arterias ≈ 13%, capilares ≈ 7%.');
+Q('HV',2,'Una persona sentada eleva la mano 30 cm por encima del corazón. La presión arterial en la mano será aproximadamente:',
+ ['≈ 23 mmHg menor que a la altura del corazón','≈ 23 mmHg mayor','Igual, porque el corazón compensa','≈ 3 mmHg menor'],
+ 'Cada cm de columna de sangre ≈ 0.77 mmHg (tus notas). 30 × 0.77 ≈ 23. Por eso la presión se mide a la altura del corazón.');
+Q('HV',2,'Un aumento del hematocrito por encima de lo normal produce:',
+ ['Aumento de la viscosidad y de la resistencia vascular','Disminución de la resistencia','Flujo turbulento por menor viscosidad','Aumento de la velocidad capilar'],
+ 'Hematocrito normal ≈ 35–50% (tus notas). Más glóbulos rojos = más fricción interna.');
+Q('HV',2,'En un paciente con desnutrición grave e hipoalbuminemia aparece edema porque:',
+ ['Disminuye la presión oncótica del plasma y predomina la filtración capilar','Aumenta la presión oncótica plasmática','Aumenta el drenaje linfático','Disminuye la presión hidrostática capilar'],
+ 'Fuerzas de Starling: la presión hidrostática capilar empuja hacia afuera y la oncótica plasmática retiene. Si la albúmina baja, sale más líquido del que los linfáticos pueden devolver.');
+Q('HV',2,'¿Cuál de estas acciones disminuye el retorno venoso?',
+ ['La espiración forzada contra glotis cerrada (Valsalva)','La inspiración','La contracción rítmica de los músculos de la pierna','Acostarse con las piernas elevadas'],
+ 'La presión intratorácica positiva comprime las venas cavas. La inspiración la hace más negativa y “succiona” sangre (bomba respiratoria). Tus notas incluyen también la presión abdominal y la insuficiencia venosa.');
+Q('HV',2,'La presión venosa central (aurícula derecha) normal es aproximadamente:',
+ ['0–6 mmHg, y refleja la presión de llenado del ventrículo derecho','20–30 mmHg','90 mmHg','8–20 mmHg, y refleja la poscarga del VD'],
+ '8–20 mmHg es la presión media de la arteria pulmonar en tus notas. La presión de enclavamiento pulmonar refleja el llenado del VI.');
+Q('HV',2,'La hiperemia reactiva (aumento del flujo tras liberar una oclusión arterial) se explica por:',
+ ['La acumulación de metabolitos vasodilatadores (adenosina, CO₂, H⁺, K⁺) durante la isquemia','La activación simpática','La respuesta miogénica a la presión alta','El reflejo barorreceptor'],
+ 'Teoría metabólica. En la hiperemia activa el aumento de metabolismo (ejercicio) produce el mismo efecto.');
+Q('HV',2,'Según la teoría miogénica de la autorregulación, si la presión de perfusión sube bruscamente, la arteriola:',
+ ['Se contrae por el estiramiento de su músculo liso y el flujo vuelve hacia lo normal','Se dilata y el flujo aumenta mucho','No cambia su radio','Libera adenosina'],
+ 'El estiramiento abre canales que despolarizan el músculo liso. Así el flujo se mantiene relativamente constante en un rango de presiones.');
+Q('HV',2,'El flujo coronario del ventrículo izquierdo es predominantemente diastólico porque:',
+ ['En la sístole el miocardio comprime los vasos intramurales','La válvula aórtica tapa los orificios coronarios en diástole','La presión aórtica es mayor en diástole','El simpático lo bloquea en sístole'],
+ 'Tus notas: “en sístole se contrae, colapsa las arterias”. La regulación principal es metabólica (adenosina).');
+Q('HV',2,'El principal regulador químico del flujo sanguíneo cerebral es:',
+ ['La PCO₂ arterial (su aumento vasodilata)','La PO₂ alveolar','El tono simpático','La presión venosa central'],
+ 'El flujo cerebral (≈ 750 mL/min, 15% del GC) se autorregula con PAM de ≈ 60–150 mmHg. La hiperventilación baja el CO₂ y produce vasoconstricción cerebral.');
+Q('HV',2,'En la piel, el intercambio de calor por contracorriente entre arterias y venas sirve para:',
+ ['Conservar calor, porque las venas lo recuperan y lo devuelven al centro','Perder calor más rápido','Aumentar la sudoración','Aumentar la presión arterial'],
+ 'Tus notas, p. 43. Cuando hace calor, la vasodilatación cutánea abre las anastomosis y aumenta la pérdida.');
+Q('HV',1,'El estado de choque suele diagnosticarse cuando hay hipoperfusión con presión sistólica:',
+ ['Menor de 90 mmHg','Menor de 120 mmHg','Mayor de 140 mmHg','Menor de 60 mmHg diastólica únicamente'],
+ 'La perfusión de los órganos depende de la PAM; si cae, aparecen signos de mala perfusión. Tus notas, p. 44.');
+Q('HV',2,'En la circulación fetal, la sangre oxigenada de la placenta pasa de la aurícula derecha a la izquierda a través de:',
+ ['El foramen oval','El conducto arterioso','El conducto venoso','La vena umbilical'],
+ 'El conducto arterioso comunica arteria pulmonar y aorta. La saturación arterial fetal es baja; la hemoglobina fetal compensa con mayor afinidad por el O₂.');
+
+// ── Casos clínicos adicionales con trazo ───────────────────
+Q('AR',2,'Hombre de 70 años con palpitaciones y disnea de 2 días. Pulso irregular. Se toma esta tira de DII. El diagnóstico y el hallazgo clave son:',
+ ['Fibrilación auricular: sin ondas P y RR irregularmente irregular','Flutter auricular: ondas F en sierra','Taquicardia sinusal: P antes de cada QRS','Extrasístoles ventriculares frecuentes: QRS anchos prematuros'],
+ 'La línea de base ondula sin P definidas y no hay dos RR iguales. Los QRS son estrechos porque la conducción ventricular es normal. Cuente 6 s × 10 para la FC (≈ 110).',{r:'af',n:11});
+Q('AR',3,'Mujer de 60 años con taquicardia regular a 150 lpm que no cambia con el ejercicio ni con el reposo. En esta tira de DII se observa:',
+ ['Flutter auricular con conducción 2:1','Taquicardia sinusal','Fibrilación auricular','Taquicardia ventricular'],
+ 'Entre los QRS hay dos ondas F regulares (una puede quedar escondida en la T o el QRS). Una frecuencia ventricular fija de 150 es la pista. El masaje carotídeo aumenta el bloqueo y deja ver las ondas F.',{r:'flutter',k:2});
+Q('AR',3,'Hombre de 68 años con infarto anterior hace 3 días presenta mareo súbito, pulso rápido y presión de 80/50. En el monitor aparece este trazo. Conducta y diagnóstico:',
+ ['Taquicardia ventricular inestable: cardioversión eléctrica','Taquicardia sinusal: líquidos y observar','Flutter auricular: masaje carotídeo','Fibrilación ventricular: sólo vigilancia'],
+ 'QRS anchos, regulares, sin P, ≈ 170 lpm, en un corazón con cicatriz reciente (sustrato de reentrada). Con hipotensión es inestable: choque sincronizado.',{r:'vt',hr:170});
+Q('AR',3,'Hombre de 74 años con síncopes de repetición. Esta tira de DII muestra:',
+ ['Bloqueo AV de segundo grado Mobitz II: necesita marcapasos','Bloqueo AV de primer grado: no requiere tratamiento','Arritmia sinusal: es fisiológica','Bloqueo AV Mobitz I: siempre benigno'],
+ 'El PR de los latidos conducidos es igual y de repente una P no conduce. En un paciente con síncope, el riesgo de progresión a bloqueo completo indica marcapasos.',{r:'mob2'});
+Q('IS',2,'Hombre de 55 años con dolor opresivo de 40 minutos irradiado al brazo izquierdo. Esta es la derivación V2. Interprete:',
+ ['Elevación del ST: lesión aguda de la cara anterior (descendente anterior)','Depresión del ST: isquemia subendocárdica','Onda T picuda por hiperpotasemia','Repolarización precoz normal'],
+ 'El ST sale elevado desde el punto J y se funde con la T (forma convexa, “bandera” en tus notas). En V1–V4 apunta a la descendente anterior. Hay que buscar imagen recíproca en DII, DIII y aVF.',{r:'sinus',hr:88,st:.35,lead:'V2'});
+Q('IS',2,'Mujer de 58 años con dolor torácico al caminar que cede al reposo. Durante el dolor se registra esta tira de V5. El hallazgo es:',
+ ['Depresión del ST: isquemia subendocárdica','Elevación del ST: infarto transmural','Onda Q patológica: necrosis antigua','Onda delta: preexcitación'],
+ 'El ST queda por debajo de la línea de base después del punto J. En angina estable aparece con el esfuerzo y desaparece en reposo.',{r:'sinus',hr:95,st:-.25,lead:'V5'});
+Q('HE',3,'Mujer de 30 años en tratamiento con un fármaco que bloquea canales de K⁺ refiere palpitaciones y un desmayo. Esta es su tira de DII (FC 60 lpm). El hallazgo de riesgo es:',
+ ['QT prolongado (≈ 0.56 s), que predispone a torsade de pointes','PR corto con onda delta','T picuda','Bloqueo AV de primer grado'],
+ 'Del inicio del QRS al final de la T hay ≈ 14 cuadritos. Con FC 60 el QTc es ≈ igual al QT; supera mucho 0.44–0.46 s. Bloquear K⁺ alarga la repolarización.',{r:'sinus',hr:60,qt:.56});
+Q('HE',2,'Hombre de 50 años con hipertensión de larga evolución. Esta es la derivación V5 con calibración estándar. Lo que sugiere es:',
+ ['Hipertrofia del ventrículo izquierdo por voltaje aumentado','Bajo voltaje por derrame','Bloqueo de rama derecha','Infarto lateral agudo'],
+ 'La R mide ≈ 2.7 mV (27 mm, más de 5 cuadros grandes). Más masa genera un vector mayor. Con la hipertensión (↑poscarga) el VI se hipertrofia para reducir la tensión de pared (Laplace).',{r:'sinus',hr:70,ramp:2.7,lead:'V5'});
+Q('FR',2,'Mujer de 25 años con fiebre de 39 °C. Su tira de DII muestra este ritmo. Diagnóstico:',
+ ['Taquicardia sinusal ≈ 125 lpm','Taquicardia supraventricular por reentrada a 180 lpm','Flutter auricular 2:1','Fibrilación auricular'],
+ 'Cada QRS tiene una P positiva delante con PR constante; el RR mide 12 cuadritos: 1500 / 12 = 125. La fiebre aumenta la FC ≈ 10 lpm por grado.',{r:'sinus',hr:125});
+Q('EB',2,'Observe esta tira de DII registrada con calibración estándar. La duración del intervalo PR es aproximadamente:',
+ ['0.16 s (4 cuadritos)','0.08 s','0.32 s','0.40 s'],
+ 'Del inicio de la P al inicio del QRS hay 4 cuadros pequeños × 0.04 s. Es normal (0.12–0.20 s).',{r:'sinus',hr:70,pr:.16});
+
+// ── Flashcards ─────────────────────────────────────────────
+// F(categoría, frente, reverso)
+F('Ondas','Onda P','Despolarización auricular. Normal: < 0.12 s (≤ 3 cuadritos) y < 2.5 mm (0.25 mV). Positiva en DII, negativa en aVR.');
+F('Ondas','Complejo QRS','Despolarización ventricular. Normal: 0.06–0.10 s; ancho si ≥ 0.12 s (bloqueo de rama, origen ventricular, preexcitación).');
+F('Ondas','Onda T','Repolarización ventricular (de epicardio a endocardio). Misma polaridad que el QRS. Picuda: K⁺ alto; invertida: isquemia.');
+F('Ondas','Onda U','Repolarización tardía (¿Purkinje?). Pequeña, después de la T. Prominente en hipopotasemia.');
+F('Ondas','Repolarización auricular (onda Ta)','Queda oculta dentro del QRS; normalmente no se ve.');
+F('Ondas','Onda Q patológica','≥ 0.04 s de duración o > 25% de la R. Indica necrosis (infarto establecido).');
+F('Ondas','Onda delta','Empastamiento inicial del QRS en Wolff-Parkinson-White: el ventrículo empieza a activarse por la vía accesoria.');
+F('Ondas','Onda J (Osborn)','Muesca positiva al final del QRS. Clásica de hipotermia.');
+F('Ondas','Nomenclatura Q, R, S, R′','Q: negativa antes de R. R: primera positiva. S: negativa tras R. R′: segunda positiva. QS: todo negativo.');
+F('Intervalos','Intervalo PR','Inicio de P → inicio de QRS. Normal 0.12–0.20 s. > 0.20 s = BAV de 1.er grado. < 0.12 s = preexcitación o ritmo de la unión.');
+F('Intervalos','Segmento PR','Fin de P → inicio de QRS. Representa el retraso en el nodo AV. Línea isoeléctrica.');
+F('Intervalos','Intervalo QT','Inicio de QRS → fin de T: sístole eléctrica ventricular. Depende de la FC. QTc normal ≤ 0.44 s (hombre) y ≤ 0.46 s (mujer).');
+F('Intervalos','Fórmula de Bazett','QTc = QT / √RR (en segundos).');
+F('Intervalos','Segmento ST','Del punto J al inicio de T. Corresponde a la meseta (fase 2). Isoeléctrico normalmente. Elevado: lesión. Deprimido: isquemia subendocárdica.');
+F('Intervalos','Punto J','Unión del final del QRS con el inicio del segmento ST. Ahí se mide el desnivel del ST.');
+F('Intervalos','Segmento vs intervalo','Segmento: línea entre ondas. Intervalo: incluye al menos una onda + un segmento.');
+F('Papel y calibración','Cuadro pequeño','1 mm = 0.04 s (horizontal) y 0.1 mV (vertical).');
+F('Papel y calibración','Cuadro grande','5 mm = 0.20 s y 0.5 mV. Cinco cuadros grandes = 1 s.');
+F('Papel y calibración','Velocidad estándar','25 mm/s. A 50 mm/s todo se ve el doble de ancho: 1 mm = 0.02 s.');
+F('Papel y calibración','Sensibilidad estándar','10 mm/mV (1 mV/cm). El pulso de calibración mide 10 mm. Doble: 20 mm. Mitad: 5 mm.');
+F('Papel y calibración','Voltaje normal en DII (Guyton)','P 0.1–0.3 mV · QRS 1.0–1.5 mV · T 0.2–0.3 mV.');
+F('Frecuencia','Regla de 300','FC = 300 / cuadros grandes entre R y R. Secuencia: 300 · 150 · 100 · 75 · 60 · 50 · 43 · 37.');
+F('Frecuencia','Regla de 1500','FC = 1500 / cuadros pequeños entre R y R. Más precisa.');
+F('Frecuencia','Ritmo irregular','Contar QRS en 6 s y multiplicar por 10 (o en 10 s × 6).');
+F('Frecuencia','Rangos de FC','Normal 60–100. Taquicardia > 100. Bradicardia < 60.');
+F('Frecuencia','Criterios de ritmo sinusal','P antes de cada QRS · QRS después de cada P · PR constante · P positiva en DII y negativa en aVR.');
+F('Derivaciones','DI','Brazo derecho (−) → brazo izquierdo (+). 0°.');
+F('Derivaciones','DII','Brazo derecho (−) → pierna izquierda (+). +60°. La mejor para ver la P y el ritmo.');
+F('Derivaciones','DIII','Brazo izquierdo (−) → pierna izquierda (+). +120°.');
+F('Derivaciones','Ley de Einthoven','DII = DI + DIII.');
+F('Derivaciones','aVR, aVL, aVF','Unipolares aumentadas (Goldberger, +50%). aVR −150°, aVL −30°, aVF +90°.');
+F('Derivaciones','Pierna derecha','Tierra. No forma parte de ninguna derivación.');
+F('Derivaciones','Precordiales V1–V6','V1: 4.º EIC paraesternal der. V2: 4.º EIC paraesternal izq. V3: entre V2 y V4. V4: 5.º EIC medioclavicular. V5: axilar anterior. V6: axilar media.');
+F('Derivaciones','Planos','Miembros = plano frontal. Precordiales = plano horizontal.');
+F('Derivaciones','Polaridad','Frente que se acerca al electrodo (+) → deflexión positiva. Que se aleja → negativa. Perpendicular → isodifásica.');
+F('Eje','Método de cuadrantes','DI(+) aVF(+) normal · DI(+) aVF(−) izquierda · DI(−) aVF(+) derecha · DI(−) aVF(−) extrema.');
+F('Eje','Eje normal','−30° a +90° (algunos textos: hasta +100/+110°).');
+F('Eje','Derivación isodifásica','El eje es perpendicular a ella.');
+F('Eje','Causas de desviación izquierda','Hipertrofia VI, hemibloqueo anterior izquierdo, obesidad, embarazo, infarto inferior.');
+F('Eje','Causas de desviación derecha','Hipertrofia VD, embolia pulmonar, EPOC, hemibloqueo posterior, persona delgada y alta.');
+F('Arritmias','BAV 1.er grado','PR > 0.20 s constante; todas las P conducen.');
+F('Arritmias','BAV 2.º grado Mobitz I','PR se alarga progresivamente hasta que una P no conduce (Wenckebach). Suele ser nodal, benigno.');
+F('Arritmias','BAV 2.º grado Mobitz II','PR constante y, de pronto, P sin QRS. Infrahisiano; riesgo de bloqueo completo → marcapasos.');
+F('Arritmias','BAV 3.er grado','Disociación AV: P y QRS regulares cada uno a su ritmo. Escape nodal (QRS estrecho, 40–60) o ventricular (ancho, 15–40).');
+F('Arritmias','Fibrilación auricular','Sin P, línea de base ondulante, RR irregularmente irregular. Sin onda a ni R4. Riesgo de embolia.');
+F('Arritmias','Flutter auricular','Ondas F en sierra ≈ 300/min. Conducción 2:1 (150 lpm) o 4:1 (75 lpm).');
+F('Arritmias','Fibrilación ventricular','Ondulación caótica sin QRS. Paro: desfibrilar.');
+F('Arritmias','Taquicardia ventricular','QRS anchos regulares > 100 lpm, sin P. Inestable → cardioversión.');
+F('Arritmias','Asistolia','Línea plana. No desfibrilable: RCP + adrenalina.');
+F('Arritmias','Extrasístole ventricular','Prematura, QRS ancho sin P, T opuesta, pausa compensadora completa.');
+F('Arritmias','Extrasístole auricular','P prematura de otra forma, QRS estrecho, pausa no compensadora.');
+F('Arritmias','Wolff-Parkinson-White','PR < 0.12 s + onda delta + QRS ancho. Vía accesoria (Kent) que cruza el anillo fibroso.');
+F('Arritmias','Bloqueo de rama derecha','QRS ≥ 0.12 s, rSR′ en V1 (orejas de conejo), S ancha en DI y V6.');
+F('Arritmias','Bloqueo de rama izquierda','QRS ≥ 0.12 s, R ancha mellada en DI, aVL, V5–V6; sin q septal.');
+F('Arritmias','Frecuencias intrínsecas','Nodo SA 70–80 · nodo AV 40–60 · Purkinje 15–40 lpm.');
+F('Isquemia','Isquemia · lesión · necrosis','Isquemia → onda T. Lesión → segmento ST. Necrosis → onda Q.');
+F('Isquemia','Cara inferior','DII, DIII, aVF → coronaria derecha (en dominancia derecha).');
+F('Isquemia','Cara anterior / septal','V1–V4 (septal V1–V2) → descendente anterior.');
+F('Isquemia','Cara lateral','DI, aVL, V5–V6 → circunfleja (alta lateral: diagonales).');
+F('Isquemia','Cara posterior','Depresión ST y R alta en V1–V3 (espejo). Confirmar con V7–V9.');
+F('Isquemia','Corriente de lesión','Sin ATP falla la bomba Na⁺/K⁺; el tejido queda parcialmente despolarizado y desplaza el ST.');
+F('Electrolitos','Hiperpotasemia','T picuda → P aplanada, PR largo → QRS ancho → onda sinusoidal.');
+F('Electrolitos','Hipopotasemia','T aplanada, onda U, descenso del ST.');
+F('Electrolitos','Calcio','Hipercalcemia: QT corto. Hipocalcemia: QT largo (ST largo).');
+F('Electrolitos','Digital','ST en cubeta, QT corto. Toxicidad: arritmias.');
+F('Electrolitos','Crecimientos auriculares','P pulmonale (AD): > 2.5 mm en DII. P mitrale (AI): ≥ 0.12 s, bífida.');
+F('Electrolitos','HVI (Sokolow-Lyon)','S en V1 + R en V5/V6 > 35 mm.');
+F('Célula','Fases del miocito ventricular','0: Na⁺ entra · 1: K⁺ (Ito) sale · 2: meseta Ca²⁺ L vs K⁺ · 3: K⁺ sale · 4: reposo ≈ −90 mV.');
+F('Célula','Fases del nodo SA','4: If (funny) + Ca²⁺ T · 0: Ca²⁺ tipo L · 3: K⁺ sale. Potencial diastólico máximo ≈ −60 mV.');
+F('Célula','Acoplamiento E-C cardíaco','Ca²⁺ entra por canal L (DHP) → activa rianodina (RyR2) → Ca²⁺ del RS → troponina C. Relajación: SERCA y NCX.');
+F('Célula','Términos -trópicos','Crono: frecuencia · Ino: fuerza · Dromo: conducción · Lusi: relajación · Batmo: excitabilidad.');
+F('Célula','Tiempos de conducción (Guyton)','SA → nodo AV: 0.03 s · retraso AV ≈ 0.13 s · llega a ventrículos ≈ 0.16 s.');
+F('Hemodinamia','Volúmenes del VI','VTD ≈ 120 mL · VTS ≈ 50 mL · VL ≈ 70 mL · FE ≈ 55–70%.');
+F('Hemodinamia','Gasto cardíaco','GC = VL × FC ≈ 5 L/min en reposo; hasta ≈ 25 L/min en ejercicio intenso.');
+F('Hemodinamia','Fracción de eyección','FE = VL / VTD × 100. Reducida si < 50% (tus notas; VERIFICAR punto de corte del curso).');
+F('Hemodinamia','Presión arterial media','PAM ≈ PAD + (PAS − PAD)/3. Con 120/80 ≈ 93 mmHg.');
+F('Hemodinamia','Presiones normales','VI 120/0–10 · Aorta 120/80 · VD 25/0–5 · AP 25/10 (media ≈ 15) · PVC 0–6 · Enclavamiento ≈ 6–12 mmHg.');
+F('Hemodinamia','Ley de Laplace','T = P · r / 2h. Hipertensión → hipertrofia concéntrica (↑h) para bajar la tensión.');
+F('Hemodinamia','Poiseuille','R = 8ηL / πr⁴. Radio a la mitad → R × 16.');
+F('Hemodinamia','Velocidad y área','v = Q / A. Aorta ≈ 26–33 cm/s; capilares ≈ 0.3 mm/s (2 cm/min con 2500 cm²).');
+F('Hemodinamia','Presión hidrostática','≈ 0.77 mmHg por cm por encima o debajo del corazón.');
+F('Hemodinamia','Distribución del volumen','Venas ≈ 64% · arterias ≈ 13% · capilares ≈ 7% · corazón ≈ 7% · pulmones ≈ 9%.');
+F('Ciclo','Ruidos cardíacos','R1: cierre AV · R2: cierre semilunares · R3: llenado rápido · R4: contracción auricular contra ventrículo rígido.');
+F('Ciclo','Pulso venoso','a: contracción auricular · c: abombamiento tricuspídeo · v: llenado auricular · x: relajación auricular · y: apertura tricúspide.');
+F('Ciclo','Asa presión-volumen','Antihoraria: llenado (abajo) → contracción isovolumétrica (derecha) → eyección (arriba) → relajación isovolumétrica (izquierda). Área = trabajo latido.');
+F('Ciclo','Precarga y poscarga','Precarga: estiramiento al final de diástole (VTD). Poscarga: lo que vence al eyectar (presión aórtica, estenosis).');
+F('Ciclo','Valvulopatías','EA: sistólico eyectivo, ↑poscarga · IA: diastólico, ↑precarga · EM: diastólico, ↓precarga VI · IM: holosistólico, ↑precarga · PCA: continuo.');
+F('Regulación','Masaje carotídeo','Barorreceptor del seno → IX (Hering) → NTS → ↑vago → ↓FC y ↓conducción AV.');
+F('Regulación','Quimiorreceptores','Periféricos (carotídeo, aórtico): ↓PO₂. Centrales (bulbo): ↑CO₂/H⁺.');
+F('Regulación','Reflejo de Bainbridge','Distensión auricular → ↑FC.');
+F('Regulación','Autorregulación','Miogénica (estiramiento → contracción) y metabólica (adenosina, CO₂, H⁺, K⁺ → dilatación).');
+
+</script>
+<script>
+"use strict";
+const TEMAS={EC:'Electrofisiología celular',CA:'Conducción y control autonómico',EB:'Bases del ECG',FR:'Frecuencia y ritmo',EJ:'Eje eléctrico',AR:'Arritmias y bloqueos',IS:'Isquemia e infarto',HE:'Hipertrofias y electrolitos',CI:'Ciclo cardíaco y ruidos',GC:'Gasto, precarga y poscarga',VA:'Valvulopatías y soplos',HV:'Hemodinamia vascular'};
+const LVL={1:'Fácil',2:'Media',3:'Difícil'};
+const L='ABCDE';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ───────── Almacenamiento local (sólo comodidad) ───────── */
+const KEY='bancoCardio.v1';
+let store={ans:{},fc:{}};
+try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+
+/* ───────── Azar con semilla ───────── */
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffle(arr,r=Math.random){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// Orden de opciones estable por pregunta: devuelve índices originales
+function optOrder(q){return shuffle(q.o.map((_,i)=>i),rng(q.id*7919+13))}
+
+/* ───────── Generador de ECG ─────────
+   Todo en segundos y milivoltios. El trazo se dibuja en milímetros:
+   x = t·velocidad (mm/s), y = −V·ganancia (mm/mV). */
+const ECG=(()=>{
+  const G=(c,a,w,w2)=>({k:'g',c,a,w,w2:w2||w});
+  function addBeat(C,q0,o){
+    const m=o.m||'n';let d;
+    if(m==='n'){d=o.qrs||.08;const R=o.ramp||1.1;
+      C.push(G(q0+.15*d,-.08,.1*d),G(q0+.45*d,R,.11*d),G(q0+.75*d,-.25,.11*d));}
+    else if(m==='wide'){d=.16;C.push(G(q0+.075,1.0,.03,.035),G(q0+.135,-.3,.018));}
+    else if(m==='rbbb'){d=.13;C.push(G(q0+.02,.25,.011),G(q0+.05,-.55,.012),G(q0+.095,.85,.016));}
+    else if(m==='wpw'){d=.12;C.push(G(q0+.04,.32,.02),G(q0+.07,1.0,.011),G(q0+.095,-.2,.01));}
+    const J=q0+d;
+    const qt=o.qt||Math.min(.46,Math.max(.30,.40*Math.sqrt(o.rr||.8)));
+    const tw=o.tw||.045;
+    const tA=o.t!=null?o.t:(m==='wide'?-.35:(m==='rbbb'?-.18:(o.st<0?.1:.3)));
+    const tc=Math.max(J+.06,q0+qt-2.4*tw);
+    C.push(G(tc,tA,tw*1.45,tw));
+    if(o.st)C.push({k:'st',t0:J,t1:tc,a:o.st});
+    if(o.u)C.push(G(q0+qt+.08,o.u,.035));
+    return J;
+  }
+  function addP(C,tc,kind){
+    if(kind==='pac'){C.push(G(tc,.1,.02),G(tc+.04,-.05,.018));return}
+    C.push(G(tc,.15,.024));
+  }
+  // centro de P a partir del inicio del QRS y el PR (inicio de P ≈ centro − 0.048 s)
+  const pC=(q0,pr)=>q0-pr+.048;
+  const qFromR=(tR,m)=>tR-(m==='wide'?.075:m==='rbbb'?.095:m==='wpw'?.07:.036);
+
+  function build(sp){
+    const spd=sp.spd||25, dur=sp.dur||(spd===50?3:6);
+    const r=rng(sp.seed||42);
+    const C=[];const base=[];const R=[];
+    const m=sp.m||'n', pr=sp.pr||.16;
+    const beat=(tR,o={})=>{const mm=o.m||m;const q0=qFromR(tR,mm);
+      if(o.p!==false)addP(C,pC(q0,o.pr||pr),o.pk);
+      addBeat(C,q0,Object.assign({m:mm,rr:o.rr||sp.rr||.8,t:sp.t,tw:sp.tw,st:sp.st,u:sp.u,qt:sp.qt,ramp:sp.ramp,qrs:sp.qrs},o));R.push(tR)};
+    const rh=sp.r||'sinus';
+    if(rh==='sinus'||rh==='nodal'||rh==='svt'||rh==='vt'||rh==='wpw'){
+      const rr=60/(sp.hr||75);let t=.6;
+      const o={rr};if(rh==='nodal'||rh==='svt'||rh==='vt')o.p=false;
+      if(rh==='vt')o.m='wide';if(rh==='wpw'){o.m='wpw';o.pr=.10}
+      if(rh==='svt'){o.t=.22}
+      if(rh==='nodal'){/* P retrógrada oculta */}
+      while(t<dur-.15){beat(t,o);t+=rr}
+    } else if(rh==='arr'){
+      const seq=[.72,.8,.95,1.08,1.12,1.0,.85,.74,.72,.8];let t=.6,i=0;
+      while(t<dur-.15){beat(t,{rr:seq[i]});t+=seq[i++%seq.length]}
+    } else if(rh==='pause'){
+      [.6,1.4,2.2].forEach(t=>beat(t));beat(4.1,{p:false});[4.9,5.7].forEach(t=>beat(t));
+    } else if(rh==='pvc'||rh==='pac'){
+      const rr=.8;let ts=[.6,1.4,2.2];ts.forEach(t=>beat(t));
+      if(rh==='pvc'){beat(2.2+.48,{m:'wide',p:false});[3.8,4.6,5.4].forEach(t=>beat(t));}
+      else{const tp=2.2+.5;beat(tp,{pk:'pac'});[tp+.85,tp+1.65,tp+2.45].forEach(t=>t<dur-.15&&beat(t));}
+    } else if(rh==='mob1'){
+      const prs=[.16,.26,.32,null];let tp=.42,i=0;
+      while(tp<dur-.1){const p=prs[i%4];addP(C,tp);if(p!=null){const q0=tp-.048+p;const tR=q0+.036;if(tR<dur-.15){addBeat(C,q0,{rr:.8});R.push(tR)}}tp+=.8;i++}
+    } else if(rh==='mob2'){
+      let tp=.42,i=0;
+      while(tp<dur-.1){addP(C,tp);if(i%3!==2){const q0=tp-.048+.18;const tR=q0+.036;if(tR<dur-.15){addBeat(C,q0,{rr:.8});R.push(tR)}}tp+=.8;i++}
+    } else if(rh==='avb3'){
+      for(let tp=.4;tp<dur-.05;tp+=.72)addP(C,tp);
+      for(let tR=.95;tR<dur-.15;tR+=1.55){addBeat(C,qFromR(tR,'wide'),{m:'wide',rr:1.55});R.push(tR)}
+    } else if(rh==='af'){
+      const n=sp.n||9;const raw=[];for(let i=0;i<n-1;i++)raw.push(.55+r()*.75);
+      const span=raw.reduce((a,b)=>a+b,0);const k=(dur-.4-.5)/span;let t=.45;
+      for(let i=0;i<n;i++){beat(t,{p:false,rr:.7,t:.22});if(i<n-1)t+=raw[i]*k}
+      const ph=[r()*6,r()*6,r()*6];
+      base.push(t=>.045*Math.sin(2*Math.PI*6.3*t+ph[0])+.03*Math.sin(2*Math.PI*8.4*t+ph[1])+.025*Math.sin(2*Math.PI*4.9*t+ph[2]));
+    } else if(rh==='flutter'){
+      const k=sp.k||4,per=.2,t0=.3;
+      base.push(t=>{if(t<t0)return 0;let ph=((t-t0)/per)%1;return ph<.75?.1-.3*(ph/.75):-.2+.3*((ph-.75)/.25)});
+      for(let tR=t0+per*1+.12+.036;tR<dur-.15;tR+=k*per){addBeat(C,tR-.036,{rr:k*per,t:.12});R.push(tR)}
+    } else if(rh==='vf'){
+      base.push(t=>(.7+.3*Math.sin(2*Math.PI*.45*t))*(.38*Math.sin(2*Math.PI*4.4*t)+.2*Math.sin(2*Math.PI*6.1*t+1.3)+.12*Math.sin(2*Math.PI*2.6*t+.4)));
+    } else if(rh==='asys'){
+      base.push(t=>.015*Math.sin(2*Math.PI*.35*t)+.008*Math.sin(2*Math.PI*7*t));
+    }
+    const dt=.002,N=Math.round(dur/dt);const v=new Float32Array(N+1);
+    for(let i=0;i<=N;i++){const t=i*dt;let s=0;
+      if(t>=.28){for(const c of C){
+        if(c.k==='g'){const x=t-c.c;const w=x<0?c.w:c.w2;if(Math.abs(x)<6*w)s+=c.a*Math.exp(-.5*(x/w)*(x/w))}
+        else if(c.k==='st'){if(t>c.t0-.03&&t<c.t1+.12){const up=1/(1+Math.exp(-(t-c.t0-.004)/.006));const dn=1/(1+Math.exp((t-c.t1-.04)/.02));s+=c.a*up*dn}}
+      }for(const f of base)s+=f(t)}
+      v[i]=s}
+    return {v,dt,dur,spd,R};
+  }
+  function svg(sp){
+    const b=build(sp);const gain=sp.gain||10,spd=b.spd;
+    let mx=1,mn=-.5;for(const x of b.v){if(x>mx)mx=x;if(x<mn)mn=x}
+    const top=Math.max(gain*1,mx*gain)+5, bot=Math.max(6,-mn*gain+4);
+    const H=Math.ceil((top+bot)/5)*5, y0=Math.round(top/5)*5||5;
+    const W=Math.round(b.dur*spd);
+    let g1='',g2='';
+    for(let x=0;x<=W;x++)(x%5?(g1+=`M${x} 0V${H}`):(g2+=`M${x} 0V${H}`));
+    for(let y=0;y<=H;y++)(y%5?(g1+=`M0 ${y}H${W}`):(g2+=`M0 ${y}H${W}`));
+    // pulso de calibración de 1 mV, 0.2 s
+    const cw=.2*spd,cx=.04*spd,ch=gain;
+    let p=`M0 ${y0}H${cx}V${y0-ch}H${cx+cw}V${y0}`;
+    const step=Math.max(1,Math.round(.1/(b.dt*spd)));
+    for(let i=Math.round(.26/b.dt);i<b.v.length;i+=1){const x=i*b.dt*spd;if(x>W)break;
+      if(i%step===0||i===b.v.length-1)p+=`L${x.toFixed(2)} ${(y0-b.v[i]*gain).toFixed(2)}`}
+    const lead=sp.lead||'DII';
+    return {html:`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trazo de ECG, derivación ${lead}"><path class="g1" d="${g1}"/><path class="g2" d="${g2}"/><path class="tr" d="${p}"/><text x="${W-2}" y="${H-1.6}" text-anchor="end">${lead}</text></svg>`,b};
+  }
+  return {build,svg};
+})();
+
+/* ───────── Interfaz de una pregunta ───────── */
+function qHTML(q,{state,mode}){
+  const order=optOrder(q);
+  const answered=state&&state.choice!=null&&mode==='practica';
+  const ok=answered&&state.choice===0;
+  let h=`<div class="card"><div class="qmeta"><span class="pill">${esc(TEMAS[q.t])}</span><span class="pill lvl${q.d}">${LVL[q.d]}</span>${q.s?'<span class="pill">Con trazo</span>':''}<span>#${q.id+1}</span></div>`;
+  h+=`<p class="stem">${esc(q.q)}</p>`;
+  if(q.s)h+=`<div class="ecg">${ECG.svg(q.s).html}</div>`;
+  h+=`<ul class="opts">`;
+  order.forEach((oi,k)=>{let cls='';
+    if(answered){if(oi===0)cls='right';else if(oi===state.choice)cls='wrong'}
+    else if(state&&state.choice===oi)cls='sel';
+    h+=`<li><button class="opt ${cls}" data-oi="${oi}" ${answered?'disabled':''}><b>${L[k]})</b><span>${esc(q.o[oi])}</span></button></li>`});
+  h+=`</ul>`;
+  if(answered){const corr=L[order.indexOf(0)];
+    h+=`<div class="teach ${ok?'ok':'bad'}" role="status"><div class="verdict">${ok?'Correcto':'Incorrecto · la respuesta es '+corr+')'}</div><h4>Enseñanza</h4><p>${esc(q.e)}</p></div>`}
+  return h+`</div>`;
+}
+
+/* ───────── PRÁCTICA ───────── */
+const P={list:[],i:0,lvl:0,shuffled:false,session:{}};
+function temaOptions(sel,withAll){sel.innerHTML=(withAll?'<option value="">Todos los temas</option>':'')+Object.entries(TEMAS).map(([k,v])=>`<option value="${k}">${v} (${QS.filter(q=>q.t===k).length})</option>`).join('')}
+function pFilter(keepCurrent){
+  const t=$('p-tema').value,e=$('p-ecg').checked,f=$('p-fail').checked;
+  const cur=P.list[P.i];
+  let l=QS.filter(q=>(!t||q.t===t)&&(!P.lvl||q.d===P.lvl)&&(!e||q.s)&&(!f||(store.ans[q.id]&&store.ans[q.id].ok===false)));
+  if(P.shuffled)l=shuffle(l);
+  P.list=l;P.i=keepCurrent&&cur?Math.max(0,l.indexOf(cur)):0;P.session={};pRender();
+}
+function pRender(){
+  const q=P.list[P.i];
+  const tot=P.list.length;
+  const done=P.list.filter(x=>store.ans[x.id]).length;
+  const okc=P.list.filter(x=>store.ans[x.id]&&store.ans[x.id].ok).length;
+  $('p-pos').textContent=tot?`Pregunta ${P.i+1} de ${tot}`:'Sin preguntas con estos filtros';
+  $('p-score').textContent=done?`Respondidas ${done} · aciertos ${Math.round(100*okc/done)}%`:'Aún sin respuestas en este filtro';
+  $('p-meter').style.width=tot?(100*done/tot)+'%':'0';
+  $('p-prev').disabled=P.i<=0;$('p-next').disabled=P.i>=tot-1;
+  if(!q){$('p-card').innerHTML=`<div class="card empty">No hay preguntas que cumplan los filtros. ${$('p-fail').checked?'Si activaste “Sólo falladas”, todavía no has fallado ninguna aquí.':''}</div>`;return}
+  pGrid();
+  const st=P.session[q.id];
+  $('p-card').innerHTML=qHTML(q,{state:st,mode:'practica'});
+  $('p-card').querySelectorAll('.opt').forEach(b=>b.onclick=()=>pAnswer(q,+b.dataset.oi));
+}
+function pGrid(){const g=$('p-grid');if(!g||!$('p-navq').open)return;
+  g.innerHTML=P.list.map((x,k)=>{const a=store.ans[x.id];return `<button role="listitem" data-k="${k}" class="${a?(a.ok?'ok':'bad'):''}" ${k===P.i?'aria-current="true"':''} title="${esc(TEMAS[x.t])} · ${LVL[x.d]}">${x.id+1}</button>`}).join('');
+  g.querySelectorAll('button').forEach(b=>b.onclick=()=>{P.i=+b.dataset.k;pRender();$('p-card').scrollIntoView({block:'nearest'})});
+  const cur=g.querySelector('[aria-current="true"]');if(cur)cur.scrollIntoView({block:'nearest'})}
+function pGoto(){const n=parseInt($('p-goto').value,10),q=QS[n-1];if(!q){$('p-go-msg').textContent=`Escribe un número del 1 al ${QS.length}.`;return}
+  let k=P.list.indexOf(q);
+  if(k<0){$('p-tema').value='';$('p-ecg').checked=false;$('p-fail').checked=false;P.lvl=0;P.shuffled=false;$('p-lvl').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.l==='0'));pFilter(false);k=P.list.indexOf(q);$('p-go-msg').textContent='Quité los filtros para mostrarla.'}else $('p-go-msg').textContent='';
+  P.i=k;pRender();$('p-card').scrollIntoView({block:'nearest'})}
+$('p-go').onclick=pGoto;$('p-goto').onkeydown=e=>{if(e.key==='Enter')pGoto()};
+$('p-navq').addEventListener('toggle',pGrid);
+function pAnswer(q,oi){
+  if(P.session[q.id])return;
+  P.session[q.id]={choice:oi};
+  store.ans[q.id]={ok:oi===0,ts:Date.now()};save();pRender();
+  const t=$('p-card').querySelector('.teach');if(t&&t.getBoundingClientRect().bottom>innerHeight)t.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+$('p-prev').onclick=()=>{if(P.i>0){P.i--;pRender()}};
+$('p-next').onclick=()=>{if(P.i<P.list.length-1){P.i++;pRender();$('p-card').scrollIntoView({block:'nearest'})}};
+$('p-shuf').onclick=()=>{P.shuffled=true;pFilter(false)};
+['p-tema','p-ecg','p-fail'].forEach(id=>$(id).onchange=()=>pFilter(false));
+$('p-lvl').querySelectorAll('button').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;$('p-lvl').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));pFilter(false)});
+let resetArm=false;
+$('p-reset').onclick=()=>{if(!resetArm){resetArm=true;$('p-reset').textContent='Confirmar: borrar historial';$('p-reset-msg').textContent='Vuelve a pulsar para confirmar.';return}
+  resetArm=false;store.ans={};save();P.session={};$('p-reset').textContent='Borrar mi historial de respuestas';$('p-reset-msg').textContent='Historial borrado.';pFilter(true)};
+
+/* ───────── SIMULACRO ───────── */
+const S={list:[],i:0,ans:{},t0:0,timer:null};
+$('s-start').onclick=()=>{
+  const n=+$('s-n').value,t=$('s-tema').value,lv=+$('s-lvl').value;
+  let pool=QS.filter(q=>(!t||q.t===t)&&(!lv||q.d===lv));
+  S.list=shuffle(pool).slice(0,n);S.i=0;S.ans={};S.t0=Date.now();
+  if(!S.list.length)return;
+  $('s-setup').hidden=true;$('s-res').hidden=true;$('s-run').hidden=false;
+  clearInterval(S.timer);S.timer=setInterval(sTime,1000);sTime();sRender();
+};
+function sTime(){const s=Math.round((Date.now()-S.t0)/1000);$('s-time').textContent=`Tiempo ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
+function sRender(){
+  const q=S.list[S.i];const n=Object.keys(S.ans).length;
+  $('s-pos').textContent=`Pregunta ${S.i+1} de ${S.list.length} · contestadas ${n}`;
+  $('s-meter').style.width=(100*n/S.list.length)+'%';
+  $('s-prev').disabled=S.i<=0;$('s-next').disabled=S.i>=S.list.length-1;
+  $('s-card').innerHTML=qHTML(q,{state:S.ans[q.id]!=null?{choice:S.ans[q.id]}:null,mode:'sim'});
+  $('s-card').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{S.ans[q.id]=+b.dataset.oi;sRender()});
+}
+$('s-prev').onclick=()=>{if(S.i>0){S.i--;sRender()}};
+$('s-next').onclick=()=>{if(S.i<S.list.length-1){S.i++;sRender()}};
+let endArm=false;
+$('s-end').onclick=()=>{const left=S.list.length-Object.keys(S.ans).length;
+  if(left&&!endArm){endArm=true;$('s-end-msg').textContent=`Te faltan ${left}. Pulsa otra vez para calificar de todos modos.`;return}
+  endArm=false;$('s-end-msg').textContent='';sResults()};
+function sResults(){
+  clearInterval(S.timer);
+  const rows={};let ok=0;
+  S.list.forEach(q=>{const a=S.ans[q.id];const good=a===0;if(good)ok++;rows[q.t]=rows[q.t]||[0,0];rows[q.t][1]++;if(good)rows[q.t][0]++;
+    if(a!=null){store.ans[q.id]={ok:good,ts:Date.now()}}});
+  save();
+  const pct=Math.round(100*ok/S.list.length);
+  const s=Math.round((Date.now()-S.t0)/1000);
+  let h=`<div class="card"><div class="result-head"><div class="big">${pct}%</div><div>${ok} de ${S.list.length} correctas · ${Math.floor(s/60)} min ${s%60} s</div></div>
+  <div style="overflow-x:auto"><table class="mini"><thead><tr><th>Tema</th><th style="text-align:right">Aciertos</th></tr></thead><tbody>${Object.entries(rows).sort((a,b)=>a[1][0]/a[1][1]-b[1][0]/b[1][1]).map(([k,v])=>`<tr><td>${TEMAS[k]}</td><td class="n">${v[0]}/${v[1]}</td></tr>`).join('')}</tbody></table></div>
+  <div class="bar"><button class="primary" id="s-again">Nuevo simulacro</button><span class="hint">Los temas están ordenados del más débil al más fuerte.</span></div></div>
+  <div class="review">`;
+  S.list.forEach((q,k)=>{const a=S.ans[q.id];const good=a===0;const order=optOrder(q);
+    h+=`<details class="rv"${good?'':' open'}><summary><span class="mk ${good?'ok':'bad'}">${good?'✓':'✗'}</span><span>${k+1}. ${esc(q.q.length>110?q.q.slice(0,108)+'…':q.q)}</span></summary>`+
+      qHTML(q,{state:{choice:a==null?-1:a},mode:'practica'}).replace('Incorrecto ·',a==null?'Sin responder ·':'Incorrecto ·')+`</details>`});
+  h+='</div>';
+  $('s-run').hidden=true;$('s-res').hidden=false;$('s-res').innerHTML=h;
+  $('s-again').onclick=()=>{$('s-res').hidden=true;$('s-setup').hidden=false};
+  $('s-res').scrollIntoView({block:'start'});
+}
+
+/* ───────── FLASHCARDS ───────── */
+const FC={list:[],i:0,mode:'card'};
+const cats=[...new Set(FS.map(f=>f.c))];
+$('f-cat').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');
+function fFilter(shuf){const c=$('f-cat').value;let l=FS.filter(f=>!c||f.c===c);if(shuf)l=shuffle(l);FC.list=l;FC.i=0;fRender()}
+function fRender(){
+  const l=FC.list;const known=l.filter(f=>store.fc[f.id]==='si').length;
+  $('f-known').textContent=`La sé: ${known} de ${l.length}`;
+  if(FC.mode==='list'){$('f-cardview').hidden=true;$('f-listview').hidden=false;
+    $('f-listview').innerHTML=l.map(f=>`<div><b>${esc(f.f)}</b><span>${esc(f.b)}</span></div>`).join('');return}
+  $('f-cardview').hidden=false;$('f-listview').hidden=true;
+  const f=l[FC.i];if(!f)return;
+  $('fc').classList.remove('flip');
+  $('f-pos').textContent=`Tarjeta ${FC.i+1} de ${l.length}`;
+  $('fc-cat').textContent=f.c;$('fc-cat2').textContent=f.c;$('fc-front').textContent=f.f;$('fc-back').textContent=f.b;
+  $('f-prev').disabled=FC.i===0;
+}
+function fNext(mark){const f=FC.list[FC.i];if(f&&mark){store.fc[f.id]=mark;save()}
+  if(mark==='no'){const c=FC.list.splice(FC.i,1)[0];FC.list.splice(Math.min(FC.list.length,FC.i+4),0,c)}else FC.i=Math.min(FC.list.length-1,FC.i+1);fRender()}
+$('fc').onclick=()=>$('fc').classList.toggle('flip');
+$('fc').onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();$('fc').classList.toggle('flip')}};
+$('f-know').onclick=()=>fNext('si');$('f-again').onclick=()=>fNext('no');
+$('f-prev').onclick=()=>{if(FC.i>0){FC.i--;fRender()}};
+$('f-shuf').onclick=()=>fFilter(true);$('f-cat').onchange=()=>fFilter(false);
+$('f-mode').querySelectorAll('button').forEach(b=>b.onclick=()=>{FC.mode=b.dataset.m;$('f-mode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fRender()});
+/* tarjeta: alto según contenido */
+new ResizeObserver(()=>{const fb=document.querySelector('.face.back'),ff=document.querySelector('.face.front');if(!fb)return;
+  const h=Math.max(240,fb.scrollHeight,ff.scrollHeight);$('fc').style.minHeight=h+'px'}).observe(document.querySelector('.flash'));
+
+/* ───────── Navegación por hash ───────── */
+const VIEWS=['practica','simulacro','flashcards'];
+let CUR=null;
+function route(force){const h=location.hash.slice(1),v=force||(VIEWS.includes(h)?h:(CUR||'practica'));CUR=v;
+  VIEWS.forEach(x=>{$('v-'+x).hidden=x!==v});
+  document.querySelectorAll('nav.tabs a').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+}
+addEventListener('hashchange',()=>route());
+document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const v=a.dataset.v;try{history.replaceState(null,'','#'+v)}catch(_){}route(v);window.scrollTo(0,0)}));
+
+document.addEventListener('keydown',e=>{
+  if($('v-practica').hidden||e.target.tagName==='SELECT'||e.target.tagName==='INPUT')return;
+  const k=e.key.toUpperCase();const idx=L.indexOf(k);
+  if(idx>=0&&e.key.length===1){const b=$('p-card').querySelectorAll('.opt')[idx];if(b&&!b.disabled)b.click()}
+  else if(e.key==='ArrowRight')$('p-next').click();else if(e.key==='ArrowLeft')$('p-prev').click();
+});
+
+/* ───────── Inicio ───────── */
+temaOptions($('p-tema'),true);temaOptions($('s-tema'),true);
+$('stats').innerHTML=`<span>${QS.length} preguntas</span><span>${QS.filter(q=>q.s).length} con trazo de ECG</span><span>${FS.length} flashcards</span><span>${Object.keys(TEMAS).length} temas</span>`;
+pFilter(false);fFilter(false);route();
+window.__dbg={QS,FS,ECG,optOrder};
+</script>
+
+</body></html>
