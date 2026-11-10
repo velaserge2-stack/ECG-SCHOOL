@@ -2,13 +2,18 @@
    Varios casos; cada uno es un paciente con preguntas en orden. Cada respuesta desbloquea datos
    nuevos y la historia clínica se acumula. El progreso de cada caso se guarda por separado en
    IndexedDB: el caso 1 en SID('cascada') (como antes) y los siguientes en SID('cascadaN'). */
-const CASOS=[typeof CASCADA!=='undefined'?CASCADA:null,typeof CASCADA2!=='undefined'?CASCADA2:null].filter(Boolean);
-const CXG=[[/Vacun|pasiva|Memoria/,'Vacunación y memoria inmune'],[/Herencia/,'Herencia de grupos sanguíneos'],[/Hematopoyesis|Eritropoyesis|^EPO$/,'Hematopoyesis y EPO'],
+const CASOS=[typeof CASCADA!=='undefined'?CASCADA:null,typeof CASCADA2!=='undefined'?CASCADA2:null,typeof CASCADA3!=='undefined'?CASCADA3:null,
+  typeof CASCADA4!=='undefined'?CASCADA4:null,typeof CASCADA5!=='undefined'?CASCADA5:null,typeof CASCADA6!=='undefined'?CASCADA6:null,
+  typeof CASCADA7!=='undefined'?CASCADA7:null].filter(Boolean);
+/* trazos de ECG: un objeto o una lista de especificaciones del generador ECG, con «cap» como pie */
+function cxEcg(e){if(!e||typeof ECG==='undefined')return '';return (Array.isArray(e)?e:[e]).map(sp=>{let svg='';try{svg=ECG.svg(sp).html}catch(_){return ''}
+  return `<figure class="cxecg"><div class="ecg">${svg}</div>${sp.cap?`<figcaption>${esc(sp.cap)}</figcaption>`:''}</figure>`}).join('')}
+const CXG=[[/Vacun|pasiva|Memoria/,'Vacunación y memoria inmune'],[/Herencia/,'Herencia de grupos sanguíneos'],[/Hematopoyesis|Eritropoyesis|^EPO$|^EPO \/ riñón/,'Hematopoyesis y EPO'],[/Folato|B12/,'B12 y folato'],
  [/Venoso|Starling/,'Vascular, venoso y Starling'],
- [/Electrocardiograma/,'Electrocardiograma'],[/Potencial|Electrolitos/,'Potencial de acción y electrolitos'],[/Conducción|Pulso venoso/,'Conducción y ritmo'],
- [/isquemia|lesión|coronaria/i,'Isquemia y flujo coronario'],[/Hemostasia|Fármacos|Plaqueta/,'Hemostasia y fármacos'],[/Bilirrubina|Ictericia/,'Bilirrubina'],
+ [/Electrocardiograma/,'Electrocardiograma'],[/Potencial|Electrolitos/,'Potencial de acción y electrolitos'],[/Conducción|Pulso venoso|Marcapasos|Arritmia/,'Conducción, ritmo y marcapasos'],
+ [/isquemia|lesión|coronari/i,'Isquemia y flujo coronario'],[/Hemostasia|Fármacos|Plaqueta|Fibrinólisis/,'Hemostasia y fármacos'],[/Bilirrubina|Ictericia|Hemólisis|G6PD/,'Hemólisis, bilirrubina y G6PD'],
  [/Inmunidad|Inmunoglobulinas|Hipersensibilidad|ABO|Rh|Pruebas|Grupos/,'Inmunidad y transfusión'],[/Hierro|EPO \/ médula/,'Hierro, inflamación y médula'],[/Eritrocito|Biometría/,'Eritrocito, EPO y biometría'],
- [/Hemoglobina|curva|pH|O₂|HbF|gases/,'Hemoglobina, curva de O₂ y pH'],[/Hemodinamia|Gasto|Microcirculación|Control/,'Hemodinamia y control'],[/Integración/,'Integración']];
+ [/Hemoglobina|curva|pH|O₂|HbF|gases|Mioglobina/,'Hemoglobina, curva de O₂ y pH'],[/Hemodinamia|Gasto|Microcirculación|Control|Contractilidad|Asa/,'Hemodinamia y control'],[/Integración/,'Integración']];
 function cxGrp(s){for(const [r,n] of CXG)if(r.test(s))return n;return s}
 function cxFlat(c){const out=[];c.actos.forEach((a,ai)=>a.preguntas.forEach(p=>out.push(Object.assign({acto:ai,k:out.length},p))));return out}
 const CXALL=CASOS.map(cxFlat);
@@ -26,7 +31,7 @@ async function cxRestore(){
 function cxScoreOf(n){const st=CXST[n];let ok=0,c=0;for(const k in st.ans){c++;if(st.ans[k]===0)ok++}return{ok,n:c}}
 function cxScore(){return cxScoreOf(Math.max(0,CXN))}
 function cxHist(upto){let h='';CASCADA_CUR.actos.forEach((a,ai)=>{if(ai>upto)return;
-  h+=`<div class="cxact"><b>${esc(a.titulo)}</b><p>${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`});return h}
+  h+=`<div class="cxact"><b>${esc(a.titulo)}</b><p>${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>${cxEcg(a.ecg)}</div>`});return h}
 const cxBackBtn=()=>CASOS.length>1?`<button class="cxcases">← Todos los casos</button>`:'';
 function cxWireBack(root){root.querySelectorAll('.cxcases').forEach(b=>b.onclick=()=>{CX.view=-1;cxPick(-1);cxRender();root.scrollIntoView({block:'start'})})}
 /* lista de casos */
@@ -66,9 +71,9 @@ function cxRender(){
   let h=cxBackBtn()?`<div>${cxBackBtn()}</div>`:'';
   h+=`<details class="cxhist" ${q.acto>0?'open':''}><summary>Historia clínica acumulada (hasta el ${esc(CASCADA_CUR.actos[maxAct].titulo.split(' · ')[0].toLowerCase())})</summary>${cxHist(maxAct)}</details>`;
   const newAct=k===0||CXQ[k-1].acto!==q.acto;
-  if(newAct)h+=`<div class="cxnew"><div class="eyebrow">${esc(a.titulo)}</div><p style="margin:0">${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`;
+  if(newAct)h+=`<div class="cxnew"><div class="eyebrow">${esc(a.titulo)}</div><p style="margin:0">${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>${cxEcg(a.ecg)}</div>`;
   h+=`<div class="card"><div class="qmeta"><span class="pill xt">Extrema</span><span class="pill">${esc(q.s)}</span><span>${esc(a.titulo.split(' · ')[0])} · pregunta ${k+1} de ${CXQ.length}</span></div>
-    <p class="stem">${esc(q.q)}</p><ul class="opts">`;
+    ${cxEcg(q.ecg)}<p class="stem">${esc(q.q)}</p><ul class="opts">`;
   order.forEach((oi,j)=>{let cls='';if(answered){if(oi===0)cls='right';else if(oi===ans)cls='wrong'}
     h+=`<li><button class="opt ${cls}" data-oi="${oi}" ${answered?'disabled':''}><b>${L[j]})</b><span>${esc(q.o[oi])}</span></button></li>`});
   h+='</ul>';

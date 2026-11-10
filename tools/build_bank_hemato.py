@@ -59,18 +59,19 @@ h = h[:f0] + ('<footer>Contenido educativo. No sirve para tomar decisiones clín
               'Los valores de referencia dependen del laboratorio; las cifras marcadas VERIFICAR deben confirmarse con el libro o las diapositivas del curso. '
               'Tu avance se guarda sólo en este navegador, separado del Banco Cardio.') + h[f1:]
 
-# 4) sin trazos de ECG
+# 4) sin trazos de ECG en las preguntas del banco (el generador se conserva para los casos cascada)
 rep('<label class="chk"><input type="checkbox" id="p-ecg"> Sólo con trazo</label>',
     '<input type="checkbox" id="p-ecg" hidden aria-hidden="true">')
-e0 = h.index('/* ───────── Generador de ECG ─────────')
-e1 = h.index('/* ───────── Interfaz de una pregunta ─────────')
-h = h[:e0] + h[e1:]
 rep("${q.s?'<span class=\"pill\">Con trazo</span>':''}", '')
 rep("  if(q.s)h+=`<div class=\"ecg\">${ECG.svg(q.s).html}</div>`;\n", '')
 rep("<span>${QS.filter(q=>q.s).length} con trazo de ECG</span>", "<span>${QS.filter(q=>/\\b(años|Paciente|paciente|Mujer|Hombre|Niñ[oa]|Varón|Recién nacido|Embarazada|Adolescente|Atleta|Corredor|Fumador|Alcohólico)\\b/.test(q.q)).length} casos clínicos</span>")
-rep("window.__dbg={QS,FS,ECG,optOrder,", "window.__dbg={QS,FS,optOrder,")
-assert 'ECG.svg' not in h and 'const ECG=' not in h
-
+# generador: onda Q patológica (q, en mV) y espiga de marcapasos (spike) — solo en este banco
+rep("    if(m==='n'){d=o.qrs||.08;const R=o.ramp||1.1;\n",
+    "    if(o.spike)C.push({k:'spk',c:q0-.004});\n    if(m==='n'){d=o.qrs||.08;const R=o.ramp||1.1;if(o.q)C.push(G(q0+.02,-o.q,.014));\n")
+rep("rr:o.rr||sp.rr||.8,t:sp.t,tw:sp.tw,st:sp.st,u:sp.u,qt:sp.qt,ramp:sp.ramp,qrs:sp.qrs}",
+    "rr:o.rr||sp.rr||.8,t:sp.t,tw:sp.tw,st:sp.st,u:sp.u,qt:sp.qt,ramp:sp.ramp,qrs:sp.qrs,q:sp.q,spike:sp.spike}")
+rep("        else if(c.k==='st'){",
+    "        else if(c.k==='spk'){if(Math.abs(t-c.c)<.003)s+=1.6}\n        else if(c.k==='st'){")
 # 5) Caso cascada (dificultad extrema): pestaña, sección, estilos y lógica
 cx_js = open(os.path.join(root, 'src', 'hemato', 'cascada_ui.js'), encoding='utf-8').read()
 rep('<a href="#simulacro" data-v="simulacro">Simulacro</a>',
@@ -93,6 +94,7 @@ rep('@media (prefers-reduced-motion: reduce){.fc{transition:none}}', '''.tbadge.
 ol.cxmap{margin:0;padding-left:22px;display:grid;gap:4px}ol.cxmap button{all:unset;cursor:pointer;display:block;font-size:15px;line-height:1.4}ol.cxmap button:hover{text-decoration:underline}
 ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
 .cxcases{font-size:14px;padding:6px 12px}.cxcase{display:grid;gap:10px}
+.cxecg{margin:0;display:grid;gap:4px}.cxecg figcaption{font:12px var(--f-mono);color:var(--muted)}
 @media (prefers-reduced-motion: reduce){.fc{transition:none}}''')
 rep("/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','flashcards','progreso'];",
     cx_js + "\n/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','cascada','flashcards','progreso'];")

@@ -184,6 +184,7 @@ table.brw tr.sus td{opacity:.6}table.brw td.act{white-space:nowrap}table.brw td.
 ol.cxmap{margin:0;padding-left:22px;display:grid;gap:4px}ol.cxmap button{all:unset;cursor:pointer;display:block;font-size:15px;line-height:1.4}ol.cxmap button:hover{text-decoration:underline}
 ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
 .cxcases{font-size:14px;padding:6px 12px}.cxcase{display:grid;gap:10px}
+.cxecg{margin:0;display:grid;gap:4px}.cxecg figcaption{font:12px var(--f-mono);color:var(--muted)}
 @media (prefers-reduced-motion: reduce){.fc{transition:none}}
 @media (max-width:520px){.card{padding:16px}.stem{font-size:17px}nav.tabs a{padding:10px 10px}}
 </style>
@@ -3896,6 +3897,761 @@ actos:[
  ]}
 ]};
 
+// ── CASO CASCADA 3 · dificultad EXTREMA ────────────────────
+// Trauma con amputación, hemorragia y reanimación con cristaloides.
+// Formato: {s, q, o:[correcta, …], e, c}; los actos y las preguntas pueden traer «ecg» (generador de trazos).
+const CASCADA3={
+titulo:'Karyme y la sangre que se fue',
+paciente:'Karyme, mujer de 23 años, estudiante. Chocó su auto frente al Hospital Universitario; la pierna derecha quedó amputada por debajo de la rodilla. Grupo sanguíneo desconocido al llegar. Sin enfermedades previas.',
+instrucciones:'Una sola herida pone en marcha la hemostasia, el barorreflejo, el transporte de oxígeno, la transfusión, el ECG y la inmunidad. Cada decisión del equipo cambia el siguiente dato. Responde en orden y piensa qué sistema está empujando a cuál.',
+actos:[
+{titulo:'Acto 1 · La calle',
+ relato:'Los paramédicos llegan en 6 minutos. El muñón sangra a chorros de color rojo brillante. Karyme está consciente, ansiosa y pálida.',
+ datos:['FC 128 lpm · PA 94/76 mmHg · FR 26 · llenado capilar 4 s · piel fría y sudorosa','Sangrado pulsátil, rojo brillante, del muñón','Pérdida estimada: unos 1 200 mL','Hb en una muestra de la ambulancia: 13,1 g/dL'],
+ ecg:{r:'sinus',hr:128,lead:'DII',cap:'Monitor de la ambulancia · DII'},
+ preguntas:[
+ {s:'Hemostasia / vascular',q:'¿Por qué la sangre del muñón sale a chorros y de color rojo brillante?',
+  o:['Viene de una arteria: alta presión que late con cada sístole y sangre oxigenada','Viene de una vena: la presión venosa sube con el dolor y empuja la sangre a chorros','Viene de los capilares: son tantos que suman un flujo pulsátil y muy oxigenado','Es sangre venosa que se oxigena al contacto con el aire y por eso se ve más roja'],
+  e:'La presión arterial es alta y pulsátil, y la sangre arterial está casi saturada de O₂ (oxi-Hb, rojo brillante). La sangre venosa sale de forma continua y es más oscura. El aire no oxigena de forma apreciable la sangre que sale.',
+  c:'Primer eslabón: hay un vaso de alta presión abierto; todo lo que sigue es la carrera entre la pérdida y la compensación.'},
+ {s:'Hemostasia / vascular',q:'¿Qué hace el propio vaso cortado en los primeros segundos para frenar el sangrado?',
+  o:['Se contrae: vasoconstricción local por mecanismos miogénicos, reflejos y mediadores','Se dilata para bajar la presión dentro de él y así reducir la velocidad del chorro','Forma de inmediato fibrina entrecruzada, antes que cualquier tapón de plaquetas','Activa la plasmina, que sella la pared del vaso con productos de fibrina'],
+  e:'La fase vascular es la primera de la hemostasia: la lesión produce vasoconstricción por mecanismos miogénicos, reflejos y mediadores como endotelina y serotonina. Luego vienen el tapón plaquetario y la fibrina. La plasmina degrada la fibrina; no sella.',
+  c:'La vasoconstricción compra segundos; en una arteria grande no basta. Por eso se necesita un torniquete.'},
+ {s:'Hemodinamia / presión de pulso',q:'La PA es 94/76 mmHg. ¿Por qué la presión de pulso es tan estrecha?',
+  o:['Cae el volumen sistólico (baja la PAS) y la vasoconstricción sostiene la PAD','Sube el volumen sistólico por la taquicardia y la aorta se vuelve más distensible','La presión de pulso depende solo de la frecuencia: a más latidos, menos diferencia','La hemorragia endurece la aorta y la presión diastólica sube por rigidez arterial'],
+  e:'La presión de pulso depende sobre todo del volumen sistólico y de la distensibilidad arterial. Con menos precarga cae el volumen sistólico (Frank-Starling) y la PAS baja; el simpático contrae las arteriolas, sube la resistencia y la PAD se mantiene. Pulso «estrecho» o «filiforme».',
+  c:'Una PA «casi normal» con pulso estrecho y taquicardia no es estabilidad: es compensación.'},
+ {s:'Control autonómico',q:'¿Qué está haciendo el barorreflejo de Karyme?',
+  o:['Menos estiramiento → menos disparo de los barorreceptores → más simpático y menos vago','Más estiramiento → más disparo de los barorreceptores → más vago y menos simpático','Los barorreceptores dejan de funcionar con la pérdida y el corazón acelera por el dolor','El reflejo de Bainbridge domina: la aurícula se distiende y por eso sube la frecuencia'],
+  e:'Al bajar la presión en el seno carotídeo y el arco aórtico, los barorreceptores disparan menos. El bulbo aumenta el simpático (FC, contractilidad, vasoconstricción arteriolar y venosa) y reduce el vago. El Bainbridge requiere distensión auricular, que aquí no hay.',
+  c:'El simpático también contrae las venas: moviliza sangre de reserva hacia el corazón.'},
+ {s:'Biometría',q:'La Hb de la ambulancia es 13,1 g/dL tras perder 1 200 mL. ¿Qué concluyes?',
+  o:['Nada tranquilizador: se perdió sangre entera y la Hb aún no se diluye','Que la pérdida fue pequeña: una hemorragia grande baja la Hb en segundos','Que hay eritrocitosis previa que compensa toda la pérdida de eritrocitos','Que el bazo liberó una reserva enorme de eritrocitos que corrigió la Hb'],
+  e:'En la hemorragia aguda se pierden eritrocitos y plasma juntos: la concentración no cambia al inicio. La Hb y el Hct bajan después, cuando entra líquido intersticial o se administran soluciones.',
+  c:'Recuerda este número: en el siguiente acto los cristaloides lo van a mover sin que haya nueva pérdida.'},
+ {s:'Hemodinamia / venas',q:'¿Por qué la venoconstricción es tan importante en la compensación de Karyme?',
+  o:['Guardan la mayor parte del volumen; al contraerse empujan sangre al corazón','Las venas tienen mucha resistencia; al contraerse elevan sobre todo la presión arterial media','Las venas bombean sangre de forma activa con su propia contracción rítmica','Al contraerse, las venas reducen el retorno y así protegen al corazón de la sobrecarga'],
+  e:'El sistema venoso es el reservorio de capacitancia: contiene la mayor parte de la sangre a baja presión. El simpático reduce esa capacitancia y desplaza volumen hacia el corazón, sosteniendo el retorno venoso y la precarga.',
+  c:'Mientras quede reserva venosa, la PA aguanta. Cuando se agota, cae de golpe.'}
+ ]},
+{titulo:'Acto 2 · La ambulancia',
+ relato:'Le colocan un torniquete por encima de la rodilla y le pasan 2 L de solución salina a temperatura ambiente. La PA sube a 104/70 y el muñón vuelve a sangrar un poco.',
+ datos:['Después de 2 L de solución salina: Hb 9,4 g/dL · plaquetas 118 000/µL','Temperatura central 35,1 °C','Lactato elevado · pH 7,26','TP y TTPa prolongados al llegar'],
+ preguntas:[
+ {s:'Microcirculación / Starling',q:'De los 2 L de solución salina, ¿cuánto se queda en los vasos al cabo de un rato?',
+  o:['Una fracción pequeña: se reparte en el extracelular porque no lleva proteínas','Casi todo: la solución salina tiene la misma presión oncótica que el plasma','Todo, porque el torniquete impide que el líquido salga de los capilares','Nada: la solución salina entra de inmediato a las células y no queda en sangre'],
+  e:'El cristaloide isotónico se distribuye en todo el compartimento extracelular. No aporta proteínas, así que no hay presión oncótica que lo retenga: buena parte pasa al intersticio. Nota (VERIFICAR): se suele citar que solo una cuarta parte permanece en el espacio intravascular.',
+  c:'Lo que sale de los vasos forma edema; lo que se queda diluye la sangre.'},
+ {s:'Biometría / dilución',q:'La Hb bajó de 13,1 a 9,4 sin que el muñón sangrara mucho más. ¿Por qué?',
+  o:['Hemodilución: la misma masa de eritrocitos quedó repartida en más plasma','Hemólisis por la solución salina, que rompe los eritrocitos al entrar en contacto','Secuestro esplénico agudo de eritrocitos provocado por el dolor intenso','Error de laboratorio: la Hb no cambia con líquidos, solo con sangrado'],
+  e:'La hemodilución baja la Hb y el Hct sin una pérdida equivalente de masa eritrocitaria. La solución salina isotónica no hemoliza. La masa de eritrocitos que tenía ahora está repartida en más volumen.',
+  c:'Menos Hb por dL significa menos O₂ por dL. El contenido arterial cae aunque la saturación siga normal.'},
+ {s:'Hemostasia / dilución',q:'¿Por qué el TP y el TTPa están prolongados si Karyme no tiene ninguna enfermedad de la coagulación?',
+  o:['Se perdieron factores, el cristaloide diluyó el resto y el frío los frena','La solución salina contiene heparina y alarga directamente el TTPa','El dolor activa la vía de la plasmina y destruye los factores de coagulación','La amputación libera factor tisular que alarga las pruebas de laboratorio'],
+  e:'Los factores de coagulación están en el plasma: se pierden con la hemorragia y los cristaloides los diluyen. Nota: las reacciones enzimáticas de la coagulación son más lentas con hipotermia y acidosis.',
+  c:'El tratamiento que subió la presión también debilitó el coágulo: un sistema empuja al otro.'},
+ {s:'Hemodinamia / coágulo',q:'La PA subió con los líquidos y el muñón volvió a sangrar. ¿Cuál es la lógica?',
+  o:['Más presión empuja contra un coágulo frágil y diluido, que se desprende','Los líquidos activan la fibrinólisis de manera directa y disuelven todo el coágulo','La solución salina dilata la arteria cortada y anula la fase vascular de la hemostasia','El torniquete deja de funcionar cuando sube la presión venosa de la pierna'],
+  e:'El coágulo inicial es frágil; con más presión dentro del vaso y con factores y plaquetas diluidos puede romperse. Nota (VERIFICAR): por eso en el trauma con sangrado activo se acepta una presión algo más baja hasta controlar la fuente.',
+  c:'En la hemorragia, más presión no siempre es mejor: depende de si el agujero ya está cerrado.'},
+ {s:'Hemoglobina / curva',q:'Temperatura 35,1 °C. ¿Qué le pasa a la curva de disociación y qué significa para sus tejidos?',
+  o:['A la izquierda: la Hb retiene más el O₂ y lo suelta peor en los tejidos','Se desplaza a la derecha: la Hb suelta más O₂ y protege a los tejidos de la hipoxia','No cambia: la temperatura solo afecta a la coagulación, no a la hemoglobina','Se desplaza a la izquierda y por eso los tejidos reciben más O₂ que en la normotermia'],
+  e:'La disminución de la temperatura desplaza la curva a la izquierda: aumenta la afinidad y se dificulta la liberación de O₂. En la periferia, eso se suma al bajo flujo y a la Hb diluida.',
+  c:'Frío, dilución y bajo flujo atacan a la vez el transporte de O₂.'},
+ {s:'Metabolismo / pH',q:'Lactato elevado y pH 7,26. ¿Qué cadena lo produce y qué hace el H⁺ sobre la curva?',
+  o:['Poco O₂ → metabolismo anaerobio → lactato y H⁺ → curva a la derecha (Bohr)','Exceso de O₂ en los tejidos → más CO₂ → alcalosis → la curva se desplaza a la izquierda','La solución salina contiene ácido láctico, que baja el pH y no modifica la curva de la Hb','La hemorragia libera bicarbonato de los eritrocitos y eso desplaza la curva a la izquierda'],
+  e:'Sin O₂ suficiente, la célula produce energía por vía anaerobia y genera lactato y H⁺. El H⁺ disminuye la afinidad de la Hb (efecto Bohr), lo que ayuda a liberar O₂: un efecto contrario al del frío. Nota: el lactato elevado es un marcador de hipoperfusión.',
+  c:'El cuerpo tira de dos lados: el frío retiene el O₂ y la acidosis lo suelta. Ninguno compensa la falta de flujo.'},
+ {s:'Integración / triada',q:'A la combinación de hipotermia, acidosis y coagulopatía se le llama «tríada letal». ¿Por qué se retroalimenta?',
+  o:['El frío y la acidez frenan la coagulación; se sangra más y empeoran ambos','Cada una corrige a las otras dos, así que la tríada se resuelve sola en horas','La coagulopatía produce fiebre, que corrige la hipotermia y la acidosis por sí sola','La acidosis activa las plaquetas y corrige la coagulopatía, aunque empeore el frío'],
+  e:'Es un círculo vicioso: menos coagulación → más sangrado → menos perfusión → más metabolismo anaerobio (acidosis) y menos producción de calor → coagulación todavía más lenta. Nota: el término es clínico; la fisiología de cada eslabón sí es del curso.',
+  c:'Romper el círculo exige tratar los tres a la vez: detener el sangrado, calentar y reponer sangre, no solo agua.'}
+ ]},
+{titulo:'Acto 3 · Urgencias del Hospital Universitario',
+ relato:'Llega con PA 82/60. Se activa el protocolo de transfusión masiva antes de tener su grupo sanguíneo. A los 40 minutos se reporta: A Rh negativo.',
+ datos:['Grupo: aún desconocido al llegar; después, A Rh negativo','Se transfunden eritrocitos, plasma y plaquetas en proporción','Tras 8 unidades: Ca²⁺ iónico bajo · temblores finos','ECG: QT prolongado'],
+ ecg:{r:'sinus',hr:88,qt:.5,lead:'DII',cap:'Tras 8 unidades de sangre · DII · QT prolongado (ST largo)'},
+ preguntas:[
+ {s:'Grupos / transfusión',q:'Antes de conocer su grupo, ¿qué eritrocitos le conviene recibir a una mujer de 23 años?',
+  o:['O Rh negativo: sin A, B ni D; evita que forme anti-D para embarazos futuros','AB Rh positivo, porque los eritrocitos AB son compatibles con cualquier receptor','O Rh positivo, porque en la emergencia el Rh no tiene ninguna consecuencia','A Rh positivo, porque es el grupo más frecuente en México y casi nunca falla'],
+  e:'Los eritrocitos O carecen de antígenos A y B, así que no reaccionan con los anti-A ni anti-B del receptor. Si además son Rh negativos, una mujer en edad fértil no se sensibiliza al antígeno D (recuerda la historia de Lucía en el caso 2). AB es el receptor universal, no el donador.',
+  c:'Una decisión de minutos protege a un hijo que todavía no existe.'},
+ {s:'Grupos / plasma',q:'Para el plasma de emergencia se usa grupo AB. ¿Por qué el razonamiento es el inverso al de los eritrocitos?',
+  o:['El plasma lleva anticuerpos, y el AB no tiene anti-A ni anti-B','El plasma lleva antígenos A y B que neutralizan los anticuerpos del receptor','El plasma O es el universal porque no tiene antígenos en su superficie','El plasma no tiene relación con el grupo ABO, así que cualquiera es compatible'],
+  e:'Con eritrocitos importan los antígenos del donador; con plasma importan los anticuerpos del donador. El plasma AB no contiene anti-A ni anti-B; el plasma O contiene ambos.',
+  c:'La misma regla antígeno–anticuerpo, leída en sentido contrario.'},
+ {s:'Hemostasia / transfusión',q:'¿Por qué se transfunden plasma y plaquetas junto con los eritrocitos, en proporción?',
+  o:['Los concentrados de eritrocitos casi no llevan factores ni plaquetas','Los eritrocitos transfundidos destruyen las plaquetas del receptor si no se dan juntas','El plasma sirve solo para calentar la sangre y evitar la hipotermia','Las plaquetas transportan el O₂ que los eritrocitos de banco ya no pueden llevar'],
+  e:'Al separar la sangre, los factores quedan en el plasma y las plaquetas en su propio concentrado. Reponer solo eritrocitos corrige el transporte de O₂ pero no la hemostasia. Nota (VERIFICAR): la proporción exacta depende del protocolo de cada hospital.',
+  c:'Se repone «sangre completa por partes» para cerrar el círculo que abrió el cristaloide.'},
+ {s:'Electrolitos / citrato',q:'Tras 8 unidades aparecen temblores y QT largo. ¿Qué une la bolsa de sangre con el ECG?',
+  o:['El citrato de la bolsa atrapa el Ca²⁺; con menos Ca²⁺ se alarga la meseta','El potasio de la bolsa acorta la meseta y produce un QT largo con T picudas','La sangre de banco contiene digoxina como conservador, que alarga el QT','El frío de la sangre transfundida alarga el QRS y se confunde con QT largo'],
+  e:'La sangre se conserva con citrato, que se une al calcio (por eso no coagula en la bolsa). Al transfundir mucha sangre rápido, baja el Ca²⁺ iónico. La hipocalcemia alarga la fase 2 (meseta) y el segmento ST, y con ellos el QT. Nota: el citrato se metaboliza en el hígado; en la transfusión masiva se acumula.',
+  c:'El calcio que falta frena también la coagulación y la contracción: el mismo ion en tres sistemas.'},
+ {s:'Contractilidad / calcio',q:'Además del QT, ¿qué otra consecuencia de la hipocalcemia empeora la hemodinamia de Karyme?',
+  o:['Menos Ca²⁺ para el acoplamiento excitación-contracción: baja la contractilidad','Más Ca²⁺ dentro de la célula: el miocardio se contrae de más y gasta su reserva','Se acorta el periodo refractario y aparece taquicardia ventricular de inmediato','El Ca²⁺ bajo dilata las venas y aumenta el retorno venoso por sí solo'],
+  e:'La entrada de Ca²⁺ en la meseta dispara la liberación de Ca²⁺ del retículo sarcoplásmico; con menos Ca²⁺ extracelular, la fuerza de contracción disminuye. En una paciente que depende de cada mililitro de volumen sistólico, eso cuenta.',
+  c:'El Ca²⁺ conecta la bolsa de sangre, el ECG, la contracción y la coagulación.'},
+ {s:'Hemoglobina / 2,3-DPG',q:'Los eritrocitos de banco llevan días almacenados con 2,3-DPG bajo. ¿Qué efecto tienen al principio?',
+  o:['Curva a la izquierda: cargan O₂ pero lo sueltan peor por un tiempo','Su curva está a la derecha: sueltan el O₂ antes de llegar a los tejidos','No transportan O₂ hasta que el bazo los «activa» durante varios días','Transportan CO en lugar de O₂ porque la bolsa contiene monóxido'],
+  e:'El 2,3-DPG disminuye la afinidad de la Hb por el O₂. Nota: en la sangre almacenada el 2,3-DPG cae; esos eritrocitos tienen la curva desplazada a la izquierda y lo recuperan en horas o días después de transfundirse.',
+  c:'Transfundir sube el contenido de O₂ de inmediato, pero la entrega mejora un poco más tarde.'},
+ {s:'Pruebas pretransfusionales',q:'Cuando llega su grupo (A Rh−), ¿qué evalúa la prueba cruzada mayor?',
+  o:['Plasma de Karyme contra eritrocitos del donador, buscando aglutinación','Plasma del donador contra eritrocitos de Karyme: si el donador la atacaría a ella','Eritrocitos de Karyme contra eritrocitos del donador, para ver si se agrupan','Solo el Rh del donador; el ABO ya no importa una vez que hay grupo confirmado'],
+  e:'En la prueba mayor se enfrenta el plasma del receptor con los eritrocitos del donador. La aglutinación o la hemólisis indican incompatibilidad. La prueba menor hace lo contrario.',
+  c:'En la urgencia se usó O−; ahora ya se pueden dar eritrocitos A− probados contra su plasma.'}
+ ]},
+{titulo:'Acto 4 · Quirófano y terapia intensiva',
+ relato:'Se regulariza el muñón. En terapia intensiva sigue con taquicardia. Le duele el pecho al toser.',
+ datos:['Hb 7,0 g/dL · SatO₂ 98 % · gasto cardiaco 7 L/min','ECG: taquicardia sinusal con infradesnivel del ST en V5','Troponina normal','Plaquetas 62 000/µL · fibrinógeno bajo · tiempo de trombina prolongado'],
+ ecg:{r:'sinus',hr:124,st:-.12,lead:'V5',cap:'Terapia intensiva · V5 · ST deprimido'},
+ preguntas:[
+ {s:'Hemoglobina / contenido',q:'Con Hb 7 g/dL y SatO₂ 98 %, ¿cuál es su contenido arterial de O₂ aproximado (1,34 mL por g de Hb)?',
+  o:['≈ 9,2 mL de O₂/dL: 1,34 × 7 × 0,98, más una cantidad mínima de O₂ disuelto','≈ 19,7 mL de O₂/dL, porque con saturación de 98 % el contenido es normal','≈ 98 mL de O₂/dL: el contenido es igual a la saturación en mililitros','≈ 4,6 mL de O₂/dL: cada gramo de Hb transporta solo 0,66 mL de O₂'],
+  e:'Contenido ≈ 1,34 × Hb × SatO₂ + 0,003 × PaO₂. Con 7 g/dL: 1,34 × 7 × 0,98 ≈ 9,2 mL/dL, más unos 0,3 de O₂ disuelto. Una saturación normal no garantiza un contenido normal: falta Hb.',
+  c:'La saturación dice cuánto de la Hb está ocupada, no cuánta Hb hay.'},
+ {s:'Hemodinamia / entrega',q:'¿Cuál es su entrega de O₂ (DO₂ = gasto × contenido) y qué significa?',
+  o:['≈ 665 mL/min: baja pese al gasto alto, porque cada dL lleva poco O₂','≈ 1 400 mL/min: el gasto alto compensa por completo la anemia','≈ 9,5 mL/min: el gasto no participa en la entrega de oxígeno','≈ 7 000 mL/min, porque se multiplica el gasto por la saturación'],
+  e:'7 L/min son 70 dL/min. 70 × 9,5 ≈ 665 mL de O₂/min. Nota: en reposo se suele citar una entrega normal cercana a 1 000 mL/min. Aun con un gasto alto, la anemia la deja baja.',
+  c:'El corazón compensa con más flujo, y ese esfuerzo tiene un costo en el propio corazón.'},
+ {s:'Flujo coronario',q:'¿Por qué aparece infradesnivel del ST en V5 con troponina normal?',
+  o:['Isquemia por demanda: diástole corta y sangre con poco O₂ en el subendocardio','Infarto transmural por un trombo en la descendente anterior, que eleva siempre el ST','Hiperpotasemia por la transfusión, que produce ST deprimido en derivaciones laterales','Pericarditis por el trauma, que deprime el ST en todas las derivaciones por igual'],
+  e:'El ventrículo izquierdo se perfunde sobre todo en diástole. La taquicardia acorta la diástole, la demanda sube y el contenido de O₂ está bajo. El subendocardio es la capa más vulnerable; su isquemia se ve como infradesnivel del ST. Sin necrosis no sube la troponina.',
+  c:'Un problema de sangre (poca Hb) aparece como un problema eléctrico (ST) a través de la hemodinamia coronaria.'},
+ {s:'Hemostasia / pruebas',q:'Fibrinógeno bajo y tiempo de trombina prolongado. ¿Qué paso de la coagulación está fallando?',
+  o:['La conversión de fibrinógeno en fibrina, porque falta el sustrato','La adhesión plaquetaria al subendotelio por falta de factor de von Willebrand','La gamma-carboxilación de los factores II, VII, IX y X por falta de vitamina K','La formación de dímero-D, que es necesaria para que la fibrina se entrecruce'],
+  e:'El tiempo de trombina mide la conversión de fibrinógeno en fibrina. Se altera con heparina o con alteraciones del fibrinógeno. Aquí el fibrinógeno se perdió, se consumió y se diluyó.',
+  c:'Sin fibrinógeno, ni las plaquetas ni la trombina pueden formar un coágulo estable.'},
+ {s:'Plaquetas',q:'Plaquetas en 62 000/µL. ¿Qué tipo de sangrado esperarías si siguieran bajando?',
+  o:['Mucocutáneo: petequias, sangrado de encías, de mucosas y de los sitios de punción','Hemartrosis y hematomas musculares profundos que aparecen horas después del trauma','Ninguno: las plaquetas no participan en la hemostasia si hay factores','Solo sangrado tardío, días después, por falla de la fibrinólisis'],
+  e:'Los defectos de la hemostasia primaria (plaquetas o vWF) producen sangrado mucocutáneo: petequias, púrpura, epistaxis, gingivorragia. Los defectos de factores producen sangrados profundos. Aquí la trombocitopenia es por pérdida, consumo y dilución.',
+  c:'Cada componente perdido deja su firma: plaquetas en la piel y mucosas, factores en lo profundo.'},
+ {s:'Biometría / médula',q:'¿Cuándo esperas ver subir los reticulocitos de Karyme y por qué no antes?',
+  o:['En unos días: la EPO sube en horas, pero los precursores tardan días en madurar','En minutos: la EPO libera de inmediato reticulocitos guardados en la sangre','Nunca: tras una hemorragia la médula deja de producir eritrocitos','En 120 días, que es lo que vive un eritrocito antes de ser reemplazado'],
+  e:'La hipoxia renal aumenta la EPO en horas, pero la eritropoyesis (de precursor a eritrocito) toma varios días (5–7 según las notas). Por eso la respuesta reticulocitaria se ve días después de la hemorragia, si hay hierro y la médula funciona.',
+  c:'La médula es lenta: por eso en la urgencia solo la transfusión sube la Hb.'}
+ ]},
+{titulo:'Acto 5 · Los días siguientes',
+ relato:'Al tercer día tiene fiebre y el muñón se ve inflamado. Lleva días en cama. Nadie sabe si su esquema de vacunación está completo.',
+ datos:['Leucocitos 18 000/µL con predominio de neutrófilos','Fiebre de 38,6 °C','Hb 8,2 · ferritina alta · hierro sérico bajo','No se sabe cuándo recibió su último refuerzo contra tétanos'],
+ preguntas:[
+ {s:'Vacunación / inmunidad pasiva',q:'Herida sucia y estado de vacunación antitetánica desconocido. ¿Qué lógica tiene dar vacuna y también inmunoglobulina?',
+  o:['La inmunoglobulina protege ya (pasiva) y la vacuna deja memoria (activa)','La vacuna protege de inmediato y la inmunoglobulina genera la memoria a largo plazo','Se dan juntas porque ninguna de las dos funciona por separado en un adulto','La inmunoglobulina activa a los linfocitos B para que la vacuna funcione más rápido'],
+  e:'La inmunidad pasiva (anticuerpos ya formados) protege rápido pero de forma temporal. La activa (vacuna) tarda más pero deja memoria. Nota (VERIFICAR con el esquema vigente): en heridas de riesgo y vacunación incierta se suelen indicar ambas, en sitios distintos.',
+  c:'Lo mismo que en el caso de Mateo: pasiva para hoy, activa para siempre.'},
+ {s:'Inmunidad innata',q:'Leucocitosis con neutrofilia al tercer día. ¿De dónde salieron tantos neutrófilos?',
+  o:['La inflamación aumenta la producción y liberación medular de granulocitos','Son eritrocitos transformados en neutrófilos por la transfusión masiva','Vienen del timo, donde maduran los neutrófilos en respuesta a la infección','Son linfocitos B que se convierten en neutrófilos al encontrar el antígeno'],
+  e:'La secuencia de la inflamación: activación de macrófagos tisulares, reclutamiento de neutrófilos, llegada de monocitos y aumento de la producción medular de granulocitos y monocitos. El timo madura linfocitos T.',
+  c:'La médula, que ya trabaja para reponer eritrocitos, ahora también fabrica defensas.'},
+ {s:'Hierro / inflamación',q:'Ferritina alta con hierro sérico bajo. ¿Qué mecanismo une la fiebre con su anemia?',
+  o:['La IL-6 sube la hepcidina, que bloquea la ferroportina y atrapa el hierro','La fiebre destruye la ferritina y libera todo el hierro hacia la orina','La transfusión dejó un exceso de hierro que inhibe la producción de EPO','La hepcidina baja con la fiebre y por eso el hierro sale de la sangre'],
+  e:'La IL-6 aumenta la hepcidina; la hepcidina se une a la ferroportina y reduce la salida de hierro desde macrófagos y enterocitos. El hierro existe (ferritina alta) pero no llega a la médula.',
+  c:'Ahora la médula tiene EPO pero no hierro disponible: otra razón para que la Hb tarde en subir.'},
+ {s:'Hemostasia / Virchow',q:'Lleva días en cama tras un trauma grave. ¿Qué elementos de la tríada de Virchow tiene?',
+  o:['Los tres: estasis, lesión endotelial por trauma y cirugía, e inflamación','Ninguno: después de sangrar tanto, la sangre no puede coagular de nuevo','Solo lesión endotelial; la inmovilidad no influye en la trombosis venosa','Solo hipercoagulabilidad, porque la transfusión aporta factores de más'],
+  e:'Estasis, lesión endotelial e hipercoagulabilidad. Nota: la inflamación y el trauma favorecen la coagulación. El riesgo se invierte en pocos días: pasó de sangrar a poder trombosarse.',
+  c:'El mismo sistema que no podía coagular ahora puede coagular de más: por eso se da profilaxis cuando el sangrado ya está controlado.'},
+ {s:'Hemoglobina / curva',q:'Con fiebre de 38,6 °C, ¿hacia dónde se mueve la curva y qué ganan sus tejidos?',
+  o:['A la derecha: la Hb suelta más O₂ en los tejidos que lo necesitan','A la izquierda: la Hb retiene el O₂ y lo guarda para después','No se mueve: la temperatura no modifica la afinidad de la Hb','A la derecha, pero eso impide que la Hb cargue O₂ en el pulmón'],
+  e:'El aumento de temperatura desplaza la curva a la derecha y facilita la descarga de O₂ en los tejidos. En el pulmón, con PO₂ alta, la Hb se sigue cargando casi por completo.',
+  c:'Compara con el acto 2: el frío la llevó a la izquierda; la fiebre la lleva a la derecha.'}
+ ]},
+{titulo:'Acto 6 · El mapa',
+ relato:'Karyme sale de terapia intensiva al día 9.',
+ datos:['Hb 9,1 · reticulocitos en aumento','Sin datos de trombosis','Inicia rehabilitación'],
+ preguntas:[
+ {s:'Integración',q:'¿Qué secuencia resume mejor lo que pasó con su transporte de O₂?',
+  o:['Hemorragia → cristaloide diluye Hb y factores → poco O₂ → isquemia → transfusión → médula tardía','Pérdida de sangre → Hb baja en minutos → EPO inmediata → reticulocitos en horas → sin necesidad de transfusión','Cristaloide → sube la Hb → mejora la coagulación → se detiene el sangrado → el ECG se normaliza solo','Transfusión → hipercalcemia → QT corto → mejor contractilidad → no se necesita controlar la hemorragia'],
+  e:'Cada eslabón depende del anterior: la hemorragia activa la compensación; el cristaloide sostiene la PA pero diluye la Hb y la coagulación; el bajo contenido de O₂ y la taquicardia producen isquemia por demanda; la transfusión corrige el contenido (con efectos del citrato), y la médula responde con días de retraso.',
+  c:'Este es tu mapa del caso.'},
+ {s:'Integración',q:'¿Qué decisión de los primeros minutos cambió más el resto de la historia?',
+  o:['Controlar la fuente con el torniquete antes que reponer volumen','Pasar más litros de solución salina hasta normalizar la PA cuanto antes','Esperar a conocer el grupo antes de transfundir cualquier componente','Calentar a la paciente antes de colocar cualquier torniquete'],
+  e:'Mientras la arteria siga abierta, la reposición solo repone lo que se vuelve a perder, y el cristaloide además diluye. Nota: las prioridades exactas son de cursos de trauma; la lógica fisiológica es que primero se cierra el agujero.',
+  c:'Pensar en mecanismos dice el orden: cerrar, reponer lo que se perdió (sangre, no agua) y corregir el frío y la acidosis.'}
+ ]}
+]};
+
+// ── CASO CASCADA 4 · dificultad EXTREMA ────────────────────
+// Atleta de alto rendimiento que vive en altura: eritrocitosis, HbA1c, viscosidad e infarto con elevación del ST.
+const CASCADA4={
+titulo:'Andrés, el corredor de la montaña',
+paciente:'Andrés, hombre de 31 años, ultramaratonista. Vive y entrena en un pueblo de la sierra a 3 100 m de altitud. No fuma, no toma medicamentos, come bien. Corre 140 km por semana.',
+instrucciones:'Un cuerpo adaptado a la altura parece una ventaja… hasta que una carrera larga, el calor y la deshidratación cambian las reglas. Vas a conectar presión barométrica, EPO, curva de O₂, HbA1c, viscosidad, coagulación, ECG y gasto cardiaco. Hay detalles finos: léelos todos.',
+actos:[
+{titulo:'Acto 1 · El laboratorio de un atleta',
+ relato:'Antes de una carrera de 100 km, Andrés se hace estudios de control. Todo parece «de campeón».',
+ datos:['Hb 18,9 g/dL · Hct 56 % · VCM 88 fL · reticulocitos ligeramente altos','SatO₂ 91 % en reposo a 3 100 m · FR algo elevada','Glucosa en ayuno 84 mg/dL · HbA1c 4,4 %','Haptoglobina baja después de cada entrenamiento largo','EPO sérica alta'],
+ preguntas:[
+ {s:'Hemoglobina / altura',q:'En la montaña, ¿por qué baja la PaO₂ de Andrés si el aire sigue teniendo 21 % de oxígeno?',
+  o:['Baja la presión barométrica: el 21 % de una presión menor da menos PO₂','Baja el porcentaje de oxígeno del aire a 15 % por encima de los 3 000 m','El frío de la montaña reduce la difusión de O₂ a través de la membrana alveolar','La Hb alta consume el O₂ alveolar antes de que llegue a la sangre arterial'],
+  e:'La fracción de O₂ es la misma (≈ 21 %) a cualquier altitud. Lo que cae es la presión barométrica, y con ella la presión parcial de O₂ inspirado y alveolar. Esa es la «trampa clavada» de la altura.',
+  c:'Primer eslabón: menos PO₂ alveolar significa menos PaO₂ y una señal hipóxica constante.'},
+ {s:'Eritrocito / EPO',q:'¿Qué explica su Hb de 18,9 g/dL con EPO alta?',
+  o:['Eritrocitosis secundaria: la hipoxia renal activa HIF y sube la EPO','Policitemia vera: la médula produce sola y la EPO alta es un efecto del entrenamiento','Hemoconcentración relativa: le falta plasma, aunque su masa eritrocitaria sea normal','Talasemia menor: produce más eritrocitos para compensar cadenas defectuosas'],
+  e:'La exposición a grandes alturas es una causa clásica de EPO elevada. Con EPO alta la eritrocitosis es secundaria; en la policitemia vera la EPO suele estar baja. El VCM normal no apoya talasemia.',
+  c:'La misma lógica del caso 1, pero con un pulmón sano: aquí la hipoxia viene del aire, no de la enfermedad.'},
+ {s:'Hemoglobina / contenido',q:'Con Hb 18,9 y SatO₂ 91 %, ¿cómo es su contenido arterial de O₂ comparado con alguien a nivel del mar con Hb 15 y SatO₂ 98 %?',
+  o:['Mayor: ≈ 23 mL/dL contra ≈ 19,7; más Hb compensa la menor saturación','Menor: con 91 % de saturación el contenido siempre es más bajo que con 98 %','Igual: el contenido depende solo de la PaO₂ y no de la cantidad de Hb','Mucho menor: ≈ 9 mL/dL, porque la altura reduce la capacidad de cada gramo de Hb'],
+  e:'Contenido ≈ 1,34 × Hb × SatO₂. Andrés: 1,34 × 18,9 × 0,91 ≈ 23 mL/dL. A nivel del mar: 1,34 × 15 × 0,98 ≈ 19,7 mL/dL. La saturación baja, pero hay más Hb para saturar.',
+  c:'Más contenido parece pura ventaja. El precio está en otra variable: la viscosidad.'},
+ {s:'Hemoglobina / curva',q:'En la altura sube su 2,3-DPG y además hiperventila (alcalosis respiratoria). ¿Qué hace cada uno con la curva?',
+  o:['El 2,3-DPG la lleva a la derecha y la alcalosis a la izquierda: efectos opuestos','Los dos la desplazan a la derecha y la Hb pierde por completo su capacidad de carga','Los dos la desplazan a la izquierda: la Hb carga mejor pero ya no suelta O₂','Ninguno la mueve: en un atleta la curva queda fija por el entrenamiento'],
+  e:'El aumento de 2,3-DPG (como en la hipoxia) disminuye la afinidad: curva a la derecha. La alcalosis (menos CO₂ y H⁺ por hiperventilación) aumenta la afinidad: curva a la izquierda. El resultado neto depende del balance.',
+  c:'Dos ajustes opuestos sobre la misma molécula: cargar en el pulmón frente a soltar en el músculo.'},
+ {s:'Hemoglobina / HbA1c',q:'Su glucosa es normal y su HbA1c es 4,4 %, más baja de lo esperado. ¿Cuál es la explicación más lógica?',
+  o:['Sus eritrocitos son más jóvenes en promedio y se glucosilaron menos tiempo','La HbA1c mide la glucosa de ese mismo día, y esa mañana estaba en ayuno total','La HbA1c es una cadena de globina distinta que los atletas producen menos','En la altura la glucosa no se une a la hemoglobina por falta de O₂'],
+  e:'La HbA1c es hemoglobina A con glucosa unida: refleja la exposición promedio a la glucosa durante la vida del eritrocito. No es una cadena globínica diferente. Nota: si los eritrocitos viven menos o hay muchos jóvenes (recambio alto por hemólisis o eritropoyesis acelerada), la HbA1c puede salir falsamente baja.',
+  c:'Un dato de «diabetes» depende de la vida del eritrocito: la hematología cambia la lectura del metabolismo.'},
+ {s:'Hemólisis',q:'La haptoglobina baja después de cada entrenamiento largo. ¿Qué la está consumiendo?',
+  o:['Hemólisis intravascular por el impacto de cada zancada sobre el pie','Una hepatitis por el ejercicio, que impide al hígado producir haptoglobina','Una falta de hierro, porque la haptoglobina se fabrica con el hierro de la dieta','Una infección viral, porque la haptoglobina se usa como anticuerpo contra virus'],
+  e:'La haptoglobina disminuye en la hemólisis, sobre todo intravascular, porque se une a la Hb libre y se retira. Nota (VERIFICAR): en corredores de fondo se describe hemólisis por el impacto repetido del pie («hemólisis de la marcha»).',
+  c:'Más hemólisis significa eritrocitos más jóvenes en promedio: conecta con su HbA1c baja.'},
+ {s:'Mioglobina',q:'Su músculo tiene mucha mioglobina. ¿Qué la hace útil en un esfuerzo largo?',
+  o:['Más afinidad que la Hb y curva hiperbólica: guarda O₂ y lo suelta con PO₂ muy baja','Tiene menos afinidad que la Hb y por eso suelta el O₂ en cuanto sale del pulmón','Transporta el CO₂ del músculo al pulmón con más eficiencia que la Hb','Es una Hb con cuatro cadenas que coopera igual que la del eritrocito'],
+  e:'La mioglobina tiene una sola cadena y un grupo hemo, más afinidad por el O₂ que la Hb y una curva hiperbólica, no sigmoidea. Funciona como reserva y facilita la difusión de O₂ en el músculo.',
+  c:'Recuerda la mioglobina: en el acto 3 se va a confundir con un marcador de infarto.'}
+ ]},
+{titulo:'Acto 2 · La carrera',
+ relato:'Corre 100 km con 33 °C a la sombra. Bebe poco. En el kilómetro 60 se siente bien, aunque orina muy poco y oscuro.',
+ datos:['Pérdida de peso durante la carrera: 4 kg (sobre todo sudor)','Hct en el puesto de control del km 60: 62 %','FC 168 lpm a ritmo moderado','Temperatura 39,2 °C'],
+ preguntas:[
+ {s:'Eritrocitosis relativa',q:'El Hct pasó de 56 a 62 % en unas horas. ¿Fabricó eritrocitos nuevos?',
+  o:['No: perdió plasma con el sudor y la sangre se concentró','Sí: la EPO del ejercicio produce eritrocitos maduros en pocas horas','Sí: el bazo y el hígado fetal se reactivan con el esfuerzo extremo','No: el Hct subió porque los eritrocitos se hincharon con el calor'],
+  e:'La eritrocitosis relativa o por hemoconcentración se produce cuando disminuye el volumen plasmático. La eritropoyesis tarda días, no horas.',
+  c:'Ahora tiene dos causas sumadas: eritrocitosis secundaria de base y hemoconcentración aguda.'},
+ {s:'Hemodinamia / viscosidad',q:'Según Poiseuille, ¿qué le pasa a la resistencia al flujo cuando sube la viscosidad?',
+  o:['Aumenta en proporción directa (R = 8ηL/πr⁴)','Disminuye, porque la sangre espesa se desliza mejor por el endotelio','No cambia: la resistencia depende solo del radio del vaso','Aumenta con la cuarta potencia de la viscosidad, igual que con el radio'],
+  e:'En la ecuación de Poiseuille la resistencia es proporcional a la viscosidad y a la longitud, e inversamente proporcional al radio a la cuarta potencia. La viscosidad depende sobre todo del hematocrito.',
+  c:'Más hematocrito → más viscosidad → más resistencia → menos flujo para la misma presión.'},
+ {s:'Hemodinamia / entrega',q:'¿Por qué un Hct de 62 % puede entregar menos O₂ a los tejidos que uno de 50 %?',
+  o:['El contenido sube poco, pero la viscosidad frena el flujo y la entrega cae','Porque con Hct alto la Hb pierde su afinidad por el O₂ y ya no carga en el pulmón','Porque los eritrocitos de más consumen todo el O₂ antes de llegar a los tejidos','No es posible: más hematocrito siempre significa más entrega de O₂'],
+  e:'La entrega de O₂ es flujo × contenido. Nota: el contenido crece casi linealmente con el Hct, pero la viscosidad crece más que proporcionalmente; por encima de cierto punto la entrega empieza a bajar.',
+  c:'Más no siempre es mejor: es la paradoja central de este caso.'},
+ {s:'Hemodinamia / gasto',q:'Con FC 168 y la sangre espesa, ¿qué le pasa al trabajo del corazón?',
+  o:['Aumenta: más poscarga y más frecuencia elevan su consumo de O₂','Disminuye: la sangre espesa llena mejor el ventrículo y ahorra energía','No cambia: el corazón entrenado no gasta más O₂ aunque cambie la poscarga','Disminuye porque la taquicardia alarga la diástole y descansa al miocardio'],
+  e:'La resistencia vascular sube con la viscosidad; el corazón eleva su presión para sostener el flujo, y la frecuencia alta se suma. Sube la demanda de O₂ del miocardio y se acorta la diástole, cuando se riegan las coronarias.',
+  c:'El corazón gasta más justo cuando su propio flujo (coronario) se vuelve más difícil.'},
+ {s:'Hemostasia / Virchow',q:'Hiperviscosidad, deshidratación y esfuerzo prolongado. ¿Qué tríada se está armando?',
+  o:['La de Virchow: flujo alterado, hipercoagulabilidad y endotelio estresado','La de Cushing: hipertensión, bradicardia y respiración irregular','La tríada letal del trauma: hipotermia, acidosis y coagulopatía','La de Beck: hipotensión, ruidos velados e ingurgitación yugular'],
+  e:'La tríada de Virchow es estasis o alteración del flujo, lesión endotelial e hipercoagulabilidad. La hiperviscosidad de las eritrocitosis aumenta el riesgo de trombosis.',
+  c:'El escenario está listo: falta un sitio donde el flujo se altere, como una placa coronaria pequeña.'}
+ ]},
+{titulo:'Acto 3 · Kilómetro 72',
+ relato:'Andrés siente opresión en el pecho, náusea y sudor frío. Se sienta. El paramédico de la carrera le toma un ECG.',
+ datos:['FC 112 lpm · PA 104/70','ECG: elevación del ST de V2 a V4 · infradesnivel recíproco en DIII','Troponina elevada · CK y mioglobina muy elevadas','Estertores en ambas bases pulmonares'],
+ ecg:[{r:'sinus',hr:112,st:.3,t:.6,lead:'V3',cap:'Kilómetro 72 · V3 · elevación del ST'},{r:'sinus',hr:112,st:-.12,lead:'DIII',cap:'Mismo momento · DIII · infradesnivel recíproco'}],
+ preguntas:[
+ {s:'Electrocardiograma / isquemia',q:'Elevación del ST de V2 a V4. ¿Qué pared y qué arteria?',
+  o:['Pared anterior del ventrículo izquierdo: arteria descendente anterior','Pared inferior del ventrículo izquierdo: arteria coronaria derecha','Pared lateral alta del ventrículo izquierdo: arteria circunfleja','Ventrículo derecho: rama marginal aguda'],
+  e:'V2–V4 miran la pared anterior y el septum. La descendente anterior (rama de la coronaria izquierda) irriga esa región. La pared inferior (DII, DIII, aVF) suele depender de la coronaria derecha.',
+  c:'La sangre espesa encontró su sitio: el territorio de la descendente anterior.'},
+ {s:'Electrocardiograma / vector',q:'¿Por qué el ST sube en V3 y baja en DIII al mismo tiempo?',
+  o:['Una corriente de lesión: quien mira la zona ve el ST arriba y la opuesta, abajo','Hay dos infartos distintos al mismo tiempo, uno anterior y otro inferior','DIII mide la aurícula y V3 el ventrículo, por eso se mueven en sentidos opuestos','La deshidratación invierte la polaridad de las derivaciones de las extremidades'],
+  e:'La zona lesionada genera una diferencia de potencial con el tejido sano (corriente de lesión). Las derivaciones orientadas hacia ella registran elevación del ST; las orientadas en sentido opuesto ven el reflejo, un infradesnivel «recíproco».',
+  c:'Un solo vector, visto desde dos cámaras: la misma lógica del módulo de la cámara cardiaca.'},
+ {s:'Potencial de acción / lesión',q:'¿Qué le pasa a la célula miocárdica isquémica que genera esa corriente de lesión?',
+  o:['Le falta ATP: se abren canales K-ATP y el reposo se vuelve menos negativo','Le sobra ATP: la bomba Na⁺/K⁺ trabaja de más y el reposo se vuelve más negativo','El calcio se queda fuera de la célula y por eso el QRS se ensancha en V3','La célula se vuelve marcapasos y genera una nueva onda P'],
+  e:'Sin ATP falla la bomba Na⁺/K⁺ y se abren canales K-ATP: se acumula K⁺ extracelular, el reposo se despolariza y el potencial de acción se acorta. La diferencia con el tejido sano produce la corriente de lesión que desplaza el ST.',
+  c:'Del ATP a la pantalla del monitor: el metabolismo se ve en el ECG.'},
+ {s:'Laboratorio de lesión',q:'Troponina, CK y mioglobina altas. En un ultramaratonista, ¿cuál apoya de verdad la lesión del miocardio?',
+  o:['La troponina; la CK y la mioglobina también suben por el músculo de las piernas','La mioglobina: es la más específica del miocardio y no sube con el ejercicio','La CK total: solo existe en el corazón, así que cualquier elevación es un infarto','Ninguna: en atletas ninguno de estos marcadores sube con un infarto'],
+  e:'La mioglobina en sangre puede elevarse por lesión muscular y no es específica del corazón. Tras 72 km, el músculo esquelético libera CK y mioglobina. Nota: la troponina cardiaca es el marcador específico del miocardio.',
+  c:'Recuerda el acto 1: la mioglobina es del músculo. Aquí es una trampa diagnóstica.'},
+ {s:'Hemodinamia izquierda',q:'Aparecen estertores en ambas bases. ¿Qué cadena los explica?',
+  o:['Falla la pared anterior → sube la presión de llenado izquierda → edema pulmonar','La deshidratación produce edema pulmonar porque baja la presión capilar','La hiperventilación de la altura llena los alvéolos de líquido de forma progresiva','La mioglobina liberada por el músculo obstruye los capilares del pulmón'],
+  e:'Un ventrículo con una pared que no se contrae vacía menos; la presión de llenado y la de la aurícula izquierda suben, y se transmiten a los capilares pulmonares. Cuando la presión hidrostática supera a la oncótica, se filtra líquido al intersticio y al alvéolo (Starling).',
+  c:'El problema eléctrico y mecánico del corazón izquierdo termina como un problema de Starling en el pulmón.'},
+ {s:'Arritmia',q:'De pronto, el monitor muestra este trazo y Andrés pierde la conciencia. ¿Qué pasa con su gasto cardiaco?',
+  ecg:{r:'vf',lead:'DII',cap:'Monitor · DII'},
+  o:['Fibrilación ventricular: no hay contracción coordinada y el gasto es casi cero','Es taquicardia sinusal muy rápida: el gasto aumenta porque hay más latidos por minuto','Es un bloqueo AV completo: el gasto cae a la mitad pero se mantiene','Es fibrilación auricular: los ventrículos siguen contrayéndose con normalidad'],
+  e:'En la fibrilación ventricular no hay QRS reconocibles: el ventrículo no se contrae de forma organizada y no expulsa sangre. Nota: el tratamiento es la desfibrilación inmediata. El tejido isquémico, con K⁺ extracelular alto y conducción heterogénea, favorece estas arritmias.',
+  c:'De la viscosidad a la isquemia y de la isquemia a una arritmia sin gasto: la cascada llega a su punto más bajo.'}
+ ]},
+{titulo:'Acto 4 · Reperfusión',
+ relato:'Lo desfibrilan y recupera el ritmo sinusal. Recibe aspirina y heparina y lo trasladan para abrir la arteria. Le pasan soluciones para corregir la deshidratación.',
+ datos:['Aspirina y heparina','Fibrinolítico (alteplasa) mientras llega a la sala de hemodinamia','Dímero-D elevado después del fibrinolítico','Hct tras 3 L de solución: 52 %'],
+ preguntas:[
+ {s:'Fármacos / plaquetas',q:'¿Por qué el efecto de la aspirina dura toda la vida de la plaqueta?',
+  o:['Inhibe la COX-1 de forma irreversible y la plaqueta no tiene núcleo','Bloquea el receptor P2Y12 del ADP, que la plaqueta tarda semanas en reemplazar','Activa la antitrombina dentro de la plaqueta y la deja inactiva para siempre','Destruye las plaquetas en el bazo y la médula tarda 10 días en reponerlas'],
+  e:'La aspirina inhibe la COX-1 y la síntesis de tromboxano A₂. Nota: la inhibición es irreversible y la plaqueta, al no tener núcleo, no sintetiza más enzima; el efecto dura lo que vive la plaqueta. El clopidogrel bloquea P2Y12.',
+  c:'Se frena el tapón plaquetario que crecía sobre la placa.'},
+ {s:'Fibrinólisis',q:'Tras el fibrinolítico sube el dímero-D. ¿Qué te dice eso?',
+  o:['Que la plasmina está degradando fibrina: el fármaco está actuando','Que se formó un trombo nuevo en las piernas por el fibrinolítico','Que el hígado dejó de producir fibrinógeno por el daño cardiaco','Que la aspirina se convirtió en dímero-D al metabolizarse en el hígado'],
+  e:'El fibrinolítico (tPA, alteplasa) convierte plasminógeno en plasmina; la plasmina degrada la fibrina entrecruzada y produce dímero-D.',
+  c:'El mismo producto que en otros casos sugería trombosis, aquí confirma que el coágulo se está deshaciendo.'},
+ {s:'Hemodinamia / viscosidad',q:'Con 3 L de solución el Hct baja de 62 a 52 %. ¿Qué gana su circulación?',
+  o:['Menos viscosidad y resistencia: mejora el flujo en la arteria abierta','Más contenido de O₂, porque la solución salina transporta oxígeno disuelto','Menos precarga, porque el volumen extra se va de inmediato a la orina','Nada: la viscosidad depende de las proteínas, no del hematocrito'],
+  e:'La viscosidad depende del hematocrito; al reponer el plasma perdido baja la viscosidad, cae la resistencia y mejora el flujo para la misma presión. El contenido por dL baja un poco, pero el flujo gana más.',
+  c:'Aquí la dilución fue el tratamiento; en el caso de Karyme fue parte del problema. El contexto decide.'},
+ {s:'Flujo coronario',q:'Ya con la arteria abierta, ¿por qué conviene que su frecuencia baje?',
+  o:['La diástole dura más, y es en diástole cuando se riega sobre todo el VI','Con menos frecuencia la sístole dura más, y es en sístole cuando se riega el VI','La frecuencia no influye en el flujo coronario, solo en la presión arterial','Con menos frecuencia sube la viscosidad y eso protege al endotelio'],
+  e:'La contracción del VI comprime sus propios vasos; el flujo coronario izquierdo ocurre sobre todo en diástole. La taquicardia acorta la diástole y aumenta el consumo de O₂.',
+  c:'Menos frecuencia significa más oferta y menos demanda al mismo tiempo.'}
+ ]},
+{titulo:'Acto 5 · Volver a la montaña',
+ relato:'Se recupera. Quiere volver a entrenar en su pueblo. En el seguimiento le hacen sangrías para bajar el Hct y repiten estudios.',
+ datos:['Tres sangrías en dos meses','Ferritina baja · VCM 78 fL','HbA1c 4,1 % con glucosa normal','Ecocardiograma: la pared anterior se contrae menos'],
+ preguntas:[
+ {s:'Hierro / eritropoyesis',q:'Tras las sangrías, la ferritina baja y el VCM es 78 fL. ¿Qué pasó?',
+  o:['Cada sangría se lleva hierro; sin reservas, los eritrocitos salen pequeños','Las sangrías destruyen la médula ósea y producen una anemia aplásica','El VCM baja porque la EPO de la altura produce eritrocitos más pequeños','Las sangrías bloquean la absorción de B12 y producen eritrocitos pequeños'],
+  e:'Cada mililitro de sangre lleva hierro. La pérdida sostenida agota las reservas y se comporta como una anemia ferropénica: microcitosis y ferritina baja.',
+  c:'La sangría baja la viscosidad, pero vacía el hierro: otro equilibrio.'},
+ {s:'Hemoglobina / HbA1c',q:'Ahora su HbA1c es 4,1 %. ¿Es confiable para evaluar su glucosa?',
+  o:['Poco: hay muchos eritrocitos jóvenes que aún no acumulan glucosa','Mucho: la HbA1c no depende de la edad ni de la vida de los eritrocitos','Mucho: la falta de hierro hace que la HbA1c sea más exacta','Poco, porque la HbA1c solo se puede medir en personas con diabetes'],
+  e:'La HbA1c refleja la glucosa promedio durante la vida del eritrocito. Nota (VERIFICAR): tras pérdidas de sangre o con recambio alto, predominan eritrocitos jóvenes y la HbA1c puede ser falsamente baja; la ferropenia también puede alterarla.',
+  c:'La HbA1c es un dato metabólico, pero su lectura depende de la hematología.'},
+ {s:'Asa presión–volumen',q:'La pared anterior se contrae menos. ¿Cómo mantiene su volumen sistólico en reposo?',
+  o:['El ventrículo se dilata y usa más precarga (Frank-Starling) para compensar la menor contractilidad','Aumenta su contractilidad por encima de lo normal en la pared sana, sin cambiar la precarga','Reduce la poscarga a cero durante la diástole para vaciarse mejor','No puede mantenerlo: el volumen sistólico siempre cae a la mitad tras un infarto'],
+  e:'Con menos contractilidad, el ventrículo puede compensar con más volumen al final de la diástole: por la ley de Frank-Starling, más estiramiento da más fuerza. El precio es más presión de llenado.',
+  c:'En la altura, con más viscosidad y más poscarga, esa reserva será más pequeña.'},
+ {s:'Integración',q:'¿Qué secuencia resume mejor este caso?',
+  o:['Altura → EPO → Hct alto → deshidratación → viscosidad → trombo → ST elevado → FV','Altura → hiperoxia → EPO baja → anemia → carrera → bradicardia → infarto inferior → bloqueo AV','Diabetes oculta → HbA1c alta → aterosclerosis grave → infarto → hiperglucemia → fibrilación ventricular','Ejercicio → mioglobina alta → infarto por mioglobina → elevación del ST → choque'],
+  e:'Cada eslabón depende del anterior: la hipoxia de la altura sube la EPO y el Hct; la carrera añade hemoconcentración; la viscosidad y el estrés alteran el flujo; se forma un trombo en la descendente anterior; la isquemia genera la corriente de lesión (ST) y una arritmia sin gasto.',
+  c:'Este es tu mapa del caso.'},
+ {s:'Integración',q:'¿Qué eslabón era el más fácil de cortar el día de la carrera?',
+  o:['La deshidratación: beber evita la hemoconcentración de la carrera','La altura: tendría que haber bajado a vivir a nivel del mar un día antes','La EPO: tendría que haberla bloqueado con un medicamento esa mañana','La HbA1c: tendría que haberla corregido antes de la carrera'],
+  e:'La eritrocitosis de la altura tarda semanas en cambiar; la hemoconcentración de la carrera se forma en horas y se corrige con líquido. Nota: la prevención real depende de una valoración médica.',
+  c:'Pensar en mecanismos dice qué variable se puede mover a tiempo.'}
+ ]}
+]};
+
+// ── CASO CASCADA 5 · dificultad EXTREMA ────────────────────
+// Diabetes con metformina por años, tirzepatida, enfermedad renal crónica 3a e infarto antiguo.
+// Enfocado en fisiología (no en manejo de medicina interna).
+const CASCADA5={
+titulo:'Don Ernesto: menos peso, menos sangre',
+paciente:'Don Ernesto, hombre de 63 años. Diabetes tipo 2 desde hace 18 años; tomó metformina durante 15 años. Hace 9 meses inició tirzepatida (Mounjaro): bajó 16 kg, sobre todo porque casi no tiene hambre. Tenía hígado graso, que en el último ultrasonido ya no aparece. Enfermedad renal crónica estadio 3a. Tuvo un infarto hace 7 años.',
+instrucciones:'Tres órganos (riñón, hígado, intestino) y un corazón con cicatriz deciden cuánta sangre fabrica y cómo late. Vas a conectar EPO, B12, folato, hierro y hepcidina, HbA1c, Starling, ECG e hiperpotasemia. No es un caso de tratamiento: es un caso de mecanismos.',
+actos:[
+{titulo:'Acto 1 · Una anemia con dos caras',
+ relato:'En su revisión dice que se cansa al caminar y que tiene hormigueo en los pies. Llevaba años sin revisarse la sangre.',
+ datos:['Hb 10,4 g/dL · VCM 99 fL · RDW alto (anisocitosis)','Reticulocitos bajos para la anemia','B12 baja · ácido metilmalónico y homocisteína elevados · folato bajo-normal','Ferritina 260 ng/mL · saturación de transferrina 16 %','Tasa de filtración glomerular 52 mL/min/1,73 m² (ERC 3a)','EPO sérica «normal» pese a la anemia'],
+ preguntas:[
+ {s:'Folato / B12',q:'¿Qué une los 15 años de metformina con su B12 baja?',
+  o:['La metformina se asocia a menor absorción de B12 en el íleon','La metformina destruye el factor intrínseco en el estómago de forma permanente e inmediata','La metformina impide que el hígado almacene folato, y la B12 baja por arrastre','La metformina hace que el riñón elimine toda la B12 por la orina cada día'],
+  e:'La B12 se absorbe en el íleon terminal unida al factor intrínseco. Nota (fuera del temario básico): el uso prolongado de metformina se asocia a una menor absorción de B12. Las reservas de B12 duran años, por eso el déficit aparece tarde.',
+  c:'Primer eslabón: un fármaco antiguo vació, despacio, una reserva que tarda años en agotarse.'},
+ {s:'Folato / B12',q:'¿Qué patrón bioquímico confirma que el problema principal es la B12 y no solo el folato?',
+  o:['Ácido metilmalónico y homocisteína elevados','Homocisteína normal con ácido metilmalónico bajo: patrón típico de la falta de B12','Solo homocisteína elevada: es exclusiva de la falta de B12','Ferritina baja con transferrina alta: patrón típico de la falta de B12'],
+  e:'Falta de folato: homocisteína alta y ácido metilmalónico generalmente normal. Falta de B12: ambos elevados.',
+  c:'El hormigueo en los pies también apunta a la B12, que es necesaria para la función neurológica.'},
+ {s:'Folato / B12',q:'¿Por qué la falta de B12 frena la síntesis de ADN aunque haya folato?',
+  o:['Sin B12 el folato queda atrapado como 5-metiltetrahidrofolato','La B12 forma parte del ADN como una base nitrogenada y sin ella no se copia','Sin B12 el hierro no entra a la célula y la médula no puede dividirse','La B12 bloquea al folato y, al faltar, el folato se elimina por la orina'],
+  e:'La B12 participa en la conversión de homocisteína a metionina y en la regeneración de tetrahidrofolato. Sin ella, el folato queda «atrapado» y falta para sintetizar nucleótidos y ADN.',
+  c:'Sin ADN suficiente, los precursores crecen pero no se dividen bien: eritrocitos grandes.'},
+ {s:'Biometría',q:'Esperarías macrocitosis por la B12, pero el VCM es 99 fL con RDW alto. ¿Cómo se explica?',
+  o:['Conviven eritrocitos grandes y pequeños; el promedio queda casi normal','El VCM es normal porque la falta de B12 nunca cambia el tamaño del eritrocito','El RDW alto indica que no hay anemia; solo es una variación del laboratorio','El VCM es normal porque la tirzepatida corrige el tamaño de los eritrocitos'],
+  e:'El VCM es un promedio. Si se mezclan eritrocitos grandes y pequeños, el promedio puede quedar normal mientras la variabilidad (RDW, anisocitosis) sube. Por eso se revisan juntos el VCM, el RDW y el frotis.',
+  c:'Una anemia «normocítica» puede esconder dos anemias de signo contrario.'},
+ {s:'EPO / riñón',q:'Su EPO es «normal» con Hb 10,4. ¿Por qué eso es un dato anormal?',
+  o:['Con anemia debería estar alta: es inapropiadamente baja por el riñón','La EPO normal confirma que la médula está respondiendo bien a la anemia','La EPO no tiene relación con la anemia en adultos, solo en recién nacidos','La EPO normal indica policitemia vera incipiente con médula autónoma'],
+  e:'Cerca del 90 % de la EPO se produce en el riñón, en células intersticiales peritubulares. En la insuficiencia renal la producción disminuye y contribuye a la anemia. Los reticulocitos bajos confirman la falta de respuesta.',
+  c:'El riñón deja de «leer» bien la hipoxia: el lazo de retroalimentación se rompe en el sensor.'},
+ {s:'Hierro / hepcidina',q:'Ferritina 260 (alta-normal) con saturación de transferrina de 16 % (baja). ¿Qué está pasando con su hierro?',
+  o:['Hay hierro guardado, pero la hepcidina alta no lo deja salir','No hay nada de hierro guardado: la ferritina alta indica deficiencia absoluta','Hay exceso de hierro libre que satura la transferrina y daña la médula','La transferrina baja porque la B12 baja la convierte en ferritina'],
+  e:'La ferritina refleja las reservas, pero también sube con la inflamación. La hepcidina disminuye la salida de hierro al bloquear la ferroportina. Nota (VERIFICAR): en la ERC la hepcidina suele estar alta, por inflamación y porque el riñón la elimina menos.',
+  c:'Tres frenos a la vez: falta B12, falta EPO y el hierro está encerrado.'}
+ ]},
+{titulo:'Acto 2 · Menos hambre, menos de todo',
+ relato:'Desde que usa tirzepatida, come una vez al día y en porciones pequeñas. El hígado graso desapareció. Le notan los tobillos hinchados por la tarde.',
+ datos:['Bajó 16 kg en 9 meses','Ultrasonido: hígado sin esteatosis','Albúmina baja','Edema en ambos tobillos al final del día','HbA1c: 8,2 % hace un año → 6,1 % hoy'],
+ preguntas:[
+ {s:'Folato / reservas',q:'Si come muy poco, ¿qué reserva se agota primero: la de folato o la de B12?',
+  o:['La de folato: sus reservas duran meses, mientras que las de B12 duran años','La de B12: sus reservas duran semanas, mientras que las de folato duran décadas','Las dos al mismo tiempo, porque comparten exactamente la misma reserva hepática','Ninguna: estas vitaminas se producen en el cuerpo y no dependen de la dieta'],
+  e:'Las reservas de folato son limitadas (las notas estiman alrededor de 1–6 meses). Las de B12 pueden durar varios años. Con poca ingesta, el folato puede bajar rápido y sumarse a la falta de B12 que ya tenía.',
+  c:'El fármaco nuevo (que reduce el hambre) se suma al fármaco viejo (que redujo la absorción).'},
+ {s:'Hígado',q:'El hígado graso desapareció. ¿Qué funciones hepáticas importan para la sangre de Don Ernesto?',
+  o:['Sintetiza albúmina, factores de coagulación y hepcidina','Produce la EPO principal del adulto y fabrica los eritrocitos maduros','Absorbe la B12 unida al factor intrínseco en lugar del íleon','Guarda el folato durante décadas y lo libera cuando falta en la dieta'],
+  e:'La mayoría de los factores de coagulación se sintetizan en el hígado; la hepcidina es una hormona hepática; la albúmina sostiene la presión oncótica, y el hepatocito conjuga la bilirrubina. La EPO del adulto es sobre todo renal.',
+  c:'Un hígado sano no basta si no le llegan los materiales: la albúmina depende también de lo que come.'},
+ {s:'Microcirculación / Starling',q:'Albúmina baja y tobillos hinchados por la tarde. ¿Qué fuerzas de Starling explican el edema?',
+  o:['Baja la presión oncótica capilar y, de pie, gana la presión hidrostática','Más presión oncótica en el capilar atrae agua del intersticio y la acumula en los tobillos','La albúmina baja contrae las venas de las piernas y obstruye el drenaje linfático','El edema se debe a que la tirzepatida retiene sodio en el intestino'],
+  e:'La presión oncótica de las proteínas plasmáticas (sobre todo la albúmina) retiene líquido en el capilar. Si baja, la presión hidrostática predomina; al estar de pie, la gravedad la aumenta en los tobillos. Nota: la ERC también puede retener sodio y agua.',
+  c:'Comer poco cambia una fuerza física en el capilar.'},
+ {s:'Hemoglobina / HbA1c',q:'Su HbA1c bajó de 8,2 % a 6,1 %. ¿Qué dato hematológico podría estar influyendo en esa cifra?',
+  o:['La vida y la edad de sus eritrocitos, que cambian con la anemia y la ERC','Ninguno: la HbA1c depende solo de la glucosa y no de los eritrocitos','La albúmina baja, porque la HbA1c se mide en la albúmina y no en la Hb','La falta de B12 convierte la HbA1c en una cadena globínica distinta'],
+  e:'La HbA1c es Hb con glucosa unida y refleja la glucosa promedio durante la vida del eritrocito. Nota (VERIFICAR): si los eritrocitos viven más (eritropoyesis lenta, falta de B12 o de hierro) puede subir; si son más jóvenes (tras tratamiento o pérdidas) puede bajar. Parte de la mejoría es real (come menos) y parte puede ser hematológica.',
+  c:'Igual que con el corredor: un número metabólico se lee a través de la vida del eritrocito.'},
+ {s:'Hemoglobina / HbA1c',q:'Cuando reciba B12 y la médula libere muchos eritrocitos nuevos, ¿qué esperas de la HbA1c en las semanas siguientes?',
+  o:['Que baje aunque la glucosa no cambie','Que suba de golpe, porque la B12 aumenta la glucosa en la sangre','Que no cambie nunca, porque la HbA1c es independiente de la médula','Que desaparezca, porque los eritrocitos nuevos no tienen HbA'],
+  e:'Una población joven de eritrocitos ha estado menos tiempo expuesta a la glucosa. Nota (VERIFICAR): tras tratar una anemia carencial la HbA1c puede bajar de forma transitoria sin cambios en la glucosa.',
+  c:'Antes de cambiar un tratamiento por la HbA1c, hay que saber qué está pasando con la médula.'}
+ ]},
+{titulo:'Acto 3 · El corazón con cicatriz',
+ relato:'Por el cansancio le toman un ECG. Dice que nunca le dolió el pecho cuando tuvo el infarto: se enteró después.',
+ datos:['ECG: ritmo sinusal 72 lpm','Ondas Q anchas y profundas en DII, DIII y aVF, con T negativa','Sin elevación del ST','Ecocardiograma: pared inferior que casi no se mueve · fracción de eyección 42 %'],
+ ecg:[{r:'sinus',hr:72,q:.6,ramp:.5,t:-.18,lead:'DIII',cap:'ECG actual · DIII · onda Q patológica y T negativa'},{r:'sinus',hr:72,lead:'DI',cap:'ECG actual · DI · sin cambios'}],
+ preguntas:[
+ {s:'Electrocardiograma / necrosis',q:'¿Qué significa una onda Q ancha y profunda en DII, DIII y aVF?',
+  o:['Necrosis antigua de la pared inferior, eléctricamente silenciosa','Isquemia aguda en curso: la Q es lo primero que aparece en un infarto','Bloqueo de rama derecha, que siempre produce Q en las derivaciones inferiores','Hiperpotasemia, que borra la onda R y la convierte en Q'],
+  e:'El tejido necrótico no se despolariza: funciona como una «ventana» y la derivación que mira esa zona registra la despolarización del resto del corazón, que se aleja de ella: una deflexión negativa inicial (Q). DII, DIII y aVF miran la pared inferior.',
+  c:'El ECG guarda la memoria del infarto aunque el paciente no la tenga.'},
+ {s:'Electrocardiograma / isquemia',q:'¿Por qué hoy no hay elevación del ST si tuvo un infarto?',
+  o:['Una cicatriz no tiene células lesionadas que generen corriente de lesión','El ST siempre queda elevado de por vida después de un infarto, así que este ECG es raro','El ST no se eleva en los pacientes con diabetes en ningún momento del infarto','La anemia borra la elevación del ST porque baja el voltaje de todo el trazo'],
+  e:'La corriente de lesión viene de células vivas pero dañadas, con reposo despolarizado. En la cicatriz no hay células vivas: no hay corriente de lesión. Queda la Q (silencio eléctrico) y a veces la T alterada.',
+  c:'Q es pasado (necrosis); ST elevado es presente (lesión).'},
+ {s:'Electrocardiograma / anatomía',q:'Infarto inferior antiguo. ¿Qué arteria se ocluyó con mayor probabilidad?',
+  o:['La coronaria derecha, que suele irrigar la pared inferior','La descendente anterior, que irriga sobre todo la pared inferior','La circunfleja, que nunca irriga la pared inferior del corazón','El tronco de la coronaria izquierda, que solo irriga el septum'],
+  e:'La pared inferior suele depender de la coronaria derecha (en una minoría, de la circunfleja). La descendente anterior irriga la pared anterior y el septum, como en el caso del corredor.',
+  c:'Compara con el corredor (V2–V4, descendente anterior): la derivación dice el territorio y el territorio dice la arteria.'},
+ {s:'Control autonómico',q:'Tuvo un infarto «sin dolor». ¿Qué mecanismo lo hace más probable en la diabetes de larga evolución?',
+  o:['La neuropatía diabética puede afectar las fibras que llevan el dolor cardiaco','La diabetes vuelve al miocardio inmune a la isquemia, así que no hay necrosis','La metformina anestesia el corazón y bloquea la percepción del dolor','La hiperglucemia aumenta el flujo coronario y evita la isquemia'],
+  e:'Nota (fuera del temario básico): la diabetes de larga evolución daña nervios, incluidas fibras autonómicas y sensitivas viscerales. El hormigueo en los pies (B12 y diabetes) muestra que los nervios periféricos ya están afectados.',
+  c:'Los nervios fallan en dos sitios: en los pies (sensación) y en el corazón (aviso de isquemia).'},
+ {s:'Asa presión–volumen',q:'Con fracción de eyección de 42 %, ¿cómo mantiene su gasto en reposo?',
+  o:['Dilatando el ventrículo: más volumen telediastólico compensa la fracción baja','Aumentando la contractilidad de la cicatriz, que se vuelve el músculo más fuerte','Reduciendo la frecuencia a 40 lpm para llenar más el ventrículo','No lo mantiene: con fracción de eyección menor de 50 % el gasto en reposo cae a la mitad'],
+  e:'Volumen sistólico = volumen telediastólico × fracción de eyección. Un ventrículo más grande puede expulsar un volumen parecido con una fracción menor (Frank-Starling y remodelado). La cicatriz no se contrae.',
+  c:'Le queda poca reserva: cualquier aumento de demanda o caída del contenido de O₂ se nota.'},
+ {s:'Hemoglobina / entrega',q:'¿Por qué la anemia de 10,4 g/dL lo cansa más a él que a una persona sana con la misma Hb?',
+  o:['La anemia exige más gasto, y su ventrículo con cicatriz tiene poca reserva','La anemia con cicatriz cardiaca baja la saturación de O₂ a menos de 80 %','La cicatriz produce EPO de más y eso lo cansa por exceso de eritrocitos','La anemia solo cansa a las personas que tienen el corazón sano'],
+  e:'La anemia se compensa aumentando la frecuencia y el gasto cardiaco y bajando la resistencia vascular. Un corazón con fracción de eyección reducida tiene menos reserva para subir el gasto, y la taquicardia aumenta su propio consumo de O₂.',
+  c:'Sangre y corazón se suman: menos contenido y menos reserva de bomba.'}
+ ]},
+{titulo:'Acto 4 · El riñón y el potasio',
+ relato:'En la siguiente consulta trae deshidratación por vómito y diarrea leves. Su función renal empeoró un poco.',
+ datos:['K⁺ 6,1 mEq/L','Bicarbonato bajo · pH 7,30','Tasa de filtración glomerular 41 mL/min/1,73 m²','ECG: T altas y picudas, además de las Q inferiores'],
+ ecg:{r:'sinus',hr:78,t:.85,tw:.032,lead:'V3',cap:'Hoy · V3 · T alta y picuda'},
+ preguntas:[
+ {s:'Electrolitos / riñón',q:'¿Por qué se le acumula el K⁺?',
+  o:['Su riñón, la vía principal para eliminar K⁺, filtra menos','El intestino absorbe más K⁺ cuando hay diarrea, sin importar el riñón','La anemia libera K⁺ de los eritrocitos sanos a la sangre todos los días','La tirzepatida contiene potasio y lo acumula en el músculo'],
+  e:'El K⁺ que entra con la dieta se elimina sobre todo por el riñón. Si la filtración cae (ERC más deshidratación), el K⁺ se acumula. Nota: la diarrea suele hacer perder K⁺, pero aquí pesa más la falla renal.',
+  c:'El mismo riñón que fabrica poca EPO ahora elimina poco K⁺.'},
+ {s:'pH / potasio',q:'pH 7,30 con bicarbonato bajo. ¿Cómo empeora la acidosis su K⁺?',
+  o:['El H⁺ entra a las células y sale K⁺ para mantener el equilibrio de cargas','El H⁺ se une al K⁺ en la sangre y lo vuelve más concentrado','La acidosis estimula a la EPO, que libera K⁺ desde la médula','La acidosis cierra los riñones por completo y deja de filtrarse sangre'],
+  e:'Nota: en la acidosis metabólica, parte del H⁺ entra a las células y sale K⁺ para mantener la electroneutralidad. Acidosis e hiperpotasemia se potencian.',
+  c:'La acidosis también desplaza la curva de la Hb a la derecha: un efecto que ayuda al tejido y otro que daña al corazón.'},
+ {s:'Potencial de acción / potasio',q:'¿Por qué con K⁺ alto aparecen T picudas?',
+  o:['Más K⁺ extracelular acelera la repolarización (fase 3)','Más K⁺ extracelular alarga la meseta (fase 2) y retrasa la repolarización','El K⁺ alto aumenta la entrada de Ca²⁺ y genera una onda T más ancha','El K⁺ alto hace más negativo el potencial de reposo y alarga la onda T'],
+  e:'Con más K⁺ extracelular, los canales de K⁺ conducen más y la repolarización es más rápida y sincrónica: T alta, estrecha y picuda. Si sigue subiendo, el reposo se vuelve menos negativo, se inactivan canales de Na⁺ y se ensancha el QRS.',
+  c:'Un corazón con cicatriz tolera peor cualquier arritmia que el K⁺ pueda causar.'},
+ {s:'Electrocardiograma / integración',q:'En el mismo trazo hay Q inferiores y T picudas. ¿Qué te dice cada hallazgo?',
+  o:['Las Q son el pasado (necrosis) y las T picudas el presente (K⁺ alto)','Las dos indican un infarto nuevo que está en evolución en la pared inferior','Las dos se deben al K⁺: la hiperpotasemia produce ondas Q profundas','Las T picudas borran las Q, así que el infarto antiguo ya desapareció'],
+  e:'Un ECG puede mezclar hallazgos de distintas épocas y causas. La onda Q persiste tras la necrosis; la T picuda depende de la concentración actual de K⁺ y cambia en horas.',
+  c:'Leer un ECG es separar capas: estructura, metabolismo y tiempo.'}
+ ]},
+{titulo:'Acto 5 · Reponer lo que falta',
+ relato:'Se corrige la deshidratación y el K⁺. Se decide reponer B12 por vía intramuscular y valorar un estimulante de la eritropoyesis con hierro intravenoso.',
+ datos:['B12 intramuscular','A los 5 días: reticulocitos en aumento · K⁺ 3,6 mEq/L','Plan: análogo de EPO con hierro intravenoso'],
+ preguntas:[
+ {s:'Folato / B12',q:'¿Por qué tiene lógica dar la B12 por vía intramuscular en su caso?',
+  o:['Evita el paso por el íleon, que es justo el sitio donde su absorción está disminuida','La B12 oral se destruye por completo en la sangre antes de llegar a la médula','Por vía intramuscular la B12 se convierte directamente en hierro','La B12 intramuscular también corrige la función renal'],
+  e:'Si el problema está en la absorción (factor intrínseco o íleon), la vía parenteral evita ese paso. Nota (VERIFICAR): la vía y la dosis dependen de la causa y de la guía clínica vigente.',
+  c:'Se corta el eslabón donde empezó la cadena: la absorción.'},
+ {s:'Folato / B12',q:'¿Por qué no basta con darle solo ácido fólico?',
+  o:['El folato no corrige la falta de B12, que sigue dañando los nervios','El ácido fólico empeora la anemia en todos los casos de falta de B12','El ácido fólico solo se absorbe si hay mucha B12 en el estómago','El folato y la B12 son la misma vitamina con nombres distintos'],
+  e:'La B12 es necesaria para la hematopoyesis y para la función neurológica. Nota: dar solo folato puede mejorar en parte la síntesis de ADN y enmascarar la falta de B12 mientras el daño neurológico avanza.',
+  c:'El hormigueo de los pies es la parte que el folato no arregla.'},
+ {s:'Electrolitos / eritropoyesis',q:'Al iniciar la B12 sube la eritropoyesis y el K⁺ bajó a 3,6. ¿Qué relación hay?',
+  o:['Las células nuevas captan K⁺ del plasma, y el K⁺ puede bajar','La B12 se une al K⁺ en la sangre y lo elimina por las heces en pocas horas','Los eritrocitos nuevos liberan K⁺, así que debería subir y no bajar','No hay relación: el K⁺ nunca cambia con la eritropoyesis'],
+  e:'El K⁺ es el principal catión intracelular. Nota (VERIFICAR): cuando la médula se reactiva bruscamente (por ejemplo, al tratar una anemia megaloblástica), muchas células nuevas captan K⁺ y puede aparecer hipopotasemia; se vigila.',
+  c:'La médula también es un órgano que «come» electrolitos: hematología y electrofisiología se tocan otra vez.'},
+ {s:'Hierro / EPO',q:'¿Por qué un análogo de EPO sin hierro disponible tendría poco efecto?',
+  o:['Sin hierro no se puede sintetizar el hemo','La EPO destruye el hierro de las reservas y lo elimina por la orina','La EPO solo funciona cuando la ferritina es cero','La EPO y el hierro compiten por el mismo receptor y se bloquean'],
+  e:'El hierro es indispensable para la síntesis del hemo. Con la hepcidina alta, el hierro guardado no sale y el oral se absorbe mal; por eso se considera el intravenoso. La eritropoyesis aumentada tiende a bajar la hepcidina.',
+  c:'Hay que soltar los tres frenos: B12, EPO y hierro disponible.'},
+ {s:'Hemodinamia / viscosidad',q:'¿Por qué no se busca subir su Hb hasta valores altos con el análogo de EPO?',
+  o:['Más Hct sube la viscosidad, la poscarga y el riesgo de trombosis','Porque la Hb alta baja la saturación de O₂ por debajo de 80 %','Porque la EPO en dosis altas produce eritrocitos sin hemoglobina','No hay ningún riesgo: cuanto más alta la Hb, mejor para el corazón'],
+  e:'La hiperviscosidad puede aumentar el riesgo de complicaciones trombóticas. Nota (VERIFICAR con las guías vigentes): en la anemia de la ERC no se busca normalizar por completo la Hb con estimulantes de la eritropoyesis.',
+  c:'Es la lección del corredor de la montaña aplicada en sentido inverso.'},
+ {s:'Integración',q:'¿Qué secuencia resume mejor su anemia?',
+  o:['Menos B12 (metformina), menos folato (come poco) y menos EPO con más hepcidina (ERC)','Tirzepatida → hemólisis → bilirrubina alta → anemia regenerativa con reticulocitos altos','Infarto antiguo → el corazón produce menos EPO → policitemia → HbA1c falsa','Hígado graso → hepcidina baja → sobrecarga de hierro → anemia microcítica'],
+  e:'Tres causas que se suman y ninguna es hemólisis: falta de materia prima (B12, folato), falta de orden (EPO) y hierro inaccesible (hepcidina). Los reticulocitos bajos lo confirman.',
+  c:'Este es tu mapa del caso.'}
+ ]}
+]};
+
+// ── CASO CASCADA 6 · dificultad EXTREMA ────────────────────
+// Rescate de un edificio en llamas: monóxido de carbono, quemaduras, hemólisis, potasio, inmunidad y coagulación.
+const CASCADA6={
+titulo:'Tomás y el edificio en llamas',
+paciente:'Tomás, hombre de 27 años, sano. Quedó atrapado 20 minutos en un departamento en llamas, en el piso 9, hasta que lo sacaron por la ventana. Tiene quemaduras en el 30 % de la superficie corporal, la voz ronca y hollín en la boca. Grupo B Rh positivo.',
+instrucciones:'El fuego ataca por tres frentes: el humo (CO), la piel (quemaduras) y el tiempo (infección y coagulación). Vas a conectar la curva de O₂, el oxímetro, la gasometría, Starling, la hemoconcentración, la hemólisis, el potasio en el ECG, la inmunidad y la transfusión. Recuerda: el tratamiento de la intoxicación por CO es oxígeno al 100 %.',
+actos:[
+{titulo:'Acto 1 · El humo',
+ relato:'En la ambulancia está confundido, con dolor de cabeza y náusea. El oxímetro marca 99 % y su piel no se ve azul.',
+ datos:['Oxímetro de pulso: 99 %','Cooximetría: carboxihemoglobina 28 %','Gasometría con O₂: PaO₂ 310 mmHg · pH 7,28 · lactato elevado','FC 124 lpm','ECG: taquicardia sinusal con infradesnivel del ST en V4–V6'],
+ ecg:{r:'sinus',hr:124,st:-.14,lead:'V5',cap:'Ambulancia · V5 · infradesnivel del ST'},
+ preguntas:[
+ {s:'Hemoglobina / CO',q:'El oxímetro marca 99 % con 28 % de carboxihemoglobina. ¿Cuál es el problema?',
+  o:['El oxímetro confunde la COHb con oxi-Hb; la saturación real es mucho menor','El oxímetro es exacto: con 99 % de saturación el CO no está afectando el transporte','La COHb sube la saturación real de O₂ porque el CO ayuda a la Hb a cargar oxígeno','El oxímetro marca 99 % porque la piel quemada refleja más la luz del sensor'],
+  e:'Nota de seguridad: los oxímetros de pulso convencionales no distinguen la carboxihemoglobina de la oxihemoglobina y la reportan como si fuera saturación de O₂. La medición correcta es la cooximetría.',
+  c:'Primer eslabón: el número más tranquilizador del monitor es el más engañoso.'},
+ {s:'Hemoglobina / gasometría',q:'¿Por qué la PaO₂ es 310 mmHg si sus tejidos tienen hipoxia?',
+  o:['La PaO₂ mide el O₂ disuelto; no ve los sitios de la Hb ocupados por CO','La PaO₂ alta demuestra que no hay hipoxia y que la confusión tiene otra causa','La PaO₂ mide el O₂ unido a la Hb y por eso incluye a la carboxihemoglobina','La PaO₂ sube porque el CO libera el O₂ de la Hb hacia el plasma de forma continua'],
+  e:'La PaO₂ refleja el O₂ disuelto. El contenido depende sobre todo del O₂ unido a la Hb; si el CO ocupa los sitios, el contenido cae aunque la PaO₂ sea normal o alta.',
+  c:'Saturación de pulso, PaO₂ y contenido son tres cosas distintas; aquí solo el contenido dice la verdad.'},
+ {s:'Hemoglobina / curva',q:'Además de ocupar sitios, ¿qué hace el CO con la Hb que todavía lleva O₂?',
+  o:['Desplaza la curva a la izquierda: los hemos restantes sueltan peor su O₂','Desplaza la curva a la derecha: los hemos restantes sueltan su O₂ con más facilidad','No modifica la curva; solo reduce la cantidad de Hb disponible para cargar O₂','Convierte la Hb restante en metahemoglobina, que no puede cargar O₂'],
+  e:'El CO se une a la Hb con una afinidad muy superior a la del O₂, reduce la capacidad de transporte y además dificulta la liberación de O₂ en los tejidos (curva a la izquierda). Es peor que una anemia con la misma pérdida de capacidad.',
+  c:'Doble golpe: menos O₂ cargado y el que hay se suelta mal.'},
+ {s:'Hemoglobina / tratamiento',q:'¿Por qué se le da oxígeno al 100 % aunque la PaO₂ ya sea alta?',
+  o:['Compite con el CO por la Hb y lo desplaza más rápido','El O₂ al 100 % sube la saturación de pulso, que es la meta del tratamiento','El O₂ al 100 % convierte el CO en CO₂ directamente dentro del eritrocito','No tiene lógica: con PaO₂ alta el oxígeno extra no cambia nada'],
+  e:'El tratamiento inicial es oxígeno a alta concentración (100 %). Nota (VERIFICAR): con más O₂ disponible, el CO se desplaza más rápido de la Hb; su vida media se acorta de forma importante respecto al aire ambiente.',
+  c:'La meta no es el número del oxímetro, sino vaciar la Hb de CO.'},
+ {s:'Hemoglobina / signos',q:'Su piel no se ve azul ni «rojo cereza». ¿Qué conclusión es correcta?',
+  o:['Ninguna descarta la intoxicación: el rojo cereza no es constante','Si no hay color rojo cereza, la intoxicación por CO queda descartada','La ausencia de cianosis confirma que su sangre transporta O₂ con normalidad','El color de la piel es el mejor indicador de la gravedad del CO'],
+  e:'El color rojo cereza no es constante ni suficientemente fiable para el diagnóstico. La cianosis depende de la desoxi-Hb, y la COHb no es desoxi-Hb.',
+  c:'La clínica engaña; la cooximetría no.'},
+ {s:'Metabolismo / pH',q:'pH 7,28 con lactato alto. ¿Qué une el CO con la acidosis?',
+  o:['Menos O₂ en los tejidos → metabolismo anaerobio → lactato y H⁺ → acidosis','Más O₂ en los tejidos → más CO₂ → acidosis respiratoria por exceso de oxígeno','El CO se convierte en ácido carbónico dentro del eritrocito','La hiperventilación del humo retiene CO₂ y produce alcalosis'],
+  e:'Con menos O₂ entregado, la célula recurre al metabolismo anaerobio y produce lactato. Nota: el humo de incendios también puede contener cianuro, que bloquea el uso del O₂ en la mitocondria y empeora la acidosis láctica.',
+  c:'La acidosis empuja la curva a la derecha (Bohr) y el CO a la izquierda: dos fuerzas opuestas sobre la misma Hb.'},
+ {s:'Flujo coronario',q:'¿Por qué hay infradesnivel del ST en V4–V6 en un hombre sano de 27 años?',
+  o:['Isquemia subendocárdica: llega poco O₂ y la taquicardia sube la demanda','Tiene un infarto transmural por un trombo coronario, que siempre deprime el ST','La hiperpotasemia de las quemaduras ya produjo ondas T picudas','Es un hallazgo normal de los jóvenes con frecuencia alta'],
+  e:'El CO baja el contenido de O₂ y dificulta su liberación; la taquicardia acorta la diástole y aumenta el consumo. El subendocardio es la capa más vulnerable: su isquemia se ve como infradesnivel del ST. Nota: el CO también se une a la mioglobina del miocardio.',
+  c:'Sin una sola placa coronaria, el humo produce isquemia: es un problema de sangre, no de arterias.'}
+ ]},
+{titulo:'Acto 2 · La piel',
+ relato:'En urgencias se valoran las quemaduras: 30 % de la superficie corporal, varias profundas. En las primeras horas su orina disminuye y se hincha la piel alrededor de las heridas.',
+ datos:['Hct 56 % (antes del incendio, normal)','FC 130 · PA 96/64 · presión venosa central baja','Albúmina baja','Edema intenso alrededor de las quemaduras'],
+ preguntas:[
+ {s:'Microcirculación / Starling',q:'¿Por qué se forma tanto edema alrededor de las quemaduras?',
+  o:['Sube la permeabilidad capilar: salen proteínas y se pierde el gradiente oncótico','El calor baja la presión hidrostática capilar y el líquido entra a los vasos','La albúmina se queda en el capilar y atrae agua desde el intersticio','El edema es solo sangre que se fuga por los capilares rotos'],
+  e:'Con la barrera dañada (coeficiente de reflexión de las proteínas bajo), la albúmina pasa al intersticio. La presión oncótica capilar ya no retiene el líquido y la del intersticio lo atrae: se filtra mucho más.',
+  c:'Lo que se va al intersticio deja de estar en los vasos: la quemadura vacía la circulación desde adentro.'},
+ {s:'Eritrocitosis relativa',q:'Su Hct es 56 % sin haber fabricado eritrocitos. ¿Por qué?',
+  o:['Hemoconcentración: perdió plasma hacia los tejidos quemados','Eritrocitosis secundaria: el CO subió la EPO y fabricó eritrocitos en unas horas','Policitemia vera desencadenada por el estrés del incendio','Los eritrocitos se hincharon con el calor y ocupan más volumen'],
+  e:'La eritrocitosis relativa se debe a la disminución del volumen plasmático. La eritropoyesis tarda días.',
+  c:'Igual que en el corredor: el Hct alto aquí no es fuerza, es pérdida de plasma.'},
+ {s:'Hemodinamia / choque',q:'PA 96/64, taquicardia y presión venosa central baja. ¿Qué tipo de estado hemodinámico predomina?',
+  o:['Hipovolemia por pérdida de plasma: baja el retorno venoso, cae la precarga y el volumen sistólico','Choque cardiogénico: el corazón falla primero y por eso la presión venosa central está baja','Choque obstructivo por un trombo pulmonar, con presión venosa central baja','Sobrecarga de volumen por el edema, con presión venosa central baja'],
+  e:'Se pierde plasma hacia el intersticio. Con menos volumen circulante, bajan el retorno venoso y la presión venosa central; por Frank-Starling cae el volumen sistólico y el barorreflejo acelera la frecuencia. Nota: la inflamación también aporta un componente distributivo.',
+  c:'La piel quemada se convierte en un problema de retorno venoso.'},
+ {s:'Hemodinamia / viscosidad',q:'Hct 56 % y flujo lento. ¿Qué riesgo agrega esta combinación?',
+  o:['Más viscosidad y estasis: más resistencia y riesgo de trombosis','Menos viscosidad: la sangre fluye más rápido y protege a los tejidos quemados','Ninguno: la viscosidad depende de las proteínas, no del hematocrito','Más flujo en la piel quemada, que acelera la cicatrización'],
+  e:'La viscosidad depende del hematocrito; más viscosidad aumenta la resistencia (Poiseuille). Con flujo lento se suma la estasis de la tríada de Virchow.',
+  c:'El reemplazo de líquidos corrige a la vez la precarga y la viscosidad.'},
+ {s:'Grupos / plasma',q:'Necesita plasma. Tomás es B Rh positivo. ¿Qué plasmas son compatibles con él?',
+  o:['B o AB: ninguno lleva anti-B contra sus eritrocitos','O o A: su plasma no tiene antígeno B y por eso no lo atacan','Solo O, porque el plasma O es el donador universal de plasma','Cualquier plasma, porque el plasma no lleva anticuerpos ABO'],
+  e:'Con el plasma importan los anticuerpos del donador. Sus eritrocitos tienen antígeno B: no debe recibir plasma con anti-B. El plasma B tiene anti-A (no le afecta) y el AB no tiene anti-A ni anti-B. El plasma O tiene anti-A y anti-B.',
+  c:'La regla de los eritrocitos al revés: AB es el donador universal de plasma.'}
+ ]},
+{titulo:'Acto 3 · Días 2 y 3',
+ relato:'Su orina se vuelve rojiza. En los estudios aparece una anemia que no estaba al llegar, y la piel y los ojos se ponen algo amarillos.',
+ datos:['Hb 10,1 g/dL (ya repuesto el volumen) · esferocitos en el frotis','LDH alta · haptoglobina baja · bilirrubina indirecta elevada','Orina rojiza: mioglobina positiva, sin eritrocitos en el sedimento','K⁺ 6,4 mEq/L','ECG: T altas y picudas'],
+ ecg:{r:'sinus',hr:112,t:.9,tw:.03,lead:'V3',cap:'Día 3 · V3 · T alta y picuda'},
+ preguntas:[
+ {s:'Hemólisis',q:'Esferocitos, LDH alta y haptoglobina baja tras la quemadura. ¿Qué pasó con sus eritrocitos?',
+  o:['El calor dañó su membrana: se volvieron esféricos y se destruyen','La transfusión de plasma introdujo eritrocitos esféricos del donador','El CO convierte los eritrocitos en esferocitos dentro del pulmón','Es una esferocitosis hereditaria que no se había diagnosticado'],
+  e:'Los esferocitos pierden la forma bicóncava y son más susceptibles a la destrucción. Nota: el daño térmico directo puede producir esferocitos y hemólisis tras quemaduras extensas. LDH alta y haptoglobina baja son hallazgos de hemólisis.',
+  c:'Ahora que se repuso el plasma, aparece la anemia que el Hct alto escondía.'},
+ {s:'Bilirrubina',q:'¿Qué tipo de ictericia tiene y por qué no hay coluria por bilirrubina?',
+  o:['Prehepática: sube la indirecta, unida a albúmina, que no se filtra','Posthepática: la quemadura obstruyó la vía biliar y sube la directa','Hepática: el CO destruyó los hepatocitos y no conjugan nada','Prehepática con coluria intensa, porque la indirecta es hidrosoluble'],
+  e:'En la ictericia prehepática predomina la bilirrubina indirecta, que circula unida a albúmina y normalmente no aparece en orina. La orina rojiza tiene otra causa.',
+  c:'La orina roja no es bilirrubina: el siguiente eslabón dice qué es.'},
+ {s:'Mioglobina',q:'Orina rojiza con mioglobina positiva y sin eritrocitos. ¿De dónde viene?',
+  o:['Del músculo dañado por las quemaduras profundas','De los eritrocitos destruidos, que liberan mioglobina en lugar de hemoglobina','Del hígado, que produce mioglobina cuando no puede conjugar la bilirrubina','De la bilirrubina directa, que en la orina se ve roja y no amarilla'],
+  e:'La mioglobina es una proteína muscular. En sangre puede elevarse por lesión muscular, y por su tamaño pequeño se filtra en el riñón y tiñe la orina. Sin eritrocitos en el sedimento, el color no viene de sangre entera. Nota: la mioglobinuria puede dañar el riñón.',
+  c:'Músculo, eritrocitos y riñón: tres fuentes posibles de una orina roja.'},
+ {s:'Electrolitos / potasio',q:'K⁺ 6,4 mEq/L. ¿De dónde sale tanto potasio?',
+  o:['De las células destruidas (músculo y eritrocitos) y de un riñón que filtra peor','De las soluciones intravenosas, que siempre contienen grandes cantidades de K⁺','Del CO, que se transforma en potasio dentro de la mitocondria','Del plasma transfundido, que tiene más K⁺ que cualquier célula'],
+  e:'El K⁺ es el principal catión intracelular. La destrucción de músculo y de eritrocitos lo libera al plasma; si además el riñón filtra menos (hipovolemia, mioglobina), se acumula.',
+  c:'El daño de los tejidos vuelve a aparecer en el ECG.'},
+ {s:'Potencial de acción / potasio',q:'¿Por qué el K⁺ alto pone en peligro su conducción cardiaca si sigue subiendo?',
+  o:['Despolariza el reposo, inactiva canales de Na⁺ y enlentece la conducción','Hiperpolariza el reposo y vuelve al miocardio imposible de excitar desde el inicio','Alarga la meseta por más entrada de Ca²⁺ y produce QT largo','Aumenta la velocidad de la fase 0 y produce QRS estrecho y rápido'],
+  e:'Con más K⁺ extracelular el potencial de reposo se vuelve menos negativo. Muchos canales de Na⁺ quedan inactivados, la fase 0 es más lenta y la conducción se enlentece: QRS ancho y riesgo de arritmias graves.',
+  c:'De la piel quemada al canal de sodio.'}
+ ]},
+{titulo:'Acto 4 · La barrera perdida',
+ relato:'Al día 6 tiene fiebre alta. Las heridas tienen secreción. Se desconoce si está vacunado contra el tétanos.',
+ datos:['Fiebre 39,4 °C · leucocitos 21 000/µL con neutrofilia','PCR e IL-6 elevadas','Ferritina alta · hierro sérico bajo','Último refuerzo contra tétanos: desconocido'],
+ preguntas:[
+ {s:'Inmunidad innata',q:'¿Por qué una quemadura extensa lo vuelve tan vulnerable a infecciones?',
+  o:['Perdió la piel, una barrera de la inmunidad innata','La quemadura destruye el timo y deja de producir linfocitos T','El CO elimina todos los anticuerpos IgG circulantes','Las quemaduras bajan la temperatura y los neutrófilos no funcionan con frío'],
+  e:'Las barreras forman parte de la inmunidad innata, junto con neutrófilos, macrófagos, NK y complemento. Sin la piel, la primera línea de defensa desaparece.',
+  c:'La defensa pasa de la barrera a las células: ahora todo depende de los neutrófilos.'},
+ {s:'Inmunidad innata',q:'¿Qué hacen los neutrófilos que llegan a la herida infectada?',
+  o:['Fagocitan, se desgranulan y forman NETs que también dañan tejido','Producen anticuerpos IgM que neutralizan las toxinas bacterianas','Presentan antígenos a los linfocitos T CD8 en el timo','Producen EPO para reponer los eritrocitos perdidos'],
+  e:'Los neutrófilos son atraídos por quimiocinas, fagocitan, se desgranulan y pueden formar NETs, que inmovilizan microorganismos y pueden contribuir al daño tisular.',
+  c:'La misma inflamación que defiende también daña y eleva la IL-6.'},
+ {s:'Vacunación / inmunidad pasiva',q:'Vacunación antitetánica desconocida y heridas extensas. ¿Por qué darle inmunoglobulina y vacuna?',
+  o:['La inmunoglobulina protege ya (pasiva); la vacuna deja memoria (activa)','La vacuna da protección inmediata y la inmunoglobulina genera la memoria a largo plazo','Solo la inmunoglobulina, porque la vacuna no funciona en personas quemadas','Solo la vacuna, porque la inmunoglobulina impide cualquier respuesta futura'],
+  e:'La inmunidad pasiva es rápida pero temporal; la activa tarda pero deja memoria. Nota (VERIFICAR con el esquema vigente): en heridas de riesgo con vacunación incierta suelen indicarse ambas, en sitios distintos.',
+  c:'La misma lógica que en el caso de Karyme.'},
+ {s:'Hierro / inflamación',q:'Ferritina alta y hierro sérico bajo. ¿Qué une la infección con su anemia?',
+  o:['La IL-6 sube la hepcidina, que atrapa el hierro en macrófagos','La infección consume la ferritina y libera todo el hierro hacia la orina','La hepcidina baja con la fiebre y el hierro se pierde por las heces','Las bacterias producen EPO y bloquean la entrada de hierro a la médula'],
+  e:'La inflamación, sobre todo por IL-6, aumenta la hepcidina y reduce la disponibilidad de hierro. La ferritina sube como reactante de inflamación.',
+  c:'Anemia por hemólisis y ahora anemia por inflamación: dos mecanismos sumados.'},
+ {s:'Hemoglobina / curva',q:'Con 39,4 °C de fiebre, ¿qué le pasa a la curva de disociación?',
+  o:['Se desplaza a la derecha: la Hb suelta más O₂ en los tejidos','Se desplaza a la izquierda: la Hb retiene más O₂ en los tejidos','No cambia: la fiebre solo afecta a los neutrófilos','Se desplaza a la izquierda igual que con el CO'],
+  e:'El aumento de temperatura desplaza la curva a la derecha y facilita la descarga de O₂. Compara con el acto 1: el CO la desplazaba a la izquierda.',
+  c:'La curva de Tomás se movió en ambos sentidos a lo largo de la semana.'}
+ ]},
+{titulo:'Acto 5 · Cuando la coagulación se consume',
+ relato:'Al día 7, con la infección grave, empieza a sangrar por los sitios de punción y aparecen petequias.',
+ datos:['Plaquetas 38 000/µL','TP y TTPa prolongados','Fibrinógeno bajo','Dímero-D muy elevado'],
+ preguntas:[
+ {s:'Hemostasia / consumo',q:'Plaquetas bajas, TP y TTPa largos, fibrinógeno bajo y dímero-D muy alto. ¿Qué patrón es?',
+  o:['Consumo: coágulos difusos gastan plaquetas y factores, y se degradan','Hemofilia A adquirida: solo falta el factor VIII y el dímero-D sube por error','Falta de vitamina K pura: baja el fibrinógeno y el dímero-D sube por la dieta','Trombocitopenia aislada: los factores y el fibrinógeno siempre están normales'],
+  e:'Nota (fuera del temario básico, se conoce como coagulación intravascular diseminada): la inflamación grave activa la coagulación de forma difusa; se consumen plaquetas, factores y fibrinógeno, y la plasmina degrada la fibrina, lo que eleva el dímero-D. Paradójicamente el paciente trombosa y sangra a la vez.',
+  c:'La inflamación de la herida termina como un problema de hemostasia en todo el cuerpo.'},
+ {s:'Hemostasia / pruebas',q:'¿Por qué está prolongado el TP y también el TTPa?',
+  o:['Faltan factores de la vía común (y otros), que intervienen en las dos pruebas','El TP mide solo plaquetas y el TTPa solo fibrinógeno','Las dos pruebas se alargan por la heparina, que está en todas las soluciones','El TP y el TTPa se alargan con la fiebre, aunque no falte ningún factor'],
+  e:'El TP evalúa la vía extrínseca y la común; el TTPa la intrínseca y la común. Si se consumen factores de la vía común (X, V, II, fibrinógeno), ambas se alargan.',
+  c:'Cuando las dos pruebas se alargan, piensa en la vía común o en un problema global.'},
+ {s:'Plaquetas',q:'¿Qué tipo de sangrado de los que tiene apunta sobre todo a la falta de plaquetas?',
+  o:['Las petequias y el sangrado por sitios de punción y mucosas','Las hemartrosis y los hematomas musculares profundos','La orina roja por mioglobina del día 3','La ictericia de la hemólisis térmica'],
+  e:'Los defectos de la hemostasia primaria (plaquetas o vWF) producen sangrado mucocutáneo: petequias, púrpura, sangrado de mucosas. Los defectos de factores producen sangrados profundos.',
+  c:'Cada componente perdido deja una firma distinta.'}
+ ]},
+{titulo:'Acto 6 · El mapa',
+ relato:'Tomás sobrevive. Sale del hospital a las 5 semanas.',
+ datos:['Hb en recuperación · reticulocitos altos','Sin CO residual','Esquema antitetánico completado'],
+ preguntas:[
+ {s:'Integración',q:'¿Qué secuencia resume mejor el caso?',
+  o:['CO → hipoxia oculta → fuga de plasma → hemólisis y K⁺ alto → infección → consumo','Quemadura → eritrocitosis secundaria por EPO → policitemia vera → trombosis coronaria','CO → metahemoglobina → azul de metileno → hemólisis por G6PD → ictericia posthepática','Infección → CO en la sangre → anemia ferropénica → bradicardia → bloqueo AV'],
+  e:'Tres frentes encadenados: el humo bajó el contenido y la liberación de O₂; la quemadura vació el plasma y rompió eritrocitos y músculo (K⁺, mioglobina); la barrera perdida trajo infección, hepcidina alta y consumo de la coagulación.',
+  c:'Este es tu mapa del caso.'},
+ {s:'Integración',q:'En la ambulancia, ¿qué medida corta el primer eslabón de la cascada?',
+  o:['Oxígeno al 100 %, que desplaza el CO de la Hb','Esperar a que el oxímetro baje de 90 % para dar oxígeno','Dar azul de metileno, que es el antídoto del monóxido de carbono','Bajar la temperatura corporal para que la curva se desplace a la izquierda'],
+  e:'El tratamiento inicial de la intoxicación por CO es oxígeno a alta concentración (100 %). El azul de metileno es para la metahemoglobinemia. Esperar al oxímetro es justo la trampa del acto 1.',
+  c:'Saber qué mide cada número evita tratar el número equivocado.'}
+ ]}
+]};
+
+// ── CASO CASCADA 7 · dificultad EXTREMA ────────────────────
+// Digital, metahemoglobinemia, deficiencia de G6PD, bloqueo AV, marcapasos y el ECG de un reloj.
+const CASCADA7={
+titulo:'Don Roberto: sangre chocolate y un corazón con marcapasos',
+paciente:'Don Roberto, hombre de 74 años. Tiene fibrilación auricular e insuficiencia cardiaca leve; toma digoxina desde hace 3 años y un diurético. A los 30 años tuvo una crisis de anemia e ictericia después de comer habas. Usa un reloj inteligente que hace ECG.',
+instrucciones:'Un fármaco que mueve iones, una molécula que oxida el hierro del hemo, una enzima que falta y un aparato que dispara electricidad. Vas a conectar la bomba Na⁺/K⁺, el nodo AV, la metahemoglobina, la G6PD, la hemólisis, el bloqueo AV, el gasto cardiaco, el marcapasos y la lectura de un ECG de una sola derivación.',
+actos:[
+{titulo:'Acto 1 · La digoxina',
+ relato:'En su consulta de control está estable. Su cardióloga revisa el ECG y el potasio.',
+ datos:['FC 78 lpm, irregular','ECG: fibrilación auricular con QRS estrecho · ST descendente «en cubeta» · QT corto','K⁺ 3,3 mEq/L (toma diurético)','Creatinina en el límite alto'],
+ ecg:{r:'af',n:8,st:-.1,qt:.31,lead:'DII',cap:'Control · DII · fibrilación auricular con efecto digitálico'},
+ preguntas:[
+ {s:'Contractilidad / digital',q:'¿Cómo aumenta la digoxina la fuerza de contracción?',
+  o:['Inhibe la bomba Na⁺/K⁺: con más Na⁺ dentro, el intercambiador saca menos Ca²⁺','Abre canales de Ca²⁺ tipo L y deja entrar más calcio en cada potencial de acción','Estimula receptores β₁ y aumenta el AMPc, igual que la adrenalina','Bloquea los canales de K⁺ y alarga la meseta, lo que da más tiempo para contraer'],
+  e:'Con la bomba Na⁺/K⁺ parcialmente bloqueada se acumula Na⁺ dentro de la célula. El intercambiador Na⁺/Ca²⁺ depende de ese gradiente: al reducirse, sale menos Ca²⁺ y el retículo sarcoplásmico se carga más. Más Ca²⁺ disponible significa más fuerza.',
+  c:'Primer eslabón: un fármaco que toca la misma bomba que mantiene el potencial de reposo.'},
+ {s:'Conducción',q:'¿Por qué la digoxina ayuda a controlar la frecuencia en la fibrilación auricular?',
+  o:['Aumenta el tono vagal sobre el nodo AV y pasan menos impulsos','Convierte la fibrilación auricular en ritmo sinusal en todos los pacientes','Bloquea por completo el nodo sinusal y deja al ventrículo con su propio ritmo','Acelera la conducción por el haz de His para que el ventrículo se ordene'],
+  e:'En la fibrilación auricular llegan al nodo AV cientos de impulsos por minuto. El nodo AV filtra; si se enlentece su conducción (efecto vagal de la digoxina), pasan menos y la frecuencia ventricular baja.',
+  c:'El nodo AV es el filtro. Si se frena de más, el filtro se cierra: recuerda esto para el acto 3.'},
+ {s:'Electrocardiograma / digital',q:'ST descendente «en cubeta» y QT corto. ¿Qué indica?',
+  o:['Efecto digitálico esperado, que no significa por sí solo intoxicación','Infarto agudo en curso: todo ST descendente es isquemia transmural','Hipercalcemia grave, que es la única causa de ST en cubeta','Hiperpotasemia, porque el K⁺ alto acorta el QT y deprime el ST'],
+  e:'Nota: la digoxina acorta el potencial de acción ventricular; en el ECG se ve un ST descendente en forma de cubeta y un QT corto. Es un efecto esperado del fármaco, no necesariamente toxicidad.',
+  c:'El ECG muestra que el fármaco está actuando; los electrolitos dirán si es peligroso.'},
+ {s:'Electrolitos / digital',q:'Su K⁺ es 3,3 mEq/L por el diurético. ¿Por qué eso preocupa con digoxina?',
+  o:['Con poco K⁺, que compite por la bomba, la digoxina se une más','El K⁺ bajo inactiva por completo la digoxina y deja de controlar la frecuencia','El K⁺ bajo hace que la digoxina se elimine más rápido por el riñón','El K⁺ bajo no tiene relación con la digoxina; solo afecta a la onda U'],
+  e:'Nota: la digoxina y el K⁺ compiten por el mismo sitio de la bomba Na⁺/K⁺. La hipopotasemia favorece la unión de la digoxina y su toxicidad. Además, la hipopotasemia por sí misma favorece arritmias.',
+  c:'Un diurético para el corazón vuelve más peligroso el otro fármaco del corazón.'}
+ ]},
+{titulo:'Acto 2 · La sangre chocolate',
+ relato:'Le hacen una endoscopia. Le rocían la garganta con un anestésico local (benzocaína). Minutos después está gris-azulado. Con oxígeno no mejora.',
+ datos:['Oxímetro de pulso: 85 %, sin cambios con oxígeno','Gasometría con O₂: PaO₂ 240 mmHg','Sangre de color café oscuro («chocolate»)','Metahemoglobina 31 %','FC 104 · disnea leve'],
+ preguntas:[
+ {s:'Hemoglobina / MetHb',q:'¿Qué le hizo la benzocaína a su hemoglobina?',
+  o:['Oxidó el hierro del hemo de Fe²⁺ a Fe³⁺ y formó metahemoglobina','Redujo el hierro del hemo de Fe³⁺ a Fe²⁺ y lo volvió incapaz de liberar O₂','Unió monóxido de carbono a la Hb, como en un incendio','Destruyó las cadenas de globina y dejó el hemo libre en el plasma'],
+  e:'La metahemoglobinemia se produce cuando el hierro del hemo pasa de Fe²⁺ a Fe³⁺. Se asocia con fármacos o sustancias oxidantes. Nota: la benzocaína tópica es una causa conocida.',
+  c:'Un anestésico de la garganta se convierte en un problema de transporte de O₂.'},
+ {s:'Hemoglobina / gasometría',q:'PaO₂ 240 mmHg y oxímetro en 85 % que no sube. ¿Cómo se explican juntos?',
+  o:['La PaO₂ mide O₂ disuelto; la MetHb no carga O₂ y confunde al oxímetro','La PaO₂ es falsa: con metahemoglobina el gasómetro no puede medir oxígeno','El oxímetro es exacto: el pulmón no oxigena bien y la PaO₂ alta es un error','La MetHb aumenta la PaO₂ porque libera el O₂ al plasma'],
+  e:'El pulmón oxigena bien el plasma (PaO₂ alta), pero los hemos oxidados no transportan O₂. Nota: el oxímetro de pulso convencional lee mal la MetHb y suele marcar valores cercanos a 85 % sin importar la PaO₂ real; la cooximetría la mide.',
+  c:'Igual que en el incendio: la PaO₂ no ve lo que le pasa a la Hb.'},
+ {s:'Hemoglobina / curva',q:'Además de los hemos oxidados, ¿qué pasa con los hemos normales que quedan en la misma molécula?',
+  o:['Retienen más su O₂ (curva a la izquierda) y lo liberan peor','Sueltan su O₂ con más facilidad (curva a la derecha) y compensan la MetHb','Se oxidan también en segundos, así que toda la Hb se vuelve MetHb','No cambian: los hemos de una misma Hb no se afectan entre sí'],
+  e:'La Hb es un tetrámero cooperativo. Nota (VERIFICAR): cuando algunos hemos están oxidados, los restantes tienen más afinidad por el O₂ y la curva se desplaza a la izquierda, como ocurre con el CO.',
+  c:'Mismo doble golpe que con el CO: menos capacidad y peor liberación.'},
+ {s:'Hemoglobina / cianosis',q:'¿Por qué se ve gris-azulado si su PaO₂ es alta?',
+  o:['La MetHb es oscura y da un tono cianótico con PaO₂ alta','Porque la PaO₂ alta produce cianosis por vasoconstricción periférica','Porque el oxígeno al 100 % tiñe la piel de azul','Porque la MetHb atrae la desoxi-Hb hacia la piel'],
+  e:'En la metahemoglobinemia se describen hipoxia, cianosis y sangre color chocolate. La MetHb es oscura; con concentraciones relativamente bajas ya cambia el color de la piel.',
+  c:'El color engaña en ambos sentidos: con CO no hay cianosis; con MetHb hay cianosis con PaO₂ alta.'},
+ {s:'G6PD / tratamiento',q:'El tratamiento habitual es azul de metileno, pero tuvo una crisis hemolítica con habas. ¿Por qué esto cambia la decisión?',
+  o:['Probable deficiencia de G6PD: sin NADPH el fármaco falla y puede hemolizar','La G6PD destruye el azul de metileno en el estómago y por eso no llega a la sangre','La deficiencia de G6PD hace que el azul de metileno se convierta en CO','No cambia nada: la G6PD no tiene relación con el estrés oxidativo'],
+  e:'El azul de metileno se usa cuando está indicado y no hay contraindicación relevante, como ciertas deficiencias enzimáticas. Nota: actúa a través de una vía que depende del NADPH; la G6PD es la enzima que produce NADPH en el eritrocito. Sin ella, el fármaco funciona mal y puede añadir estrés oxidativo.',
+  c:'Un antecedente de los 30 años (las habas) decide el tratamiento de los 74.'},
+ {s:'G6PD',q:'¿Qué le falta exactamente a un eritrocito con deficiencia de G6PD?',
+  o:['Capacidad de mantener el glutatión reducido para defenderse del estrés oxidativo','La espectrina de la membrana, por lo que se vuelve esférico de forma permanente','Las cadenas β de la globina, por lo que produce una anemia microcítica','El factor intrínseco necesario para absorber la B12'],
+  e:'La deficiencia de G6PD reduce la capacidad de mantener el glutatión reducido. Es de herencia ligada al X, más frecuente en varones, y puede estar asintomática hasta una exposición oxidante, una infección o ciertos fármacos o alimentos.',
+  c:'Sin defensa antioxidante, cualquier oxidante (como la benzocaína o el propio azul de metileno) puede romper el eritrocito.'}
+ ]},
+{titulo:'Acto 3 · Dos días después',
+ relato:'Se suspendió la benzocaína y la MetHb bajó con oxígeno y vigilancia. Pero aparece orina oscura, ictericia leve y su riñón empeora. Al tercer día se marea y casi se desmaya.',
+ datos:['Frotis: cuerpos de Heinz y «células mordidas» · LDH alta · bilirrubina indirecta alta','Creatinina elevada · digoxina en sangre por encima del rango','K⁺ 5,6 mEq/L','FC 36 lpm · PA 88/50','Ondas «a» en cañón en el cuello','ECG: ondas P sin relación con los QRS, QRS anchos y lentos'],
+ ecg:{r:'avb3',lead:'DII',cap:'Día 3 · DII'},
+ preguntas:[
+ {s:'G6PD / hemólisis',q:'Cuerpos de Heinz y células mordidas. ¿Qué pasó?',
+  o:['Hemólisis oxidativa por falta de G6PD: Hb precipitada y retirada por el bazo','La MetHb se convirtió en bilirrubina directa dentro del eritrocito','Los eritrocitos se volvieron esféricos por un defecto hereditario de espectrina','La digoxina destruyó la membrana de los eritrocitos al bloquear su bomba'],
+  e:'La deficiencia de G6PD puede producir crisis hemolíticas con cuerpos de Heinz (Hb oxidada y precipitada) y células mordidas en el frotis.',
+  c:'La hemólisis libera K⁺ y Hb que dañan el riñón: así se conecta con el siguiente eslabón.'},
+ {s:'Fármacos / riñón',q:'¿Por qué subió la digoxina en sangre si no cambió la dosis?',
+  o:['Se elimina sobre todo por el riñón, que ahora filtra menos','La hemólisis libera la digoxina guardada dentro de los eritrocitos','El hígado la produce de más cuando hay ictericia','La MetHb se une a la digoxina y la concentra en el plasma'],
+  e:'Nota: la digoxina se excreta principalmente por el riñón. Si la filtración cae (deshidratación, pigmentos de la hemólisis), la concentración sube con la misma dosis.',
+  c:'Ahora la digoxina, que frenaba un poco el nodo AV, lo frena de más.'},
+ {s:'Conducción',q:'P sin relación con los QRS, QRS anchos a 36 lpm. ¿Qué es y de dónde salen esos QRS?',
+  o:['Bloqueo AV completo con un escape ventricular lento y de QRS ancho','Bloqueo AV de primer grado: todos los impulsos pasan pero con un PR largo','Fibrilación auricular rápida: los QRS son anchos por la frecuencia alta','Ritmo sinusal normal con bloqueo de rama, sin ningún problema del nodo AV'],
+  e:'En el bloqueo AV de tercer grado las aurículas y los ventrículos laten de forma independiente. Si el escape nace por debajo del His (ventricular), es lento y el QRS es ancho porque la activación viaja de músculo a músculo. Nota: la toxicidad digitálica puede producir bloqueos AV.',
+  c:'El filtro del acto 1 se cerró por completo.'},
+ {s:'Pulso venoso',q:'¿Qué produce las ondas «a» en cañón en su cuello?',
+  o:['La aurícula a veces se contrae contra una tricúspide cerrada','La tricúspide queda abierta todo el tiempo y el ventrículo bombea sangre al cuello','Las ondas en cañón son la propia onda de pulso carotídeo transmitida a la yugular','Se deben a la digoxina, que aumenta la fuerza de la aurícula derecha'],
+  e:'En la disociación AV, a veces la aurícula se contrae justo cuando el ventrículo está en sístole y la tricúspide está cerrada: la sangre no puede pasar y refluye a las venas del cuello, con una onda «a» gigante.',
+  c:'Un ECG que se ve en el cuello sin necesidad de electrodos.'},
+ {s:'Gasto cardiaco',q:'Con FC 36 lpm, ¿por qué el gasto cae aunque cada latido llene más el ventrículo?',
+  o:['El volumen sistólico sube poco y no compensa la caída de la frecuencia','El volumen sistólico baja a la mitad cuando la diástole se alarga','El gasto no depende de la frecuencia, solo del volumen sistólico','El gasto sube porque cada latido lento es mucho más eficiente'],
+  e:'GC = FC × VS. Con una diástole larga el ventrículo se llena más y, por Frank-Starling, el volumen sistólico sube; pero ese aumento tiene un límite y no compensa pasar de 78 a 36 lpm. Además se pierde la sincronía auriculoventricular.',
+  c:'De ahí el mareo y la hipotensión: hace falta una frecuencia que el corazón ya no genera.'},
+ {s:'Electrolitos / digital',q:'Su K⁺ ahora es 5,6 mEq/L. ¿Qué dos fuentes se están sumando?',
+  o:['La hemólisis libera K⁺ y el exceso de digoxina bloquea su entrada a la célula','El diurético retiene K⁺ y la MetHb lo libera de la hemoglobina','La ictericia libera K⁺ desde el hígado y la digoxina lo produce','El K⁺ sube solo por la bradicardia, que impide que llegue al riñón'],
+  e:'El K⁺ es el principal catión intracelular: la hemólisis lo libera. Nota: la digoxina en exceso bloquea la bomba Na⁺/K⁺ en todo el cuerpo y el K⁺ queda fuera de las células. Con menos filtración renal, se acumula.',
+  c:'En el acto 1 el K⁺ bajo favorecía la toxicidad; ahora la toxicidad y la hemólisis lo suben. Mismo ion, sentido contrario.'}
+ ]},
+{titulo:'Acto 4 · El marcapasos',
+ relato:'Se suspende la digoxina y se le coloca un marcapasos con un electrodo en el ventrículo derecho, programado para estimular si su frecuencia baja de 60 lpm.',
+ datos:['Marcapasos ventricular a 60 lpm','ECG: espiga vertical antes de cada QRS · QRS anchos','PA 118/70 · se le quita el mareo'],
+ ecg:{r:'vt',hr:60,spike:true,lead:'DII',cap:'Con marcapasos · DII · espiga antes de cada QRS'},
+ preguntas:[
+ {s:'Marcapasos / ECG',q:'¿Qué es la línea vertical delgada antes de cada QRS?',
+  o:['La espiga del estímulo eléctrico del marcapasos','Una onda P muy rápida producida por la aurícula fibrilada','Un latido prematuro auricular que se repite antes de cada QRS','La onda U de la hipopotasemia, que aparece antes del QRS'],
+  e:'El marcapasos entrega un pulso eléctrico breve; en el ECG se ve como una espiga casi vertical. Si el estímulo «captura», le sigue de inmediato un QRS.',
+  c:'Ahora la frecuencia la decide un aparato, no el nodo AV.'},
+ {s:'Marcapasos / conducción',q:'¿Por qué el QRS del marcapasos es ancho?',
+  o:['La activación va de músculo a músculo desde el VD, sin el His-Purkinje','El marcapasos envía el estímulo por el haz de His, que se vuelve lento con la digoxina','El QRS es ancho porque el marcapasos estimula primero las aurículas','El QRS es ancho por la hiperpotasemia, no por el marcapasos'],
+  e:'La conducción normal usa el His-Purkinje y activa ambos ventrículos casi a la vez (QRS estrecho). Desde el electrodo del VD, la activación viaja por el miocardio, más lentamente, y el VI se activa tarde: QRS ancho.',
+  c:'Es la misma lógica que el escape ventricular del acto 3: origen ventricular, QRS ancho.'},
+ {s:'Hemodinamia / patada auricular',q:'Tiene fibrilación auricular. ¿Por qué no se busca sincronizar aurícula y ventrículo con el marcapasos?',
+  o:['No hay una contracción auricular organizada que aprovechar','Porque la sincronía auriculoventricular empeora el gasto en todos los pacientes','Porque el marcapasos no puede detectar ninguna actividad del corazón','Porque la aurícula fibrilada se contrae mejor sin sincronía'],
+  e:'Nota: la contracción auricular aporta una parte del llenado ventricular al final de la diástole (más importante en un ventrículo rígido). En la fibrilación auricular las aurículas no se contraen de forma organizada; no hay qué sincronizar.',
+  c:'El tipo de marcapasos se elige según el ritmo de base.'},
+ {s:'Gasto cardiaco',q:'Al subir la frecuencia de 36 a 60 lpm se le quitó el mareo. ¿Qué cálculo lo explica?',
+  o:['Si el volumen sistólico baja poco (de ~80 a ~70 mL), el gasto sube de ~2,9 a ~4,2 L/min','Si el volumen sistólico se mantiene, el gasto baja porque hay menos tiempo de llenado','El gasto no cambia: el marcapasos solo cambia el ECG','El gasto se duplica a 10 L/min porque el marcapasos aumenta la contractilidad'],
+  e:'GC = FC × VS. 36 × 80 mL ≈ 2,9 L/min. 60 × 70 mL ≈ 4,2 L/min. Al acortar la diástole el volumen sistólico baja un poco, pero la frecuencia gana. Nota: las cifras son ilustrativas.',
+  c:'Más gasto, más PA, más flujo cerebral: el mareo se va.'}
+ ]},
+{titulo:'Acto 5 · El reloj',
+ relato:'Meses después, tras una cardioversión, Don Roberto está en ritmo sinusal. Se hace un ECG con su reloj (un dedo sobre la corona) y le manda el trazo a su cardióloga.',
+ datos:['ECG del reloj: una sola derivación','Ritmo regular · cada QRS precedido de una P','Sin espigas de marcapasos visibles','Le preocupa que «el aparato no esté funcionando»'],
+ ecg:{r:'sinus',hr:75,ramp:.85,lead:'Reloj · DI',cap:'ECG del reloj · una derivación (equivalente a DI)'},
+ preguntas:[
+ {s:'Electrocardiograma / lectura',q:'¿Qué ritmo muestra el reloj?',
+  o:['Ritmo sinusal normal: P antes de cada QRS y QRS estrecho','Fibrilación auricular: los QRS son irregulares y no hay ondas P','Ritmo de marcapasos: espiga antes de cada QRS ancho','Bloqueo AV completo: P y QRS sin relación entre sí'],
+  e:'Ritmo regular, cada QRS precedido por una P con PR constante y QRS estrecho: ritmo sinusal. La activación baja por el nodo AV y el His-Purkinje.',
+  c:'El nodo sinusal vuelve a mandar.'},
+ {s:'Electrocardiograma / frecuencia',q:'Entre dos R hay 4 cuadros grandes (a 25 mm/s). ¿Cuál es su frecuencia?',
+  o:['75 lpm: 4 cuadros grandes = 0,8 s y 60 / 0,8 = 75','60 lpm: cada cuadro grande vale 1 segundo completo','150 lpm: se divide 300 entre 2 cuadros por latido','40 lpm: se multiplica el número de cuadros por 10'],
+  e:'A 25 mm/s, un cuadro grande (5 mm) dura 0,2 s. 4 cuadros = 0,8 s entre latidos. 60 / 0,8 = 75 lpm. Regla rápida: 300 / número de cuadros grandes = 300 / 4 = 75.',
+  c:'Una cuenta de primer semestre que se usa todos los días.'},
+ {s:'Marcapasos / demanda',q:'¿Por qué no se ven espigas si tiene marcapasos?',
+  o:['Funciona por demanda: con latidos propios arriba de 60 lpm se inhibe','El marcapasos se apagó para siempre después de la cardioversión','El reloj no puede registrar ninguna actividad del corazón con marcapasos','Las espigas solo aparecen en las derivaciones precordiales, nunca en DI'],
+  e:'El marcapasos detecta la actividad eléctrica propia. Si el corazón late por arriba de la frecuencia programada (60 lpm), el aparato no dispara. A 75 lpm sinusal no hay estímulos y no hay espigas.',
+  c:'Un marcapasos que no se ve trabajando puede estar funcionando perfecto.'},
+ {s:'Electrocardiograma / derivaciones',q:'¿Qué puede y qué no puede decir este ECG del reloj?',
+  o:['Sirve para el ritmo y la frecuencia, pero no localiza isquemia','Es igual a un ECG de 12 derivaciones y puede diagnosticar cualquier infarto','No sirve para nada: un ECG de una derivación no muestra el ritmo','Solo mide la saturación de O₂, no la actividad eléctrica'],
+  e:'El reloj registra la diferencia de potencial entre la muñeca y el dedo de la otra mano, parecida a DI. Una sola cámara ve el ritmo, pero para localizar una lesión se necesitan varias derivaciones que miren el corazón desde distintos ángulos.',
+  c:'Cada derivación es una cámara: una sola cámara no reconstruye toda la escena.'},
+ {s:'Integración',q:'¿Qué secuencia resume mejor el caso?',
+  o:['MetHb → G6PD → hemólisis → riñón → digoxina acumulada → bloqueo AV → marcapasos','Digoxina → infarto anterior → elevación del ST → fibrilación ventricular → desfibrilación → reloj normal','Benzocaína → CO en la sangre → oxígeno al 100 % → policitemia → trombosis','G6PD → anemia ferropénica → microcitosis → digoxina → taquicardia sinusal'],
+  e:'Cada eslabón depende del anterior: un fármaco que actúa sobre la bomba Na⁺/K⁺; un oxidante que forma MetHb; una enzima ausente que contraindica el antídoto y facilita la hemólisis; un riñón dañado que acumula la digoxina; un nodo AV bloqueado que se resuelve con un marcapasos.',
+  c:'Este es tu mapa del caso.'},
+ {s:'Integración',q:'¿Qué dato de la historia clínica era el más importante para evitar la parte más grave?',
+  o:['La crisis hemolítica con habas a los 30 años','Que usa un reloj inteligente, porque permite detectar la MetHb','Que tiene fibrilación auricular, porque contraindica la endoscopia','Que es hombre de 74 años, porque la edad causa la metahemoglobinemia'],
+  e:'La deficiencia de G6PD puede estar asintomática hasta una exposición oxidante, una infección o ciertos alimentos o fármacos. El antecedente con habas orientaba a evitar oxidantes y a elegir el tratamiento de la MetHb con cuidado.',
+  c:'Una pregunta bien hecha en la historia clínica corta la cadena antes de empezar.'}
+ ]}
+]};
+
 // ── Flashcards · F(categoría, frente, reverso) ──────────────
 // Las 25 primeras son las del mini-repaso de los módulos 34–38 (idénticas).
 F('Hemoglobina','Curva a la derecha: ¿qué significa?','Menor afinidad de la Hb por el O₂: facilita la descarga en el tejido. La causan ↑CO₂, ↓pH, ↑temperatura y ↑2,3-DPG.');
@@ -4073,6 +4829,117 @@ function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.im
 function shuffle(arr,r=Math.random){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 // Orden de opciones estable por pregunta: devuelve índices originales
 function optOrder(q){return shuffle(q.o.map((_,i)=>i),rng(q.id*7919+13))}
+
+/* ───────── Generador de ECG ─────────
+   Todo en segundos y milivoltios. El trazo se dibuja en milímetros:
+   x = t·velocidad (mm/s), y = −V·ganancia (mm/mV). */
+const ECG=(()=>{
+  const G=(c,a,w,w2)=>({k:'g',c,a,w,w2:w2||w});
+  function addBeat(C,q0,o){
+    const m=o.m||'n';let d;
+    if(o.spike)C.push({k:'spk',c:q0-.004});
+    if(m==='n'){d=o.qrs||.08;const R=o.ramp||1.1;if(o.q)C.push(G(q0+.02,-o.q,.014));
+      C.push(G(q0+.15*d,-.08,.1*d),G(q0+.45*d,R,.11*d),G(q0+.75*d,-.25,.11*d));}
+    else if(m==='wide'){d=.16;C.push(G(q0+.075,1.0,.03,.035),G(q0+.135,-.3,.018));}
+    else if(m==='rbbb'){d=.13;C.push(G(q0+.02,.25,.011),G(q0+.05,-.55,.012),G(q0+.095,.85,.016));}
+    else if(m==='wpw'){d=.12;C.push(G(q0+.04,.32,.02),G(q0+.07,1.0,.011),G(q0+.095,-.2,.01));}
+    const J=q0+d;
+    const qt=o.qt||Math.min(.46,Math.max(.30,.40*Math.sqrt(o.rr||.8)));
+    const tw=o.tw||.045;
+    const tA=o.t!=null?o.t:(m==='wide'?-.35:(m==='rbbb'?-.18:(o.st<0?.1:.3)));
+    const tc=Math.max(J+.06,q0+qt-2.4*tw);
+    C.push(G(tc,tA,tw*1.45,tw));
+    if(o.st)C.push({k:'st',t0:J,t1:tc,a:o.st});
+    if(o.u)C.push(G(q0+qt+.08,o.u,.035));
+    return J;
+  }
+  function addP(C,tc,kind){
+    if(kind==='pac'){C.push(G(tc,.1,.02),G(tc+.04,-.05,.018));return}
+    C.push(G(tc,.15,.024));
+  }
+  // centro de P a partir del inicio del QRS y el PR (inicio de P ≈ centro − 0.048 s)
+  const pC=(q0,pr)=>q0-pr+.048;
+  const qFromR=(tR,m)=>tR-(m==='wide'?.075:m==='rbbb'?.095:m==='wpw'?.07:.036);
+
+  function build(sp){
+    const spd=sp.spd||25, dur=sp.dur||(spd===50?3:6);
+    const r=rng(sp.seed||42);
+    const C=[];const base=[];const R=[];
+    const m=sp.m||'n', pr=sp.pr||.16;
+    const beat=(tR,o={})=>{const mm=o.m||m;const q0=qFromR(tR,mm);
+      if(o.p!==false)addP(C,pC(q0,o.pr||pr),o.pk);
+      addBeat(C,q0,Object.assign({m:mm,rr:o.rr||sp.rr||.8,t:sp.t,tw:sp.tw,st:sp.st,u:sp.u,qt:sp.qt,ramp:sp.ramp,qrs:sp.qrs,q:sp.q,spike:sp.spike},o));R.push(tR)};
+    const rh=sp.r||'sinus';
+    if(rh==='sinus'||rh==='nodal'||rh==='svt'||rh==='vt'||rh==='wpw'){
+      const rr=60/(sp.hr||75);let t=.6;
+      const o={rr};if(rh==='nodal'||rh==='svt'||rh==='vt')o.p=false;
+      if(rh==='vt')o.m='wide';if(rh==='wpw'){o.m='wpw';o.pr=.10}
+      if(rh==='svt'){o.t=.22}
+      if(rh==='nodal'){/* P retrógrada oculta */}
+      while(t<dur-.15){beat(t,o);t+=rr}
+    } else if(rh==='arr'){
+      const seq=[.72,.8,.95,1.08,1.12,1.0,.85,.74,.72,.8];let t=.6,i=0;
+      while(t<dur-.15){beat(t,{rr:seq[i]});t+=seq[i++%seq.length]}
+    } else if(rh==='pause'){
+      [.6,1.4,2.2].forEach(t=>beat(t));beat(4.1,{p:false});[4.9,5.7].forEach(t=>beat(t));
+    } else if(rh==='pvc'||rh==='pac'){
+      const rr=.8;let ts=[.6,1.4,2.2];ts.forEach(t=>beat(t));
+      if(rh==='pvc'){beat(2.2+.48,{m:'wide',p:false});[3.8,4.6,5.4].forEach(t=>beat(t));}
+      else{const tp=2.2+.5;beat(tp,{pk:'pac'});[tp+.85,tp+1.65,tp+2.45].forEach(t=>t<dur-.15&&beat(t));}
+    } else if(rh==='mob1'){
+      const prs=[.16,.26,.32,null];let tp=.42,i=0;
+      while(tp<dur-.1){const p=prs[i%4];addP(C,tp);if(p!=null){const q0=tp-.048+p;const tR=q0+.036;if(tR<dur-.15){addBeat(C,q0,{rr:.8});R.push(tR)}}tp+=.8;i++}
+    } else if(rh==='mob2'){
+      let tp=.42,i=0;
+      while(tp<dur-.1){addP(C,tp);if(i%3!==2){const q0=tp-.048+.18;const tR=q0+.036;if(tR<dur-.15){addBeat(C,q0,{rr:.8});R.push(tR)}}tp+=.8;i++}
+    } else if(rh==='avb3'){
+      for(let tp=.4;tp<dur-.05;tp+=.72)addP(C,tp);
+      for(let tR=.95;tR<dur-.15;tR+=1.55){addBeat(C,qFromR(tR,'wide'),{m:'wide',rr:1.55});R.push(tR)}
+    } else if(rh==='af'){
+      const n=sp.n||9;const raw=[];for(let i=0;i<n-1;i++)raw.push(.55+r()*.75);
+      const span=raw.reduce((a,b)=>a+b,0);const k=(dur-.4-.5)/span;let t=.45;
+      for(let i=0;i<n;i++){beat(t,{p:false,rr:.7,t:.22});if(i<n-1)t+=raw[i]*k}
+      const ph=[r()*6,r()*6,r()*6];
+      base.push(t=>.045*Math.sin(2*Math.PI*6.3*t+ph[0])+.03*Math.sin(2*Math.PI*8.4*t+ph[1])+.025*Math.sin(2*Math.PI*4.9*t+ph[2]));
+    } else if(rh==='flutter'){
+      const k=sp.k||4,per=.2,t0=.3;
+      base.push(t=>{if(t<t0)return 0;let ph=((t-t0)/per)%1;return ph<.75?.1-.3*(ph/.75):-.2+.3*((ph-.75)/.25)});
+      for(let tR=t0+per*1+.12+.036;tR<dur-.15;tR+=k*per){addBeat(C,tR-.036,{rr:k*per,t:.12});R.push(tR)}
+    } else if(rh==='vf'){
+      base.push(t=>(.7+.3*Math.sin(2*Math.PI*.45*t))*(.38*Math.sin(2*Math.PI*4.4*t)+.2*Math.sin(2*Math.PI*6.1*t+1.3)+.12*Math.sin(2*Math.PI*2.6*t+.4)));
+    } else if(rh==='asys'){
+      base.push(t=>.015*Math.sin(2*Math.PI*.35*t)+.008*Math.sin(2*Math.PI*7*t));
+    }
+    const dt=.002,N=Math.round(dur/dt);const v=new Float32Array(N+1);
+    for(let i=0;i<=N;i++){const t=i*dt;let s=0;
+      if(t>=.28){for(const c of C){
+        if(c.k==='g'){const x=t-c.c;const w=x<0?c.w:c.w2;if(Math.abs(x)<6*w)s+=c.a*Math.exp(-.5*(x/w)*(x/w))}
+        else if(c.k==='spk'){if(Math.abs(t-c.c)<.003)s+=1.6}
+        else if(c.k==='st'){if(t>c.t0-.03&&t<c.t1+.12){const up=1/(1+Math.exp(-(t-c.t0-.004)/.006));const dn=1/(1+Math.exp((t-c.t1-.04)/.02));s+=c.a*up*dn}}
+      }for(const f of base)s+=f(t)}
+      v[i]=s}
+    return {v,dt,dur,spd,R};
+  }
+  function svg(sp){
+    const b=build(sp);const gain=sp.gain||10,spd=b.spd;
+    let mx=1,mn=-.5;for(const x of b.v){if(x>mx)mx=x;if(x<mn)mn=x}
+    const top=Math.max(gain*1,mx*gain)+5, bot=Math.max(6,-mn*gain+4);
+    const H=Math.ceil((top+bot)/5)*5, y0=Math.round(top/5)*5||5;
+    const W=Math.round(b.dur*spd);
+    let g1='',g2='';
+    for(let x=0;x<=W;x++)(x%5?(g1+=`M${x} 0V${H}`):(g2+=`M${x} 0V${H}`));
+    for(let y=0;y<=H;y++)(y%5?(g1+=`M0 ${y}H${W}`):(g2+=`M0 ${y}H${W}`));
+    // pulso de calibración de 1 mV, 0.2 s
+    const cw=.2*spd,cx=.04*spd,ch=gain;
+    let p=`M0 ${y0}H${cx}V${y0-ch}H${cx+cw}V${y0}`;
+    const step=Math.max(1,Math.round(.1/(b.dt*spd)));
+    for(let i=Math.round(.26/b.dt);i<b.v.length;i+=1){const x=i*b.dt*spd;if(x>W)break;
+      if(i%step===0||i===b.v.length-1)p+=`L${x.toFixed(2)} ${(y0-b.v[i]*gain).toFixed(2)}`}
+    const lead=sp.lead||'DII';
+    return {html:`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trazo de ECG, derivación ${lead}"><path class="g1" d="${g1}"/><path class="g2" d="${g2}"/><path class="tr" d="${p}"/><text x="${W-2}" y="${H-1.6}" text-anchor="end">${lead}</text></svg>`,b};
+  }
+  return {build,svg};
+})();
 
 /* ───────── Interfaz de una pregunta ───────── */
 function qHTML(q,{state,mode,retry}){
@@ -4605,13 +5472,18 @@ async function doWipeCards(){
    Varios casos; cada uno es un paciente con preguntas en orden. Cada respuesta desbloquea datos
    nuevos y la historia clínica se acumula. El progreso de cada caso se guarda por separado en
    IndexedDB: el caso 1 en SID('cascada') (como antes) y los siguientes en SID('cascadaN'). */
-const CASOS=[typeof CASCADA!=='undefined'?CASCADA:null,typeof CASCADA2!=='undefined'?CASCADA2:null].filter(Boolean);
-const CXG=[[/Vacun|pasiva|Memoria/,'Vacunación y memoria inmune'],[/Herencia/,'Herencia de grupos sanguíneos'],[/Hematopoyesis|Eritropoyesis|^EPO$/,'Hematopoyesis y EPO'],
+const CASOS=[typeof CASCADA!=='undefined'?CASCADA:null,typeof CASCADA2!=='undefined'?CASCADA2:null,typeof CASCADA3!=='undefined'?CASCADA3:null,
+  typeof CASCADA4!=='undefined'?CASCADA4:null,typeof CASCADA5!=='undefined'?CASCADA5:null,typeof CASCADA6!=='undefined'?CASCADA6:null,
+  typeof CASCADA7!=='undefined'?CASCADA7:null].filter(Boolean);
+/* trazos de ECG: un objeto o una lista de especificaciones del generador ECG, con «cap» como pie */
+function cxEcg(e){if(!e||typeof ECG==='undefined')return '';return (Array.isArray(e)?e:[e]).map(sp=>{let svg='';try{svg=ECG.svg(sp).html}catch(_){return ''}
+  return `<figure class="cxecg"><div class="ecg">${svg}</div>${sp.cap?`<figcaption>${esc(sp.cap)}</figcaption>`:''}</figure>`}).join('')}
+const CXG=[[/Vacun|pasiva|Memoria/,'Vacunación y memoria inmune'],[/Herencia/,'Herencia de grupos sanguíneos'],[/Hematopoyesis|Eritropoyesis|^EPO$|^EPO \/ riñón/,'Hematopoyesis y EPO'],[/Folato|B12/,'B12 y folato'],
  [/Venoso|Starling/,'Vascular, venoso y Starling'],
- [/Electrocardiograma/,'Electrocardiograma'],[/Potencial|Electrolitos/,'Potencial de acción y electrolitos'],[/Conducción|Pulso venoso/,'Conducción y ritmo'],
- [/isquemia|lesión|coronaria/i,'Isquemia y flujo coronario'],[/Hemostasia|Fármacos|Plaqueta/,'Hemostasia y fármacos'],[/Bilirrubina|Ictericia/,'Bilirrubina'],
+ [/Electrocardiograma/,'Electrocardiograma'],[/Potencial|Electrolitos/,'Potencial de acción y electrolitos'],[/Conducción|Pulso venoso|Marcapasos|Arritmia/,'Conducción, ritmo y marcapasos'],
+ [/isquemia|lesión|coronari/i,'Isquemia y flujo coronario'],[/Hemostasia|Fármacos|Plaqueta|Fibrinólisis/,'Hemostasia y fármacos'],[/Bilirrubina|Ictericia|Hemólisis|G6PD/,'Hemólisis, bilirrubina y G6PD'],
  [/Inmunidad|Inmunoglobulinas|Hipersensibilidad|ABO|Rh|Pruebas|Grupos/,'Inmunidad y transfusión'],[/Hierro|EPO \/ médula/,'Hierro, inflamación y médula'],[/Eritrocito|Biometría/,'Eritrocito, EPO y biometría'],
- [/Hemoglobina|curva|pH|O₂|HbF|gases/,'Hemoglobina, curva de O₂ y pH'],[/Hemodinamia|Gasto|Microcirculación|Control/,'Hemodinamia y control'],[/Integración/,'Integración']];
+ [/Hemoglobina|curva|pH|O₂|HbF|gases|Mioglobina/,'Hemoglobina, curva de O₂ y pH'],[/Hemodinamia|Gasto|Microcirculación|Control|Contractilidad|Asa/,'Hemodinamia y control'],[/Integración/,'Integración']];
 function cxGrp(s){for(const [r,n] of CXG)if(r.test(s))return n;return s}
 function cxFlat(c){const out=[];c.actos.forEach((a,ai)=>a.preguntas.forEach(p=>out.push(Object.assign({acto:ai,k:out.length},p))));return out}
 const CXALL=CASOS.map(cxFlat);
@@ -4629,7 +5501,7 @@ async function cxRestore(){
 function cxScoreOf(n){const st=CXST[n];let ok=0,c=0;for(const k in st.ans){c++;if(st.ans[k]===0)ok++}return{ok,n:c}}
 function cxScore(){return cxScoreOf(Math.max(0,CXN))}
 function cxHist(upto){let h='';CASCADA_CUR.actos.forEach((a,ai)=>{if(ai>upto)return;
-  h+=`<div class="cxact"><b>${esc(a.titulo)}</b><p>${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`});return h}
+  h+=`<div class="cxact"><b>${esc(a.titulo)}</b><p>${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>${cxEcg(a.ecg)}</div>`});return h}
 const cxBackBtn=()=>CASOS.length>1?`<button class="cxcases">← Todos los casos</button>`:'';
 function cxWireBack(root){root.querySelectorAll('.cxcases').forEach(b=>b.onclick=()=>{CX.view=-1;cxPick(-1);cxRender();root.scrollIntoView({block:'start'})})}
 /* lista de casos */
@@ -4669,9 +5541,9 @@ function cxRender(){
   let h=cxBackBtn()?`<div>${cxBackBtn()}</div>`:'';
   h+=`<details class="cxhist" ${q.acto>0?'open':''}><summary>Historia clínica acumulada (hasta el ${esc(CASCADA_CUR.actos[maxAct].titulo.split(' · ')[0].toLowerCase())})</summary>${cxHist(maxAct)}</details>`;
   const newAct=k===0||CXQ[k-1].acto!==q.acto;
-  if(newAct)h+=`<div class="cxnew"><div class="eyebrow">${esc(a.titulo)}</div><p style="margin:0">${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`;
+  if(newAct)h+=`<div class="cxnew"><div class="eyebrow">${esc(a.titulo)}</div><p style="margin:0">${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>${cxEcg(a.ecg)}</div>`;
   h+=`<div class="card"><div class="qmeta"><span class="pill xt">Extrema</span><span class="pill">${esc(q.s)}</span><span>${esc(a.titulo.split(' · ')[0])} · pregunta ${k+1} de ${CXQ.length}</span></div>
-    <p class="stem">${esc(q.q)}</p><ul class="opts">`;
+    ${cxEcg(q.ecg)}<p class="stem">${esc(q.q)}</p><ul class="opts">`;
   order.forEach((oi,j)=>{let cls='';if(answered){if(oi===0)cls='right';else if(oi===ans)cls='wrong'}
     h+=`<li><button class="opt ${cls}" data-oi="${oi}" ${answered?'disabled':''}><b>${L[j]})</b><span>${esc(q.o[oi])}</span></button></li>`});
   h+='</ul>';
@@ -4783,7 +5655,7 @@ async function boot(){
 ECGDB.onChange(m=>{if(!booted)return;if(m.store==='*'){hydrate().then(rLoad).then(()=>{pRender();rCounts()})}});
 pFilter(false);route('practica');
 boot();
-window.__dbg={QS,FS,optOrder,QID,CID,RV,ECGDB,store:()=>store};
+window.__dbg={QS,FS,ECG,optOrder,QID,CID,RV,ECGDB,store:()=>store};
 </script>
 
 </body></html>

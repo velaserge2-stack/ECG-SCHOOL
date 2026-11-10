@@ -103,7 +103,7 @@ Hemostasia 24, Fármacos 7, Inmunidad 12, Grupos sanguíneos 10).
 
 ## Casos cascada (dificultad extrema)
 
-La pestaña «Casos cascada» del Banco Hemato tiene una lista de casos. Cada caso guarda su progreso
+La pestaña «Casos cascada» del Banco Hemato tiene una lista de 7 casos (230 preguntas). Cada caso guarda su progreso
 por separado: el caso 1 conserva la clave anterior y el caso 2 usa `cascada2`. Al terminar un caso,
 el resultado se guarda con su número de caso.
 
@@ -188,6 +188,42 @@ Puntos marcados **VERIFICAR**:
 - la anemia tardía tras el recambio;
 - la interferencia de los anticuerpos pasivos con vacunas de virus vivos (depende del esquema vigente).
 
+### Casos 3–7 (con trazos de ECG)
+
+Los casos 3 a 7 traen trazos de ECG dibujados por el mismo generador del Banco Cardio. El banco
+conserva ese generador y le añade dos opciones: onda Q patológica (`q`) y espiga de marcapasos
+(`spike`).
+
+| Caso | Paciente | Preguntas | Trazos |
+|---|---|---|---|
+| 3 | Karyme: amputación traumática, hemorragia, cristaloides, transfusión masiva | 33 | taquicardia sinusal; QT largo por citrato; ST deprimido por demanda |
+| 4 | Andrés: ultramaratonista en altura, HbA1c, hemoconcentración, IAM anterior | 27 | ST elevado en V3 y recíproco en DIII; fibrilación ventricular |
+| 5 | Don Ernesto: metformina (B12), tirzepatida, ERC 3a (EPO), infarto inferior antiguo | 27 | Q patológica en DIII; T picudas por K⁺ |
+| 6 | Tomás: incendio, CO (oxígeno al 100 %), quemaduras, hemólisis, consumo de la coagulación | 27 | ST deprimido por CO; T picudas |
+| 7 | Don Roberto: digoxina, metahemoglobinemia, G6PD, bloqueo AV, marcapasos, ECG de reloj | 26 | FA con efecto digitálico; bloqueo AV completo; ritmo de marcapasos; ritmo sinusal (reloj) |
+
+Puntos marcados VERIFICAR:
+- la fracción de cristaloide que queda en los vasos;
+- la presión permisiva en el trauma;
+- la hemólisis de la marcha;
+- la HbA1c con recambio eritrocitario alto o tras tratar una anemia;
+- la hipopotasemia al reactivar la médula;
+- la vida media del CO con oxígeno al 100 %;
+- la afinidad de los hemos restantes con MetHb;
+- los esquemas de vacunación antitetánica.
+
+Notas fuera del temario básico, señaladas en cada explicación:
+- B12 y metformina;
+- neuropatía autonómica diabética;
+- tríada letal;
+- coagulación intravascular diseminada;
+- benzocaína;
+- NADPH y azul de metileno;
+- excreción renal de la digoxina.
+
+**Longitud de las opciones:** la correcta es claramente la más larga en 0, 0, 0, 0 y 1 preguntas,
+respectivamente.
+
 ### Pruebas
 
 - **Caso 1 (sin cambios, sigue funcionando):** reanuda en la pregunta 21; resumen 22/44 con 12
@@ -198,6 +234,7 @@ Puntos marcados **VERIFICAR**:
   - resumen 30/46 con 14 sistemas;
   - mapa de 46 eslabones;
   - resultado `h:cascada-c2-…`.
+- **Casos 3–7:** recorridos completos; resultado guardado por caso; trazos revisados visualmente.
 - **Móvil:** sin desplazamiento horizontal ni errores en consola.
 - **Longitud de las opciones:** la correcta es claramente la más larga en 2 de 44 preguntas (caso 1)
   y en 2 de 46 (caso 2).
