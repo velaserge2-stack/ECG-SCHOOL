@@ -63,7 +63,9 @@ renueven la caché.
   `localStorage` como respaldo y el banco muestra un aviso para exportar.
 - **Persistencia.** Se pide `navigator.storage.persist()`; el panel Progreso indica si se concedió.
 
-**Respaldo** (Banco Cardio › Progreso): «Exportar» descarga un JSON (`format:
+**Dos bancos, un almacén.** El Banco Cardio (33) y el Banco Hemato (39) comparten la base `ecg-school`, pero cada uno usa un espacio de nombres: el Cardio no lleva prefijo (sus claves de siempre, sin migración) y el Hemato antepone `h:` a todo (`h:q-…`, `h:f-…`, `h:practica`, `h:srs-settings`, `h:deck`). Cada banco lee, cuenta y borra solo lo suyo (`ECGDB.belongs`), y `ECGDB.summary(now, ns)` calcula los pendientes por banco; el menú del índice los suma. El 39 se genera a partir del 33 con `tools/build_bank_hemato.py`.
+
+**Respaldo** (Banco Cardio o Banco Hemato › Progreso; el archivo incluye el progreso de ambos bancos): «Exportar» descarga un JSON (`format:
 ecg-school-backup`); en iPhone abre el menú Compartir para guardarlo en Archivos. «Importar»
 combina sin borrar nada: los historiales se agregan sin duplicar, y en respuestas, tarjetas y
 sesiones gana el registro más reciente. Importar el mismo archivo dos veces no cambia nada.

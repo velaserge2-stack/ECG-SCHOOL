@@ -2,7 +2,7 @@
 
 Plataforma interactiva para **entender** el corazón (ECG y hemodinamia como un solo sistema), alineada con los objetivos de la Unidad 6 "Sistema cardiovascular" de la guía de Fisiología como referencia. Sin aval institucional.
 
-**Todo en uno:** abre [`index.html`](index.html). Abre con una página de inicio (presentación, cómo se aprende, las perillas y el mapa de módulos) y reúne los 30 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia, Regulación e Integración fisiológica). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
+**Todo en uno:** abre [`index.html`](index.html). Abre con una página de inicio (presentación, cómo se aprende, las perillas y el mapa de módulos) y reúne los 36 módulos en una sola página con menú lateral (agrupados en Fundamentos, ECG, Hemodinamia, Regulación, Integración fisiológica, Hematología y Práctica). Cada módulo se carga sin modificaciones dentro de su propio marco; los enlaces directos usan `index.html#m01`, `#m02`, etc.
 
 Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 
@@ -40,8 +40,16 @@ Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 | 28 | [Las perillas del corazón](modulos/28_las_perillas_del_corazon.html) | B3 + F5 | 6.42–6.44, 6.136–6.144 |
 | 32 | [Ruidos cardiacos y soplos](modulos/32_ruidos_cardiacos_y_soplos.html) | B16 | 6.120–6.124, 6.145–6.149, 6.169–6.173 |
 | 33 | [Banco Cardio](modulos/33_banco_cardio.html) | Práctica y evaluación | 378 preguntas tipo examen (42 con trazo de ECG), incluidos 134 casos clínicos de hemodinamia y bases moleculares; simulacro reanudable, 112 flashcards con repaso espaciado FSRS y panel de progreso con respaldo |
+| 34 | [Hemoglobina y transporte de oxígeno](modulos/34_hemoglobina_y_transporte_de_oxigeno.html) | H1 · Hematología | Guía de Hematología §1–3, §4.1: curva de disociación, PaO₂/saturación/contenido, CO, MetHb, mioglobina, HbF, CO₂ |
+| 35 | [Vida del eritrocito, hierro y bilirrubina](modulos/35_vida_del_eritrocito_hierro_y_bilirrubina.html) | H2 · Hematología | §2, §4.2–4.4, §5, §7: bilirrubina e ictericias, EPO, hepcidina, G6PD, esferocitosis, ictericia neonatal |
+| 36 | [Biometría y anemias](modulos/36_biometria_y_anemias.html) | H3 · Hematología | §6, §8, §9: índices, reticulocitos, árbol diagnóstico, hierro, B12/folato, hemorragia, talasemias |
+| 37 | [Hemostasia y coagulación](modulos/37_hemostasia_y_coagulacion.html) | H4 · Hematología | §12–13: cascada con TP/INR, TTPa y TT, plaquetas y fármacos, Virchow, diátesis |
+| 38 | [Inmunidad y grupos sanguíneos](modulos/38_inmunidad_y_grupos_sanguineos.html) | H5 · Hematología | §10–11: respuesta inmune, complemento, hipersensibilidad, ABO/Rh, pruebas cruzadas, herencia, EHRN |
+| 39 | [Banco Hemato](modulos/39_banco_hemato.html) | Práctica y evaluación | 245 preguntas de hematología (≈ 39 % casos clínicos) y 140 flashcards con repaso FSRS; progreso separado del Banco Cardio |
 
 El módulo 24 es un laboratorio de integración fisiológica que conecta las capas L2–L8 en un mismo estado de simulación. Un cursor animado recorre un latido (con pausa, cámara lenta y desplazamiento manual) sincronizado en el mapa de activación, el ECG, el calcio, las presiones, el asa P–V y la línea temporal; los eventos mecánicos (S1, eyección, S2, apertura mitral) salen de la simulación. Tiene escenarios guiados con referencia basal superpuesta, retos de predicción cuya respuesta calcula el propio modelo y una gráfica de los dos relojes de compensación basada en la PAM con y sin barorreflejo. Incluye el escenario C2 de elevación pasiva de piernas, con comparación contra el estado basal y un desplazamiento venoso aproximado de 300 mL. Es una implementación educativa simplificada: no representa por separado los reservorios de piernas y abdomen ni la cinética completa de la maniobra, y no es un simulador clínico validado. Sus supuestos, rangos y ecuaciones requieren pruebas numéricas y revisión por especialistas.
+
+Para regenerar los módulos de Hematología desde sus fuentes (`src/hemato/`): `python3 tools/mkmod.py src/hemato` y `python3 tools/build_bank_hemato.py .` (el Banco Hemato se genera a partir del Banco Cardio, así que hereda sus mejoras).
 
 Para regenerar `index.html` tras añadir o cambiar módulos: `python3 tools/build_index.py .` (el orden y los grupos del menú están al inicio del script).
 

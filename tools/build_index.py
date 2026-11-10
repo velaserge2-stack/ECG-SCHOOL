@@ -18,7 +18,7 @@ G = [
     ('D', 'Regulación y circulaciones regionales', 'Reflejos y órganos en paralelo: cómo se reparte el gasto.', ['27', '21', '13', '20', '15', '18']),
     ('E', 'Integración fisiológica', 'Un solo estado compartido para tejido, señal, contracción, circulación, control y medición.', ['24']),
     ('H', 'Hematología', 'De la hemoglobina a la hemostasia: deduce cada hallazgo desde su mecanismo.', ['34', '35', '36', '37', '38']),
-    ('P', 'Práctica y evaluación', 'Preguntas tipo examen con trazos de ECG, simulacros y tarjetas de repaso.', ['33']),
+    ('P', 'Práctica y evaluación', 'Bancos de preguntas tipo examen (cardiovascular con trazos de ECG y hematología), simulacros y tarjetas de repaso.', ['33', '39']),
 ]
 
 data = {}
@@ -195,7 +195,7 @@ nav a .due{margin-left:auto;align-self:center;flex:none;min-width:22px;text-alig
 <header class="top"><button id="menu" aria-label="Mostrar módulos">☰</button>
 <a class="brand" href="#inicio"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><path d="M1 11h6l2-3 2 3 2-10 3 16 2-6h7" fill="none" stroke="var(--vec)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>ECG School</a>
 <span class="cur" id="cur"></span><button id="prev" aria-label="Módulo anterior">‹</button><button id="next" aria-label="Módulo siguiente">›</button>''' + USERBOX + '''</header>
-<div class="lay"><nav aria-label="Módulos">''' + nav + '''<p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Alineado con los objetivos de la Unidad 6 como referencia; sin aval institucional.</p></nav>
+<div class="lay"><nav aria-label="Módulos">''' + nav + '''<p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Cardiovascular: alineado con los objetivos de la Unidad 6 como referencia. Hematología: basada en la guía del Dr. Alejandro Leal. Sin aval institucional.</p></nav>
 <main>
 <div id="home">
   <div id="duebox" class="duebox" hidden><span class="dn" id="dueN"></span><span id="dueT"></span><a href="#m33" id="dueGo">Repasar ahora →</a></div>
@@ -241,7 +241,7 @@ nav a .due{margin-left:auto;align-self:center;flex:none;min-width:22px;text-alig
   </section>
 
   <section id="mapa">
-    <div class="sh"><h3>Mapa de módulos</h3><p>Ruta sugerida: Fundamentos → Electrocardiograma → Hemodinamia → Regulación → Integración, y practica con el banco de preguntas. Puedes entrar a cualquiera; cada uno indica lo que requiere.</p></div>
+    <div class="sh"><h3>Mapa de módulos</h3><p>Ruta sugerida: Fundamentos → Electrocardiograma → Hemodinamia → Regulación → Integración → Hematología, y practica con los bancos de preguntas. Puedes entrar a cualquiera; cada uno indica lo que requiere.</p></div>
     <div class="parts">''' + groups + '''</div>
   </section>
 
