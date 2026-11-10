@@ -71,6 +71,35 @@ rep("<span>${QS.filter(q=>q.s).length} con trazo de ECG</span>", "<span>${QS.fil
 rep("window.__dbg={QS,FS,ECG,optOrder,", "window.__dbg={QS,FS,optOrder,")
 assert 'ECG.svg' not in h and 'const ECG=' not in h
 
+# 5) Caso cascada (dificultad extrema): pestaña, sección, estilos y lógica
+cx_js = open(os.path.join(root, 'src', 'hemato', 'cascada_ui.js'), encoding='utf-8').read()
+rep('<a href="#simulacro" data-v="simulacro">Simulacro</a>',
+    '<a href="#simulacro" data-v="simulacro">Simulacro</a>\n    <a href="#cascada" data-v="cascada">Caso cascada<span class="tbadge xt">Extrema</span></a>')
+rep('  <!-- SIMULACRO -->', '''  <!-- CASO CASCADA -->
+  <section id="v-cascada" hidden style="display:grid;gap:16px">
+    <div><div class="progress"><span id="cx-score"></span><span class="hint">Dificultad: extrema · un solo paciente</span></div><div class="meter"><i id="cx-meter"></i></div></div>
+    <div id="cx-root" style="display:grid;gap:14px"></div>
+  </section>
+
+  <!-- SIMULACRO -->''')
+rep('<button id="p-shuf">Barajar</button>', '<button id="p-shuf">Barajar</button>\n      <button id="p-xt" class="xtb" title="Caso clínico en cascada: dificultad extrema">Extrema: caso cascada →</button>')
+rep('@media (prefers-reduced-motion: reduce){.fc{transition:none}}', '''.tbadge.xt{background:var(--bad)}.pill.xt{color:var(--bad);border-color:var(--bad);font-weight:700}
+.xtb{border-color:var(--bad);color:var(--bad);font-weight:600}
+.cxhist{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 14px}
+.cxhist summary{cursor:pointer;font-weight:600}.cxhist[open]{display:grid;gap:10px}
+.cxact{border-left:3px solid var(--accent);padding:4px 10px;display:grid;gap:4px}.cxact p{margin:0;color:var(--muted);font-size:15px}
+.cxact ul,.cxnew ul{margin:0;padding-left:18px;font-size:15px}
+.cxnew{border:2px solid var(--accent);border-radius:12px;background:var(--accent-soft);padding:12px 16px;display:grid;gap:6px}
+ol.cxmap{margin:0;padding-left:22px;display:grid;gap:4px}ol.cxmap button{all:unset;cursor:pointer;display:block;font-size:15px;line-height:1.4}ol.cxmap button:hover{text-decoration:underline}
+ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
+@media (prefers-reduced-motion: reduce){.fc{transition:none}}''')
+rep("/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','flashcards','repaso','progreso'];",
+    cx_js + "\n/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','cascada','flashcards','repaso','progreso'];")
+rep("  if(booted){if(v==='repaso')rRender();if(v==='progreso')gRender()}",
+    "  if(booted){if(v==='repaso')rRender();if(v==='progreso')gRender();if(v==='cascada')cxRender()}")
+rep("  try{await restoreSim()}catch(e){}", "  try{await restoreSim()}catch(e){}\n  await cxRestore();cxRender();")
+rep("$('g-wipe').onclick=doWipeCards;", "$('g-wipe').onclick=doWipeCards;\n$('p-xt').onclick=()=>{try{history.replaceState(null,'','#cascada')}catch(_){}route('cascada');window.scrollTo(0,0)};")
+
 out = os.path.join(root, 'modulos', '39_banco_hemato.html')
 open(out, 'w', encoding='utf-8').write(h)
 print(os.path.basename(out), len(h.encode('utf-8')), 'bytes')

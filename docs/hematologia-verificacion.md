@@ -102,6 +102,33 @@ las preguntas, cerca de lo esperable por azar con 4 opciones.
 Flashcards: 140 (Hemoglobina 23, Eritrocito 16, Hierro 9, Bilirrubina 14, Anemias 15, Biometría 10,
 Hemostasia 24, Fármacos 7, Inmunidad 12, Grupos sanguíneos 10).
 
+## Caso cascada (dificultad extrema)
+
+«Don Ramiro y la sangre espesa»: hombre de 58 años, fumador con EPOC, que vive en altura. Son 44 preguntas
+encadenadas en 6 actos, y cada respuesta desbloquea el siguiente dato. Los actos y lo que cubren:
+
+1. La sangre espesa: eritrocitosis secundaria, EPO, curva de O₂, viscosidad y cor pulmonale.
+2. El trombo: IAM inferior, potencial de acción, bloqueo AV y gasto cardiaco.
+3. Anticoagulado y sangrando: fármacos y respuesta hemodinámica a la hemorragia.
+4. La bolsa equivocada: reacción ABO, hemólisis, bilirrubina e hiperpotasemia en el ECG.
+5. La fiebre: inmunidad, choque, curva y hepcidina.
+6. El mapa completo: integración de todo el caso.
+
+Cada pregunta trae «Mecanismo» y «Conexión con la cascada». El resumen agrupa los aciertos en 12 sistemas.
+
+- Prueba de extremo a extremo realizada:
+  - el avance y la historia se acumulan por acto;
+  - al recargar, el caso se reanuda en la pregunta 21;
+  - el resultado se guarda como `h:cascada-…`;
+  - el mapa permite repasar cada eslabón;
+  - en móvil no hay desplazamiento horizontal ni errores en consola.
+- La opción correcta es claramente la más larga en solo 2 de 44 preguntas.
+- Notas fuera de la guía, señaladas como «nota»:
+  - el oxímetro de pulso no detecta la carboxihemoglobina;
+  - la coronaria derecha irriga habitualmente el nodo AV;
+  - la orina roja de la hemólisis intravascular es hemoglobinuria, no coluria;
+  - se evitan los nitratos en el infarto del ventrículo derecho.
+
 ## Puntos marcados VERIFICAR
 
 - P50 basal (26,8 mmHg), exponente de Hill (2,7), constante de O₂ disuelto (0,003) y coeficientes de
