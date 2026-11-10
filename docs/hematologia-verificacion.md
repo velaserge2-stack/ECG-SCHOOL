@@ -102,32 +102,106 @@ las preguntas, cerca de lo esperable por azar con 4 opciones.
 Flashcards: 140 (Hemoglobina 23, Eritrocito 16, Hierro 9, Bilirrubina 14, Anemias 15, Biometría 10,
 Hemostasia 24, Fármacos 7, Inmunidad 12, Grupos sanguíneos 10).
 
-## Caso cascada (dificultad extrema)
+## Casos cascada (dificultad extrema)
 
-«Don Ramiro y la sangre espesa»: hombre de 58 años, fumador con EPOC, que vive en altura. Son 44 preguntas
-encadenadas en 6 actos, y cada respuesta desbloquea el siguiente dato. Los actos y lo que cubren:
+La pestaña «Casos cascada» del Banco Hemato tiene una lista de casos. Cada caso guarda su progreso
+por separado: el caso 1 conserva la clave anterior y el caso 2 usa `cascada2`. Al terminar un caso,
+el resultado se guarda con su número de caso.
+
+### Caso 1 · «Don Ramiro y la sangre espesa»
+
+Hombre de 58 años, fumador con EPOC, que vive en altura. Son 44 preguntas en 6 actos:
 
 1. La sangre espesa: eritrocitosis secundaria, EPO, curva de O₂, viscosidad y cor pulmonale.
 2. El trombo: IAM inferior, potencial de acción, bloqueo AV y gasto cardiaco.
 3. Anticoagulado y sangrando: fármacos y respuesta hemodinámica a la hemorragia.
-4. La bolsa equivocada: reacción ABO, hemólisis, bilirrubina e hiperpotasemia en el ECG.
+4. La bolsa equivocada: reacción ABO, hemólisis, bilirrubina e hiperpotasemia.
 5. La fiebre: inmunidad, choque, curva y hepcidina.
-6. El mapa completo: integración de todo el caso.
+6. El mapa completo: integración.
 
-Cada pregunta trae «Mecanismo» y «Conexión con la cascada». El resumen agrupa los aciertos en 12 sistemas.
+Notas fuera de la guía:
+- el oxímetro de pulso no detecta la carboxihemoglobina;
+- la coronaria derecha suele irrigar el nodo AV;
+- la orina roja de la hemólisis es hemoglobinuria;
+- en el infarto del ventrículo derecho se evitan los nitratos.
 
-- Prueba de extremo a extremo realizada:
-  - el avance y la historia se acumulan por acto;
-  - al recargar, el caso se reanuda en la pregunta 21;
-  - el resultado se guarda como `h:cascada-…`;
-  - el mapa permite repasar cada eslabón;
-  - en móvil no hay desplazamiento horizontal ni errores en consola.
-- La opción correcta es claramente la más larga en solo 2 de 44 preguntas.
-- Notas fuera de la guía, señaladas como «nota»:
-  - el oxímetro de pulso no detecta la carboxihemoglobina;
-  - la coronaria derecha irriga habitualmente el nodo AV;
-  - la orina roja de la hemólisis intravascular es hemoglobinuria, no coluria;
-  - se evitan los nitratos en el infarto del ventrículo derecho.
+### Caso 2 · «Lucía, Mateo y el anticuerpo que recordó»
+
+Madre O Rh negativo sensibilizada en un primer parto sin inmunoglobulina anti-D, y su hijo A Rh
+positivo. Son 46 preguntas en 6 actos:
+
+1. **La memoria del primer parto:**
+   - anti-D no natural; IgM frente a IgG;
+   - memoria B y refuerzos de vacunas;
+   - inmunidad pasiva frente a activa;
+   - Coombs indirecto e hipersensibilidad tipo II;
+   - herencia ABO y Rh por genotipo.
+2. **El feto que se rompe:**
+   - Coombs directo;
+   - hematopoyesis en el hígado fetal, EPO y eritroblastos;
+   - HbF;
+   - circulación de alto gasto y edema por fuerzas de Starling;
+   - bilirrubina que pasa por la placenta.
+3. **Las primeras 24 horas:**
+   - ictericia patológica y ausencia de coluria;
+   - albúmina y kernícterus;
+   - fototerapia;
+   - elección de sangre O Rh− para la exanguinotransfusión;
+   - hierro en la hemólisis.
+4. **El corazón durante el recambio:**
+   - el citrato baja el Ca²⁺ y alarga la meseta y el QT;
+   - el K⁺ de la sangre almacenada y la secuencia del ECG en la hiperpotasemia;
+   - la acidosis que agrava el K⁺; efecto Bohr;
+   - el gasto del recién nacido depende de la FC.
+5. **La pierna de la madre:**
+   - Hb tras la hemorragia; tríada de Virchow;
+   - bomba muscular y válvulas venosas;
+   - edema por presión hidrostática;
+   - dímero-D;
+   - tromboembolia pulmonar: poscarga del VD, interdependencia ventricular, V/Q y ECG.
+6. **Dos meses después:**
+   - heparina y antitrombina;
+   - traslape de warfarina (proteína C);
+   - anemia tardía arregenerativa por menos EPO con HbA transfundida;
+   - anticuerpos pasivos y vacunas;
+   - riesgo en el siguiente embarazo;
+   - integración.
+
+Notas fuera de la guía, todas señaladas en su explicación:
+- el mecanismo de la inmunoglobulina anti-D;
+- el nombre «eritroblastosis fetal»;
+- el Doppler fetal;
+- la hidropesía (albúmina baja y falla de alto gasto);
+- el paso de la bilirrubina por la placenta;
+- la bilirrubina libre;
+- el anti-A IgG de la madre O;
+- el citrato y el calcio;
+- el K⁺ de la sangre almacenada;
+- el intercambio de H⁺ y K⁺;
+- la dependencia de la FC en el neonato;
+- la hipercoagulabilidad del puerperio;
+- el desajuste V/Q;
+- el patrón de sobrecarga derecha en el ECG;
+- la proteína C con warfarina.
+
+Puntos marcados **VERIFICAR**:
+- la hidropesía;
+- la anemia tardía tras el recambio;
+- la interferencia de los anticuerpos pasivos con vacunas de virus vivos (depende del esquema vigente).
+
+### Pruebas
+
+- **Caso 1 (sin cambios, sigue funcionando):** reanuda en la pregunta 21; resumen 22/44 con 12
+  sistemas.
+- **Caso 2 completo:**
+  - el avance del caso 1 se conserva al cambiar de caso;
+  - recarga en la pregunta 24;
+  - resumen 30/46 con 14 sistemas;
+  - mapa de 46 eslabones;
+  - resultado `h:cascada-c2-…`.
+- **Móvil:** sin desplazamiento horizontal ni errores en consola.
+- **Longitud de las opciones:** la correcta es claramente la más larga en 2 de 44 preguntas (caso 1)
+  y en 2 de 46 (caso 2).
 
 ## Puntos marcados VERIFICAR
 

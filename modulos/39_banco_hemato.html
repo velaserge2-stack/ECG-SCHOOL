@@ -183,6 +183,7 @@ table.brw tr.sus td{opacity:.6}table.brw td.act{white-space:nowrap}table.brw td.
 .cxnew{border:2px solid var(--accent);border-radius:12px;background:var(--accent-soft);padding:12px 16px;display:grid;gap:6px}
 ol.cxmap{margin:0;padding-left:22px;display:grid;gap:4px}ol.cxmap button{all:unset;cursor:pointer;display:block;font-size:15px;line-height:1.4}ol.cxmap button:hover{text-decoration:underline}
 ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
+.cxcases{font-size:14px;padding:6px 12px}.cxcase{display:grid;gap:10px}
 @media (prefers-reduced-motion: reduce){.fc{transition:none}}
 @media (max-width:520px){.card{padding:16px}.stem{font-size:17px}nav.tabs a{padding:10px 10px}}
 </style>
@@ -198,7 +199,7 @@ ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
   <nav class="tabs" aria-label="Secciones">
     <a href="#practica" data-v="practica">Práctica</a>
     <a href="#simulacro" data-v="simulacro">Simulacro</a>
-    <a href="#cascada" data-v="cascada">Caso cascada<span class="tbadge xt">Extrema</span></a>
+    <a href="#cascada" data-v="cascada">Casos cascada<span class="tbadge xt">Extrema</span></a>
     <a href="#flashcards" data-v="flashcards">Flashcards<span class="tbadge" id="tab-due" hidden></span></a>
     <a href="#progreso" data-v="progreso">Progreso</a>
   </nav>
@@ -215,7 +216,7 @@ ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
       <label class="chk"><input type="checkbox" id="p-fail"> Sólo falladas</label>
       <label class="chk"><input type="checkbox" id="p-pend"> Sólo pendientes</label>
       <button id="p-shuf">Barajar</button>
-      <button id="p-xt" class="xtb" title="Caso clínico en cascada: dificultad extrema">Extrema: caso cascada →</button>
+      <button id="p-xt" class="xtb" title="Casos clínicos en cascada: dificultad extrema">Extrema: casos cascada →</button>
     </div>
     <div>
       <div class="progress"><span id="p-pos"></span><span id="p-score"></span></div>
@@ -237,7 +238,7 @@ ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
 
   <!-- CASO CASCADA -->
   <section id="v-cascada" hidden style="display:grid;gap:16px">
-    <div><div class="progress"><span id="cx-score"></span><span class="hint">Dificultad: extrema · un solo paciente</span></div><div class="meter"><i id="cx-meter"></i></div></div>
+    <div><div class="progress"><span id="cx-score"></span><span class="hint">Dificultad: extrema · razonamiento en cadena</span></div><div class="meter"><i id="cx-meter"></i></div></div>
     <div id="cx-root" style="display:grid;gap:14px"></div>
   </section>
 
@@ -3670,6 +3671,231 @@ actos:[
  ]}
 ]};
 
+// ── CASO CASCADA 2 · dificultad EXTREMA ────────────────────
+// Dos pacientes unidos por un anticuerpo: una madre Rh negativa sensibilizada y su hijo.
+// Formato igual al caso 1: {s: sistema, q: enunciado, o: [correcta, distractores…], e: explicación, c: conexión}
+// Lo que va más allá de la guía está marcado «nota» en la explicación.
+const CASCADA2={
+titulo:'Lucía, Mateo y el anticuerpo que recordó',
+paciente:'Lucía, 27 años, grupo O Rh negativo, cursa su segundo embarazo. Su primer hijo nació en casa hace 3 años, en una comunidad rural, sin control prenatal. Su pareja es A Rh positivo. El caso sigue a Lucía y a su bebé, Mateo, desde la semana 28 hasta los 2 meses de vida.',
+instrucciones:'Un anticuerpo fabricado hace tres años conecta todo lo que va a pasar: inmunidad, grupos sanguíneos, hematopoyesis, bilirrubina, electrofisiología, hemodinamia y sistema venoso. Responde en orden; cada respuesta abre el siguiente dato. Las trampas están en los detalles que ya conoces del caso.',
+actos:[
+{titulo:'Acto 1 · La memoria del primer parto',
+ relato:'Lucía llega a su primera consulta prenatal a las 28 semanas. Se siente bien. El laboratorio de rutina trae una sorpresa.',
+ datos:['Grupo O Rh negativo · segundo embarazo, 28 semanas','Primer hijo Rh positivo, nacido hace 3 años; Lucía no recibió inmunoglobulina anti-D','Coombs indirecto: positivo, anti-D con título alto','Pareja: A Rh positivo; la madre de él es O Rh negativo','Vacunas de Lucía al día; recibió un refuerzo durante este embarazo'],
+ preguntas:[
+ {s:'Rh / inmunidad',q:'¿Cuándo y cómo se formó el anti-D de Lucía?',
+  o:['En el primer parto: eritrocitos fetales D+ entraron a su sangre y ella montó una respuesta primaria','Al nacer: como en el sistema ABO, toda persona Rh negativa tiene anti-D natural en el plasma desde la infancia','En este embarazo: el primer contacto con eritrocitos D+ produce en días IgG anti-D de alta afinidad y título alto','Por el refuerzo de vacuna: el antígeno de la vacuna estimuló de forma cruzada linfocitos B que producen anti-D'],
+  e:'A diferencia del ABO, los anticuerpos anti-D no existen de forma natural: aparecen después de exponerse a eritrocitos Rh positivos. En el parto pasan eritrocitos fetales a la circulación materna; para Lucía el antígeno D es extraño.',
+  c:'Primer eslabón: un evento de hace tres años dejó una huella inmunológica que hoy decide el destino de su segundo hijo.'},
+ {s:'Inmunoglobulinas',q:'¿Por qué el primer hijo nació sano y el segundo está en peligro?',
+  o:['La primera respuesta fue tardía y sobre todo IgM, que no cruza la placenta; la segunda es IgG, que sí la cruza','El primer hijo tenía hemoglobina fetal, que protege la membrana del eritrocito contra la IgG materna','En el primer embarazo la placenta retiene toda la IgG; esa barrera se pierde a partir del segundo','La IgM del primer embarazo sí cruzó la placenta, pero el bazo fetal todavía no podía retirar eritrocitos'],
+  e:'La IgM domina la respuesta primaria y, por ser un pentámero grande, no atraviesa la placenta. La IgG es la de la respuesta secundaria y es la única inmunoglobulina que cruza la placenta. Además, la sensibilización ocurrió durante el parto, cuando el primer hijo ya estaba fuera.',
+  c:'El paso de IgM a IgG es lo que convierte un recuerdo inmunológico en un arma que llega al feto.'},
+ {s:'Memoria / vacunación',q:'El mismo principio que explica el título alto de anti-D explica por qué existen los refuerzos de vacunas. ¿Cuál es?',
+  o:['Los linfocitos B de memoria: la segunda exposición produce una respuesta más rápida, mayor y sobre todo IgG','Los anticuerpos de la primera exposición no se degradan y se suman con cada nuevo contacto con el antígeno','Las células NK aprenden el antígeno en la primera exposición y en la segunda lo eliminan más rápido','El complemento guarda el antígeno en el hígado y en la segunda exposición se activa antes y con más fuerza'],
+  e:'La respuesta adaptativa deja linfocitos B de memoria. Al reexponerse al mismo antígeno, ya sea una infección, una vacuna o eritrocitos D+, responden más rápido, con más anticuerpo y predominio de IgG. La inmunidad innata, incluidas las NK y el complemento, no tiene memoria clásica.',
+  c:'Vacunación y aloinmunización Rh son el mismo fenómeno: lo que es protección en un caso es daño en el otro.'},
+ {s:'Inmunidad pasiva',q:'¿Qué habría hecho la inmunoglobulina anti-D después del primer parto, y por qué ya no sirve aplicarla?',
+  o:['Inmunidad pasiva: anticuerpos prestados retiran los eritrocitos D+ antes de que ella responda; hoy ya tiene memoria y eso no se borra','Inmunidad activa: la anti-D actúa como vacuna y crea tolerancia permanente al antígeno D, así que hoy podría aplicarse igual','Inmunidad pasiva: los anticuerpos prestados destruyen la memoria B ya formada, así que aplicarla hoy corregiría el problema','Inmunidad activa: estimula IgM materna que bloquea a la IgG en la placenta; solo funciona durante el primer embarazo y no en los siguientes'],
+  e:'La inmunoglobulina anti-D es inmunidad pasiva: anticuerpos ya formados, de efecto temporal. Nota (mecanismo, fuera de la guía): se acepta que retira los eritrocitos fetales D+ antes de que se inicie la respuesta materna. La prevención solo sirve antes de la sensibilización; una vez que hay memoria B, no se revierte.',
+  c:'Activa contra pasiva no es teoría: aquí define si una intervención llega a tiempo o tarde.'},
+ {s:'Pruebas / Coombs',q:'El Coombs indirecto de Lucía es positivo. ¿Qué está detectando exactamente?',
+  o:['Anticuerpos anti-D libres en su suero, capaces de pegarse a eritrocitos D+ en el tubo de ensayo','Anticuerpos ya pegados a los eritrocitos de Lucía, que se están destruyendo dentro de su propio cuerpo','Eritrocitos fetales D+ que circulan en la sangre materna en este momento del embarazo','Que Lucía es en realidad Rh positivo débil y fabrica anti-D contra sus propios eritrocitos'],
+  e:'El Coombs indirecto busca anticuerpos libres en el suero: se enfrenta el suero con eritrocitos que tienen el antígeno. El Coombs directo busca anticuerpos ya adheridos a los eritrocitos del paciente. Los eritrocitos de Lucía son D negativos, así que su anti-D no los ataca.',
+  c:'Indirecto en la madre (anticuerpo libre) y, más adelante, directo en el bebé (anticuerpo pegado): son dos lados del mismo anticuerpo.'},
+ {s:'Hipersensibilidad',q:'Si el feto es D+, ¿qué tipo de hipersensibilidad sufrirá?',
+  o:['Tipo II: IgG dirigida contra un antígeno de la membrana del eritrocito fetal','Tipo I: IgE fija en mastocitos fetales que desgranulan al reconocer el antígeno D','Tipo III: complejos de anti-D que se depositan en riñones y vasos del feto','Tipo IV: linfocitos T maternos que cruzan la placenta y atacan al eritrocito'],
+  e:'El tipo II está mediado por IgG o IgM contra antígenos de la superficie celular. Aquí, la IgG anti-D se une al antígeno D del eritrocito fetal y lo marca para su destrucción por opsonización y fagocitosis. No intervienen IgE, complejos circulantes ni linfocitos T.',
+  c:'Saber el tipo predice el mecanismo: el eritrocito marcado será retirado por macrófagos, sobre todo en bazo e hígado.'},
+ {s:'Herencia de grupos',q:'La madre de la pareja es O Rh negativo. ¿Qué probabilidad hay de que este bebé sea A Rh positivo?',
+  o:['25 %: él es obligadamente AO y Dd, porque heredó O y d de su madre; cada rasgo pasa con 50 %','50 %: basta con que el padre sea A y Rh positivo para que la mitad de sus hijos lo sean','75 %: A y D son dominantes, así que tres de cada cuatro hijos expresan los dos antígenos','100 %: el primer hijo fue Rh positivo, así que el padre tiene que ser homocigoto DD'],
+  e:'La madre de él (O Rh−) solo pudo darle O y d, así que él es AO Dd. Lucía (OO dd) solo aporta O y d. La probabilidad de A es 1/2 y la de D+ es 1/2; las dos juntas, 1/4. Un primer hijo D+ no demuestra que el padre sea DD: un heterocigoto también puede tener hijos D+.',
+  c:'El genotipo, no el fenotipo, decide el riesgo. Hay un 50 % de que el bebé sea D negativo y escape del anti-D.'},
+ {s:'Rh / antígeno',q:'Si el bebé resultara Rh negativo, ¿qué pasaría con el anti-D de Lucía?',
+  o:['Nada contra el bebé: sin antígeno D, la IgG anti-D no tiene blanco','Hemólisis igual de grave: la IgG anti-D reconoce y destruye cualquier eritrocito fetal','Hemólisis leve: el anti-D se une al antígeno H, que tienen todos los eritrocitos','Hemólisis grave: el bebé Rh negativo produce anti-D propio contra la madre'],
+  e:'Sin antígeno no hay reacción antígeno-anticuerpo. El anti-D es específico para el antígeno D. El antígeno H es la base del sistema ABO y no tiene relación con el anti-D.',
+  c:'Toda la cascada depende de un solo dato fetal que todavía no conocemos: si el bebé expresa el antígeno D.'}
+ ]},
+{titulo:'Acto 2 · El feto que se rompe',
+ relato:'A las 30 semanas, el ultrasonido muestra hígado y bazo fetales grandes. Por cordocentesis se obtiene sangre del bebé, Mateo.',
+ datos:['Mateo: grupo A Rh positivo','Hb fetal 7 g/dL · reticulocitos muy elevados · eritroblastos en sangre','Coombs directo fetal: positivo','Hepatoesplenomegalia','Doppler: la sangre fluye más rápido de lo normal (sugiere anemia fetal)','Líquido libre leve en el abdomen fetal','Mateo todavía no tiene la piel amarilla'],
+ preguntas:[
+ {s:'Pruebas / Coombs',q:'El Coombs directo de Mateo es positivo. ¿Qué significa?',
+  o:['IgG materna pegada a la membrana de sus eritrocitos: la hemólisis ya está en marcha','Que Mateo fabrica anticuerpos anti-D propios contra los eritrocitos de su madre','Que hay anti-D libre en el suero de Mateo, pero todavía sin unirse a sus eritrocitos','Que Mateo es Rh negativo y sus eritrocitos rechazan la sangre que llega de la placenta'],
+  e:'El Coombs directo detecta anticuerpos ya adheridos a los eritrocitos del paciente. Es la otra mitad del Coombs indirecto materno: la IgG que estaba libre en Lucía cruzó la placenta y se pegó al antígeno D de Mateo.',
+  c:'Ya no es riesgo: el anticuerpo encontró su blanco. Lo que sigue es la respuesta del feto a la destrucción.'},
+ {s:'Hematopoyesis',q:'¿Por qué crecen el hígado y el bazo de Mateo?',
+  o:['Hematopoyesis: el hígado fetal produce más sangre por la anemia y el bazo retira eritrocitos marcados','La bilirrubina indirecta se deposita en ambos órganos y los inflama porque el feto aún no puede conjugarla','Los linfocitos fetales se multiplican en ambos órganos para fabricar anticuerpos contra la sangre de la madre','La hepcidina alta atrapa el hierro dentro de hígado y bazo, y la sobrecarga de hierro los agranda'],
+  e:'Antes de nacer, la hematopoyesis ocurre primero en el saco vitelino y después principalmente en el hígado fetal. Ante la hemólisis, el hígado y el bazo producen más células, y el bazo además retira los eritrocitos cubiertos de IgG. La guía menciona la hepatoesplenomegalia en la incompatibilidad Rh.',
+  c:'Recuerda que el hígado está ocupado fabricando sangre: eso tendrá un precio en otra función hepática.'},
+ {s:'EPO',q:'¿Qué señal orquesta el aumento de reticulocitos y eritroblastos?',
+  o:['Anemia → menos contenido de O₂ → hipoxia renal → HIF → más EPO → más eritropoyesis','Bilirrubina alta → estímulo directo de la médula → más división de precursores eritroides','IgG anti-D → unión a receptores de EPO → activación de los precursores eritroides fetales','Hepcidina alta → más hierro disponible → maduración acelerada de precursores eritroides'],
+  e:'El riñón detecta la hipoxia por la vía del factor inducible por hipoxia (HIF) y aumenta la producción de EPO, que estimula la proliferación y diferenciación de precursores eritroides. Es un lazo de retroalimentación: más eritrocitos reducirían el estímulo hipóxico.',
+  c:'El mismo lazo de EPO funciona en el feto y en el adulto; aquí la destrucción le gana la carrera a la producción.'},
+ {s:'Eritropoyesis',q:'¿Por qué aparecen eritroblastos, precursores con núcleo, en la sangre de Mateo?',
+  o:['La demanda es tan alta que salen a la sangre células que no terminaron de madurar','Los anticuerpos maternos reactivan el núcleo de eritrocitos que ya eran maduros','Es normal: todos los eritrocitos fetales conservan su núcleo hasta el momento del parto','Son linfocitos B que el laboratorio confunde con eritrocitos por su tamaño parecido'],
+  e:'La maduración normal desde precursor a eritrocito toma varios días (5–7 según las notas), y el reticulocito termina de madurar en 1–2 días en la sangre. Nota (fuera de la guía): con un estímulo extremo, la médula y el hígado liberan formas más inmaduras; de ahí el nombre clásico de «eritroblastosis fetal».',
+  c:'Reticulocitos y eritroblastos altos clasifican esta anemia como regenerativa: el problema es destrucción, no producción.'},
+ {s:'HbF / curva',q:'Con Hb de 7 g/dL, ¿qué propiedad de su hemoglobina ayuda a Mateo a sobrevivir dentro del útero?',
+  o:['La HbF interactúa menos con 2,3-DPG y tiene más afinidad que la HbA materna: capta O₂ en la placenta aunque la PO₂ sea baja','La HbF tiene menos afinidad que la HbA y por eso suelta más O₂ en los tejidos fetales, aunque cargue menos en la placenta','La HbF transporta CO₂ en lugar de O₂, lo que reduce el consumo de oxígeno de los tejidos fetales durante la anemia','La HbF no se une a la IgG anti-D; por eso los eritrocitos fetales con más HbF sobreviven más tiempo en la circulación'],
+  e:'La HbF (α₂γ₂) tiene más afinidad por O₂ porque interactúa menos con 2,3-DPG, y eso favorece el paso de O₂ desde la HbA materna en la placenta. Los efectos Bohr y Haldane ayudan al intercambio. La IgG anti-D se une al antígeno D de la membrana, no a la hemoglobina.',
+  c:'Guarda esta idea: cuando Mateo reciba sangre adulta, cambiará la afinidad de su hemoglobina, y eso tendrá consecuencias.'},
+ {s:'Hemodinamia de la anemia',q:'El Doppler muestra sangre que fluye más rápido. ¿Cuál es la cadena hemodinámica?',
+  o:['Menos eritrocitos → menos viscosidad y resistencia → más retorno venoso y más gasto cardiaco','La bilirrubina causa vasoconstricción fetal, estrecha la luz de los vasos y por eso la sangre circula más rápido','Hemoconcentración relativa → más viscosidad → más presión de perfusión → flujo más rápido en todos los lechos','El gasto cardiaco cae y la sangre permanece más tiempo en cada vaso, lo que el Doppler interpreta como más velocidad'],
+  e:'Según la guía, la anemia se compensa con más frecuencia y gasto cardiaco y con menos resistencia vascular sistémica. La viscosidad depende del hematocrito; con menos eritrocitos baja la resistencia (Poiseuille), aumenta el retorno venoso y el flujo se acelera. Nota: el Doppler fetal se usa para estimar la anemia; el detalle técnico va más allá de la guía.',
+  c:'Es una circulación de alto gasto: el corazón fetal trabaja de más para compensar lo que la hemólisis destruye.'},
+ {s:'Microcirculación / Starling',q:'Aparece líquido en el abdomen fetal. ¿Qué combinación de fuerzas lo explica mejor?',
+  o:['Menos albúmina (hígado ocupado en fabricar sangre) y más presión venosa: la filtración supera al drenaje','Más albúmina plasmática, que atrae agua del intersticio hacia la cavidad abdominal y la acumula ahí','Vasoconstricción arteriolar que eleva la presión oncótica del intersticio y retiene agua en los tejidos','La bilirrubina directa aumenta la permeabilidad del peritoneo fetal y deja pasar el plasma'],
+  e:'Las fuerzas de Starling: la presión hidrostática capilar empuja líquido hacia fuera y la presión oncótica de las proteínas plasmáticas lo retiene. Nota (fuera de la guía, VERIFICAR con tu curso): en la anemia fetal grave se combinan menos síntesis de albúmina por un hígado ocupado en la hematopoyesis y más presión venosa por la falla cardiaca de alto gasto. Si progresa, se llama hidropesía fetal.',
+  c:'La hemólisis ya no es solo un problema de sangre: se volvió un problema de corazón, de hígado y de microcirculación.'},
+ {s:'Bilirrubina',q:'Con tanta hemólisis, ¿por qué Mateo todavía no está ictérico dentro del útero?',
+  o:['La bilirrubina indirecta es liposoluble, cruza la placenta y el hígado de Lucía la conjuga y la elimina','El feto no produce bilirrubina: el hemo se recicla completo en el hígado fetal sin formar biliverdina','La bilirrubina fetal es directa y se elimina por la orina fetal al líquido amniótico sin acumularse','La HbF no forma bilirrubina al degradarse; solo libera hierro y globina que el feto reutiliza'],
+  e:'La hemólisis sí produce bilirrubina indirecta: hemo → biliverdina → bilirrubina no conjugada. Es liposoluble. Nota (deducción fuera de la guía): durante el embarazo, la placenta permite que pase a la madre, cuyo hígado la conjuga y excreta. Por eso la ictericia grave aparece después de nacer.',
+  c:'La placenta funciona como un hígado prestado. Al cortar el cordón, ese hígado desaparece.'}
+ ]},
+{titulo:'Acto 3 · Las primeras 24 horas',
+ relato:'A las 34 semanas, el deterioro fetal obliga a una cesárea. Mateo nace pálido. A las 6 horas ya está amarillo y la bilirrubina sube cada hora.',
+ datos:['Bilirrubina total 14 mg/dL a las 8 h: indirecta 13,2 · directa 0,8','Hb 9 g/dL · reticulocitos 15 % · LDH elevada','Orina clara; heces de color normal','Albúmina baja para su edad','Letárgico, succiona con debilidad'],
+ preguntas:[
+ {s:'Ictericia neonatal',q:'¿Es una ictericia fisiológica del recién nacido?',
+  o:['No: aparece en las primeras 24 horas y sube rápido; debe tratarse como patológica','Sí: todo recién nacido tiene recambio alto y conjugación inmadura; basta con observar','Sí, porque predomina la indirecta, que es la forma típica de la ictericia fisiológica','No, pero solo sería patológica si hubiera coluria y acolia, que aquí no existen'],
+  e:'La guía es explícita: una ictericia que aparece en las primeras 24 horas, progresa rápido, se acompaña de enfermedad o alcanza niveles altos es potencialmente patológica. La fisiológica suele aparecer después de las 24 horas. Que predomine la indirecta no la vuelve fisiológica.',
+  c:'El momento de aparición es la pista clínica de que aquí hay hemólisis y no solo inmadurez.'},
+ {s:'Bilirrubina',q:'¿Por qué la bilirrubina sube tan rápido después del parto?',
+  o:['Se perdió la placenta que la eliminaba; la hemólisis continúa y el hígado inmaduro conjuga poco','El parto libera de golpe toda la bilirrubina que el bazo fetal había almacenado','La IgG materna solo empieza a destruir eritrocitos después de nacer, al contacto con el aire','La luz de la sala de partos oxida la hemoglobina y la convierte de inmediato en bilirrubina'],
+  e:'Es la suma de tres cosas: la IgG anti-D sigue en la sangre de Mateo y la hemólisis continúa; ya no está la vía placentaria hacia el hígado materno; y la capacidad de conjugación del recién nacido es inmadura, sobre todo en un prematuro de 34 semanas.',
+  c:'Conecta con el acto 2: lo que la placenta resolvía en silencio ahora cae sobre un hígado que aún no está listo.'},
+ {s:'Bilirrubina',q:'Con 14 mg/dL de bilirrubina, ¿por qué la orina de Mateo es clara?',
+  o:['Predomina la indirecta, que viaja unida a albúmina y no es hidrosoluble: no se filtra y no hay coluria','Los riñones del recién nacido todavía no filtran ningún pigmento, ni conjugado ni sin conjugar','La bilirrubina directa se elimina solo por las heces y nunca llega a la orina del recién nacido','La albúmina baja hace que la bilirrubina se elimine como urobilina incolora por los riñones'],
+  e:'La bilirrubina indirecta es liposoluble y circula unida a albúmina; normalmente no aparece en orina. La coluria la produce la bilirrubina directa, que es hidrosoluble. Patrón prehepático: indirecta alta, sin coluria y sin acolia.',
+  c:'El patrón es prehepático: el hígado no está obstruido; lo que sobra es producción.'},
+ {s:'Bilirrubina / kernícterus',q:'¿Qué dato del laboratorio aumenta más el riesgo de daño cerebral?',
+  o:['La albúmina baja: queda más bilirrubina indirecta libre que cruza la barrera hematoencefálica','La bilirrubina directa de 0,8 mg/dL, que es la fracción que se deposita en los núcleos cerebrales','Los reticulocitos de 15 %, que liberan bilirrubina directamente en el tejido nervioso','La Hb de 9 g/dL, porque la anemia por sí misma abre la barrera hematoencefálica'],
+  e:'La bilirrubina no conjugada es liposoluble: puede atravesar la barrera hematoencefálica y depositarse en núcleos cerebrales (encefalopatía bilirrubínica o kernícterus). Viaja unida a albúmina; con poca albúmina queda más fracción libre. Nota: el concepto de «bilirrubina libre» se deduce de la guía; los umbrales clínicos no están en ella.',
+  c:'La letargia y la succión débil ya pueden ser señales neurológicas: el tiempo cuenta.'},
+ {s:'Bilirrubina / fototerapia',q:'Se inicia fototerapia intensiva. ¿Qué hace y qué no puede hacer?',
+  o:['Convierte la bilirrubina en fotoisómeros más fáciles de eliminar, pero no detiene la hemólisis','Conjuga la bilirrubina en la piel con ácido glucurónico y, además, frena la hemólisis en curso','Destruye los anticuerpos anti-D que circulan por los capilares de la piel y así detiene la causa','Estimula la EPO por la luz, corrige la anemia y con ello reduce la bilirrubina'],
+  e:'La fototerapia transforma la bilirrubina en fotoisómeros que se eliminan con más facilidad. Actúa sobre el producto, no sobre la causa: la IgG anti-D sigue marcando eritrocitos.',
+  c:'Tratar la bilirrubina sin quitar el anticuerpo es achicar agua sin tapar el agujero.'},
+ {s:'Grupos / transfusión',q:'Se decide hacer una exanguinotransfusión. Mateo es A Rh+ y su madre O Rh−. ¿Qué eritrocitos se eligen?',
+  o:['O Rh negativo: sin antígeno D ni A, los anticuerpos maternos que trae Mateo no los atacan','A Rh positivo, idénticos a los de Mateo, para no exponerlo a ningún antígeno que no conozca','AB Rh positivo, porque los eritrocitos AB se pueden dar a cualquier receptor','O Rh positivo, porque el grupo O basta por sí solo para evitar cualquier hemólisis en el recambio'],
+  e:'La sangre de Mateo contiene IgG anti-D materna, así que cualquier eritrocito D+ se destruiría igual que los suyos. Eritrocitos O no tienen A ni B. Nota (fuera de la guía): en la práctica se eligen compatibles con el plasma materno, que por ser O puede aportar anti-A IgG. Los eritrocitos AB son receptores universales, no donadores.',
+  c:'La regla antígeno–anticuerpo del sistema ABO y Rh se aplica a los anticuerpos que están en la sangre del receptor, aunque los haya fabricado otra persona.'},
+ {s:'Grupos / transfusión',q:'¿Qué logra la exanguinotransfusión que la fototerapia no logra?',
+  o:['Retira bilirrubina, anticuerpos y eritrocitos marcados, y aporta eritrocitos sin antígeno D','Aporta las enzimas de conjugación del donador y así madura de inmediato el hígado de Mateo','Aporta IgM del donador que neutraliza a la IgG anti-D materna dentro de la circulación fetal','Cambia la HbF de Mateo por metahemoglobina del donador, que no puede hemolizarse'],
+  e:'La guía menciona la exanguinotransfusión para casos seleccionados. Al recambiar la sangre se extraen bilirrubina, IgG anti-D libre y eritrocitos ya marcados, y se dan eritrocitos que el anticuerpo no reconoce. La metahemoglobina no transporta O₂ y sería un daño.',
+  c:'El recambio resuelve un problema, pero introduce sangre conservada y hemoglobina adulta. Las dos cosas tendrán consecuencias en los actos siguientes.'},
+ {s:'Hierro',q:'Con tanta hemólisis, ¿le falta hierro a Mateo?',
+  o:['No: los macrófagos recuperan el hierro del hemo y lo guardan; las reservas no se vacían','Sí: la hemólisis destruye el hierro junto con la globina y se pierde por la orina','Sí: la bilirrubina se lleva el hierro por la bilis y se elimina con las heces','No, porque la hepcidina alta obliga al intestino a absorber más hierro de la leche'],
+  e:'En la degradación del eritrocito, la globina se vuelve aminoácidos, el hierro se recupera y puede almacenarse, y el anillo porfirínico se convierte en bilirrubina. La hemólisis no vacía las reservas. La hepcidina alta disminuye la salida de hierro a la sangre, no la aumenta.',
+  c:'Su anemia no se corrige con hierro: es destrucción, no falta de materia prima. Darle hierro no tiene lógica aquí.'}
+ ]},
+{titulo:'Acto 4 · El corazón durante el recambio',
+ relato:'A la mitad de la exanguinotransfusión, hecha con sangre conservada en citrato, el monitor cambia. Mateo presenta temblores finos.',
+ datos:['Calcio iónico bajo','Potasio 7,0 mEq/L (una de las unidades tenía varios días de almacenamiento)','pH 7,22','ECG: primero QT prolongado; después T altas y picudas y un QRS que empieza a ensancharse','FC: 175 lpm → 95 lpm, con mala perfusión'],
+ preguntas:[
+ {s:'Electrolitos / citrato',q:'¿Por qué baja el calcio iónico durante el recambio?',
+  o:['El citrato que anticoagula la sangre conservada se une al Ca²⁺ ionizado','La bilirrubina precipita el calcio del plasma y lo deposita en el hueso','La eritropoyesis acelerada consume calcio para formar la membrana','La sangre del grupo O tiene por naturaleza menos calcio en el plasma'],
+  e:'Nota (fuera de la guía): la sangre conservada contiene citrato, que atrapa el calcio. Por eso no coagula en la bolsa: el calcio es cofactor de la coagulación. La guía explica que la vitamina K permite que los factores II, VII, IX y X se unan al calcio y a los fosfolípidos.',
+  c:'Lo que mantiene la sangre líquida en la bolsa (sin calcio no hay coagulación) es lo mismo que altera la electricidad del corazón de Mateo.'},
+ {s:'Potencial de acción',q:'La hipocalcemia prolonga el QT. ¿Qué fase del potencial de acción ventricular se alarga?',
+  o:['La fase 2, la meseta: se alarga el segmento ST y con él el QT','La fase 0: el Ca²⁺ es la corriente rápida de la despolarización ventricular','La fase 4: el Ca²⁺ extracelular fija el potencial de reposo del ventrículo','La fase 1: el Ca²⁺ produce la repolarización rápida inicial de la célula'],
+  e:'En el miocito ventricular, la fase 0 depende del Na⁺ y la meseta (fase 2) del equilibrio entre la entrada de Ca²⁺ y la salida de K⁺. En la hipocalcemia se alarga sobre todo el segmento ST, que corresponde a la meseta, y con él el QT. La onda T casi no cambia.',
+  c:'Un problema de bolsa de sangre se vuelve un problema de canales iónicos.'},
+ {s:'Electrolitos / potasio',q:'¿De dónde sale el potasio de 7,0 mEq/L?',
+  o:['De los eritrocitos almacenados, que pierden K⁺ al plasma de la bolsa, más la hemólisis de Mateo','Del citrato de la bolsa, que se fabrica como sal de potasio para conservar mejor la sangre','De la bilirrubina, que libera K⁺ cuando el hígado inmaduro intenta conjugarla','De los riñones de Mateo, que reabsorben más K⁺ por efecto de la EPO alta'],
+  e:'El K⁺ es el principal catión dentro del eritrocito. Nota (fuera de la guía): durante el almacenamiento, los eritrocitos pierden K⁺ hacia el plasma de la unidad, y la hemólisis de Mateo suma más. Por eso se prefiere sangre fresca para los recambios.',
+  c:'Mismo principio que en cualquier hemólisis: romper eritrocitos es liberar potasio.'},
+ {s:'Electrocardiograma',q:'¿Qué secuencia de ECG esperas conforme el K⁺ sube?',
+  o:['T altas y picudas → P aplanada y PR largo → QRS ancho → riesgo de ritmo de paro','QRS ancho desde el inicio → T picudas → PR corto → ondas U prominentes','Ondas U prominentes → QT largo → T aplanadas → ST deprimido → bradicardia','Taquicardia sinusal → QRS estrecho → ST elevado → ondas Q'],
+  e:'Más K⁺ extracelular acelera la repolarización (T picudas). Luego despolariza el reposo, inactiva canales de Na⁺ y enlentece la fase 0 y la conducción: la P se aplana, se alarga el PR y se ensancha el QRS. Las ondas U y el ST deprimido son de la hipopotasemia.',
+  c:'El trazo de Mateo ya pasó de la primera etapa a la tercera: la conducción está fallando.'},
+ {s:'Electrolitos / pH',q:'Con pH de 7,22, ¿cómo empeora la acidosis la hiperpotasemia?',
+  o:['El H⁺ entra a las células y sale K⁺ para mantener el equilibrio de cargas','El H⁺ estimula a la EPO, que libera potasio desde la médula ósea','La acidosis conjuga la bilirrubina y en ese proceso se libera K⁺','El H⁺ se une a la albúmina, desplaza el calcio y este arrastra K⁺ fuera de la célula'],
+  e:'Nota (fuera de la guía): en la acidosis, el H⁺ entra a las células y, para mantener la electroneutralidad, sale K⁺. Por eso acidosis e hiperpotasemia se potencian. La mala perfusión de Mateo favorece la acidosis.',
+  c:'El pH une el metabolismo con la electricidad: hay un círculo vicioso entre mala perfusión, acidosis y más K⁺.'},
+ {s:'pH / curva',q:'Con ese pH, ¿qué le pasa a la curva de disociación de la hemoglobina?',
+  o:['Se desplaza a la derecha (efecto Bohr): la Hb suelta más O₂ en los tejidos','Se desplaza a la izquierda: la acidosis aumenta la afinidad y retiene O₂','No cambia: el pH solo afecta a la HbF, no a la hemoglobina del adulto','Se aplana: la acidosis convierte la Hb en metahemoglobina sin afinidad'],
+  e:'El aumento de H⁺ (pH bajo) disminuye la afinidad de la hemoglobina por el O₂ y desplaza la curva a la derecha: es el efecto Bohr. Facilita la descarga tisular, aunque no compensa la falta de flujo.',
+  c:'El cuerpo intenta compensar en el tejido lo que el corazón no entrega por flujo.'},
+ {s:'Gasto cardiaco',q:'La FC cae de 175 a 95 lpm. ¿Por qué el gasto de un recién nacido sufre tanto con la bradicardia?',
+  o:['Su volumen sistólico casi no puede aumentar, así que el gasto depende sobre todo de la frecuencia (GC = FC × VS)','Su volumen sistólico se duplica con la bradicardia, pero la presión arterial cae por vasodilatación refleja','La bradicardia acorta la diástole y reduce el llenado del ventrículo con cada latido','Con menos latidos se forma más bilirrubina, que deprime directamente la contractilidad'],
+  e:'GC = FC × VS. Nota (fuera de la guía): el miocardio neonatal tiene poca reserva para aumentar el volumen sistólico, así que el gasto depende mucho de la frecuencia. La bradicardia alarga la diástole, no la acorta.',
+  c:'La electricidad (K⁺, conducción) y la mecánica (gasto) se unen: un QRS que se ensancha es un gasto que se derrumba.'}
+ ]},
+{titulo:'Acto 5 · La pierna de la madre',
+ relato:'Mientras tanto, Lucía está en su tercer día después de la cesárea. Sangró más de lo habitual en la cirugía y casi no se ha levantado de la cama. Hoy tiene la pierna izquierda hinchada y dolorosa; por la tarde aparece disnea súbita.',
+ datos:['Hb: 11,5 antes de la cirugía · 11,4 en el control inmediato · 9,6 al tercer día (recibió soluciones intravenosas)','Pantorrilla izquierda 3 cm más gruesa, caliente y dolorosa','Dímero-D elevado','FC 122 · PA 92/60 · SatO₂ 88 % · yugulares ingurgitadas','ECG: taquicardia sinusal, eje desviado a la derecha, T negativas de V1 a V3','Ecocardiograma: ventrículo derecho dilatado; el septum empuja hacia el ventrículo izquierdo'],
+ preguntas:[
+ {s:'Biometría',q:'¿Por qué la Hb casi no bajó justo después del sangrado y luego sí bajó?',
+  o:['Se pierden eritrocitos y plasma juntos; la Hb baja cuando los líquidos diluyen lo que queda','La médula liberó reticulocitos en minutos y mantuvo la Hb hasta que se agotaron','El bazo exprimió eritrocitos de reserva a la circulación y luego los volvió a secuestrar','La Hb del control inmediato fue un error: toda hemorragia baja la Hb al instante'],
+  e:'La guía lo explica: en la hemorragia aguda se pierden eritrocitos y plasma, así que al inicio el hematocrito no refleja la magnitud de la pérdida. Cambia después, con la redistribución de líquidos y las soluciones intravenosas. También existe la hemodilución sin pérdida equivalente.',
+  c:'Ahora Lucía tiene menos Hb, menos contenido de O₂ y un sistema venoso lento: el escenario de lo que sigue.'},
+ {s:'Hemostasia / Virchow',q:'¿Qué elementos de la tríada de Virchow tiene Lucía?',
+  o:['Los tres: estasis por inmovilidad, lesión endotelial por la cirugía e hipercoagulabilidad del puerperio','Solo estasis: la cirugía no lesiona el endotelio venoso y el embarazo no altera la coagulación','Solo hipercoagulabilidad, porque es Rh negativo y los anticuerpos activan la coagulación','Ninguno: la trombosis venosa posparto solo ocurre si existe factor V Leiden'],
+  e:'La tríada de Virchow: estasis, lesión endotelial e hipercoagulabilidad. La guía menciona la inmovilización como factor de riesgo de trombosis venosa profunda. Nota (fuera de la guía): el embarazo y el puerperio son estados de hipercoagulabilidad, y la cesárea añade lesión vascular. Su ser Rh negativo no tiene nada que ver.',
+  c:'El sistema que detiene el sangrado de la cesárea es el mismo que ahora forma un trombo donde no debe.'},
+ {s:'Venoso',q:'¿Por qué estar acostada favorece que la sangre se estanque en la pantorrilla?',
+  o:['Sin contracción muscular no funciona la bomba de la pantorrilla, que con las válvulas empuja la sangre','Acostada sube la presión arterial de las piernas y eso frena el retorno por las venas superficiales','Las válvulas venosas solo se abren de pie; acostada quedan cerradas y la sangre no avanza','La gravedad lleva más sangre a las piernas cuando la persona está acostada que cuando está de pie'],
+  e:'El retorno venoso de las piernas depende de la bomba muscular: al contraerse, los músculos comprimen las venas profundas y las válvulas impiden el reflujo. Sin movimiento, el flujo se vuelve lento: es la estasis de la tríada de Virchow.',
+  c:'La fisiología venosa no es pasiva: sin la bomba muscular, el retorno se enlentece y aparece el primer factor del trombo.'},
+ {s:'Microcirculación / Starling',q:'¿Por qué se hincha la pierna?',
+  o:['El trombo eleva la presión venosa y capilar río arriba: la hidrostática supera a la oncótica','El trombo libera albúmina hacia el intersticio y la presión oncótica atrae agua fuera de los capilares','La pierna se hincha por inflamación pura; la presión dentro de los capilares no cambia con un trombo','La trombosis dilata las arteriolas y la sangre arterial se fuga directamente hacia el tejido'],
+  e:'La obstrucción del drenaje venoso aumenta la presión en las vénulas y los capilares. La presión hidrostática capilar supera la oncótica y sale más líquido al intersticio del que la linfa puede retirar: edema. Es la misma lógica de Starling que en la ascitis de Mateo, con otra causa.',
+  c:'Madre e hijo tienen edema por la misma ley y por causas distintas: en Mateo bajó la oncótica; en Lucía subió la hidrostática.'},
+ {s:'Hemostasia / pruebas',q:'El dímero-D está elevado. ¿Confirma la trombosis?',
+  o:['No: indica fibrina degradada; es sensible pero inespecífico y tras cirugía y parto suele subir','Sí: un dímero-D elevado es diagnóstico de trombosis venosa profunda en cualquier contexto clínico','Sí, porque el dímero-D solo aparece cuando un trombo venoso se desprende hacia el pulmón','No, porque el dímero-D mide la vía extrínseca y la trombosis venosa activa la intrínseca'],
+  e:'La plasmina degrada la fibrina entrecruzada y produce dímero-D. La guía dice que es sensible pero inespecífico, que se interpreta según la probabilidad clínica y que no confirma por sí solo una trombosis. Tras cirugía y parto hay fibrina en formación y degradación.',
+  c:'El laboratorio apoya, pero la confirmación depende de la clínica y de la imagen.'},
+ {s:'Hemodinamia derecha',q:'Disnea súbita, hipotensión y yugulares ingurgitadas. ¿Cuál es la cadena hemodinámica?',
+  o:['Émbolo → más poscarga del VD → el VD se dilata y su septum comprime al VI → baja el gasto y la PA','Émbolo → menos retorno venoso al VD → yugulares vacías → hipotensión por hipovolemia pura','Émbolo → más precarga del VI → edema pulmonar cardiogénico → hipotensión por falla izquierda primaria','Émbolo → vasodilatación sistémica por histamina → choque distributivo con yugulares colapsadas'],
+  e:'El trombo de la pierna viaja por la cava, atraviesa el corazón derecho y se impacta en la arteria pulmonar (tromboembolia pulmonar). Aumenta la poscarga del VD, que se dilata. La sangre se acumula detrás (yugulares ingurgitadas) y llega menos al VI. Además, el septum desplazado reduce el llenado izquierdo, y caen el gasto y la PA.',
+  c:'Los dos ventrículos están en serie y comparten el septum: el problema derecho se convierte en hipotensión sistémica.'},
+ {s:'Intercambio de gases',q:'¿Por qué baja la saturación a 88 %?',
+  o:['Desajuste ventilación/perfusión: zonas ventiladas sin flujo y flujo desviado a zonas mal ventiladas','El émbolo bloquea los bronquios de esa región y el aire ya no puede entrar a sus alvéolos','La anemia de 9,6 g/dL baja la saturación porque hay menos hemoglobina que llenar','El dímero-D se une a la hemoglobina y desplaza al O₂ de sus sitios, como lo hace el CO'],
+  e:'La guía menciona hipoxemia en la tromboembolia pulmonar. Nota (mecanismo, fuera de la guía): predomina el desajuste ventilación/perfusión. La anemia reduce el contenido de O₂, pero no la saturación ni la PaO₂: es el mismo principio del módulo 34.',
+  c:'La anemia del sangrado y la hipoxemia de la embolia se suman: menos Hb y menos saturación significan menos O₂ para los tejidos.'},
+ {s:'Electrocardiograma',q:'¿Por qué hay eje a la derecha y T negativas de V1 a V3?',
+  o:['Sobrecarga aguda del VD: el vector gira a la derecha y el VD distendido repolariza mal en V1–V3','Infarto de la pared anterior del VI por una oclusión de la descendente anterior, que causa T negativas en V1–V3','Hipertrofia crónica del VI por hipertensión, que desvía el eje a la derecha y deprime el ST','Hiperpotasemia materna por el recambio de Mateo, que produce T negativas en precordiales derechas'],
+  e:'Un VD que de pronto trabaja contra mucha poscarga desplaza las fuerzas eléctricas a la derecha. V1–V3 miran al VD y al septum, y su repolarización alterada se ve como T negativas. Nota: es un patrón de sobrecarga derecha y no es específico; puede estar ausente.',
+  c:'La misma lógica vectorial del módulo de ECG: la cámara que sufre cambia el vector y las derivaciones que la miran.'}
+ ]},
+{titulo:'Acto 6 · Dos meses después',
+ relato:'Lucía recibe heparina no fraccionada y después se le ajusta un anticoagulante oral. Mateo se recupera y a los 2 meses le toca su esquema de vacunación, pero en la consulta llega muy pálido.',
+ datos:['Lucía: TTPa prolongado con heparina; plan de pasar a warfarina','Mateo, 6 semanas: Hb 7,5 g/dL · reticulocitos 0,3 % · bilirrubina normal','Mateo recibió IgG materna por la placenta y plasma durante el recambio','Lucía pregunta si puede tener otro hijo'],
+ preguntas:[
+ {s:'Fármacos / pruebas',q:'¿Por qué la heparina alarga el TTPa de Lucía?',
+  o:['Potencia a la antitrombina, que inhibe la trombina y otros factores activados; se vigila con TTPa','Bloquea la síntesis hepática de los factores II, VII, IX y X, igual que la falta de vitamina K','Inhibe la COX-1 de las plaquetas y alarga el tiempo de sangrado, no el TTPa','Activa al plasminógeno y disuelve el trombo ya formado de la pierna en horas'],
+  e:'La antitrombina inhibe la trombina y otros factores activados, y la heparina potencia su actividad. La guía relaciona la heparina no fraccionada con el TTPa. Inhibir la COX-1 es el mecanismo de la aspirina, y activar el plasminógeno es el de los fibrinolíticos.',
+  c:'La heparina frena el crecimiento del trombo; lo disuelve la fibrinólisis propia de Lucía.'},
+ {s:'Fármacos / vitamina K',q:'Al iniciar warfarina, la heparina se mantiene varios días. ¿Por qué, según lo que sabes de la vitamina K?',
+  o:['Caen primero los factores de vida media corta (VII y proteína C) y puede haber un periodo protrombótico','La warfarina actúa en minutos y la heparina se deja solo para evitar un efecto de rebote al suspenderla','La warfarina inhibe la antitrombina, así que la heparina se vuelve necesaria de por vida para compensar','La warfarina solo prolonga el TTPa y la heparina se mantiene para que también se alargue el TP'],
+  e:'La vitamina K es necesaria para los factores II, VII, IX y X y para las proteínas C y S. El TP se alarga primero por la vida media corta del factor VII. Nota (fuera de la guía): la proteína C, anticoagulante natural, también cae rápido, y antes de que caiga la protrombina puede haber un desequilibrio protrombótico. Por eso se traslapan los dos fármacos.',
+  c:'Una sola vitamina participa en factores procoagulantes y anticoagulantes: el orden en que caen decide si hay trombosis.'},
+ {s:'Hematopoyesis / EPO',q:'A las 6 semanas, Mateo tiene Hb de 7,5 con reticulocitos de 0,3 %. ¿Qué cadena lo explica mejor?',
+  o:['La HbA transfundida suelta mejor el O₂, el riñón percibe menos hipoxia y baja la EPO','Falta de hierro por la hemólisis previa, que vació todas las reservas de los macrófagos','Aplasia medular permanente por la bilirrubina que se depositó en la médula ósea','Hemólisis activa intensa, porque los reticulocitos bajos indican destrucción periférica'],
+  e:'Es una anemia arregenerativa (reticulocitos bajos). La HbA del adulto se une más al 2,3-DPG que la HbF y descarga mejor el O₂ en los tejidos, así que el riñón «ve» menos hipoxia y produce menos EPO. Nota (fuera de la guía, VERIFICAR): por eso estos bebés pueden tener anemia tardía semanas después; puede contribuir el anti-D residual. Los reticulocitos bajos no indican hemólisis activa.',
+  c:'El eslabón más sutil: la afinidad de la hemoglobina (acto 2) controla la EPO (acto 2) semanas después del recambio (acto 3).'},
+ {s:'Vacunación / inmunidad pasiva',q:'Mateo trae IgG materna y recibió plasma en el recambio. ¿Por qué importa para sus vacunas?',
+  o:['Son pasivos: protegen poco tiempo y pueden interferir con vacunas que requieren su respuesta activa','Son anticuerpos activos: ya le dan memoria permanente, así que no necesitará ninguna de sus vacunas','Contienen linfocitos B de memoria del donador que se instalan en su médula y lo protegen de por vida','No importan: los anticuerpos transfundidos no reconocen antígenos de vacunas ni de microorganismos'],
+  e:'La guía define la inmunidad pasiva (IgG placentaria, IgA de la leche, anticuerpos terapéuticos) como rápida pero temporal, y la activa (infección o vacuna) como más lenta pero con memoria. Nota (fuera de la guía, VERIFICAR con el esquema vigente): los anticuerpos recibidos pueden neutralizar algunas vacunas de virus vivos, por lo que estas se programan según el producto recibido.',
+  c:'Cierra el círculo del acto 1: anticuerpos prestados (pasivos) frente a memoria propia (activa). La misma idea que pudo haber salvado al primer embarazo.'},
+ {s:'Rh / inmunidad',q:'Si Lucía se embaraza otra vez de un hijo D+, ¿qué esperas y qué ya no se puede hacer?',
+  o:['Hemólisis igual o más temprana por la memoria; la anti-D ya no sirve porque ya está sensibilizada','Ningún riesgo: los anticuerpos se agotaron con este embarazo y la memoria B se reinicia','Riesgo menor, porque cada embarazo produce más IgM, que bloquea el paso de la IgG','Se resuelve aplicando anti-D en el próximo parto, igual que en una madre no sensibilizada'],
+  e:'La memoria inmunológica persiste y cada reexposición potencia la respuesta secundaria. La inmunoglobulina anti-D solo previene la sensibilización; no la revierte. Si el hijo fuera D negativo (50 % con este padre, que es Dd), no habría hemólisis por anti-D.',
+  c:'La genética (acto 1) vuelve a decidir: el 50 % de cada embarazo depende de qué alelo D reciba el hijo.'},
+ {s:'Integración',q:'¿Qué secuencia resume mejor la cascada completa?',
+  o:['Parto sin anti-D → memoria B → IgG cruza la placenta → hemólisis fetal → EPO y hígado fetal → bilirrubina al nacer → recambio → citrato y K⁺','Hemólisis fetal → memoria B materna → parto sin anti-D → IgM cruza la placenta → bilirrubina directa → coluria → recambio → hipercalcemia','IgM natural anti-D → hemólisis en el primer hijo → EPO baja → bilirrubina directa → fototerapia → exanguinotransfusión innecesaria','Vacuna en el embarazo → anti-D cruzado → trombosis materna → embolia → anemia fetal → ictericia → hiperpotasemia materna'],
+  e:'Cada eslabón depende del anterior: la sensibilización de hace tres años produce memoria; la memoria produce IgG; la IgG cruza la placenta y marca eritrocitos D+; la anemia sube la EPO y activa el hígado fetal; al nacer se acumula la bilirrubina; el recambio la corrige pero trae citrato y K⁺. La trombosis materna es una cascada paralela.',
+  c:'Este es tu mapa: si puedes recorrerlo sin mirar, entendiste el caso.'},
+ {s:'Integración',q:'Si pudieras cambiar un solo momento de esta historia, ¿cuál evitaría casi todo lo de Mateo?',
+  o:['Aplicar inmunoglobulina anti-D a Lucía después de su primer parto','Hacer una exanguinotransfusión al primer hijo al nacer, aunque estaba sano','Vacunar a Lucía contra el antígeno D antes de su primer embarazo','Transfundir a Lucía con sangre Rh positiva para crearle tolerancia'],
+  e:'La prevención con inmunoglobulina anti-D, en las situaciones indicadas, evita que la madre forme su propia respuesta. «Vacunar» contra D haría lo contrario: crearía memoria activa. Transfundirle eritrocitos D+ la sensibilizaría.',
+  c:'El primer eslabón decide la cadena. Pensar en mecanismos te dice dónde cortarla.'}
+ ]}
+]};
+
 // ── Flashcards · F(categoría, frente, reverso) ──────────────
 // Las 25 primeras son las del mini-repaso de los módulos 34–38 (idénticas).
 F('Hemoglobina','Curva a la derecha: ¿qué significa?','Menor afinidad de la Hb por el O₂: facilita la descarga en el tejido. La causan ↑CO₂, ↓pH, ↑temperatura y ↑2,3-DPG.');
@@ -4375,37 +4601,73 @@ async function doWipeCards(){
   $('g-wipe').textContent='Borrar progreso de tarjetas';$('g-wipe-msg').textContent='Progreso de tarjetas borrado.';await rLoad();RV.done=0;RV.undo=[];rRender();gRender();
 }
 
-/* ───────── CASO CASCADA · dificultad extrema ─────────
-   Un paciente, preguntas en orden. Cada respuesta desbloquea datos nuevos y la historia clínica
-   se acumula. El progreso se guarda en IndexedDB (sesión SID('cascada')). */
-const CXQ=[];(typeof CASCADA!=='undefined'?CASCADA.actos:[]).forEach((a,ai)=>a.preguntas.forEach(p=>CXQ.push(Object.assign({acto:ai,k:CXQ.length},p))));
-const CXG=[[/Electrocardiograma/,'Electrocardiograma'],[/Potencial|Electrolitos/,'Potencial de acción y electrolitos'],[/Conducción|Pulso venoso/,'Conducción y ritmo'],
+/* ───────── CASOS CASCADA · dificultad extrema ─────────
+   Varios casos; cada uno es un paciente con preguntas en orden. Cada respuesta desbloquea datos
+   nuevos y la historia clínica se acumula. El progreso de cada caso se guarda por separado en
+   IndexedDB: el caso 1 en SID('cascada') (como antes) y los siguientes en SID('cascadaN'). */
+const CASOS=[typeof CASCADA!=='undefined'?CASCADA:null,typeof CASCADA2!=='undefined'?CASCADA2:null].filter(Boolean);
+const CXG=[[/Vacun|pasiva|Memoria/,'Vacunación y memoria inmune'],[/Herencia/,'Herencia de grupos sanguíneos'],[/Hematopoyesis|Eritropoyesis|^EPO$/,'Hematopoyesis y EPO'],
+ [/Venoso|Starling/,'Vascular, venoso y Starling'],
+ [/Electrocardiograma/,'Electrocardiograma'],[/Potencial|Electrolitos/,'Potencial de acción y electrolitos'],[/Conducción|Pulso venoso/,'Conducción y ritmo'],
  [/isquemia|lesión|coronaria/i,'Isquemia y flujo coronario'],[/Hemostasia|Fármacos|Plaqueta/,'Hemostasia y fármacos'],[/Bilirrubina|Ictericia/,'Bilirrubina'],
- [/Inmunidad|ABO|Rh|Pruebas/,'Inmunidad y transfusión'],[/Hierro|EPO \/ médula/,'Hierro, inflamación y médula'],[/Eritrocito|Biometría/,'Eritrocito, EPO y biometría'],
- [/Hemoglobina|curva|pH|O₂/,'Hemoglobina, curva de O₂ y pH'],[/Hemodinamia|Gasto|Microcirculación|Control/,'Hemodinamia y control'],[/Integración/,'Integración']];
+ [/Inmunidad|Inmunoglobulinas|Hipersensibilidad|ABO|Rh|Pruebas|Grupos/,'Inmunidad y transfusión'],[/Hierro|EPO \/ médula/,'Hierro, inflamación y médula'],[/Eritrocito|Biometría/,'Eritrocito, EPO y biometría'],
+ [/Hemoglobina|curva|pH|O₂|HbF|gases/,'Hemoglobina, curva de O₂ y pH'],[/Hemodinamia|Gasto|Microcirculación|Control/,'Hemodinamia y control'],[/Integración/,'Integración']];
 function cxGrp(s){for(const [r,n] of CXG)if(r.test(s))return n;return s}
-const CX={i:0,ans:{},started:false,view:-1,done:false};
-function cxOrder(k){return shuffle(CXQ[k].o.map((_,i)=>i),rng(k*104729+77))}
-function cxSave(){saveSession('cascada',{i:CX.i,ans:CX.ans,started:CX.started,done:CX.done})}
-async function cxRestore(){try{const s=await ECGDB.get('sessions',SID('cascada'));if(s){CX.i=Math.min(s.i||0,CXQ.length-1);CX.ans=s.ans||{};CX.started=!!s.started;CX.done=!!s.done}}catch(e){}}
-function cxScore(){let ok=0,n=0;for(const k in CX.ans){n++;if(CX.ans[k]===0)ok++}return{ok,n}}
-function cxHist(upto){let h='';CASCADA.actos.forEach((a,ai)=>{if(ai>upto)return;
+function cxFlat(c){const out=[];c.actos.forEach((a,ai)=>a.preguntas.forEach(p=>out.push(Object.assign({acto:ai,k:out.length},p))));return out}
+const CXALL=CASOS.map(cxFlat);
+const CXST=CASOS.map(()=>({i:0,ans:{},started:false,view:-1,done:false}));
+let CXN=-1,CASCADA_CUR=CASOS[0]||null,CXQ=CXALL[0]||[],CX=CXST[0]||{i:0,ans:{},started:false,view:-1,done:false};
+function cxSid(n){return n?'cascada'+(n+1):'cascada'}
+function cxPick(n){CXN=n;if(n>=0){CASCADA_CUR=CASOS[n];CXQ=CXALL[n];CX=CXST[n]}saveSession('cascada-sel',{n})}
+function cxOrder(k){return shuffle(CXQ[k].o.map((_,i)=>i),rng((k+1000*Math.max(0,CXN))*104729+77))}
+function cxSave(){saveSession(cxSid(CXN),{i:CX.i,ans:CX.ans,started:CX.started,done:CX.done})}
+async function cxRestore(){
+  await Promise.all(CASOS.map(async(_,n)=>{try{const s=await ECGDB.get('sessions',SID(cxSid(n)));const st=CXST[n];
+    if(s){st.i=Math.min(s.i||0,CXALL[n].length-1);st.ans=s.ans||{};st.started=!!s.started;st.done=!!s.done}}catch(e){}}));
+  try{const s=await ECGDB.get('sessions',SID('cascada-sel'));if(s&&s.n>=0&&s.n<CASOS.length){CXN=s.n;CASCADA_CUR=CASOS[s.n];CXQ=CXALL[s.n];CX=CXST[s.n]}}catch(e){}
+}
+function cxScoreOf(n){const st=CXST[n];let ok=0,c=0;for(const k in st.ans){c++;if(st.ans[k]===0)ok++}return{ok,n:c}}
+function cxScore(){return cxScoreOf(Math.max(0,CXN))}
+function cxHist(upto){let h='';CASCADA_CUR.actos.forEach((a,ai)=>{if(ai>upto)return;
   h+=`<div class="cxact"><b>${esc(a.titulo)}</b><p>${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`});return h}
+const cxBackBtn=()=>CASOS.length>1?`<button class="cxcases">← Todos los casos</button>`:'';
+function cxWireBack(root){root.querySelectorAll('.cxcases').forEach(b=>b.onclick=()=>{CX.view=-1;cxPick(-1);cxRender();root.scrollIntoView({block:'start'})})}
+/* lista de casos */
+function cxList(){
+  const root=$('cx-root');
+  const tot=CXALL.reduce((s,q)=>s+q.length,0);
+  $('cx-score').textContent=`${CASOS.length} casos · ${tot} preguntas en total`;$('cx-meter').style.width='0';
+  let h='';
+  CASOS.forEach((c,n)=>{const q=CXALL[n],st=CXST[n],sc=cxScoreOf(n);
+    const estado=st.done?`Terminado · ${Math.round(100*sc.ok/q.length)} %`:sc.n?`En curso · ${sc.n} de ${q.length} respondidas`:'Sin empezar';
+    const sis=[...new Set(q.map(x=>cxGrp(x.s)))];
+    h+=`<div class="card cxcase"><div class="qmeta"><span class="pill xt">Extrema</span><span class="pill">Caso ${n+1}</span><span>${q.length} preguntas · ${c.actos.length} actos</span></div>
+      <div class="verdict" style="font-size:21px">${esc(c.titulo)}</div>
+      <p style="margin:0">${esc(c.paciente)}</p>
+      <p class="hint" style="margin:0">Conecta: ${sis.map(esc).join(' · ')}.</p>
+      <div class="meter"><i style="width:${100*sc.n/q.length}%"></i></div>
+      <div class="bar"><button class="primary" data-case="${n}">${st.done?'Ver mi mapa':sc.n?'Continuar':'Empezar'}</button><span class="hint">${estado}</span></div></div>`});
+  root.innerHTML=h;
+  root.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{cxPick(+b.dataset.case);cxRender();root.scrollIntoView({block:'start'})});
+}
 function cxRender(){
-  const root=$('cx-root');if(!root||!CXQ.length)return;
+  const root=$('cx-root');if(!root||!CASOS.length)return;
+  if(CXN<0&&CASOS.length>1){cxList();return}
+  if(CXN<0)cxPick(0);
   const sc=cxScore();
-  $('cx-score').textContent=sc.n?`Aciertos ${sc.ok} de ${sc.n} respondidas · ${CXQ.length} preguntas`:`${CXQ.length} preguntas · ${CASCADA.actos.length} actos`;
+  $('cx-score').textContent=(CASOS.length>1?`Caso ${CXN+1} · `:'')+(sc.n?`Aciertos ${sc.ok} de ${sc.n} respondidas · ${CXQ.length} preguntas`:`${CXQ.length} preguntas · ${CASCADA_CUR.actos.length} actos`);
   $('cx-meter').style.width=(100*sc.n/CXQ.length)+'%';
   if(!CX.started){
-    root.innerHTML=`<div class="card"><div class="verdict" style="font-size:22px">${esc(CASCADA.titulo)}</div>
-      <p style="margin:0"><b>Paciente:</b> ${esc(CASCADA.paciente)}</p><p style="margin:0;color:var(--muted)">${esc(CASCADA.instrucciones)}</p>
+    root.innerHTML=`${cxBackBtn()?`<div>${cxBackBtn()}</div>`:''}<div class="card"><div class="verdict" style="font-size:22px">${esc(CASCADA_CUR.titulo)}</div>
+      <p style="margin:0"><b>Paciente:</b> ${esc(CASCADA_CUR.paciente)}</p><p style="margin:0;color:var(--muted)">${esc(CASCADA_CUR.instrucciones)}</p>
       <p class="hint" style="margin:0">Sistemas que vas a conectar: ${[...new Set(CXQ.map(q=>cxGrp(q.s)))].map(esc).join(' · ')}.</p>
       <div class="bar"><button class="primary" id="cx-go">${sc.n?'Continuar el caso':'Empezar el caso'}</button></div></div>`;
-    $('cx-go').onclick=()=>{CX.started=true;cxSave();cxRender()};return}
+    cxWireBack(root);$('cx-go').onclick=()=>{CX.started=true;cxSave();cxRender()};return}
   if(CX.done&&CX.view<0){cxSummary();return}
-  const k=CX.view>=0?CX.view:CX.i,q=CXQ[k],a=CASCADA.actos[q.acto],ans=CX.ans[k],answered=ans!=null,order=cxOrder(k);
+  const k=CX.view>=0?CX.view:CX.i,q=CXQ[k],a=CASCADA_CUR.actos[q.acto],ans=CX.ans[k],answered=ans!=null,order=cxOrder(k);
   const maxAct=CXQ[Math.max(CX.i,k)].acto;
-  let h=`<details class="cxhist" ${q.acto>0?'open':''}><summary>Historia clínica acumulada (hasta el ${esc(CASCADA.actos[maxAct].titulo.split(' · ')[0].toLowerCase())})</summary>${cxHist(maxAct)}</details>`;
+  let h=cxBackBtn()?`<div>${cxBackBtn()}</div>`:'';
+  h+=`<details class="cxhist" ${q.acto>0?'open':''}><summary>Historia clínica acumulada (hasta el ${esc(CASCADA_CUR.actos[maxAct].titulo.split(' · ')[0].toLowerCase())})</summary>${cxHist(maxAct)}</details>`;
   const newAct=k===0||CXQ[k-1].acto!==q.acto;
   if(newAct)h+=`<div class="cxnew"><div class="eyebrow">${esc(a.titulo)}</div><p style="margin:0">${esc(a.relato)}</p><ul>${a.datos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`;
   h+=`<div class="card"><div class="qmeta"><span class="pill xt">Extrema</span><span class="pill">${esc(q.s)}</span><span>${esc(a.titulo.split(' · ')[0])} · pregunta ${k+1} de ${CXQ.length}</span></div>
@@ -4418,7 +4680,7 @@ function cxRender(){
   h+=`</div><div class="nav"><button id="cx-prev" ${k===0?'disabled':''}>← Anterior</button>`+
     (CX.view>=0?`<button id="cx-back" class="primary">Volver a la pregunta actual →</button>`:
      (answered?(k<CXQ.length-1?`<button id="cx-next" class="primary">Siguiente eslabón →</button>`:`<button id="cx-end" class="primary">Ver mi mapa de la cascada →</button>`):'<span class="hint">Responde para desbloquear el siguiente dato.</span>'))+'</div>';
-  root.innerHTML=h;
+  root.innerHTML=h;cxWireBack(root);
   root.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(CX.ans[k]!=null)return;CX.ans[k]=+b.dataset.oi;cxSave();cxRender();
     const t=root.querySelector('.teach');if(t&&t.getBoundingClientRect().bottom>innerHeight)t.scrollIntoView({block:'nearest',behavior:'smooth'})});
   const pv=$('cx-prev');if(pv)pv.onclick=()=>{CX.view=k-1;cxRender();root.scrollIntoView({block:'start'})};
@@ -4427,17 +4689,17 @@ function cxRender(){
   const en=$('cx-end');if(en)en.onclick=()=>{CX.done=true;CX.view=-1;cxSave();cxFinish();cxRender();root.scrollIntoView({block:'start'})};
 }
 function cxFinish(){const sc=cxScore(),ts=Date.now();
-  DB.run(ECGDB.put('results',{id:SID('cascada-')+ts,source:'cascada',ts,total:CXQ.length,ok:sc.ok,ms:0,ans:Object.assign({},CX.ans)}))}
+  DB.run(ECGDB.put('results',{id:SID('cascada-')+(CXN>0?'c'+(CXN+1)+'-':'')+ts,source:'cascada',caso:CXN+1,titulo:CASCADA_CUR.titulo,ts,total:CXQ.length,ok:sc.ok,ms:0,ans:Object.assign({},CX.ans)}))}
 function cxSummary(){const sc=cxScore(),bySys={};
   CXQ.forEach(q=>{const s=cxGrp(q.s);bySys[s]=bySys[s]||[0,0];bySys[s][1]++;if(CX.ans[q.k]===0)bySys[s][0]++});
   const pct=Math.round(100*sc.ok/CXQ.length);
-  let h=`<div class="card"><div class="result-head"><div class="big">${pct}%</div><div>${sc.ok} de ${CXQ.length} eslabones conectados correctamente</div></div>
+  let h=`${cxBackBtn()?`<div>${cxBackBtn()}</div>`:''}<div class="card"><div class="eyebrow">${esc(CASCADA_CUR.titulo)}</div><div class="result-head"><div class="big">${pct}%</div><div>${sc.ok} de ${CXQ.length} eslabones conectados correctamente</div></div>
     <p style="margin:0">${pct>=85?'Razonamiento en cascada sólido: conectaste mecanismos de varios sistemas sin perder el hilo.':pct>=60?'Buen hilo general; revisa los eslabones fallados: suelen ser los puntos donde un sistema «empuja» a otro.':'La cadena se rompió en varios puntos. Repasa los eslabones en rojo en orden: cada uno depende del anterior.'}</p>
     <div style="overflow-x:auto"><table class="mini"><thead><tr><th>Sistema</th><th style="text-align:right">Aciertos</th></tr></thead><tbody>${Object.entries(bySys).sort((a,b)=>a[1][0]/a[1][1]-b[1][0]/b[1][1]).map(([s,v])=>`<tr><td>${esc(s)}</td><td class="n">${v[0]}/${v[1]}</td></tr>`).join('')}</tbody></table></div>
     <h4 style="margin:0">Tu mapa de la cascada</h4><ol class="cxmap">`;
   CXQ.forEach(q=>{const ok=CX.ans[q.k]===0;h+=`<li class="${ok?'ok':'bad'}"><button data-k="${q.k}"><span class="mk ${ok?'ok':'bad'}">${ok?'✓':'✗'}</span> <b>${esc(q.s)}</b> · ${esc(q.q.length>90?q.q.slice(0,88)+'…':q.q)}</button></li>`});
   h+=`</ol><div class="bar"><button id="cx-reset">Reiniciar el caso</button><span class="hint" id="cx-reset-msg">Tus intentos anteriores quedan en el historial de resultados.</span></div></div>`;
-  $('cx-root').innerHTML=h;
+  $('cx-root').innerHTML=h;cxWireBack($('cx-root'));
   $('cx-root').querySelectorAll('.cxmap button').forEach(b=>b.onclick=()=>{CX.view=+b.dataset.k;cxRender();$('cx-root').scrollIntoView({block:'start'})});
   let arm=false;$('cx-reset').onclick=()=>{if(!arm){arm=true;$('cx-reset').textContent='Confirmar: reiniciar';$('cx-reset-msg').textContent='Vuelve a pulsar para empezar de cero.';return}
     CX.i=0;CX.ans={};CX.done=false;CX.view=-1;CX.started=true;cxSave();cxRender()};
@@ -4501,7 +4763,7 @@ $('b-q').oninput=bRender;$('b-deck').onchange=bRender;$('b-st').onchange=bRender
 $('g-exp').onclick=()=>doExport().catch(e=>{$('g-bk-msg').textContent='No se pudo exportar: '+(e.message||e)});
 $('g-imp').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)doImport(f);e.target.value=''};
 $('g-wipe').onclick=doWipeCards;
-$('p-xt').onclick=()=>{try{history.replaceState(null,'','#cascada')}catch(_){}route('cascada');window.scrollTo(0,0)};
+$('p-xt').onclick=()=>{if(CASOS.length>1){CX.view=-1;cxPick(-1)}try{history.replaceState(null,'','#cascada')}catch(_){}route('cascada');cxRender();window.scrollTo(0,0)};
 let booted=false;
 async function boot(){
   try{DB.info=await ECGDB.ready();if(DB.info.mode!=='idb')DB.warn(new Error('IndexedDB no está disponible en este navegador'))}catch(e){DB.warn(e)}
