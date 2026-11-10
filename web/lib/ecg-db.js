@@ -273,29 +273,37 @@
     now = now || Date.now(); ns = ns || '';
     var eod = endOfStudyDay(now), today = dayKey(now);
     return tx(['cards', 'reviews', 'meta'], 'readonly', function (t) {
-      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', ns + 'srs-settings'), t.get('meta', ns + 'deck')]);
+      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', ns + 'srs-settings'), t.get('meta', ns + 'deck'), t.get('meta', ns + 'srs-extra')]);
     }).then(function (r) {
       var cards = (r[0] || []).filter(function (c) { return belongs(c.cid, ns); }), todays = (r[1] || []).filter(function (v) { return belongs(v.cid, ns); }), st = (r[2] && r[2].value) || {}, deck = (r[3] && r[3].value) || {};
-      var newPerDay = st.newPerDay != null ? st.newPerDay : 20;
+      var ex = (r[4] && r[4].value && r[4].value.day === today && r[4].value.by && r[4].value.by['']) || { n: 0, r: 0 };
+      var newPerDay = (st.newPerDay != null ? st.newPerDay : 20) + (ex.n || 0), maxReviews = (st.maxReviews != null ? st.maxReviews : 200) + (ex.r || 0);
+      var ahead = now + (st.learnAheadMin != null ? st.learnAheadMin : 20) * 60000;
       var s = { total: deck.total || 0, seen: 0, newAvail: 0, learning: 0, review: 0, dueLearning: 0, dueReview: 0, suspended: 0, reviewedToday: 0, newToday: 0, dueToday: 0, nextDue: null };
       var known = {};
       cards.forEach(function (c) {
         known[c.cid] = 1;
         if (c.suspended) { s.suspended++; return; }
+        if (c.buried && c.buried === today) { if (c.card && c.card.state) s.seen++; return; }
         var st0 = c.card ? c.card.state : 0;
         if (st0 === 0) return;
         s.seen++;
         var due = c.card.due;
+        // como Anki: repasos e interdía vencen en el día; el aprendizaje intradía, dentro de 20 min
         if (st0 === 2) { s.review++; if (due <= eod) s.dueReview++; }
-        else { s.learning++; if (due <= now) s.dueLearning++; else if (due <= eod) s.dueLearning++; }
+        else { s.learning++; if (c.card.scheduled_days >= 1 ? due <= eod : due <= ahead) s.dueLearning++; }
         if (due > now && (s.nextDue == null || due < s.nextDue)) s.nextDue = due;
       });
-      todays.forEach(function (v) { s.reviewedToday++; if (v.stateBefore === 0) s.newToday++; });
+      var revToday = 0;
+      todays.forEach(function (v) { s.reviewedToday++; if (v.stateBefore === 0) s.newToday++; else if (v.stateBefore === 2) revToday++; });
       var ids = deck.ids || [];
       // nuevas = tarjetas del mazo sin estado o en estado 0, no suspendidas
       var byId = cardsById(cards), newCount = 0;
-      ids.forEach(function (id) { var c = byId[id]; if (!c || ((!c.card || c.card.state === 0) && !c.suspended)) newCount++; });
-      s.newAvail = Math.max(0, Math.min(newCount, newPerDay - s.newToday));
+      ids.forEach(function (id) { var c = byId[id]; if (!c || ((!c.card || c.card.state === 0) && !c.suspended && c.buried !== today)) newCount++; });
+      // límite de repasos (las nuevas también cuentan contra él)
+      var revLeft = Math.max(0, maxReviews - revToday - s.newToday);
+      s.dueReview = Math.min(s.dueReview, revLeft);
+      s.newAvail = Math.max(0, Math.min(newCount, newPerDay - s.newToday, revLeft - s.dueReview));
       s.dueToday = s.dueLearning + s.dueReview + s.newAvail;
       return s;
     });

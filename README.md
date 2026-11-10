@@ -55,7 +55,7 @@ Para regenerar `index.html` tras añadir o cambiar módulos: `python3 tools/buil
 
 ## App instalable y progreso guardado
 
-La versión web se instala en la pantalla de inicio del iPhone o Android como app (PWA) y funciona sin conexión con los módulos ya visitados. El Banco Cardio guarda solo, en el navegador (IndexedDB), cada respuesta, el historial de intentos, los simulacros y el estado de cada flashcard, y repasa las tarjetas con FSRS (la biblioteca oficial ts-fsrs). Desde su pestaña «Progreso» se ve la racha, la retención y el calendario de repasos, y se puede exportar o importar un respaldo. Detalles y límites en [`docs/pwa-y-progreso.md`](docs/pwa-y-progreso.md).
+La versión web se instala en la pantalla de inicio del iPhone o Android como app (PWA) y funciona sin conexión con los módulos ya visitados. El Banco Cardio guarda solo, en el navegador (IndexedDB), cada respuesta, el historial de intentos, los simulacros y el estado de cada flashcard, y las flashcards funcionan como Anki: mazos y submazos, límites diarios, pasos de aprendizaje, cuatro botones con su intervalo, deshacer, enterrar, suspender y explorador, con FSRS (la biblioteca oficial ts-fsrs) calculando los intervalos. Desde su pestaña «Progreso» se ve la racha, la retención y el calendario de repasos, y se puede exportar o importar un respaldo. Detalles y límites en [`docs/pwa-y-progreso.md`](docs/pwa-y-progreso.md).
 
 Si cambias algo en `lib/`, ejecuta `python3 tools/inline_libs.py .` antes de `tools/build_index.py`.
 

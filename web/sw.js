@@ -9,7 +9,7 @@
  * Al publicar cambios del marco, sube VERSION para renovar la caché.
  */
 'use strict';
-var VERSION = 'v2-2026-11-10';
+var VERSION = 'v3-2026-11-10';
 var SHELL = 'ecg-shell-' + VERSION;
 var MODULES = 'ecg-modules';
 var PRECACHE = [

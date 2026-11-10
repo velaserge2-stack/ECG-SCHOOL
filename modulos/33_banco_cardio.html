@@ -157,7 +157,23 @@ svg.chart{width:100%;height:auto;display:block}svg.chart text{font:11px var(--f-
 .cd small{font:10px var(--f-mono);color:var(--muted)}.cd b{font:600 14px var(--f-mono)}.cd span{font:600 11px var(--f-mono);min-height:14px}
 .cd.today{outline:2px solid var(--accent);outline-offset:1px}
 ul.susp{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.susp li{display:flex;gap:10px;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:6px 0}
-@media (max-width:520px){.grades{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* flashcards tipo Anki */
+table.decks,table.brw{width:100%;border-collapse:collapse;font-size:16px}
+table.decks th,table.brw th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+table.decks td,table.brw td{padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+table.decks tr:last-child td,table.brw tr:last-child td{border-bottom:0}
+table.decks .n,table.brw .n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+table.decks th.n{width:92px}
+table.decks tr.sub td:first-child{padding-left:34px}
+table.decks tr.top button.dk{font-weight:700}
+table.decks tr.cur{background:var(--accent-soft)}
+button.dk{all:unset;cursor:pointer;font-weight:500}button.dk:hover{text-decoration:underline}button.dk:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cN{color:var(--accent);font-weight:700}.cL{color:var(--bad);font-weight:700}.cR{color:var(--ok);font-weight:700}.c0{color:var(--muted);opacity:.55}
+.ovc{display:flex;gap:30px;justify-content:center;font:600 14px var(--f-mono);color:var(--muted)}.ovc b{display:block;font:700 34px/1.1 var(--f-display)}
+.acount{text-align:center;font:600 17px var(--f-mono);color:var(--muted)}.acount u{text-decoration-thickness:2px;text-underline-offset:5px}
+table.brw details summary{cursor:pointer}table.brw details p{margin:6px 0 0;color:var(--muted);font-size:15px}
+table.brw tr.sus td{opacity:.6}table.brw td.act{white-space:nowrap}table.brw td.act button{font-size:13px;padding:4px 8px;margin-left:4px}
+@media (max-width:520px){.grades{grid-template-columns:repeat(2,minmax(0,1fr))}table.decks td,table.decks th{padding:9px 8px}table.decks th.n{width:auto}table.decks th{font-size:11px;letter-spacing:.02em}.kbd{display:none}table.decks tr.sub td:first-child{padding-left:20px}.ovc{gap:16px}}
 @media (prefers-reduced-motion: reduce){.fc{transition:none}}
 @media (max-width:520px){.card{padding:16px}.stem{font-size:17px}nav.tabs a{padding:10px 10px}}
 </style>
@@ -173,8 +189,7 @@ ul.susp{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.susp li{displ
   <nav class="tabs" aria-label="Secciones">
     <a href="#practica" data-v="practica">Práctica</a>
     <a href="#simulacro" data-v="simulacro">Simulacro</a>
-    <a href="#flashcards" data-v="flashcards">Flashcards</a>
-    <a href="#repaso" data-v="repaso">Repaso<span class="tbadge" id="tab-due" hidden></span></a>
+    <a href="#flashcards" data-v="flashcards">Flashcards<span class="tbadge" id="tab-due" hidden></span></a>
     <a href="#progreso" data-v="progreso">Progreso</a>
   </nav>
   <div class="dbwarn" id="db-warn" role="alert" hidden></div>
@@ -236,64 +251,67 @@ ul.susp{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.susp li{displ
     <div id="s-res" hidden style="display:grid;gap:16px"></div>
   </section>
 
-  <!-- FLASHCARDS -->
+  <!-- FLASHCARDS · funcionan como Anki -->
   <section id="v-flashcards" hidden style="display:grid;gap:16px">
-    <div class="bar">
-      <select id="f-cat" aria-label="Categoría"></select>
-      <div class="seg" id="f-mode" role="group" aria-label="Vista">
-        <button data-m="card" aria-pressed="true">Tarjetas</button><button data-m="list" aria-pressed="false">Lista</button>
+    <!-- Pantalla 1 · Mazos -->
+    <div id="a-decks" style="display:grid;gap:12px">
+      <div class="bar"><span class="verdict" style="font-size:20px;margin-right:auto">Mazos</span><button id="a-browse-btn">Explorar</button><button id="a-opt-btn" aria-expanded="false">Opciones</button></div>
+      <div class="card" style="padding:0;overflow-x:auto"><table class="decks"><thead><tr><th>Mazo</th><th class="n">Nuevas</th><th class="n">Aprender</th><th class="n">Repasar</th></tr></thead><tbody id="a-decklist"></tbody></table></div>
+      <p class="hint" id="a-today" style="margin:0;text-align:center"></p>
+    </div>
+    <!-- Pantalla 2 · Vista general del mazo -->
+    <div id="a-over" hidden class="card" style="text-align:center;justify-items:center">
+      <div class="eyebrow" id="a-over-path"></div>
+      <div class="verdict" style="font-size:24px" id="a-over-t"></div>
+      <div id="a-over-body" style="display:grid;gap:10px;justify-items:center"></div>
+      <div class="bar" style="justify-content:center"><button class="primary" id="a-study">Estudiar ahora</button></div>
+      <div class="bar" style="justify-content:center"><button id="a-back">← Mazos</button><button id="a-opt2">Opciones</button><button id="a-custom" aria-expanded="false">Estudio personalizado</button></div>
+      <div id="a-custom-box" hidden class="form" style="text-align:left;width:min(100%,460px)">
+        <label>Aumentar el límite de tarjetas nuevas de hoy en<input type="number" id="a-cx-new" min="1" max="500" value="10" inputmode="numeric"></label>
+        <label>Aumentar el límite de repasos de hoy en<input type="number" id="a-cx-rev" min="0" max="2000" value="0" inputmode="numeric"></label>
+        <div class="bar"><button class="primary" id="a-cx-go">Aplicar a este mazo</button><span class="hint" id="a-cx-msg"></span></div>
       </div>
-      <button id="f-shuf">Barajar</button>
     </div>
-    <div id="f-cardview" style="display:grid;gap:14px">
-      <div class="progress"><span id="f-pos"></span><span id="f-known"></span></div>
-      <div class="flash"><div class="fc" id="fc" tabindex="0" role="button" aria-label="Voltear tarjeta">
-        <div class="face front"><div class="cat" id="fc-cat"></div><div class="front-t" id="fc-front"></div><div class="tap">Toca para voltear</div></div>
-        <div class="face back"><div class="cat" id="fc-cat2"></div><div class="back-t" id="fc-back"></div></div>
-      </div></div>
-      <div class="nav"><button id="f-prev">← Anterior</button><button id="f-again">Repasar otra vez</button><button id="f-know" class="primary">La sé →</button></div>
-    </div>
-    <div id="f-listview" class="fgrid" hidden></div>
-  </section>
-
-
-  <!-- REPASO (FSRS) -->
-  <section id="v-repaso" hidden style="display:grid;gap:16px">
-    <div class="bar">
-      <select id="r-deck" aria-label="Mazo"></select>
-      <div class="rcounts" aria-label="Pendientes"><span class="n1" title="Nuevas"><span id="r-new">0</span> nuevas</span><span class="n2" title="Aprendizaje"><span id="r-learn">0</span> aprendiendo</span><span class="n3" title="Repaso"><span id="r-rev">0</span> repaso</span></div>
-      <button id="r-set-btn" aria-expanded="false">Ajustes</button>
-    </div>
-    <div id="r-set" class="card form" hidden>
-      <div class="verdict">Ajustes de repetición espaciada (FSRS)</div>
-      <label>Retención deseada: <b id="rs-ret-v"></b><input type="range" id="rs-ret" min="70" max="97" step="1"><span class="hint">Probabilidad de recordar una tarjeta cuando vuelve a aparecer. Más alta = repasos más frecuentes.</span></label>
-      <label>Tarjetas nuevas por día<input type="number" id="rs-new" min="0" max="200" inputmode="numeric"></label>
-      <label>Pasos de aprendizaje<input type="text" id="rs-ls" autocomplete="off"><span class="hint">Ej. «10m 30m»: Otra vez = 10 min, Difícil ≈ 20 min, Bien = 30 min; al terminar los pasos la tarjeta gradúa y FSRS calcula días.</span></label>
-      <label>Pasos de reaprendizaje (tras olvidar)<input type="text" id="rs-rs" autocomplete="off"></label>
-      <label>Intervalo máximo (días)<input type="number" id="rs-max" min="1" max="36500" inputmode="numeric"></label>
-      <div class="bar"><button class="primary" id="rs-save">Guardar ajustes</button><span class="hint" id="rs-msg"></span></div>
-    </div>
-    <div id="r-start" class="card">
-      <div class="verdict" style="font-size:22px">Repaso con recuerdo activo</div>
-      <p style="margin:0" id="r-start-t"></p>
-      <p class="hint" style="margin:0">Lee la pregunta, piensa la respuesta sin mirarla y después califica qué tan bien la recordaste. El algoritmo FSRS decide cuándo volverás a verla.</p>
-      <div><button class="primary" id="r-go">Empezar repaso</button></div>
-    </div>
-    <div id="r-run" hidden style="display:grid;gap:14px">
-      <div><div class="progress"><span id="r-pos"></span><span class="hint">Espacio: mostrar · 1–4: calificar · Z: deshacer</span></div><div class="meter"><i id="r-meter"></i></div></div>
+    <!-- Pantalla 3 · Estudio -->
+    <div id="r-run" hidden style="display:grid;gap:12px">
+      <div class="bar"><button id="a-exit">← Mazo</button><span class="hint kbd" style="margin-left:auto">Espacio: mostrar / Bien · 1–4 · Z: deshacer · −: enterrar · @: suspender</span></div>
       <div class="rcard" aria-live="polite">
         <div class="cat" id="r-cat"></div><div class="st" id="r-state"></div>
         <div class="front-t" id="r-front"></div>
-        <div id="r-ans" hidden><hr><div class="back-t" id="r-back"></div></div>
+        <div id="r-ans" hidden><hr id="answer"><div class="back-t" id="r-back"></div></div>
       </div>
+      <div class="acount" id="a-count" aria-label="Nuevas + aprendiendo + por repasar"></div>
       <button class="primary rshow" id="r-show">Mostrar respuesta</button>
       <div class="grades" id="r-grades" hidden role="group" aria-label="¿Qué tan bien la recordaste?">
-        <button class="g1" data-g="1">Otra vez<small></small></button>
-        <button class="g2" data-g="2">Difícil<small></small></button>
-        <button class="g3" data-g="3">Bien<small></small></button>
-        <button class="g4" data-g="4">Fácil<small></small></button>
+        <button class="g1" data-g="1"><small></small>Otra vez</button>
+        <button class="g2" data-g="2"><small></small>Difícil</button>
+        <button class="g3" data-g="3"><small></small>Bien</button>
+        <button class="g4" data-g="4"><small></small>Fácil</button>
       </div>
-      <div class="ractions"><button id="r-undo">↶ Deshacer</button><button id="r-susp">Suspender tarjeta</button><button id="r-pause">Pausar</button></div>
+      <div class="ractions"><button id="r-undo">↶ Deshacer</button><button id="r-bury">Enterrar</button><button id="r-susp">Suspender</button></div>
+      <div class="hint" id="a-toast" role="status" style="text-align:center;min-height:20px"></div>
+    </div>
+    <!-- Opciones del mazo (preajuste compartido, como en Anki) -->
+    <div id="r-set" class="card form" hidden>
+      <div class="verdict">Opciones (iguales para todos los mazos)</div>
+      <label>Tarjetas nuevas por día<input type="number" id="rs-new" min="0" max="9999" inputmode="numeric"><span class="hint">Límite de cada mazo. Al estudiar «<span class="bkname"></span>» completo también se aplica este límite al total.</span></label>
+      <label>Máximo de repasos por día<input type="number" id="rs-rev" min="0" max="9999" inputmode="numeric"><span class="hint">Las tarjetas nuevas también cuentan contra este límite.</span></label>
+      <label>Pasos de aprendizaje<input type="text" id="rs-ls" autocomplete="off"><span class="hint">Como en Anki: «1m 10m». Otra vez = primer paso, Difícil = promedio de los dos primeros, Bien = siguiente paso, Fácil = gradúa.</span></label>
+      <label>Pasos de reaprendizaje (tras olvidar)<input type="text" id="rs-rs" autocomplete="off"></label>
+      <label>Retención deseada (FSRS): <b id="rs-ret-v"></b><input type="range" id="rs-ret" min="70" max="99" step="1"><span class="hint">Probabilidad de recordar una tarjeta cuando vuelve a aparecer. Más alta = repasos más frecuentes.</span></label>
+      <label>Intervalo máximo (días)<input type="number" id="rs-max" min="1" max="36500" inputmode="numeric"></label>
+      <label>Umbral de sanguijuela (olvidos)<input type="number" id="rs-leech" min="1" max="99" inputmode="numeric"><span class="hint">Al llegar a este número de olvidos la tarjeta se marca como sanguijuela (no se suspende).</span></label>
+      <div class="bar"><button class="primary" id="rs-save">Guardar</button><button id="rs-def">Restaurar valores de Anki</button><span class="hint" id="rs-msg"></span></div>
+    </div>
+    <!-- Explorar (como el explorador de Anki) -->
+    <div id="a-browse" hidden style="display:grid;gap:12px">
+      <div class="bar"><button id="b-back">← Mazos</button>
+        <input type="search" id="b-q" placeholder="Buscar en las tarjetas" aria-label="Buscar" style="flex:1;min-width:160px;font:inherit;font-size:16px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)">
+        <select id="b-deck" aria-label="Mazo"></select>
+        <select id="b-st" aria-label="Estado"><option value="">Todas</option><option value="new">Nuevas</option><option value="learn">Aprendiendo</option><option value="review">De repaso</option><option value="due">Vencen hoy</option><option value="susp">Suspendidas</option><option value="buried">Enterradas</option><option value="leech">Sanguijuelas</option></select>
+      </div>
+      <div class="hint" id="b-n"></div>
+      <div class="card" style="padding:0;overflow-x:auto"><table class="brw"><thead><tr><th>Pregunta</th><th>Mazo</th><th>Vence</th><th class="n">Intervalo</th><th class="n">Olvidos</th><th></th></tr></thead><tbody id="b-list"></tbody></table></div>
     </div>
   </section>
 
@@ -2615,29 +2633,37 @@ ul.susp{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.susp li{displ
     now = now || Date.now(); ns = ns || '';
     var eod = endOfStudyDay(now), today = dayKey(now);
     return tx(['cards', 'reviews', 'meta'], 'readonly', function (t) {
-      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', ns + 'srs-settings'), t.get('meta', ns + 'deck')]);
+      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', ns + 'srs-settings'), t.get('meta', ns + 'deck'), t.get('meta', ns + 'srs-extra')]);
     }).then(function (r) {
       var cards = (r[0] || []).filter(function (c) { return belongs(c.cid, ns); }), todays = (r[1] || []).filter(function (v) { return belongs(v.cid, ns); }), st = (r[2] && r[2].value) || {}, deck = (r[3] && r[3].value) || {};
-      var newPerDay = st.newPerDay != null ? st.newPerDay : 20;
+      var ex = (r[4] && r[4].value && r[4].value.day === today && r[4].value.by && r[4].value.by['']) || { n: 0, r: 0 };
+      var newPerDay = (st.newPerDay != null ? st.newPerDay : 20) + (ex.n || 0), maxReviews = (st.maxReviews != null ? st.maxReviews : 200) + (ex.r || 0);
+      var ahead = now + (st.learnAheadMin != null ? st.learnAheadMin : 20) * 60000;
       var s = { total: deck.total || 0, seen: 0, newAvail: 0, learning: 0, review: 0, dueLearning: 0, dueReview: 0, suspended: 0, reviewedToday: 0, newToday: 0, dueToday: 0, nextDue: null };
       var known = {};
       cards.forEach(function (c) {
         known[c.cid] = 1;
         if (c.suspended) { s.suspended++; return; }
+        if (c.buried && c.buried === today) { if (c.card && c.card.state) s.seen++; return; }
         var st0 = c.card ? c.card.state : 0;
         if (st0 === 0) return;
         s.seen++;
         var due = c.card.due;
+        // como Anki: repasos e interdía vencen en el día; el aprendizaje intradía, dentro de 20 min
         if (st0 === 2) { s.review++; if (due <= eod) s.dueReview++; }
-        else { s.learning++; if (due <= now) s.dueLearning++; else if (due <= eod) s.dueLearning++; }
+        else { s.learning++; if (c.card.scheduled_days >= 1 ? due <= eod : due <= ahead) s.dueLearning++; }
         if (due > now && (s.nextDue == null || due < s.nextDue)) s.nextDue = due;
       });
-      todays.forEach(function (v) { s.reviewedToday++; if (v.stateBefore === 0) s.newToday++; });
+      var revToday = 0;
+      todays.forEach(function (v) { s.reviewedToday++; if (v.stateBefore === 0) s.newToday++; else if (v.stateBefore === 2) revToday++; });
       var ids = deck.ids || [];
       // nuevas = tarjetas del mazo sin estado o en estado 0, no suspendidas
       var byId = cardsById(cards), newCount = 0;
-      ids.forEach(function (id) { var c = byId[id]; if (!c || ((!c.card || c.card.state === 0) && !c.suspended)) newCount++; });
-      s.newAvail = Math.max(0, Math.min(newCount, newPerDay - s.newToday));
+      ids.forEach(function (id) { var c = byId[id]; if (!c || ((!c.card || c.card.state === 0) && !c.suspended && c.buried !== today)) newCount++; });
+      // límite de repasos (las nuevas también cuentan contra él)
+      var revLeft = Math.max(0, maxReviews - revToday - s.newToday);
+      s.dueReview = Math.min(s.dueReview, revLeft);
+      s.newAvail = Math.max(0, Math.min(newCount, newPerDay - s.newToday, revLeft - s.dueReview));
       s.dueToday = s.dueLearning + s.dueReview + s.newAvail;
       return s;
     });
@@ -4203,35 +4229,6 @@ function sResults(){
   $('s-res').scrollIntoView({block:'start'});
 }
 
-/* ───────── FLASHCARDS ───────── */
-const FC={list:[],i:0,mode:'card'};
-const cats=[...new Set(FS.map(f=>f.c))];
-$('f-cat').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');
-function fFilter(shuf){const c=$('f-cat').value;let l=FS.filter(f=>!c||f.c===c);if(shuf)l=shuffle(l);FC.list=l;FC.i=0;fRender()}
-function fRender(){
-  const l=FC.list;const known=l.filter(f=>store.fc[f.id]==='si').length;
-  $('f-known').textContent=`La sé: ${known} de ${l.length}`;
-  if(FC.mode==='list'){$('f-cardview').hidden=true;$('f-listview').hidden=false;
-    $('f-listview').innerHTML=l.map(f=>`<div><b>${esc(f.f)}</b><span>${esc(f.b)}</span></div>`).join('');return}
-  $('f-cardview').hidden=false;$('f-listview').hidden=true;
-  const f=l[FC.i];if(!f)return;
-  $('fc').classList.remove('flip');
-  $('f-pos').textContent=`Tarjeta ${FC.i+1} de ${l.length}`;
-  $('fc-cat').textContent=f.c;$('fc-cat2').textContent=f.c;$('fc-front').textContent=f.f;$('fc-back').textContent=f.b;
-  $('f-prev').disabled=FC.i===0;
-}
-function fNext(mark){const f=FC.list[FC.i];if(f&&mark){store.fc[f.id]=mark;saveMarks()}
-  if(mark==='no'){const c=FC.list.splice(FC.i,1)[0];FC.list.splice(Math.min(FC.list.length,FC.i+4),0,c)}else FC.i=Math.min(FC.list.length-1,FC.i+1);fRender()}
-$('fc').onclick=()=>$('fc').classList.toggle('flip');
-$('fc').onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();$('fc').classList.toggle('flip')}};
-$('f-know').onclick=()=>fNext('si');$('f-again').onclick=()=>fNext('no');
-$('f-prev').onclick=()=>{if(FC.i>0){FC.i--;fRender()}};
-$('f-shuf').onclick=()=>fFilter(true);$('f-cat').onchange=()=>fFilter(false);
-$('f-mode').querySelectorAll('button').forEach(b=>b.onclick=()=>{FC.mode=b.dataset.m;$('f-mode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fRender()});
-/* tarjeta: alto según contenido */
-new ResizeObserver(()=>{const fb=document.querySelector('.face.back'),ff=document.querySelector('.face.front');if(!fb)return;
-  const h=Math.max(240,fb.scrollHeight,ff.scrollHeight);$('fc').style.minHeight=h+'px'}).observe(document.querySelector('.flash'));
-
 /* ───────── Persistencia (IndexedDB) ─────────
    Identificadores estables por contenido: si se agregan, reordenan o insertan preguntas,
    cada una conserva su historial. Las preguntas idénticas reciben sufijo -2, -3… */
@@ -4281,7 +4278,6 @@ function recordAnswer(q,choice,source,ms){
   const att={key:qid+'|'+ts,qid,num:q.id,topic:q.t,level:q.d,choice,ok,ts,day:nowDay(ts),ms:ms==null?null:Math.min(ms,600000),source};
   return DB.run(ECGDB.tx(['answers','attempts'],'readwrite',t=>{t.put('answers',ans);t.put('attempts',att)}).then(()=>ECGDB.notify('attempts')));
 }
-function saveMarks(){const marks={};for(const n in store.fc)marks[CID[n]]=store.fc[n];saveSession('flashcards',{marks,cat:$('f-cat').value,i:FC.i,mode:FC.mode});save()}
 function savePractice(){const cur=P.list[P.i];saveSession('practica',{tema:$('p-tema').value,lvl:P.lvl,ecg:$('p-ecg').checked,fail:$('p-fail').checked,pend:$('p-pend').checked,shuffled:P.shuffled,order:P.shuffled?P.list.map(q=>QID[q.id]):null,cur:cur?QID[cur.id]:null})}
 async function restorePractice(){
   const s=await ECGDB.get('sessions',SID('practica'));if(!s)return false;
@@ -4316,13 +4312,20 @@ function finishSim(rows,ok,ms){
   return DB.run(ECGDB.tx(['answers','attempts','results','sessions'],'readwrite',t=>{answers.forEach(r=>t.put('answers',r));atts.forEach(r=>t.put('attempts',r));t.put('results',res);t.del('sessions',SID('simulacro'))}).then(()=>ECGDB.notify('results')));
 }
 
-/* ───────── REPASO · repetición espaciada con FSRS ─────────
-   Usa la biblioteca oficial ts-fsrs (FSRS-6). Este código sólo decide QUÉ tarjeta mostrar
-   (cola tipo Anki); el CUÁNDO lo calcula el scheduler: estabilidad, dificultad,
-   recuperabilidad, retención deseada, pasos de aprendizaje y reaprendizaje. */
-const SRS_DEFAULT={retention:.9,newPerDay:20,learningSteps:['10m','30m'],relearningSteps:['10m'],maxInterval:36500,learnAheadMin:20,fuzz:true};
-const RV={st:Object.assign({},SRS_DEFAULT),f:null,cards:{},today:[],cur:null,preview:null,revealed:false,shownAt:0,revealAt:0,done:0,undo:null,deck:'',active:false};
-function stepOk(s){return /^\d+(\.\d+)?[mhd]$/.test(s)}
+/* ───────── FLASHCARDS · repetición espaciada como Anki (planificador v3 + FSRS) ─────────
+   ts-fsrs (FSRS-6) calcula CUÁNDO vuelve cada tarjeta, con pasos de aprendizaje como en Anki.
+   Este código reproduce lo demás de Anki:
+   - mazo padre (el banco) con submazos (categorías); límites diarios por mazo; al estudiar el
+     padre se aplican su límite y el de cada submazo; al estudiar un submazo, solo el suyo;
+   - las nuevas cuentan contra el límite de repasos;
+   - orden: aprendizaje intradía vencido → repasos y aprendizaje interdía mezclados (por fecha)
+     con las nuevas repartidas entre ellos → aprendizaje adelantado (20 min) si no queda nada;
+   - el día de estudio cambia a las 4:00; contadores azul + rojo + verde;
+   - deshacer en varios niveles, enterrar hasta mañana, suspender, sanguijuelas,
+     estudio personalizado (subir límites de hoy) y explorador. */
+const SRS_DEFAULT={retention:.9,newPerDay:20,maxReviews:200,learningSteps:['1m','10m'],relearningSteps:['10m'],maxInterval:36500,learnAheadMin:20,fuzz:true,leech:8};
+const RV={st:Object.assign({},SRS_DEFAULT),f:null,cards:{},today:[],cur:null,curQ:'',preview:null,revealed:false,shownAt:0,revealAt:0,done:0,undo:[],deck:'',active:false,screen:'decks',extra:{day:'',by:{}},mixN:0};
+function stepOk(s){return /^\d+(\.\d+)?[smhd]$/.test(s)}
 function makeScheduler(){
   const st=RV.st;
   const p=FSRS.generatorParameters({request_retention:st.retention,maximum_interval:st.maxInterval,enable_fuzz:st.fuzz,enable_short_term:true,learning_steps:st.learningSteps,relearning_steps:st.relearningSteps});
@@ -4334,73 +4337,121 @@ function toCard(rec,now){
 }
 function fromCard(c){return {due:+c.due,stability:c.stability,difficulty:c.difficulty,elapsed_days:c.elapsed_days,scheduled_days:c.scheduled_days,learning_steps:c.learning_steps,reps:c.reps,lapses:c.lapses,state:c.state,last_review:c.last_review?+c.last_review:null}}
 async function rLoad(){
-  const [st,cards,today]=await Promise.all([ECGDB.getMeta(MK('srs-settings'),null),ECGDB.getAll('cards'),ECGDB.getAll('reviews','day',ECGDB.range(nowDay(),nowDay()))]);
+  const [st,cards,today,ex]=await Promise.all([ECGDB.getMeta(MK('srs-settings'),null),ECGDB.getAll('cards'),ECGDB.getAll('reviews','day',ECGDB.range(nowDay(),nowDay())),ECGDB.getMeta(MK('srs-extra'),null)]);
   RV.st=Object.assign({},SRS_DEFAULT,st||{});makeScheduler();
   RV.cards={};cards.forEach(c=>{if(mine(c.cid))RV.cards[c.cid]=c});RV.today=today.filter(v=>mine(v.cid));
+  RV.extra=ex&&ex.day===nowDay()?ex:{day:nowDay(),by:{}};
   await DB.run(ECGDB.setMeta(MK('deck'),{total:FS.length,ids:FS.map(f=>CID[f.id]),updated:Date.now()}));
 }
+/* mazos: el padre es el banco ('' = todo) y cada categoría es un submazo, en orden alfabético como en Anki */
+const cats=[...new Set(FS.map(f=>f.c))];
+const DECKS=[...cats].sort((a,b)=>a.localeCompare(b,'es'));
+function deckName(d){return d?d:BANK.name}
 function stateOf(cid){const r=RV.cards[cid];return r&&r.card?r.card.state:0}
-function inDeck(f){return !RV.deck||f.c===RV.deck}
-function rQueue(now){
+function buried(r){return !!(r&&r.buried&&r.buried===nowDay())}
+function todayRefresh(){const d=nowDay();if(RV.today.length&&RV.today[0].day!==d)RV.today=RV.today.filter(v=>v.day===d);if(RV.extra.day!==d)RV.extra={day:d,by:{}}}
+/* lo que le queda hoy a un mazo, sin contar a sus padres */
+function left(deck){
+  let nw=0,rv=0;RV.today.forEach(v=>{if(deck&&v.cat!==deck)return;if(v.stateBefore===0)nw++;else if(v.stateBefore===2)rv++});
+  const ex=RV.extra.by[deck]||{n:0,r:0};
+  const revLeft=Math.max(0,RV.st.maxReviews+ex.r-rv-nw);
+  return {n:Math.max(0,Math.min(RV.st.newPerDay+ex.n-nw,revLeft)),r:revLeft};
+}
+function rQueue(now,deck){
+  if(deck===undefined)deck=RV.deck;todayRefresh();
   const eod=ECGDB.endOfStudyDay(now),ahead=now+RV.st.learnAheadMin*60000;
-  const newToday=RV.today.filter(v=>v.stateBefore===0).length;
-  const out={learn:[],learnAhead:[],review:[],fresh:[],susp:0};
-  FS.forEach(f=>{if(!inDeck(f))return;const cid=CID[f.id],r=RV.cards[cid];
+  const out={learn:[],ahead:[],review:[],fresh:[],susp:0,bur:0,later:0,nextLearn:null,unseen:0};
+  const inter=[],fresh={};
+  FS.forEach(f=>{if(deck&&f.c!==deck)return;const cid=CID[f.id],r=RV.cards[cid];
     if(r&&r.suspended){out.susp++;return}
+    if(buried(r)){out.bur++;return}
     const s=stateOf(cid);
-    if(s===0){out.fresh.push(f);return}
-    const due=r.card.due;
-    if(s===2){if(due<=eod)out.review.push(f)}
-    else if(due<=now)out.learn.push(f);else if(due<=ahead)out.learnAhead.push(f)});
-  const byDue=(a,b)=>RV.cards[CID[a.id]].card.due-RV.cards[CID[b.id]].card.due;
-  out.learn.sort(byDue);out.learnAhead.sort(byDue);out.review.sort(byDue);
-  out.newLeft=Math.max(0,RV.st.newPerDay-newToday);
-  out.fresh=out.fresh.slice(0,out.newLeft);
+    if(s===0){(fresh[f.c]=fresh[f.c]||[]).push(f);out.unseen++;return}
+    const c=r.card,due=c.due;
+    if(s===2||c.scheduled_days>=1){if(due<=eod)inter.push(f);return}       // repaso o aprendizaje interdía
+    if(due<=now)out.learn.push(f);else if(due<=ahead)out.ahead.push(f);      // aprendizaje intradía
+    else if(due<=eod){out.later++;if(!out.nextLearn||due<out.nextLearn)out.nextLearn=due}});
+  const dueOf=f=>RV.cards[CID[f.id]].card.due;
+  out.learn.sort((a,b)=>dueOf(a)-dueOf(b));out.ahead.sort((a,b)=>dueOf(a)-dueOf(b));
+  inter.sort((a,b)=>dueOf(a)-dueOf(b)||a.id-b.id);
+  // límites: el del mazo elegido y, si es el padre, también el de cada submazo (como Anki v3)
+  const L0=left(deck),subs={},sub=d=>subs[d]||(subs[d]=left(d));
+  let pr=L0.r,pn=L0.n;
+  inter.forEach(f=>{if(pr<=0)return;if(!deck){const l=sub(f.c);if(l.r<=0)return;l.r--}out.review.push(f);pr--});
+  pn=Math.min(pn,pr);
+  (deck?[deck]:DECKS).forEach(d=>(fresh[d]||[]).forEach(f=>{if(pn<=0)return;if(!deck){const l=sub(d);if(l.n<=0||l.r<=0)return;l.n--;l.r--}out.fresh.push(f);pn--}));
   return out;
 }
+function counts(q){const rv=q.review.filter(f=>stateOf(CID[f.id])===2).length;return {n:q.fresh.length,l:q.learn.length+q.ahead.length+q.review.length-rv,r:rv}}
+/* siguiente tarjeta, en el orden del planificador v3 de Anki */
 function rPick(now){
   const q=rQueue(now);
-  if(q.learn.length)return q.learn[0];
-  // intercala: una nueva cada 4 repasos cuando hay de ambas
-  if(q.review.length&&q.fresh.length)return (RV.done%5===4)?q.fresh[0]:q.review[0];
-  if(q.review.length)return q.review[0];
-  if(q.fresh.length)return q.fresh[0];
-  if(q.learnAhead.length)return q.learnAhead[0];
-  return null;
+  if(q.learn.length)return [q.learn[0],'l',q];
+  const R=q.review.length,N=q.fresh.length;
+  if(R||N){let useNew=!R;
+    if(R&&N){const every=Math.max(1,Math.floor((R+N)/N));useNew=RV.mixN%every===every-1}
+    RV.mixN++;
+    if(useNew)return [q.fresh[0],'n',q];
+    const f=q.review[0];return [f,stateOf(CID[f.id])===2?'r':'l',q]}
+  if(q.ahead.length)return [q.ahead[0],'l',q];
+  return [null,'',q];
 }
-function fmtIvl(ms){const m=ms/60000;
-  if(m<1)return '<1 min';if(m<60)return Math.round(m)+' min';const h=m/60;if(h<24)return (h<10?h.toFixed(1).replace('.',','):Math.round(h))+' h';
-  const d=h/24;if(d<30)return Math.round(d)+' d';const mo=d/30.4;if(mo<12)return mo.toFixed(1).replace('.',',')+' meses';return (d/365).toFixed(1).replace('.',',')+' años'}
+function fmtIvl(ms){const s=ms/1000,m=s/60;
+  if(s<60)return Math.max(1,Math.round(s))+' s';if(m<60)return Math.round(m)+' min';const h=m/60;if(h<24)return (h<10?h.toFixed(1).replace('.',',').replace(',0',''):Math.round(h))+' h';
+  const d=h/24;if(d<30)return Math.round(d)+' d';const mo=d/30.4375;if(mo<12)return mo.toFixed(1).replace('.',',').replace(',0','')+' meses';const y=d/365.25;return y.toFixed(1).replace('.',',').replace(',0','')+(y<1.05?' año':' años')}
 const STATE_LBL={0:'Nueva',1:'Aprendiendo',2:'Repaso',3:'Reaprendiendo'};
-function rCounts(){const q=rQueue(Date.now());
-  $('r-new').textContent=q.fresh.length;$('r-learn').textContent=q.learn.length+q.learnAhead.length;$('r-rev').textContent=q.review.length;
-  const tot=q.fresh.length+q.learn.length+q.review.length;
+function cnum(n,cls){return `<span class="${n?cls:'c0'}">${n}</span>`}
+/* contador de la pestaña y del menú: lo que queda hoy en el mazo padre */
+function rCounts(){const q=rQueue(Date.now(),''),c=counts(q),tot=c.n+c.l+c.r;
   const b=$('tab-due');if(b){b.textContent=tot?String(tot):'';b.hidden=!tot}
+  if(booted&&!$('v-flashcards').hidden&&!RV.active&&RV.screen==='decks')aDecks();
   return q}
-function rRender(){
-  if(!RV.f)return;
-  const q=rCounts();
-  if(!RV.active){$('r-run').hidden=true;$('r-start').hidden=false;
-    const tot=q.fresh.length+q.learn.length+q.review.length;
-    $('r-start-t').textContent=tot?`Hoy te tocan ${tot} tarjeta${tot>1?'s':''}: ${q.review.length} de repaso, ${q.learn.length} en aprendizaje y ${q.fresh.length} nueva${q.fresh.length===1?'':'s'}.`:(q.learnAhead.length?`Por ahora no hay tarjetas vencidas. ${q.learnAhead.length} en aprendizaje vuelven en unos minutos.`:'No tienes tarjetas pendientes por hoy. Vuelve mañana o sube el límite de nuevas en Ajustes.');
-    $('r-go').disabled=!(tot||q.learnAhead.length);$('r-go').textContent=RV.done?'Continuar repaso':'Empezar repaso';return}
-  $('r-start').hidden=true;$('r-run').hidden=false;
-  const now=Date.now(),f=rPick(now);
-  if(!f){RV.active=false;RV.cur=null;$('r-run').hidden=true;$('r-start').hidden=false;
-    $('r-start-t').textContent=`¡Terminaste! Revisaste ${RV.done} tarjeta${RV.done===1?'':'s'} en esta sesión.`+(q.learnAhead.length?'':' Las próximas aparecerán cuando venzan.');$('r-go').disabled=!q.learnAhead.length;$('r-go').textContent='Continuar repaso';return}
-  rShow(f,q);
+function showScreen(s){RV.screen=s;
+  $('a-decks').hidden=s!=='decks';$('a-over').hidden=s!=='over';$('r-run').hidden=s!=='run';$('a-browse').hidden=s!=='browse';
+  if(s!=='decks'&&s!=='over'){$('r-set').hidden=true;$('a-opt-btn').setAttribute('aria-expanded','false')}}
+function aDecks(){
+  const now=Date.now();let h='';
+  ['',...DECKS].forEach(d=>{const c=counts(rQueue(now,d));
+    h+=`<tr class="${d?'sub':'top'}${d===RV.deck?' cur':''}"><td><button class="dk" data-d="${esc(d)}">${esc(deckName(d))}</button></td><td class="n">${cnum(c.n,'cN')}</td><td class="n">${cnum(c.l,'cL')}</td><td class="n">${cnum(c.r,'cR')}</td></tr>`});
+  $('a-decklist').innerHTML=h;
+  $('a-decklist').querySelectorAll('button.dk').forEach(b=>b.onclick=()=>{RV.deck=b.dataset.d;saveSession('repaso',{deck:RV.deck});aOverview()});
+  const ms=RV.today.reduce((s,v)=>s+(v.ms||0),0),n=RV.today.length;
+  $('a-today').textContent=n?`Hoy estudiaste ${n} tarjeta${n===1?'':'s'} en ${Math.max(1,Math.round(ms/60000))} min (${(ms/1000/n).toFixed(1).replace('.',',')} s por tarjeta).`:'Hoy todavía no has estudiado ninguna tarjeta.';
 }
-function rShow(f,q){
-  q=q||rQueue(Date.now());
-  RV.cur=f;RV.revealed=false;RV.preview=null;RV.shownAt=Date.now();
+function aOverview(){
+  RV.active=false;RV.cur=null;showScreen('over');
+  const q=rQueue(Date.now()),c=counts(q),tot=c.n+c.l+c.r;
+  $('a-over-path').textContent=RV.deck?BANK.name:'Mazo';$('a-over-t').textContent=deckName(RV.deck);
+  let b;
+  if(tot){b=`<div class="ovc"><div><b class="cN">${c.n}</b>Nuevas</div><div><b class="cL">${c.l}</b>Aprendiendo</div><div><b class="cR">${c.r}</b>Por repasar</div></div>`}
+  else{b=`<p style="margin:0;font-size:18px"><b>¡Felicidades! Has terminado este mazo por ahora.</b></p>`;
+    if(q.later)b+=`<p class="hint" style="margin:0">Hay ${q.later} tarjeta${q.later>1?'s':''} en aprendizaje que vence${q.later>1?'n':''} más tarde hoy (la próxima a las ${new Date(q.nextLearn).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}).</p>`;
+    if(q.unseen&&!q.fresh.length)b+=`<p class="hint" style="margin:0">Llegaste al límite de tarjetas nuevas de hoy. Si quieres más, usa «Estudio personalizado».</p>`;
+    if(q.bur)b+=`<p class="hint" style="margin:0">${q.bur} tarjeta${q.bur>1?'s':''} enterrada${q.bur>1?'s':''} volverá${q.bur>1?'n':''} mañana.</p>`}
+  if(q.susp)b+=`<p class="hint" style="margin:0">${q.susp} suspendida${q.susp>1?'s':''} (no aparecen en el estudio; reactívalas en «Explorar»).</p>`;
+  $('a-over-body').innerHTML=b;$('a-study').hidden=!tot;
+  try{(tot?$('a-study'):$('a-back')).focus({preventScroll:true})}catch(_){}
+}
+function rRender(){
+  if(!RV.f)return;rCounts();
+  if(RV.screen==='browse'){bRender();return}
+  if(!RV.active){if(RV.screen==='over')aOverview();else{showScreen('decks');aDecks()}return}
+  const [f,qn,q]=rPick(Date.now());
+  if(!f){aOverview();return}
+  rShow(f,qn,q);
+}
+function rShow(f,qn,q){
+  showScreen('run');
+  RV.cur=f;RV.curQ=qn;RV.revealed=false;RV.preview=null;RV.shownAt=Date.now();
   const cid=CID[f.id],s=stateOf(cid),rec=RV.cards[cid];
-  const left=q.fresh.length+q.learn.length+q.review.length;
-  $('r-pos').textContent=`Sesión: ${RV.done} revisada${RV.done===1?'':'s'} · quedan ${left}`;
-  const tot=RV.done+left;$('r-meter').style.width=tot?(100*RV.done/tot)+'%':'0';
-  $('r-cat').textContent=f.c;$('r-state').textContent=STATE_LBL[s]+(rec&&rec.card&&rec.card.reps?` · ${rec.card.reps} repaso${rec.card.reps>1?'s':''}`:'')+(rec&&rec.card&&rec.card.lapses?` · ${rec.card.lapses} olvido${rec.card.lapses>1?'s':''}`:'');
+  const c=counts(q||rQueue(Date.now()));
+  const u=(k,n,cls)=>qn===k?`<u class="${cls}">${n}</u>`:`<span class="${cls}">${n}</span>`;
+  $('a-count').innerHTML=`${u('n',c.n,'cN')} + ${u('l',c.l,'cL')} + ${u('r',c.r,'cR')}`;
+  $('r-cat').textContent=deckName(RV.deck)+(RV.deck?'':' · '+f.c);
+  $('r-state').textContent=STATE_LBL[s]+(rec&&rec.card&&rec.card.reps?` · ${rec.card.reps} repaso${rec.card.reps>1?'s':''}`:'')+(rec&&rec.card&&rec.card.lapses?` · ${rec.card.lapses} olvido${rec.card.lapses>1?'s':''}`:'')+(rec&&rec.leech?' · sanguijuela':'');
   $('r-front').textContent=f.f;$('r-back').textContent=f.b;
   $('r-ans').hidden=true;$('r-show').hidden=false;$('r-grades').hidden=true;
-  $('r-undo').disabled=!RV.undo;
+  $('r-undo').disabled=!RV.undo.length;
   try{$('r-show').focus({preventScroll:true})}catch(_){}
 }
 function rReveal(){
@@ -4409,43 +4460,80 @@ function rReveal(){
   RV.preview=RV.f.repeat(toCard(RV.cards[cid],now),new Date(now));RV.revealAt=now;RV.revealed=true;
   $('r-ans').hidden=false;$('r-show').hidden=true;$('r-grades').hidden=false;
   $('r-grades').querySelectorAll('button[data-g]').forEach(b=>{const g=+b.dataset.g;b.querySelector('small').textContent=fmtIvl(RV.preview[g].card.due-now)});
-  $('r-grades').querySelector('button[data-g="3"]').focus({preventScroll:true});
+  try{$('r-grades').querySelector('button[data-g="3"]').focus({preventScroll:true})}catch(_){}
 }
+function toast(t){const e=$('a-toast');e.textContent=t;clearTimeout(toast.t);toast.t=setTimeout(()=>{e.textContent=''},6000)}
 async function rRate(g){
   if(!RV.cur||!RV.revealed||!RV.preview)return;
   const f=RV.cur,cid=CID[f.id],prev=RV.cards[cid]?JSON.parse(JSON.stringify(RV.cards[cid])):null;
-  const out=RV.preview[g],ts=RV.revealAt,lg=out.log;
-  const rec={cid,cat:f.c,card:fromCard(out.card),suspended:prev?!!prev.suspended:false,lastReview:ts,updated:Date.now()};
+  const now=Date.now(),out=RV.f.repeat(toCard(RV.cards[cid],now),new Date(now))[g],ts=now,lg=out.log;
+  const rec=Object.assign({},prev||{},{cid,cat:f.c,card:fromCard(out.card),suspended:prev?!!prev.suspended:false,buried:null,lastReview:ts,updated:Date.now()});
+  const lapse=g===1&&prev&&prev.card&&prev.card.state===2;
+  if(lapse&&rec.card.lapses>=RV.st.leech&&(rec.card.lapses-RV.st.leech)%Math.max(1,Math.ceil(RV.st.leech/2))===0){rec.leech=true;toast(`Sanguijuela: olvidaste esta tarjeta ${rec.card.lapses} veces. Conviene reescribirla o estudiarla aparte.`)}
+  else toast('');
   const log={key:cid+'|'+ts,cid,cat:f.c,ts,day:nowDay(ts),rating:g,stateBefore:prev&&prev.card?prev.card.state:0,stateAfter:out.card.state,
-    due:+out.card.due,stability:out.card.stability,difficulty:out.card.difficulty,elapsedDays:lg.elapsed_days,scheduledDays:out.card.scheduled_days,ms:Math.min(ts-RV.shownAt,600000)};
-  RV.cards[cid]=rec;RV.today.push(log);RV.done++;RV.undo={cid,prev,key:log.key};RV.cur=null;
+    due:+out.card.due,stability:out.card.stability,difficulty:out.card.difficulty,elapsedDays:lg.elapsed_days,scheduledDays:out.card.scheduled_days,ms:Math.min(ts-RV.shownAt,60000)};
+  RV.cards[cid]=rec;RV.today.push(log);RV.done++;RV.undo.push({t:'rate',cid,prev,key:log.key,mixN:RV.mixN});RV.cur=null;
   rRender();
   await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>{t.put('cards',rec);t.put('reviews',log)}).then(()=>ECGDB.notify('reviews')));
 }
 async function rUndo(){
-  const u=RV.undo;if(!u)return;RV.undo=null;
+  const u=RV.undo.pop();if(!u)return;
   if(u.prev)RV.cards[u.cid]=u.prev;else delete RV.cards[u.cid];
-  RV.today=RV.today.filter(v=>v.key!==u.key);RV.done=Math.max(0,RV.done-1);
-  await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>{if(u.prev)t.put('cards',u.prev);else t.del('cards',u.cid);t.del('reviews',u.key)}).then(()=>ECGDB.notify('reviews')));
-  // vuelve a mostrar esa misma tarjeta, sin respuesta
-  RV.active=true;$('r-start').hidden=true;$('r-run').hidden=false;rCounts();const f=FS[CNUM[u.cid]];if(f)rShow(f);else rRender();
+  if(u.key){RV.today=RV.today.filter(v=>v.key!==u.key);RV.done=Math.max(0,RV.done-1);RV.mixN=Math.max(0,u.mixN)}
+  // como Anki: vuelve a mostrar esa misma tarjeta por el frente (la interfaz primero; luego se guarda)
+  const f=FS[CNUM[u.cid]];RV.active=true;toast(u.t==='rate'?'Se deshizo la calificación.':u.t==='bury'?'Se deshizo «enterrar».':'Se deshizo «suspender».');
+  if(f){const q=rQueue(Date.now()),s=stateOf(u.cid);rCounts();rShow(f,s===0?'n':s===2?'r':'l',q)}else rRender();
+  await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>{if(u.prev)t.put('cards',u.prev);else t.del('cards',u.cid);if(u.key)t.del('reviews',u.key)}).then(()=>ECGDB.notify('reviews')));
 }
-async function rSuspend(){
-  if(!RV.cur)return;const f=RV.cur,cid=CID[f.id];
-  const rec=Object.assign({cid,cat:f.c,card:null},RV.cards[cid]||{},{suspended:true,updated:Date.now()});
-  RV.cards[cid]=rec;RV.undo=null;RV.cur=null;rRender();
-  await DB.run(ECGDB.put('cards',rec));
+async function rHide(kind){
+  if(!RV.cur)return;const f=RV.cur,cid=CID[f.id],prev=RV.cards[cid]?JSON.parse(JSON.stringify(RV.cards[cid])):null;
+  const rec=Object.assign({cid,cat:f.c,card:null},prev||{},kind==='susp'?{suspended:true}:{buried:nowDay()},{updated:Date.now()});
+  RV.cards[cid]=rec;RV.undo.push({t:kind,cid,prev});RV.cur=null;RV.mixN=Math.max(0,RV.mixN-1);
+  toast(kind==='susp'?'Tarjeta suspendida. Reactívala en «Explorar».':'Tarjeta enterrada hasta mañana.');rRender();
+  await DB.run(ECGDB.put('cards',rec));ECGDB.notify('cards');
 }
-async function rUnsuspend(cid){const r=RV.cards[cid];if(!r)return;r.suspended=false;r.updated=Date.now();await DB.run(ECGDB.put('cards',r));rRender();gRender()}
-function rSettingsShow(){const s=RV.st;$('rs-ret').value=Math.round(s.retention*100);$('rs-ret-v').textContent=Math.round(s.retention*100)+' %';$('rs-new').value=s.newPerDay;
-  $('rs-ls').value=s.learningSteps.join(' ');$('rs-rs').value=s.relearningSteps.join(' ');$('rs-max').value=s.maxInterval;$('rs-msg').textContent=''}
+async function rSuspend(){return rHide('susp')}
+async function rUnsuspend(cid){const r=RV.cards[cid];if(!r)return;r.suspended=false;r.buried=null;r.updated=Date.now();await DB.run(ECGDB.put('cards',r));ECGDB.notify('cards');rRender();gRender()}
+async function rForget(cid){const r=RV.cards[cid];if(!r)return;r.card=null;r.leech=false;r.updated=Date.now();await DB.run(ECGDB.put('cards',r));ECGDB.notify('cards');rRender()}
+/* opciones */
+function rSettingsShow(s){s=s||RV.st;$('rs-ret').value=Math.round(s.retention*100);$('rs-ret-v').textContent=Math.round(s.retention*100)+' %';$('rs-new').value=s.newPerDay;$('rs-rev').value=s.maxReviews;
+  $('rs-ls').value=s.learningSteps.join(' ');$('rs-rs').value=s.relearningSteps.join(' ');$('rs-max').value=s.maxInterval;$('rs-leech').value=s.leech;$('rs-msg').textContent='';
+  document.querySelectorAll('.bkname').forEach(e=>e.textContent=BANK.name)}
+function toggleSettings(btn){const o=$('r-set').hidden;$('r-set').hidden=!o;['a-opt-btn','a-opt2'].forEach(i=>$(i).setAttribute('aria-expanded',o));if(o){rSettingsShow();$('r-set').scrollIntoView({block:'nearest'})}}
 async function rSettingsSave(){
   const ls=$('rs-ls').value.trim().split(/\s+/).filter(Boolean),rs=$('rs-rs').value.trim().split(/\s+/).filter(Boolean);
-  if(!ls.every(stepOk)||!rs.every(stepOk)){$('rs-msg').textContent='Escribe los pasos como 10m, 30m, 1h o 1d separados por espacios.';return}
-  const st={retention:Math.min(.97,Math.max(.7,+$('rs-ret').value/100)),newPerDay:Math.max(0,Math.min(200,parseInt($('rs-new').value,10)||0)),learningSteps:ls,relearningSteps:rs,
-    maxInterval:Math.max(1,Math.min(36500,parseInt($('rs-max').value,10)||36500)),learnAheadMin:RV.st.learnAheadMin,fuzz:RV.st.fuzz};
-  RV.st=st;makeScheduler();await DB.run(ECGDB.setMeta(MK('srs-settings'),st));$('rs-msg').textContent='Guardado. Los cambios se aplican a los próximos repasos.';rRender();
+  if(!ls.every(stepOk)||!rs.every(stepOk)){$('rs-msg').textContent='Escribe los pasos como 1m, 10m, 1h o 1d separados por espacios.';return}
+  const num=(id,lo,hi,d)=>{const v=parseInt($(id).value,10);return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):d};
+  const st={retention:Math.min(.99,Math.max(.7,+$('rs-ret').value/100)),newPerDay:num('rs-new',0,9999,20),maxReviews:num('rs-rev',0,9999,200),learningSteps:ls,relearningSteps:rs,
+    maxInterval:num('rs-max',1,36500,36500),learnAheadMin:RV.st.learnAheadMin,fuzz:RV.st.fuzz,leech:num('rs-leech',1,99,8)};
+  RV.st=st;makeScheduler();await DB.run(ECGDB.setMeta(MK('srs-settings'),st));ECGDB.notify('meta');$('rs-msg').textContent='Guardado.';rRender();
 }
+async function customStudy(){
+  const n=Math.max(0,Math.min(500,parseInt($('a-cx-new').value,10)||0)),r=Math.max(0,Math.min(2000,parseInt($('a-cx-rev').value,10)||0));
+  todayRefresh();const cur=RV.extra.by[RV.deck]||{n:0,r:0};RV.extra.by[RV.deck]={n:cur.n+n,r:cur.r+r+n};
+  await DB.run(ECGDB.setMeta(MK('srs-extra'),RV.extra));ECGDB.notify('meta');
+  $('a-cx-msg').textContent=`Listo: +${n} nuevas${r?` y +${r} repasos`:''} solo por hoy.`;aOverview();rCounts();
+}
+/* explorador */
+function bRender(){
+  const qs=$('b-q').value.trim().toLowerCase(),dk=$('b-deck').value,st=$('b-st').value,now=Date.now(),eod=ECGDB.endOfStudyDay(now);
+  const rows=FS.filter(f=>{if(dk&&f.c!==dk)return false;if(qs&&!(f.f+' '+f.b).toLowerCase().includes(qs))return false;
+    const r=RV.cards[CID[f.id]],s=stateOf(CID[f.id]);
+    if(st==='new')return s===0&&!(r&&r.suspended);if(st==='learn')return s===1||s===3;if(st==='review')return s===2;
+    if(st==='due')return s!==0&&r.card.due<=eod&&!r.suspended;if(st==='susp')return !!(r&&r.suspended);if(st==='buried')return buried(r);if(st==='leech')return !!(r&&r.leech);return true});
+  $('b-n').textContent=`${rows.length} tarjeta${rows.length===1?'':'s'}`;
+  $('b-list').innerHTML=rows.map(f=>{const cid=CID[f.id],r=RV.cards[cid],c=r&&r.card,s=c?c.state:0;
+    const vence=r&&r.suspended?'suspendida':buried(r)?'enterrada':!c||s===0?'nueva':fmtDate(c.due);
+    const ivl=c&&s===2?fmtIvl(c.scheduled_days*864e5):c&&s?'aprendiendo':'—';
+    return `<tr class="${r&&r.suspended?'sus':''}"><td><details><summary>${esc(f.f)}${r&&r.leech?' <span class="pill">sanguijuela</span>':''}</summary><p>${esc(f.b)}</p></details></td><td>${esc(f.c)}</td><td>${esc(vence)}</td><td class="n">${esc(ivl)}</td><td class="n">${c?c.lapses:0}</td>
+      <td class="act">${r&&(r.suspended||buried(r))?`<button data-un="${cid}">Reactivar</button>`:`<button data-su="${cid}">Suspender</button>`}${c&&s?`<button data-fg="${cid}">Olvidar</button>`:''}</td></tr>`}).join('');
+  const L=$('b-list');
+  L.querySelectorAll('[data-un]').forEach(b=>b.onclick=()=>rUnsuspend(b.dataset.un));
+  L.querySelectorAll('[data-su]').forEach(b=>b.onclick=async()=>{const cid=b.dataset.su,f=FS[CNUM[cid]];const rec=Object.assign({cid,cat:f.c,card:null},RV.cards[cid]||{},{suspended:true,updated:Date.now()});RV.cards[cid]=rec;await DB.run(ECGDB.put('cards',rec));ECGDB.notify('cards');rRender()});
+  L.querySelectorAll('[data-fg]').forEach(b=>b.onclick=()=>{if(b.dataset.arm){rForget(b.dataset.fg);return}b.dataset.arm=1;b.textContent='¿Volverla nueva?'});
+}
+function bOpen(){RV.active=false;RV.cur=null;showScreen('browse');$('b-deck').value=RV.deck;bRender()}
 
 /* ───────── PROGRESO · estadísticas y respaldo ───────── */
 function streakFrom(days){
@@ -4537,35 +4625,48 @@ async function doImport(file){
     const rep=await ECGDB.importAll(obj);
     const add=k=>rep[k]?rep[k].added+rep[k].updated:0;
     msg.textContent=`Respaldo combinado con tu progreso: ${add('answers')} respuestas, ${add('attempts')} intentos, ${add('cards')} tarjetas y ${add('reviews')} repasos nuevos o más recientes. No se borró nada de lo que ya tenías.`;
-    await hydrate();await rLoad();pFilter(true);fRender();rRender();gRender();
+    await hydrate();await rLoad();pFilter(true);rRender();gRender();
   }catch(e){msg.textContent='No se importó nada: '+(e.message||e)}
 }
 let wipeArm=false;
 async function doWipeCards(){
   if(!wipeArm){wipeArm=true;$('g-wipe').textContent='Confirmar: borrar progreso de tarjetas';$('g-wipe-msg').textContent='Esto borra el estado FSRS y el historial de repasos. Vuelve a pulsar para confirmar.';return}
   wipeArm=false;await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>Promise.all([t.getAll('cards'),t.getAll('reviews')]).then(([x,y])=>{x.forEach(r=>{if(mine(r.cid))t.del('cards',r.cid)});y.forEach(r=>{if(mine(r.cid))t.del('reviews',r.key)})})));ECGDB.notify('cards');
-  $('g-wipe').textContent='Borrar progreso de tarjetas';$('g-wipe-msg').textContent='Progreso de tarjetas borrado.';await rLoad();RV.done=0;RV.undo=null;rRender();gRender();
+  $('g-wipe').textContent='Borrar progreso de tarjetas';$('g-wipe-msg').textContent='Progreso de tarjetas borrado.';await rLoad();RV.done=0;RV.undo=[];rRender();gRender();
 }
 
 /* ───────── Navegación por hash ───────── */
-const VIEWS=['practica','simulacro','flashcards','repaso','progreso'];
+const VIEWS=['practica','simulacro','flashcards','progreso'];
 let CUR=null;
-function route(force){const h=location.hash.slice(1),v=force||(VIEWS.includes(h)?h:(CUR||'practica'));CUR=v;
+function route(force){if(force==='repaso')force='flashcards';let h=location.hash.slice(1);if(h==='repaso')h='flashcards';const v=force||(VIEWS.includes(h)?h:(CUR||'practica'));CUR=v;
   VIEWS.forEach(x=>{$('v-'+x).hidden=x!==v});
-  document.querySelectorAll('nav.tabs a').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-  if(booted){if(v==='repaso')rRender();if(v==='progreso')gRender()}
+  document.querySelectorAll('nav.tabs a').forEach(a=>{if(a.dataset.v===v){a.setAttribute('aria-current','page');try{const n=a.parentElement;n.scrollLeft=Math.max(0,a.offsetLeft-n.offsetLeft-(n.clientWidth-a.offsetWidth)/2)}catch(_){}}else a.removeAttribute('aria-current')});
+  if(booted){if(v==='flashcards')rRender();if(v==='progreso')gRender()}
   if(booted)saveSession('vista',{v});
 }
 addEventListener('hashchange',()=>route());
 document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const v=a.dataset.v;try{history.replaceState(null,'','#'+v)}catch(_){}route(v);window.scrollTo(0,0)}));
 
 document.addEventListener('keydown',e=>{
-  if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT'||e.metaKey||e.ctrlKey||e.altKey)return;
-  if(!$('v-repaso').hidden&&!$('r-run').hidden){
-    if((e.key===' '||e.key==='Enter')&&!RV.revealed){e.preventDefault();rReveal();return}
-    if(RV.revealed&&/^[1-4]$/.test(e.key)){e.preventDefault();rRate(+e.key);return}
-    if(e.key==='z'||e.key==='Z'){rUndo();return}
+  if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.altKey)return;
+  if(!$('v-flashcards').hidden){
+    const mod=e.ctrlKey||e.metaKey;
+    if(RV.screen==='run'){
+      if(mod&&(e.key==='z'||e.key==='Z')){e.preventDefault();rUndo();return}
+      if(mod)return;
+      if(e.target.closest&&e.target.closest('.ractions,.bar'))return;
+      if(e.key===' '||e.key==='Enter'){e.preventDefault();if(!RV.revealed)rReveal();else rRate(3);return}
+      if(RV.revealed&&/^[1-4]$/.test(e.key)){e.preventDefault();rRate(+e.key);return}
+      if(e.key==='z'||e.key==='Z'){e.preventDefault();rUndo();return}
+      if(e.key==='-'){e.preventDefault();rHide('bury');return}
+      if(e.key==='@'||e.key==='!'){e.preventDefault();rHide('susp');return}
+      if(e.key==='Escape'){aOverview();return}
+      return}
+    if(mod)return;
+    if(RV.screen==='over'){if((e.key==='s'||e.key==='S')&&!$('a-study').hidden){e.preventDefault();$('a-study').click()}else if(e.key==='Escape')$('a-back').click()}
+    else if(RV.screen==='decks'&&(e.key==='b'||e.key==='B'))bOpen();
     return}
+  if(e.metaKey||e.ctrlKey)return;
   if($('v-practica').hidden)return;
   const k=e.key.toUpperCase();const idx=L.indexOf(k);
   if(idx>=0&&e.key.length===1){const b=$('p-card').querySelectorAll('.opt')[idx];if(b&&!b.disabled)b.click()}
@@ -4575,15 +4676,20 @@ document.addEventListener('keydown',e=>{
 /* ───────── Inicio ───────── */
 temaOptions($('p-tema'),true);temaOptions($('s-tema'),true);
 $('stats').innerHTML=`<span>${QS.length} preguntas</span><span>${QS.filter(q=>q.s).length} con trazo de ECG</span><span>${FS.length} flashcards</span><span>${Object.keys(TEMAS).length} temas</span>`;
-$('r-deck').innerHTML='<option value="">Todas las tarjetas</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');
-$('r-deck').onchange=()=>{RV.deck=$('r-deck').value;RV.cur=null;saveSession('repaso',{deck:RV.deck});rRender()};
-$('r-go').onclick=()=>{RV.active=true;rRender()};
+$('b-deck').innerHTML='<option value="">Todos los mazos</option>'+DECKS.map(c=>`<option>${esc(c)}</option>`).join('');
+$('a-study').onclick=()=>{RV.active=true;RV.mixN=0;rRender();window.scrollTo(0,$('v-flashcards').offsetTop-8)};
+$('a-back').onclick=()=>{RV.active=false;showScreen('decks');aDecks()};
+$('a-exit').onclick=aOverview;
 $('r-show').onclick=rReveal;
 $('r-grades').querySelectorAll('button[data-g]').forEach(b=>b.onclick=()=>rRate(+b.dataset.g));
-$('r-undo').onclick=rUndo;$('r-susp').onclick=rSuspend;
-$('r-pause').onclick=()=>{RV.active=false;RV.cur=null;rRender()};
-$('r-set-btn').onclick=()=>{const o=$('r-set').hidden;$('r-set').hidden=!o;$('r-set-btn').setAttribute('aria-expanded',o);if(o)rSettingsShow()};
+$('r-undo').onclick=rUndo;$('r-susp').onclick=()=>rHide('susp');$('r-bury').onclick=()=>rHide('bury');
+$('a-opt-btn').onclick=()=>toggleSettings();$('a-opt2').onclick=()=>toggleSettings();
 $('rs-ret').oninput=()=>{$('rs-ret-v').textContent=$('rs-ret').value+' %'};$('rs-save').onclick=rSettingsSave;
+$('rs-def').onclick=()=>{rSettingsShow(Object.assign({},SRS_DEFAULT));$('rs-msg').textContent='Valores predeterminados de Anki cargados. Pulsa «Guardar» para aplicarlos.'};
+$('a-custom').onclick=()=>{const o=$('a-custom-box').hidden;$('a-custom-box').hidden=!o;$('a-custom').setAttribute('aria-expanded',o);$('a-cx-msg').textContent=''};
+$('a-cx-go').onclick=customStudy;
+$('a-browse-btn').onclick=bOpen;$('b-back').onclick=()=>{showScreen('decks');aDecks()};
+$('b-q').oninput=bRender;$('b-deck').onchange=bRender;$('b-st').onchange=bRender;
 $('g-exp').onclick=()=>doExport().catch(e=>{$('g-bk-msg').textContent='No se pudo exportar: '+(e.message||e)});
 $('g-imp').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)doImport(f);e.target.value=''};
 $('g-wipe').onclick=doWipeCards;
@@ -4595,17 +4701,15 @@ async function boot(){
   try{await rLoad()}catch(e){DB.warn(e);RV.st=Object.assign({},SRS_DEFAULT);makeScheduler()}
   let restored=false;try{restored=await restorePractice()}catch(e){}
   if(!restored)pFilter(false);
-  try{const fcs=await ECGDB.get('sessions',SID('flashcards'));if(fcs&&fcs.cat&&cats.includes(fcs.cat))$('f-cat').value=fcs.cat}catch(e){}
-  fFilter(false);
-  try{const r=await ECGDB.get('sessions',SID('repaso'));if(r&&r.deck&&cats.includes(r.deck)){RV.deck=r.deck;$('r-deck').value=r.deck}}catch(e){}
+  try{const r=await ECGDB.get('sessions',SID('repaso'));if(r&&typeof r.deck==='string'&&(r.deck===''||cats.includes(r.deck)))RV.deck=r.deck}catch(e){}
   try{await restoreSim()}catch(e){}
   let v=null;try{const s=await ECGDB.get('sessions',SID('vista'));v=s&&s.v}catch(e){}
   booted=true;
-  const h=location.hash.slice(1);route(VIEWS.includes(h)?h:(VIEWS.includes(v)?v:'practica'));
+  let h=location.hash.slice(1);if(h==='repaso')h='flashcards';if(v==='repaso')v='flashcards';route(VIEWS.includes(h)?h:(VIEWS.includes(v)?v:'practica'));
   rCounts();
 }
 ECGDB.onChange(m=>{if(!booted)return;if(m.store==='*'){hydrate().then(rLoad).then(()=>{pRender();rCounts()})}});
-pFilter(false);fFilter(false);route('practica');
+pFilter(false);route('practica');
 boot();
 window.__dbg={QS,FS,ECG,optOrder,QID,CID,RV,ECGDB,store:()=>store};
 </script>

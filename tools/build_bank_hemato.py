@@ -93,10 +93,10 @@ rep('@media (prefers-reduced-motion: reduce){.fc{transition:none}}', '''.tbadge.
 ol.cxmap{margin:0;padding-left:22px;display:grid;gap:4px}ol.cxmap button{all:unset;cursor:pointer;display:block;font-size:15px;line-height:1.4}ol.cxmap button:hover{text-decoration:underline}
 ol.cxmap button:focus-visible{outline:2px solid var(--accent)}
 @media (prefers-reduced-motion: reduce){.fc{transition:none}}''')
-rep("/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','flashcards','repaso','progreso'];",
-    cx_js + "\n/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','cascada','flashcards','repaso','progreso'];")
-rep("  if(booted){if(v==='repaso')rRender();if(v==='progreso')gRender()}",
-    "  if(booted){if(v==='repaso')rRender();if(v==='progreso')gRender();if(v==='cascada')cxRender()}")
+rep("/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','flashcards','progreso'];",
+    cx_js + "\n/* ───────── Navegación por hash ───────── */\nconst VIEWS=['practica','simulacro','cascada','flashcards','progreso'];")
+rep("  if(booted){if(v==='flashcards')rRender();if(v==='progreso')gRender()}",
+    "  if(booted){if(v==='flashcards')rRender();if(v==='progreso')gRender();if(v==='cascada')cxRender()}")
 rep("  try{await restoreSim()}catch(e){}", "  try{await restoreSim()}catch(e){}\n  await cxRestore();cxRender();")
 rep("$('g-wipe').onclick=doWipeCards;", "$('g-wipe').onclick=doWipeCards;\n$('p-xt').onclick=()=>{try{history.replaceState(null,'','#cascada')}catch(_){}route('cascada');window.scrollTo(0,0)};")
 

@@ -80,30 +80,101 @@ sesiones gana el registro más reciente. Importar el mismo archivo dos veces no 
 - Si el usuario borra los datos del sitio, o el sistema libera espacio, el progreso se pierde;
   sólo un respaldo exportado lo recupera.
 
-## 3. Repaso con FSRS (pestaña «Repaso»)
+## 3. Flashcards como Anki (pestaña «Flashcards»)
 
-Usa la biblioteca oficial **ts-fsrs 5.4.2** (FSRS-6, 21 parámetros, licencia MIT), copiada sin
-modificar en `lib/ts-fsrs.umd.js` e incrustada en el módulo 33 por `tools/inline_libs.py`. El
-banco sólo decide qué tarjeta toca; el intervalo lo calcula la biblioteca a partir de la
-estabilidad, la dificultad, la recuperabilidad y la retención deseada.
+Desde noviembre de 2026 la pestaña «Flashcards» funciona como Anki. Sustituye a la antigua vista
+de «voltear y marcar La sé» y a la pestaña «Repaso». Los enlaces viejos a `#repaso` abren
+«Flashcards». El progreso FSRS que ya existía se conserva.
 
-Ajustes predeterminados (editables en Repaso › Ajustes):
+Los intervalos los calcula la biblioteca oficial **ts-fsrs 5.4.2** (FSRS-6, 21 parámetros,
+licencia MIT). Está copiada sin modificar en `lib/ts-fsrs.umd.js` y se incrusta en los bancos con
+`tools/inline_libs.py`. La biblioteca maneja los pasos de aprendizaje igual que Anki con FSRS.
 
-| Ajuste | Valor | Efecto |
-|---|---|---|
-| Retención deseada | 90 % | Probabilidad de recordar cuando la tarjeta vuelve. |
-| Pasos de aprendizaje | `10m 30m` | Tarjeta nueva: Otra vez 10 min · Difícil 20 min · Bien 30 min · Fácil gradúa (días). |
-| Pasos de reaprendizaje | `10m` | Tras olvidar una tarjeta de repaso. |
-| Nuevas por día | 20 | Límite diario de tarjetas nuevas. |
-| Intervalo máximo | 36 500 d | |
-| Anticipación | 20 min | Si no hay nada vencido, adelanta tarjetas en aprendizaje. |
+### Pantallas
 
-Cola: primero las de aprendizaje vencidas, luego repasos del día intercalando una nueva cada
-cuatro, y al final las de aprendizaje próximas. El día de estudio cambia a las 4:00, como en Anki.
-El intervalo que muestra cada botón es exactamente el que se guarda: se calcula una vez al
-revelar la respuesta y se aplica la opción elegida. Hay «Deshacer» del último repaso y
-«Suspender tarjeta». Las flashcards de siempre (pestaña «Flashcards», marca «La sé») siguen
-igual y son independientes del repaso FSRS.
+1. **Mazos.** El banco es el mazo padre y cada categoría es un submazo, en orden alfabético.
+   Cada mazo muestra sus contadores: Nuevas en azul, Aprender en rojo y Repasar en verde.
+   Debajo se lee: «Hoy estudiaste N tarjetas en X min».
+2. **Vista general.** Muestra los contadores del mazo y el botón «Estudiar ahora».
+   - Cuando no queda nada aparece «¡Felicidades! Has terminado este mazo por ahora». También avisa
+     de las tarjetas en aprendizaje que vencen más tarde, del límite de nuevas alcanzado y de las
+     tarjetas enterradas o suspendidas.
+   - «Estudio personalizado» sube, solo por hoy, los límites de nuevas y de repasos de ese mazo.
+3. **Estudio.**
+   - Se ve el frente de la tarjeta. Al pulsar «Mostrar respuesta», el reverso aparece debajo de
+     una línea y el frente sigue visible.
+   - Hay cuatro botones: Otra vez, Difícil, Bien y Fácil. Sobre cada uno se ve el intervalo.
+   - Abajo aparece el contador `nuevas + aprendiendo + repaso`. Está subrayada la cola de la que
+     viene la tarjeta actual.
+4. **Explorar.** Busca en las tarjetas y filtra por mazo y estado (nuevas, aprendiendo, de repaso,
+   vencen hoy, suspendidas, enterradas, sanguijuelas). Muestra la fecha de vencimiento, el
+   intervalo y los olvidos. Permite suspender o reactivar una tarjeta, y «Olvidar» para volverla
+   nueva.
+5. **Opciones.** Es un preajuste compartido por todos los mazos.
+
+### Reglas del planificador (las del planificador v3 de Anki)
+
+- **Orden de la cola.**
+  1. Aprendizaje intradía vencido.
+  2. Repasos y aprendizaje interdía mezclados por fecha. Las nuevas se reparten de forma pareja
+     entre ellos («mezclar con repasos»). Las nuevas se toman en el orden en que se agregaron,
+     submazo por submazo.
+  3. Si no queda nada más, las tarjetas en aprendizaje que vencen en los próximos 20 minutos.
+- **Límites diarios.**
+  - Cada mazo tiene sus propios límites. Al estudiar el mazo padre se aplican el límite del padre
+    y el de cada submazo. Al estudiar un submazo solo cuenta el suyo.
+  - Las nuevas también cuentan contra el límite de repasos.
+- **Día de estudio.** Cambia a las 4:00.
+- **Tiempo por tarjeta.** Se registra con un máximo de 60 s, como en Anki.
+
+### Atajos de teclado
+
+| Tecla | Acción |
+|---|---|
+| Espacio o Intro | Mostrar respuesta; con la respuesta visible, «Bien» |
+| 1–4 | Calificar |
+| Z o Ctrl+Z | Deshacer, en varios niveles: vuelve a mostrar la tarjeta por el frente |
+| − | Enterrar hasta mañana |
+| @ | Suspender |
+| Esc | Volver a la vista general |
+| S | Estudiar desde la vista general |
+
+### Sanguijuelas
+
+Al llegar a 8 olvidos, y después cada 4 olvidos más, la tarjeta se marca como sanguijuela y
+aparece un aviso. Solo se marca: no se suspende.
+
+### Valores predeterminados
+
+Son los de Anki. «Restaurar valores de Anki» los vuelve a cargar. Si alguien ya había guardado
+sus propios ajustes, esos se respetan.
+
+| Ajuste | Valor |
+|---|---|
+| Nuevas por día | 20 |
+| Máximo de repasos por día | 200 |
+| Pasos de aprendizaje | `1m 10m` |
+| Pasos de reaprendizaje | `10m` |
+| Retención deseada | 90 % |
+| Intervalo máximo | 36 500 d |
+| Umbral de sanguijuela | 8 |
+| Aprendizaje anticipado | 20 min |
+| Variación aleatoria de intervalos | activada |
+
+### Contador del menú
+
+`ECGDB.summary()` cuenta igual que el mazo padre:
+- respeta el límite de repasos;
+- excluye las tarjetas enterradas;
+- incluye el estudio personalizado del mazo padre.
+
+### Diferencias conocidas con Anki
+
+- No hay editor de tarjetas: el contenido viene del banco.
+- No hay hermanas que enterrar, porque cada tarjeta es una nota.
+- No se pueden crear preajustes distintos por mazo.
+- No se optimizan los parámetros FSRS con el historial propio: se usan los predeterminados de
+  FSRS-6.
 
 ## Comandos
 
