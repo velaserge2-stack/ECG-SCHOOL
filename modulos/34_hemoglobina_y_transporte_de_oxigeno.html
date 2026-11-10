@@ -82,7 +82,7 @@ svg.rbc .flow{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
   <div class="eyebrow">Módulo H1 · hemoglobina y oxígeno</div>
   <h1>Hemoglobina y transporte de oxígeno</h1>
   <p class="lede">Una presión de oxígeno normal no garantiza oxígeno suficiente: mueve la curva de disociación, cambia la hemoglobina o agrega monóxido de carbono, y separa la presión, la saturación y el contenido que llega a los tejidos.</p>
-  <div class="tags"><span>Hematología: guía §1–3 y §4.1</span><span>Perillas: PO₂, pH, PCO₂, temperatura, 2,3-DPG, HbF, CO, MetHb, Hb</span><span>Conecta con el módulo 06 (flujo)</span></div>
+  <div class="tags"><span>Perillas: PO₂, pH, PCO₂, temperatura, 2,3-DPG, HbF, CO, MetHb, Hb</span><span>Conecta con el módulo 06 (flujo)</span></div>
 </header>
 
 <section class="panel">
@@ -129,7 +129,7 @@ svg.rbc .flow{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
     </div>
   </div>
   <div class="formula">S = PO₂ⁿ / (PO₂ⁿ + P50ⁿ) · CaO₂ = 1,34 × Hb × SatO₂ + 0,003 × PaO₂</div>
-  <p class="note">La guía da 1,34–1,39 mL de O₂ por gramo de Hb. La P50 basal de 26,8 mmHg, el exponente de Hill de 2,7, la constante 0,003 del O₂ disuelto y cuánto desplaza la curva cada factor son valores ilustrativos de libro de texto <span class="ver">VERIFICAR</span>. La dirección de cada efecto sí viene de la guía (§3.3).</p>
+  <p class="note">Se estiman 1,34–1,39 mL de O₂ por gramo de Hb. La P50 basal de 26,8 mmHg, el exponente de Hill de 2,7, la constante 0,003 del O₂ disuelto y cuánto desplaza la curva cada factor son valores ilustrativos de libro de texto <span class="ver">VERIFICAR</span>. La dirección de cada efecto es la descrita en la teoría.</p>
 </section>
 
 <section class="panel">
@@ -137,7 +137,7 @@ svg.rbc .flow{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
   <p class="note">PaO₂ = oxígeno disuelto que «empuja». Saturación = qué fracción de la hemoglobina lleva O₂. Contenido = cuánto O₂ hay de verdad en cada decilitro. La barra gris marca el valor normal.</p>
   <div class="bars" id="bars"></div>
   <p class="why" id="whyBars"></p>
-  <p class="note">Nota de seguridad, fuera de la guía: los oxímetros de pulso convencionales no distinguen la carboxihemoglobina de la oxihemoglobina, por eso pueden leer «normal» en una intoxicación por CO. Confirma con tu profesor qué equipo se usa en tu práctica.</p>
+  <p class="note">Nota de seguridad: los oxímetros de pulso convencionales no distinguen la carboxihemoglobina de la oxihemoglobina, por eso pueden leer «normal» en una intoxicación por CO. Confirma con tu profesor qué equipo se usa en tu práctica.</p>
 </section>
 
 <section class="grid">
@@ -161,7 +161,7 @@ svg.rbc .flow{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
     <div class="chips" role="group" aria-label="Lugar"><button class="btn" id="sTis" aria-pressed="true">En el tejido</button><button class="btn" id="sLung" aria-pressed="false">En el pulmón</button></div>
     <svg class="rbc" id="rbc" viewBox="0 0 520 300" role="img" aria-label="Esquema del eritrocito: CO₂ y agua forman ácido carbónico por la anhidrasa carbónica; el bicarbonato sale por la banda 3 a cambio de cloruro; la hemoglobina capta H⁺ y libera O₂"></svg>
     <p class="why" id="rbcTxt"></p>
-    <p class="note">El CO₂ viaja de tres formas: disuelto, unido a la globina (compuestos carbamino) y, sobre todo, como bicarbonato. Los porcentajes de cada forma no se distinguen bien en la guía <span class="ver">VERIFICAR</span>.</p>
+    <p class="note">El CO₂ viaja de tres formas: disuelto, unido a la globina (compuestos carbamino) y, sobre todo, como bicarbonato. Los porcentajes de cada forma no están bien establecidos aquí <span class="ver">VERIFICAR</span>.</p>
   </div>
   <div class="panel">
     <h2>Placenta: dos curvas y una frontera</h2>
@@ -217,7 +217,7 @@ svg.rbc .flow{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
     <li>«PaO₂ normal = oxigenación normal»: la PaO₂ no ve cuánta hemoglobina hay ni si está ocupada por CO o es metahemoglobina.</li>
     <li>«Saturación normal = contenido normal»: en anemia la saturación es normal y el contenido es bajo.</li>
     <li>«Desplazar la curva a la derecha es malo»: en el tejido es justo lo que facilita la descarga de O₂.</li>
-    <li>«El color rojo cereza diagnostica intoxicación por CO»: la guía aclara que ese signo no es constante ni fiable.</li>
+    <li>«El color rojo cereza diagnostica intoxicación por CO»: se sabe que ese signo no es constante ni fiable.</li>
     <li>«La HbA1c es otra cadena de globina»: es hemoglobina A glucosilada.</li>
     <li>«La HbF tiene otro hierro»: el hemo es igual; la HbF interactúa menos con el 2,3-DPG.</li></ul></div>
   <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
@@ -236,7 +236,7 @@ svg.rbc .flow{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Basado en la Guía de Hematología (apuntes del Dr. Alejandro Leal). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro/diapositivas del curso.</p>
+  <p>Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro o las diapositivas del curso.</p>
 </footer>
 </div>
 <script>
@@ -395,19 +395,19 @@ function cx(){var rows=[['Normal',{}],['Anemia (Hb 8)',{hb:8}],['CO 35 %',{co:35
 Quiz([
  {q:'En un músculo que trabaja, el pH baja de 7,40 a 7,20. ¿Hacia dónde se mueve la curva y qué pasa con la descarga de O₂?',o:['A la derecha; descarga más O₂','A la izquierda; descarga más O₂','A la derecha; descarga menos O₂','No se mueve; solo cambia la PaO₂'],a:0,ap:function(){set({ph:7.2})},e:function(){var m=model(S);return 'El modelo da P50 '+fmt(m.p50,1)+' mmHg (normal '+fmt(M0.p50,1)+') y una descarga de '+fmt(m.del,1)+' mL/dL frente a '+fmt(M0.del,1)+': los H⁺ estabilizan el estado T (efecto Bohr).'}},
  {q:'Intoxicación por CO con 35 % de carboxihemoglobina. ¿Qué valor queda normal?',o:['La PaO₂','El contenido arterial de O₂','La cantidad de O₂ que se descarga en el tejido','Ninguno'],a:0,ap:function(){set({co:35})},e:function(){var m=model(S);return 'PaO₂ '+S.pa+' mmHg, pero CaO₂ '+fmt(m.Ca,1)+' mL/dL (normal '+fmt(M0.Ca,1)+') y descarga '+fmt(m.del,1)+'. La PaO₂ mide O₂ disuelto: no ve los sitios ocupados por CO.'}},
- {q:'¿Por qué la HbF tiene más afinidad por el O₂ que la HbA si su hierro es el mismo?',o:['Interactúa menos con el 2,3-DPG','Tiene hierro férrico','Tiene una sola cadena como la mioglobina','Porque el feto tiene más PaO₂'],a:0,ap:function(){set({hbf:true})},e:function(){var m=model(S);return 'Con HbF la P50 del modelo baja a '+fmt(m.p50,1)+' mmHg: curva a la izquierda. La guía lo atribuye a su menor interacción con el 2,3-DPG (cadenas γ en vez de β).'}},
+ {q:'¿Por qué la HbF tiene más afinidad por el O₂ que la HbA si su hierro es el mismo?',o:['Interactúa menos con el 2,3-DPG','Tiene hierro férrico','Tiene una sola cadena como la mioglobina','Porque el feto tiene más PaO₂'],a:0,ap:function(){set({hbf:true})},e:function(){var m=model(S);return 'Con HbF la P50 del modelo baja a '+fmt(m.p50,1)+' mmHg: curva a la izquierda. Se atribuye a su menor interacción con el 2,3-DPG (cadenas γ en vez de β).'}},
  {q:'Anemia con Hb de 8 g/dL y pulmones sanos. ¿Qué pasa con la saturación arterial?',o:['Queda normal','Baja a la mitad','Sube por compensación','Se vuelve cero'],a:0,ap:function(){set({hb:8})},e:function(){var m=model(S);return 'Saturación '+fmt(m.Sa*100,0)+' %, como lo normal; el contenido cae a '+fmt(m.Ca,1)+' mL/dL. La saturación es un porcentaje: no sabe cuánta Hb hay.'}},
  {q:'Fiebre de 40 °C. ¿Qué esperas de la P50?',o:['Sube (curva a la derecha)','Baja (curva a la izquierda)','No cambia','Se iguala a la de la mioglobina'],a:0,ap:function(){set({t:40})},e:function(){var m=model(S);return 'P50 '+fmt(m.p50,1)+' mmHg: el calor baja la afinidad y facilita la descarga, igual que la acidez y el CO₂.'}},
  {q:'A gran altitud, la PaO₂ baja de 95 a 60 mmHg. ¿Cuánto cae la saturación?',o:['Poco: sigue cerca de la meseta','Lo mismo que la PaO₂ (un tercio)','Nada en absoluto','Cae a 0 %'],a:0,ap:function(){set({pa:60})},e:function(){var m=model(S);return 'Con PaO₂ 60 la saturación es '+fmt(m.Sa*100,0)+' % (normal '+fmt(M0.Sa*100,0)+' %): la parte plana de la curva protege la carga de O₂; por debajo de ~60 mmHg la caída se acelera.'}}]);
 Case('case1',[
  {q:'¿Qué dato de la gasometría <i>no</i> te tranquiliza y por qué?',o:['La PaO₂ normal: mide O₂ disuelto, no la Hb ocupada','La Hb de 14: debería ser mayor','La ausencia de cianosis: descarta hipoxia'],a:0,e:'La PaO₂ y la saturación calculada desde ella pueden ser normales en la intoxicación por CO. La falta de cianosis tampoco descarta hipoxia tisular.'},
  {q:'¿Qué mecanismo explica la hipoxia tisular?',o:['El CO ocupa la Hb y desplaza la curva a la izquierda','El CO destruye los eritrocitos','El CO baja la PaO₂ en el alvéolo'],a:0,e:'Menos sitios con O₂ (contenido bajo) y los que quedan sueltan peor el O₂ (curva a la izquierda): doble golpe. Pruébalo con el preajuste «Intoxicación por CO».'},
- {q:'Un compañero dice: «No tiene color rojo cereza, no es CO». ¿Qué respondes?',o:['Ese signo no es constante ni fiable','Tiene razón: sin rojo cereza se descarta','El rojo cereza solo aparece en anemia'],a:0,e:'La guía lo aclara: el color rojo cereza no es constante ni suficientemente fiable para el diagnóstico.'},
- {q:'¿Cuál es el tratamiento inicial que menciona la guía?',o:['Oxígeno a alta concentración','Azul de metileno','Transfusión inmediata'],a:0,e:'Oxígeno a alta concentración; el manejo posterior depende de la gravedad. El azul de metileno es para la metahemoglobinemia.'}]);
+ {q:'Un compañero dice: «No tiene color rojo cereza, no es CO». ¿Qué respondes?',o:['Ese signo no es constante ni fiable','Tiene razón: sin rojo cereza se descarta','El rojo cereza solo aparece en anemia'],a:0,e:'El color rojo cereza no es constante ni suficientemente fiable para el diagnóstico.'},
+ {q:'¿Cuál es el tratamiento inicial descrito?',o:['Oxígeno a alta concentración','Azul de metileno','Transfusión inmediata'],a:0,e:'Oxígeno a alta concentración; el manejo posterior depende de la gravedad. El azul de metileno es para la metahemoglobinemia.'}]);
 Case('case2',[
  {q:'¿Qué está oxidado?',o:['El hierro del hemo, de Fe²⁺ a Fe³⁺','La globina','El 2,3-DPG'],a:0,e:'La metahemoglobina tiene hierro férrico (Fe³⁺) y no transporta O₂ normalmente.'},
  {q:'¿Por qué la PaO₂ es normal?',o:['Mide el O₂ disuelto, que no depende del hierro','Porque la MetHb transporta O₂ disuelto','Porque el pulmón compensa'],a:0,e:'La PaO₂ refleja el O₂ disuelto. Aplica el preajuste «Metahemoglobinemia»: PaO₂ normal, contenido bajo.'},
- {q:'¿Qué tratamiento menciona la guía?',o:['Azul de metileno, si no hay contraindicación (p. ej., ciertas deficiencias enzimáticas)','Oxígeno hiperbárico de rutina','Vitamina K'],a:0,e:'La guía menciona azul de metileno cuando está indicado y no hay contraindicación relevante.'}]);
+ {q:'¿Qué tratamiento se menciona?',o:['Azul de metileno, si no hay contraindicación (p. ej., ciertas deficiencias enzimáticas)','Oxígeno hiperbárico de rutina','Vitamina K'],a:0,e:'Se usa azul de metileno cuando está indicado y no hay contraindicación relevante.'}]);
 MiniFC('mfc',[
  ['Curva a la derecha: ¿qué significa?','Menor afinidad de la Hb por el O₂: facilita la descarga en el tejido. La causan ↑CO₂, ↓pH, ↑temperatura y ↑2,3-DPG.'],
  ['Anemia: ¿PaO₂, saturación y contenido?','PaO₂ y saturación normales; contenido bajo, porque falta transportador.'],

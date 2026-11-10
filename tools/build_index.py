@@ -52,7 +52,7 @@ def card(k):
     obj = d['o'].split('(')[0].strip()
     if len(obj) > 46:
         obj = obj[:44].rsplit(',', 1)[0] + '…'
-    tip = d['e'] + ((' · %s · %s' % (d['op'], obj)) if obj else '')
+    tip = d['e']
     return ('<a class="card" href="#m%s" title="%s"><span class="cn">%s</span>'
             '<span class="ct">%s</span><span class="cl">%s</span></a>'
             % (k, esc(tip), k, esc(d['t']), esc(d['l'])))
@@ -204,7 +204,7 @@ nav .sig{display:block;margin:18px 8px 0}
 <header class="top"><button id="menu" aria-label="Mostrar módulos">☰</button>
 <a class="brand" href="#inicio"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><path d="M1 11h6l2-3 2 3 2-10 3 16 2-6h7" fill="none" stroke="var(--vec)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>ECG School</a>
 <span class="cur" id="cur"></span><button id="prev" aria-label="Módulo anterior">‹</button><button id="next" aria-label="Módulo siguiente">›</button>''' + USERBOX + '''</header>
-<div class="lay"><nav aria-label="Módulos">''' + nav + '''<span class="sig">Created by <b>SergeV</b></span><p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Cardiovascular: alineado con los objetivos de la Unidad 6 como referencia. Hematología: basada en la guía del Dr. Alejandro Leal. Sin aval institucional.</p></nav>
+<div class="lay"><nav aria-label="Módulos">''' + nav + '''<span class="sig">Created by <b>SergeV</b></span><p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Sin aval institucional.</p></nav>
 <main>
 <div id="home">
   <div id="duebox" class="duebox" hidden><span class="dn" id="dueN"></span><span id="dueT"></span><a href="#m33" id="dueGo">Repasar ahora →</a></div>
@@ -249,7 +249,7 @@ nav .sig{display:block;margin:18px 8px 0}
 
   <footer class="fine">
     <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-    <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia verificable. Hematología basada en la guía del Dr. Alejandro Leal. Sin aval institucional. Las cifras marcadas VERIFICAR deben confirmarse con el libro del curso.</p>
+    <p>Sin aval institucional. Las cifras marcadas VERIFICAR deben confirmarse con el libro del curso.</p>
     ''' + SIG + '''
   </footer>
 </div>

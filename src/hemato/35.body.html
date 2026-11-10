@@ -17,7 +17,7 @@ svg.life text{font:11px var(--font-body);fill:var(--fg)}svg.life .m{font:10px va
   <div class="eyebrow">Módulo H2 · eritrocito, hierro y bilirrubina</div>
   <h1>Vida del eritrocito, hierro y bilirrubina</h1>
   <p class="lede">Sigue al eritrocito desde la médula hasta el macrófago: bloquea un paso del recorrido de la bilirrubina, rompe el lazo de la eritropoyetina o sube la hepcidina, y deduce qué aparece en la sangre, la orina y las heces.</p>
-  <div class="tags"><span>Hematología: guía §2, §4.2–4.4, §5 y §7</span><span>Perillas: hemólisis, daño hepático, obstrucción, EPO, IL-6, reservas de hierro</span><span>Requiere H1</span></div>
+  <div class="tags"><span>Perillas: hemólisis, daño hepático, obstrucción, EPO, IL-6, reservas de hierro</span><span>Requiere H1</span></div>
 </header>
 
 <section class="panel">
@@ -48,7 +48,7 @@ svg.life text{font:11px var(--font-body);fill:var(--fg)}svg.life .m{font:10px va
     </div>
     <div class="col">
       <label class="ctl">Obstrucción de la vía biliar: <span class="mono" id="obsV"></span><input type="range" id="obs" min="0" max="100" step="5" value="0"></label>
-      <p class="note">Las cifras están en múltiplos de lo normal (unidades relativas): la guía no da intervalos fijos, que dependen del laboratorio. El umbral de ictericia visible del modelo es ≈ 2,5 × lo normal <span class="ver">VERIFICAR</span>.</p>
+      <p class="note">Las cifras están en múltiplos de lo normal (unidades relativas): no hay intervalos fijos: dependen del laboratorio. El umbral de ictericia visible del modelo es ≈ 2,5 × lo normal <span class="ver">VERIFICAR</span>.</p>
     </div>
   </div>
   <div class="formula">BI ∝ producción / captación hepática · BD ∝ conjugada que no logra salir a la bilis</div>
@@ -99,7 +99,7 @@ svg.life text{font:11px var(--font-body);fill:var(--fg)}svg.life .m{font:10px va
     <label class="ctl">Demanda eritropoyética: <span class="mono" id="dmV"></span><input type="range" id="dm" min="50" max="250" step="5" value="100"></label>
     <div class="bars col" id="feB" style="gap:6px"></div>
     <p class="why" id="feW"></p>
-    <p class="note">Ferritina = reservas (y sube con la inflamación, según la guía: «ferritina baja si no hay inflamación concomitante»). El comportamiento de la TIBC en la inflamación no viene en la guía; el modelo la deja depender solo de las reservas <span class="ver">VERIFICAR</span>.</p>
+    <p class="note">Ferritina = reservas (y sube con la inflamación: «ferritina baja si no hay inflamación concomitante»). El comportamiento de la TIBC en la inflamación no se modela con detalle; el modelo la deja depender solo de las reservas <span class="ver">VERIFICAR</span>.</p>
   </div>
 </section>
 
@@ -118,7 +118,7 @@ svg.life text{font:11px var(--font-body);fill:var(--fg)}svg.life .m{font:10px va
     <div class="chips" id="neoP"></div>
     <label class="ctl" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="foto"> Aplicar fototerapia desde las 60 h</label>
     <p class="why" id="neoW"></p>
-    <p class="note">Escala relativa: la guía no da umbrales numéricos y en la práctica se usan nomogramas por horas de vida <span class="ver">VERIFICAR</span>.</p>
+    <p class="note">Escala relativa: no se dan umbrales numéricos y en la práctica se usan nomogramas por horas de vida <span class="ver">VERIFICAR</span>.</p>
   </div>
 </section>
 
@@ -139,7 +139,7 @@ svg.life text{font:11px var(--font-body);fill:var(--fg)}svg.life .m{font:10px va
   <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
     <li>«Toda ictericia oscurece la orina»: la bilirrubina indirecta va unida a albúmina y no se filtra; en la hemólisis no hay coluria.</li>
     <li>«Hemólisis = heces claras»: al contrario, llega más pigmento al intestino; la acolia indica que no llega bilis.</li>
-    <li>«Ferritina normal descarta ferropenia»: la inflamación la eleva; la guía dice «ferritina baja si no hay inflamación concomitante».</li>
+    <li>«Ferritina normal descarta ferropenia»: la inflamación la eleva; lo correcto es «ferritina baja si no hay inflamación concomitante».</li>
     <li>«Más EPO siempre es bueno»: si la policitemia es primaria, la EPO está baja porque la médula produce sola.</li>
     <li>«Piel amarilla = ictericia»: la carotenemia tiñe palmas y plantas pero suele respetar las escleras.</li>
     <li>«Toda ictericia neonatal es fisiológica»: la que aparece en las primeras 24 h debe considerarse potencialmente patológica.</li></ul></div>
@@ -159,7 +159,7 @@ svg.life text{font:11px var(--font-body);fill:var(--fg)}svg.life .m{font:10px va
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Basado en la Guía de Hematología (apuntes del Dr. Alejandro Leal). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro/diapositivas del curso.</p>
+  <p>Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro o las diapositivas del curso.</p>
 </footer>
 </div>
 <script>
@@ -245,7 +245,7 @@ function renderFe(){['il','st','dm'].forEach(function(k){$(k+'V').textContent=FS
   $('feB').innerHTML=feBar('Hepcidina',f.hep)+feBar('Ferroportina activa',f.fpn)+feBar('Hierro sérico',f.fe/FE0.fe)+feBar('Saturación de transferrina',f.sat/FE0.sat)+feBar('TIBC / transferrina',f.tibc/FE0.tibc)+feBar('Ferritina',f.ferr/FE0.ferr);
   var w;if(FS.il>=40&&FS.st>=60)w='Inflamación: la IL-6 sube la hepcidina, que internaliza la ferroportina. El hierro queda atrapado en macrófagos y enterocitos: ferritina alta (hay reservas) pero hierro sérico y saturación bajos (no sale). «Hay hierro pero no llega a la médula».';
   else if(FS.st<40&&FS.il<40)w='Ferropenia: con reservas bajas la hepcidina baja y la ferroportina trabaja al máximo, pero no hay hierro que exportar: ferritina baja, hierro y saturación bajos, transferrina/TIBC alta.';
-  else if(FS.st<60&&FS.il>=40)w='Inflamación y ferropenia juntas: la ferritina puede verse «normal» porque la inflamación la eleva aunque las reservas sean bajas. Por eso la guía dice «ferritina baja si no hay inflamación concomitante».';
+  else if(FS.st<60&&FS.il>=40)w='Inflamación y ferropenia juntas: la ferritina puede verse «normal» porque la inflamación la eleva aunque las reservas sean bajas. Por eso lo correcto es «ferritina baja si no hay inflamación concomitante».';
   else if(FS.dm>150)w='Más eritropoyesis baja la hepcidina para liberar hierro hacia la médula: más ferroportina activa y más hierro disponible.';
   else w='Equilibrio: la hepcidina ajusta la ferroportina para que entre y salga el hierro que se necesita.';$('feW').textContent=w}
 ['il','st','dm'].forEach(function(k){$(k).addEventListener('input',function(){FS[k]=+this.value;renderFe()})});

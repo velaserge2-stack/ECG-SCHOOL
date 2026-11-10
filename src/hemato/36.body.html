@@ -22,7 +22,7 @@
   <div class="eyebrow">Módulo H3 · biometría y anemias</div>
   <h1>Biometría y anemias</h1>
   <p class="lede">Una anemia se resuelve con preguntas en orden: ¿de qué tamaño son los eritrocitos?, ¿responde la médula?, ¿qué falta o qué los destruye? Mueve el histograma, recorre el árbol diagnóstico y rompe la absorción de B12 paso por paso.</p>
-  <div class="tags"><span>Hematología: guía §6, §8 y §9</span><span>Perillas: VCM, RDW, CHCM, Hb, reticulocitos, pasos de absorción de B12</span><span>Requiere H1 y H2</span></div>
+  <div class="tags"><span>Perillas: VCM, RDW, CHCM, Hb, reticulocitos, pasos de absorción de B12</span><span>Requiere H1 y H2</span></div>
 </header>
 
 <section class="panel">
@@ -56,7 +56,7 @@
     <div class="col">
       <label class="ctl">CHCM (cromía): <span class="mono" id="chcmV"></span><input type="range" id="chcm" min="26" max="37" step="0.5" value="33.5"></label>
       <label class="ctl">Reticulocitos: <span class="mono" id="retV"></span><input type="range" id="ret" min="0.1" max="12" step="0.1" value="1.2"></label>
-      <p class="note">Índices calculados: Hct = Hb / CHCM; eritrocitos = Hct / VCM; HCM = VCM × CHCM. Los límites (80–100 fL, reticulocitos ≈ 0,5–2,5 %) son orientativos: la guía insiste en que los valores de referencia dependen del laboratorio, la edad, el sexo, el embarazo y la altitud <span class="ver">VERIFICAR</span>.</p>
+      <p class="note">Índices calculados: Hct = Hb / CHCM; eritrocitos = Hct / VCM; HCM = VCM × CHCM. Los límites (80–100 fL, reticulocitos ≈ 0,5–2,5 %) son orientativos: se sabe que los valores de referencia dependen del laboratorio, la edad, el sexo, el embarazo y la altitud <span class="ver">VERIFICAR</span>.</p>
     </div>
   </div>
   <div class="formula">VCM = Hct / eritrocitos · HCM = Hb / eritrocitos · CHCM = Hb / Hct</div>
@@ -74,7 +74,7 @@
     <h2>Panel de hierro en las anemias microcíticas</h2>
     <div class="tw"><table id="fe"></table></div>
     <p class="why">Los tres son microcíticos, pero por razones distintas: en la <b>ferropénica</b> falta hierro (ferritina baja, transferrina alta); en la <b>inflamación</b> el hierro existe pero la hepcidina lo retiene (ferritina alta, hierro sérico bajo); en la <b>talasemia</b> falta una cadena de globina, no hierro. Pruébalo en el panel de hepcidina del módulo 35.</p>
-    <p class="note">Talasemia: la guía describe sobrecarga de hierro en las formas graves (sobre todo con transfusiones); en el rasgo, los valores de hierro normales son una nota orientativa <span class="ver">VERIFICAR</span>. La anemia sideroblástica no está en la guía y no se incluye.</p>
+    <p class="note">Talasemia: se describe sobrecarga de hierro en las formas graves (sobre todo con transfusiones); en el rasgo, los valores de hierro normales son una nota orientativa <span class="ver">VERIFICAR</span>. La anemia sideroblástica no se incluye.</p>
   </div>
   <div class="panel">
     <h2>Absorción de vitamina B12, paso a paso</h2>
@@ -91,7 +91,7 @@
     <label class="ctl">Hemoglobina: <span class="mono" id="chbV"></span><input type="range" id="chb" min="4" max="15" step="0.1" value="15"></label>
     <canvas id="comp" role="img" aria-label="Barras de la respuesta compensatoria: gasto cardiaco, frecuencia cardiaca, 2,3-DPG, eritropoyetina y ventilación frente a la hemoglobina elegida"></canvas>
     <p class="why" id="compW"></p>
-    <p class="note">Magnitudes ilustrativas del modelo <span class="ver">VERIFICAR</span>; la dirección de cada respuesta viene de la guía (§9.2).</p>
+    <p class="note">Magnitudes ilustrativas del modelo <span class="ver">VERIFICAR</span>; la dirección de cada respuesta es la descrita en la teoría.</p>
   </div>
   <div class="panel">
     <h2>Hemorragia aguda: por qué el hematocrito inicial engaña</h2>
@@ -110,7 +110,7 @@
     <div class="col"><div class="chainbars" id="thB"></div></div>
     <div class="col"><div class="chain" id="thC"></div><p class="why" id="thW"></p></div>
   </div>
-  <p class="note">Las barras son proporciones ilustrativas. Genes: α en el cromosoma 16, β en el 11 (guía §9.7).</p>
+  <p class="note">Las barras son proporciones ilustrativas. Genes: α en el cromosoma 16, β en el 11.</p>
 </section>
 
 <section class="grid">
@@ -156,7 +156,7 @@
     <li>Los límites de VCM y reticulocitos son orientativos y no universales.</li>
     <li>La hemorragia usa un rellenado de plasma con una constante de tiempo fija.</li>
     <li>La respuesta compensatoria es proporcional y no incluye enfermedad cardiaca o pulmonar previa.</li>
-    <li>El árbol diagnóstico solo incluye las causas de la guía.</li></ul></div>
+    <li>El árbol diagnóstico solo incluye las causas principales.</li></ul></div>
 </section>
 
 <section class="panel">
@@ -167,7 +167,7 @@
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Basado en la Guía de Hematología (apuntes del Dr. Alejandro Leal). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro/diapositivas del curso.</p>
+  <p>Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro o las diapositivas del curso.</p>
 </footer>
 </div>
 <script>
@@ -281,10 +281,10 @@ Quiz([
 Case('case1',[
  {q:'Primera bifurcación: ¿qué tipo de anemia es?',o:['Microcítica hipocrómica','Macrocítica','Normocítica regenerativa'],a:0,e:'VCM bajo y CHCM baja: falla la síntesis de Hb.'},
  {q:'¿Qué dato del panel de hierro esperas?',o:['Ferritina baja con transferrina/TIBC alta','Ferritina alta','Hierro sérico alto'],a:0,e:'Reservas vacías (ferritina baja) y el hígado fabrica más transferrina buscando hierro.'},
- {q:'Además de dar hierro, ¿qué debes hacer?',o:['Buscar la causa: aquí, pérdidas menstruales','Esplenectomía','Dar ácido fólico solamente'],a:0,e:'La guía insiste: reponer hierro y buscar/corregir la causa. La pica (comer hielo) y la coiloniquia son manifestaciones de ferropenia.'}]);
+ {q:'Además de dar hierro, ¿qué debes hacer?',o:['Buscar la causa: aquí, pérdidas menstruales','Esplenectomía','Dar ácido fólico solamente'],a:0,e:'Reponer hierro y buscar/corregir la causa. La pica (comer hielo) y la coiloniquia son manifestaciones de ferropenia.'}]);
 Case('case2',[
  {q:'Primera bifurcación con VCM elevado:',o:['Falla la síntesis de ADN: B12 o folato','Falla la síntesis de Hb: hierro','Hemólisis por esferocitosis'],a:0,e:'La macrocitosis con neutrófilos hipersegmentados es el patrón megaloblástico.'},
- {q:'¿Por qué hay bilirrubina indirecta y LDH elevadas?',o:['Eritropoyesis ineficaz: los precursores mueren en la médula','Obstrucción biliar','Daño hepático por la gastrectomía'],a:0,e:'La guía lo describe: aumento de bilirrubina indirecta y LDH por eritropoyesis ineficaz.'},
+ {q:'¿Por qué hay bilirrubina indirecta y LDH elevadas?',o:['Eritropoyesis ineficaz: los precursores mueren en la médula','Obstrucción biliar','Daño hepático por la gastrectomía'],a:0,e:'Aumento de bilirrubina indirecta y LDH por eritropoyesis ineficaz.'},
  {q:'¿Qué apunta a B12 y no a folato, y por qué la gastrectomía?',o:['Parestesias y AMM alto; sin estómago no hay factor intrínseco ni ácido','Neutrófilos hipersegmentados; la gastrectomía quita folato','Macrocitosis; la gastrectomía quita hierro'],a:0,e:'Las alteraciones neurológicas y el AMM alto son de B12. Sin estómago falla la liberación de la B12 y falta el factor intrínseco (pasos 2 y 5).'}]);
 MiniFC('mfc',[
  ['Anemia microcítica: ¿qué falla?','La síntesis de hemoglobina: falta hierro (ferropénica), falta una cadena de globina (talasemia) o el hierro no sale (inflamación).'],

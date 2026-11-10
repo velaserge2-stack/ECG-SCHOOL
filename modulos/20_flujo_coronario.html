@@ -118,12 +118,12 @@ input[type=range].sm{max-width:150px}
   <div class="eyebrow">Módulo D5 · circulaciones regionales · corazón (complementa B13)</div>
   <h1>Flujo coronario</h1>
   <p class="lede">La pared del ventrículo izquierdo aprieta a sus propios vasos cada vez que se contrae. Por eso el corazón se riega sobre todo en diástole, por eso la capa interna es la primera en sufrir y por eso la taquicardia pesa tanto cuando hay una estenosis.</p>
-  <div class="tags"><span>Unidad 6: 6.241–6.252</span><span>Nivel N5</span><span>Perillas: FC · PAM · contractilidad · estenosis · cámara</span><span>Requiere B13 y A8</span></div>
+  <div class="tags"><span>Nivel N5</span><span>Perillas: FC · PAM · contractilidad · estenosis · cámara</span><span>Requiere B13 y A8</span></div>
 </header>
 
 <section class="panel">
   <h2>Un latido en la pared del ventrículo</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perillas: FC, PAM, contractilidad, % de estenosis, ventrículo</span><span>objetivos 6.243–6.246</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: FC, PAM, contractilidad, % de estenosis, ventrículo</span></div>
   <div class="chips" id="pre"></div>
   <div class="grid">
     <div class="col">
@@ -147,7 +147,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Corte de pared y ECG</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perillas: las mismas</span><span>objetivos 6.244–6.246 · A8</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: las mismas</span></div>
   <div class="cols2">
     <div class="col"><h3>Corte de la pared del VI en el instante elegido</h3><canvas id="wl" role="img" aria-label="Corte transversal de la pared ventricular con flujo y presión tisular por capa"></canvas><p class="note" id="wln"></p></div>
     <div class="col"><h3>ECG en V5 (ver A8)</h3><canvas id="ec" role="img" aria-label="Electrocardiograma con desnivel del segmento ST según isquemia subendocárdica"></canvas><p class="note" id="ecn"></p></div>
@@ -156,7 +156,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Reserva coronaria frente a la estenosis</h2>
-  <div class="meta"><span class="lv">avanzado</span><span>perillas: % de estenosis, demanda</span><span>objetivos 6.245, 6.247</span></div>
+  <div class="meta"><span class="lv">avanzado</span><span>perillas: % de estenosis, demanda</span></div>
   <canvas id="rs" role="img" aria-label="Flujo coronario en reposo y máximo frente al porcentaje de estenosis"></canvas>
   <div class="row"><span class="lab"><i class="sw" style="background:var(--vec)"></i>Flujo con autorregulación (cubre la demanda actual)</span><span class="lab"><i class="sw" style="background:var(--guess)"></i>Flujo máximo con vasodilatación total</span><span class="lab"><i class="sw" style="background:var(--muted)"></i>Demanda actual</span></div>
   <p class="note" id="rsn"></p>
@@ -164,13 +164,13 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Ejemplo trabajado: estenosis del 70 % y una carrera</h2>
-  <div class="meta"><span class="lv">básico</span><span>perillas: FC, contractilidad, estenosis</span><span>objetivos 6.243–6.246</span></div>
+  <div class="meta"><span class="lv">básico</span><span>perillas: FC, contractilidad, estenosis</span></div>
   <ol class="chain-l" id="wk"></ol>
 </section>
 
 <section class="panel">
   <h2>Anatomía funcional: quién riega qué</h2>
-  <div class="meta"><span class="lv">básico</span><span>perillas: dominancia, arteria ocluida</span><span>objetivos 6.241–6.242 · A8</span></div>
+  <div class="meta"><span class="lv">básico</span><span>perillas: dominancia, arteria ocluida</span></div>
   <div class="grid">
     <div class="col"><canvas id="an" role="img" aria-label="Corte corto del ventrículo con los territorios de las arterias coronarias"></canvas></div>
     <div class="col">
@@ -187,7 +187,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Regulación y combustibles</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perilla: situación metabólica</span><span>objetivos 6.248–6.252</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perilla: situación metabólica</span></div>
   <div class="grid">
     <div class="col"><div class="tw"><table><thead><tr><th>Mecanismo</th><th>Qué hace</th></tr></thead><tbody>
       <tr><td>Metabólico local</td><td>Adenosina, K⁺ y NO dilatan cuando sube la demanda; es el mecanismo dominante. La extracción de O₂ ya es ≈ 75 % en reposo, así que la demanda solo se cubre con más flujo.</td></tr>
@@ -204,7 +204,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Contraejemplo: la misma taquicardia, dos corazones</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perilla: estenosis</span><span>objetivos 6.245–6.246</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perilla: estenosis</span></div>
   <div class="vs" id="ce"></div>
   <p class="why">Con la misma FC y la misma carga, el corazón sano dilata sus arteriolas y cubre la demanda, y el que tiene estenosis ya gastó su reserva en reposo: no puede abrirse más y la capa interna se queda corta. Lo que asusta no es la FC, sino la FC sobre una reserva agotada.</p>
 </section>
@@ -216,7 +216,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Juego: ¿Hay isquemia?</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perillas: todas</span><span>objetivos 6.245–6.246</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: todas</span></div>
   <p class="note">Mira los datos del paciente y clasifica antes de ver el resultado del modelo.</p>
   <div class="grid">
     <div class="col"><p class="why" id="gdat"></p><div class="col" id="gopt" style="gap:6px"></div><p class="fb" id="gfb" aria-live="polite"></p><p class="note" id="gsc"></p></div>
@@ -226,7 +226,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Caso clínico de cierre</h2>
-  <div class="meta"><span class="lv">avanzado</span><span>perillas: FC, contractilidad, estenosis</span><span>objetivos 6.245–6.247 · A8</span></div>
+  <div class="meta"><span class="lv">avanzado</span><span>perillas: FC, contractilidad, estenosis</span></div>
   <div id="case"></div>
 </section>
 
@@ -251,7 +251,7 @@ input[type=range].sm{max-width:150px}
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.241–6.252). Sin aval institucional.</p>
+  <p>Sin aval institucional.</p>
 </footer>
 </div>
 
@@ -275,7 +275,7 @@ function Quiz(el,items){
   var q=function(s){return el.querySelector(s)};
   function show(){var it=items[i];done=false;q('.qleg').innerHTML='<b>'+it.name+'</b><br>'+it.q;
     q('.qo').innerHTML=it.o.map(function(t,k){return '<label class="qopt"><input type="radio" name="'+id+'o" value="'+k+'"> <span>'+t+'</span></label>'}).join('');
-    q('.qmeta').innerHTML='<span class="lv">'+it.lv+'</span><span>perilla: '+it.knob+'</span><span>objetivos '+it.obj+'</span>';
+    q('.qmeta').innerHTML='<span class="lv">'+it.lv+'</span><span>perilla: '+it.knob+'</span>';
     q('.qfb').innerHTML=''}
   q('.qgo').onclick=function(){var r=el.querySelector('input[name='+id+'o]:checked');if(!r){q('.qfb').textContent='Elige primero una respuesta.';return}
     var it=items[i],ok=+r.value===it.a,cf=+el.querySelector('input[name='+id+'cf]:checked').value;

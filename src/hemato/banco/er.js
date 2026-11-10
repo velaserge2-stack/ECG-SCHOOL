@@ -67,7 +67,7 @@ Q('ER',2,'Varón de 20 años con déficit de G6PD conocido. ¿Qué desencadena t
  'Puede ser asintomática hasta el estrés oxidante; sin NADPH no se regenera glutatión.');
 Q('ER',2,'Paciente con crisis hemolítica por déficit de G6PD. ¿Qué hallazgos esperas en el frotis?',
  ['Cuerpos de Heinz y células mordidas','Esferocitos aislados','Neutrófilos hipersegmentados','Dianocitos exclusivamente'],
- 'La guía menciona cuerpos de Heinz (Hb oxidada precipitada) y células mordidas.');
+ 'Se describen cuerpos de Heinz (Hb oxidada precipitada) y células mordidas.');
 Q('ER',2,'La deficiencia de G6PD es más frecuente clínicamente en varones porque:',
  ['Se hereda ligada al cromosoma X','Es autosómica dominante','Depende de la testosterona','Se adquiere por el trabajo'],
  'Herencia ligada al X: los varones con un solo X afectado la expresan.');
@@ -103,4 +103,4 @@ Q('ER',3,'Respecto a la policitemia, ¿qué combinación indica una eritrocitosi
  'Secundaria: la EPO elevada (hipoxia u otras causas) impulsa la producción. Primaria (policitemia vera): EPO baja. Ambas pueden aumentar el riesgo trombótico por hiperviscosidad.');
 Q('ER',3,'¿Por qué la sobrecarga de hierro es peligrosa y el hierro circula unido a proteínas?',
  ['El hierro libre puede ser tóxico','El hierro libre colorea la orina','El hierro libre baja la EPO','El hierro libre destruye la hepcidina'],
- 'La guía: el hierro libre puede ser tóxico, por eso circula (transferrina) y se almacena (ferritina) unido a proteínas.');
+ 'El hierro libre puede ser tóxico, por eso circula (transferrina) y se almacena (ferritina) unido a proteínas.');

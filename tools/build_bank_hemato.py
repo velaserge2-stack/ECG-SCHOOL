@@ -47,15 +47,15 @@ h = h[:t0] + ("const TEMAS={HB:'Hemoglobina, curva de O₂, CO, MetHb y CO₂',E
 
 # 3) textos
 rep('<title>Banco Cardio</title>', '<title>Banco Hemato</title>')
-rep('<div class="eyebrow">Banco de preguntas · Unidad 6 · fisiología cardiovascular</div>',
+rep('<div class="eyebrow">Banco de preguntas · fisiología cardiovascular</div>',
     '<div class="eyebrow">Banco de preguntas · Hematología</div>')
 rep('<h1>Banco Cardio</h1>', '<h1>Banco Hemato</h1>')
 rep('<p class="sub">Preguntas en el estilo de tu examen, con trazos de ECG para leer, y tarjetas con los valores que más se preguntan. Cada respuesta trae su enseñanza, aciertes o no.</p>',
     '<p class="sub">Preguntas tipo examen y casos clínicos de hematología, con tarjetas de repaso espaciado. Cada respuesta explica el mecanismo y la trampa clásica, aciertes o no.</p>')
-f0 = h.index('<footer>Material de estudio para la Unidad 6')
+f0 = h.index('<footer>Material de estudio; no sirve')
 f1 = h.index('</footer>', f0)
 h = h[:f0] + ('<footer>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. '
-              'Basado en la Guía de Hematología (apuntes del Dr. Alejandro Leal). Sin aval institucional. '
+              'Sin aval institucional. '
               'Los valores de referencia dependen del laboratorio; las cifras marcadas VERIFICAR deben confirmarse con el libro o las diapositivas del curso. '
               'Tu avance se guarda sólo en este navegador, separado del Banco Cardio.') + h[f1:]
 

@@ -49,7 +49,7 @@ Q('HM',1,'¿Qué evalúa principalmente el TTPa?',
  'Se prolonga con heparina no fraccionada y con déficits de factores intrínsecos.');
 Q('HM',1,'El tiempo de sangrado es una prueba que:',
  ['Evalúa la hemostasia primaria y es histórica, poco usada hoy','Mide la vía intrínseca y monitoriza la heparina','Monitoriza la warfarina y se informa como INR','Mide el dímero-D y descarta trombosis venosa'],
- 'Así lo describe la guía.');
+ '');
 Q('HM',2,'Hombre de 60 años que toma aspirina diaria. ¿Cómo actúa como antiagregante?',
  ['Inhibe la COX-1 y reduce el tromboxano A₂','Bloquea el receptor P2Y12','Inhibe la antitrombina','Bloquea la vitamina K'],
  'Clopidogrel bloquea P2Y12; la warfarina antagoniza la vitamina K.');
@@ -73,7 +73,7 @@ Q('HM',2,'¿Qué tipo de sangrado predomina en la enfermedad de von Willebrand?'
  'Falla la adhesión plaquetaria: defecto de hemostasia primaria.');
 Q('HM',2,'Paciente hospitalizado que recibe heparina no fraccionada. ¿Qué pruebas se prolongan?',
  ['TTPa y tiempo de trombina','Solo el TP','Solo el tiempo de sangrado','Solo el recuento de plaquetas'],
- 'Regla general de la guía: TTPa ↔ heparina no fraccionada.');
+ 'Regla general: TTPa ↔ heparina no fraccionada.');
 Q('HM',2,'Paciente con aspirina: ¿qué esperas en las pruebas?',
  ['Plaquetas, TP y TTPa normales con función plaquetaria disminuida','Plaquetas normales con TP prolongado por inhibir la vitamina K','Plaquetas normales con TTPa prolongado por potenciar la antitrombina','Plaquetas muy bajas por destrucción en el bazo, con TP normal'],
  'El recuento no mide la función: trombocitopatía.');
@@ -83,7 +83,7 @@ Q('HM',2,'¿Qué prueba se altera con un déficit grave de fibrinógeno y NO con
 Q('HM',2,'Mujer de 20 años con petequias, epistaxis y gingivorragia. ¿Qué defecto sugiere?',
  ['Hemostasia primaria (plaquetas o vWF)','Hemostasia secundaria (factores)','Fibrinólisis aumentada exclusivamente','Vía intrínseca aislada'],
  'Mucocutáneo = primaria.');
-Q('HM',2,'¿Cuál NO es una causa de trombocitopenia según la guía?',
+Q('HM',2,'¿Cuál NO es una causa de trombocitopenia?',
  ['Aumento de la síntesis de factor VIII','Menor producción medular','Secuestro esplénico','Destrucción o consumo aumentado'],
  'Las causas: menor producción, destrucción/consumo, secuestro esplénico y pérdida o dilución.');
 Q('HM',2,'¿Qué distingue una trombocitopatía de una trombocitopenia?',
@@ -92,13 +92,13 @@ Q('HM',2,'¿Qué distingue una trombocitopatía de una trombocitopenia?',
 Q('HM',2,'¿Cuáles son los tres elementos de la tríada de Virchow?',
  ['Estasis, lesión endotelial e hipercoagulabilidad','Trombocitopenia, anemia e ictericia','Hipotensión, taquicardia y fiebre','Hemorragia, dolor y edema'],
  'Factores que favorecen la trombosis venosa.');
-Q('HM',2,'¿Qué trombofilias menciona la guía?',
+Q('HM',2,'¿Qué trombofilias se menciona?',
  ['Factor V Leiden (hereditaria) y síndrome antifosfolípido (adquirida)','Hemofilia A (hereditaria) y hemofilia B (adquirida)','Enfermedad de von Willebrand (hereditaria) y trombocitopenia (adquirida)','Déficit de vitamina K (adquirida) y déficit de factor VIII (hereditaria)'],
  'Aumentan la tendencia a formar trombos.');
 Q('HM',2,'¿Qué hacen los fibrinolíticos como la alteplasa (tPA)?',
  ['Favorecen la conversión de plasminógeno en plasmina','Inhiben la COX-1 y reducen el tromboxano A₂','Antagonizan la vitamina K y bajan II, VII, IX y X','Bloquean el GPIb y la adhesión plaquetaria'],
  'Degradan el coágulo; se reservan para situaciones seleccionadas.');
-Q('HM',2,'¿Qué afirma la guía sobre el modelo de cascada de la coagulación?',
+Q('HM',2,'¿Qué es correcto sobre el modelo de cascada de la coagulación?',
  ['Es útil para interpretar pruebas, pero no reproduce por completo la coagulación in vivo','Describe exactamente lo que ocurre en el cuerpo y reemplaza al modelo celular','Ya no se usa en el laboratorio porque fue sustituido por el modelo celular','Solo explica la fibrinólisis y no sirve para interpretar el TP ni el TTPa'],
  'In vivo se describe el modelo celular: iniciación, amplificación y propagación.');
 Q('HM',3,'Niño de 5 años con hemartrosis tras un golpe leve; tío materno con antecedentes similares. Plaquetas y TP normales; TTPa prolongado. ¿Qué es lo más probable?',
@@ -106,7 +106,7 @@ Q('HM',3,'Niño de 5 años con hemartrosis tras un golpe leve; tío materno con 
  'Sangrado profundo, herencia ligada al X y TTPa aislado. Se distinguen midiendo VIII y IX.');
 Q('HM',3,'Paciente con cirrosis: INR y TTPa prolongados. ¿Qué factor ayuda a distinguir hepatopatía de déficit de vitamina K?',
  ['El factor V: bajo en hepatopatía, normal en déficit de vitamina K','El factor VIII: bajo en déficit de vitamina K, normal en hepatopatía','El recuento de plaquetas: siempre normal en la hepatopatía','El dímero-D: alto en déficit de vitamina K, normal en hepatopatía'],
- 'El V no depende de vitamina K pero lo fabrica el hígado. Deducción a partir de la guía: el hígado sintetiza la mayoría de factores; la vitamina K solo actúa sobre II, VII, IX y X.');
+ 'El V no depende de vitamina K pero lo fabrica el hígado. Deducción: el hígado sintetiza la mayoría de factores; la vitamina K solo actúa sobre II, VII, IX y X.');
 Q('HM',3,'Paciente anticoagulado con heparina no fraccionada. ¿Qué prueba usarías como regla general para vigilarlo?',
  ['TTPa','TP/INR','Tiempo de sangrado','Recuento de plaquetas como único dato'],
  'Regla general (no absoluta): TTPa ↔ heparina no fraccionada; TP/INR ↔ warfarina. La monitorización real depende del fármaco y del protocolo.');
@@ -137,6 +137,6 @@ Q('HM',3,'Patrón: plaquetas bajas, TP y TTPa normales, petequias. ¿Qué piensa
 Q('HM',3,'Patrón: INR, TTPa y tiempo de trombina prolongados, plaquetas normales. ¿Qué alteración lo explica de forma más directa?',
  ['Déficit grave de fibrinógeno','Hemofilia B','Aspirina','Trombocitopenia'],
  'Las tres pruebas dependen del paso final fibrinógeno → fibrina.');
-Q('HM',3,'Tras una TEP, ¿qué papel tienen los anticoagulantes según la guía?',
+Q('HM',3,'Tras una TEP, ¿qué papel tienen los anticoagulantes?',
  ['Prevenir la extensión y la recurrencia del trombo','Disolver de inmediato cualquier trombo','Aumentar las plaquetas','Reemplazar la imagen diagnóstica'],
  'Los trombolíticos se reservan para situaciones seleccionadas de alto riesgo.');

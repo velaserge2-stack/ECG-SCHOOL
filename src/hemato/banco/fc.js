@@ -119,7 +119,7 @@ F('Hemostasia','Enfermedad de von Willebrand','Sangrado mucocutáneo; TTPa norma
 F('Hemostasia','Déficit de vitamina K','Bajan II, VII, IX, X y C, S; TP se alarga primero; en déficits importantes también el TTPa.');
 F('Hemostasia','Hepatopatía vs déficit de vitamina K','Ambos alargan el TP; el factor V (no depende de vit. K) baja solo en la hepatopatía.');
 F('Hemostasia','Tríada de Virchow','Estasis, lesión endotelial e hipercoagulabilidad.');
-F('Hemostasia','Trombofilias de la guía','Factor V Leiden (hereditaria) y síndrome antifosfolípido (adquirida).');
+F('Hemostasia','Trombofilias','Factor V Leiden (hereditaria) y síndrome antifosfolípido (adquirida).');
 F('Hemostasia','Trombocitopenia: causas','Menor producción, destrucción o consumo, secuestro esplénico, pérdida o dilución.');
 F('Hemostasia','Trombocitopatía','Número normal o casi, función disminuida (p. ej., antiagregantes).');
 F('Hemostasia','Modelo de cascada vs modelo celular','Cascada: útil para leer pruebas. Celular: lo que ocurre in vivo (iniciación, amplificación, propagación).');

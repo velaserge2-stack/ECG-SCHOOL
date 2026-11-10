@@ -10,7 +10,7 @@ Q('BR',1,'¿Qué hace el hepatocito con la bilirrubina no conjugada?',
  'La conjugación la hace hidrosoluble; luego se secreta a la bilis por transportadores como MRP2.');
 Q('BR',1,'¿Qué transportador canalicular secreta la bilirrubina conjugada a la bilis?',
  ['MRP2','Banda 3','Ferroportina','Transcobalamina II'],
- 'MRP2 es uno de los transportadores canaliculares que menciona la guía.');
+ 'MRP2 es uno de los transportadores canaliculares.');
 Q('BR',1,'¿Qué da el color marrón a las heces?',
  ['La estercobilina','La bilirrubina indirecta','La biliverdina','La hemoglobina'],
  'Las bacterias convierten la bilirrubina en urobilinógeno; parte se vuelve estercobilina.');

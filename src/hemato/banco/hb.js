@@ -5,9 +5,9 @@ Q('HB',1,'¿En qué estado debe estar el hierro del grupo hemo para unir oxígen
 Q('HB',1,'La hemoglobina A del adulto está formada por:',
  ['Dos cadenas α y dos cadenas β (α₂β₂)','Dos cadenas α y dos cadenas γ (α₂γ₂)','Dos cadenas α y dos cadenas δ (α₂δ₂)','Una sola cadena con un hemo'],
  'HbA = α₂β₂. α₂γ₂ es la HbF, α₂δ₂ es la HbA₂ (fracción minoritaria) y una sola cadena con un hemo describe a la mioglobina.');
-Q('HB',1,'Según la guía, ¿cuánto oxígeno transporta aproximadamente cada gramo de hemoglobina?',
+Q('HB',1,'¿cuánto oxígeno transporta aproximadamente cada gramo de hemoglobina?',
  ['1,34–1,39 mL de O₂','0,003 mL de O₂','13,4 mL de O₂','100 mL de O₂'],
- 'La guía da 1,34–1,39 mL por gramo. El 0,003 corresponde al O₂ disuelto por mmHg en cada 100 mL de plasma (dato de libro, no de la guía), una fracción pequeña.');
+ 'Se estiman 1,34–1,39 mL por gramo. El 0,003 corresponde al O₂ disuelto por mmHg en cada 100 mL de plasma, una fracción pequeña.');
 Q('HB',1,'¿Qué estado conformacional de la hemoglobina tiene menor afinidad por el oxígeno?',
  ['Tenso (T)','Relajado (R)','Oxigenado','Glucosilado'],
  'El estado T tiene baja afinidad y favorece la liberación de O₂; el estado R tiene alta afinidad y favorece la unión.');
@@ -28,7 +28,7 @@ Q('HB',1,'El efecto Haldane describe que:',
  'Haldane: el estado de oxigenación cambia la capacidad de transportar CO₂ y H⁺. En el pulmón la Hb oxigenada suelta CO₂; en el tejido la Hb desoxigenada carga más. Trampa: confundirlo con Bohr, que es el efecto inverso (CO₂ → afinidad por O₂).');
 Q('HB',1,'¿Cuál es la forma predominante de transporte del CO₂ en la sangre?',
  ['Como bicarbonato (HCO₃⁻)','Disuelto en el plasma','Unido al hierro del hemo','Como carboxihemoglobina'],
- 'La guía lo dice: el bicarbonato es la forma predominante. El CO₂ también viaja disuelto y como compuestos carbamino (unido a la globina, no al hierro). La carboxihemoglobina es la unión del CO (monóxido), no del CO₂.');
+ 'El bicarbonato es la forma predominante. El CO₂ también viaja disuelto y como compuestos carbamino (unido a la globina, no al hierro). La carboxihemoglobina es la unión del CO (monóxido), no del CO₂.');
 Q('HB',1,'La enzima eritrocitaria que convierte CO₂ y agua en ácido carbónico es:',
  ['Anhidrasa carbónica','Glucosa-6-fosfato deshidrogenasa','Hemo oxigenasa','MRP2'],
  'La anhidrasa carbónica cataliza la reacción reversible CO₂ + H₂O ⇄ H₂CO₃ (→ H⁺ + HCO₃⁻). La G6PD es de la vía antioxidante.');
@@ -43,10 +43,10 @@ Q('HB',1,'La mioglobina, comparada con la hemoglobina:',
  'Una cadena, un hemo, mayor afinidad, curva hiperbólica: sirve de reserva muscular. Su elevación en sangre no es específica del corazón.');
 Q('HB',1,'La HbA1c es:',
  ['Hemoglobina A glucosilada','Una cadena globínica distinta','Hemoglobina fetal persistente','Metahemoglobina'],
- 'La HbA1c es HbA con glucosa unida; refleja la glucosa promedio durante la vida del eritrocito. La guía aclara que no es una cadena globínica diferente.');
+ 'La HbA1c es HbA con glucosa unida; refleja la glucosa promedio durante la vida del eritrocito. no es una cadena globínica diferente.');
 Q('HB',2,'¿Por qué la HbF tiene mayor afinidad por el O₂ que la HbA?',
  ['Interactúa menos con el 2,3-DPG','Tiene hierro férrico','Tiene más grupos hemo por molécula','Une el O₂ por la globina y no por el hemo'],
- 'La guía lo atribuye a su menor interacción con el 2,3-DPG. El hemo es el mismo y cada molécula tiene cuatro hemos, como la HbA.');
+ 'Se atribuye a su menor interacción con el 2,3-DPG. El hemo es el mismo y cada molécula tiene cuatro hemos, como la HbA.');
 Q('HB',2,'En la placenta, ¿qué favorece el paso de O₂ de la madre al feto?',
  ['La mayor afinidad de la HbF y el efecto Bohr del CO₂ fetal','Que la sangre materna y fetal se mezclan','Que la HbF tiene curva hiperbólica','Que la madre tiene menos 2,3-DPG'],
  'La HbF retiene más O₂ a la misma PO₂, y el CO₂ que el feto transfiere desplaza la curva materna a la derecha (suelta más). Las circulaciones no se mezclan.');
@@ -55,7 +55,7 @@ Q('HB',2,'Corredor de 25 años en ejercicio intenso. ¿Qué cambio en la curva d
  'El músculo activo produce CO₂, ácido y calor: todos bajan la afinidad y la Hb suelta más O₂ a la misma PO₂. Pasar a R aumentaría la afinidad (lo contrario).');
 Q('HB',2,'Mujer de 30 años que vive en gran altitud. ¿Qué esperas de su 2,3-DPG eritrocitario?',
  ['Aumenta y desplaza la curva a la derecha','Disminuye y desplaza la curva a la izquierda','No cambia','Se convierte en HbF'],
- 'La guía menciona el aumento de 2,3-DPG en situaciones de hipoxia: facilita la descarga tisular de O₂.');
+ 'Se describe el aumento de 2,3-DPG en situaciones de hipoxia: facilita la descarga tisular de O₂.');
 Q('HB',2,'Paciente con anemia (Hb 7 g/dL) y pulmones sanos. ¿Qué esperas?',
  ['PaO₂ y saturación normales con contenido de O₂ bajo','PaO₂ baja y saturación baja con contenido normal','Saturación cercana al 50 % con PaO₂ normal','PaO₂ alta y contenido de O₂ normal por compensación'],
  'La saturación es un porcentaje de la Hb que hay; si hay poca Hb, cada decilitro lleva menos O₂ aunque esté saturada. Trampa: confundir saturación con contenido.');
@@ -64,8 +64,8 @@ Q('HB',2,'Hombre de 65 años con neumonía: su PaO₂ baja de 95 a 70 mmHg. ¿Qu
  'En la parte plana de la curva la saturación cambia poco aunque cambie la PO₂: protege la carga de O₂ en el pulmón. Por debajo de ~60 mmHg la caída se acelera.');
 Q('HB',2,'Paciente con metahemoglobinemia tras un fármaco oxidante. ¿Cómo se reconoce clínicamente?',
  ['Cianosis y sangre color chocolate','Color rojo cereza constante','Ictericia y coluria','Petequias'],
- 'La guía menciona hipoxia, cianosis y sangre color chocolate. El rojo cereza se asocia al CO y, además, no es fiable.');
-Q('HB',2,'Mujer de 28 años con metahemoglobinemia sintomática y sin contraindicaciones. ¿Qué tratamiento menciona la guía?',
+ 'Produce hipoxia, cianosis y sangre color chocolate. El rojo cereza se asocia al CO y, además, no es fiable.');
+Q('HB',2,'Mujer de 28 años con metahemoglobinemia sintomática y sin contraindicaciones. ¿Qué tratamiento se menciona?',
  ['Azul de metileno','Oxígeno hiperbárico de rutina','Vitamina K','Hierro intravenoso'],
  'Azul de metileno, si no hay contraindicación relevante (por ejemplo, ciertas deficiencias enzimáticas).');
 Q('HB',2,'Paciente intoxicado con monóxido de carbono. ¿Qué hace el CO con la curva de su hemoglobina restante?',
@@ -74,9 +74,9 @@ Q('HB',2,'Paciente intoxicado con monóxido de carbono. ¿Qué hace el CO con la
 Q('HB',2,'Hombre de 45 años intoxicado con CO en un garaje. ¿Qué valor queda típicamente normal?',
  ['La PaO₂','El contenido arterial de O₂','La entrega de O₂ a los tejidos','La capacidad de transporte de la Hb'],
  'La PaO₂ mide O₂ disuelto y no ve la Hb ocupada por CO. El contenido y la liberación caen. Trampa: «PaO₂ normal = oxigenación normal».');
-Q('HB',2,'Respecto al color rojo cereza en la intoxicación por CO, la guía señala que:',
+Q('HB',2,'Respecto al color rojo cereza en la intoxicación por CO, se sabe que:',
  ['No es constante ni suficientemente fiable para el diagnóstico','Es el signo más específico y basta para el diagnóstico','Aparece siempre en los primeros minutos de exposición','Indica que hay metahemoglobinemia asociada al CO'],
- 'La guía lo dice expresamente: no basarse en ese signo.');
+ 'No conviene basarse en ese signo.');
 Q('HB',2,'Paciente con intoxicación por monóxido de carbono. ¿Qué hallazgo NO esperarías?',
  ['PaO₂ muy disminuida como dato principal','Hipoxia tisular','Contenido de O₂ disminuido','Liberación tisular de O₂ disminuida'],
  'El problema no es la presión de O₂ (que suele ser normal) sino la Hb ocupada y la curva desplazada a la izquierda.');
@@ -97,7 +97,7 @@ Q('HB',3,'Hombre de 50 años rescatado de un incendio: confuso, cefalea; PaO₂ 
  'La PaO₂ y la saturación calculada desde ella pueden ser normales con CO, porque no reflejan la Hb ocupada. Se debe medir la carboxihemoglobina (nota) y dar O₂ a alta concentración.');
 Q('HB',3,'Mujer de 25 años con anemia ferropénica (Hb 8) en reposo tiene la PaO₂ normal. ¿Qué mecanismo compensador desplaza su curva a la derecha?',
  ['Aumento del 2,3-DPG eritrocitario','Alcalosis respiratoria crónica','Aumento de la HbF','Hipotermia'],
- 'En la anemia sube el 2,3-DPG (guía §9.2): baja la afinidad y cada gramo de Hb suelta más O₂ en el tejido.');
+ 'En la anemia sube el 2,3-DPG: baja la afinidad y cada gramo de Hb suelta más O₂ en el tejido.');
 Q('HB',3,'Paciente con cianosis tras recibir un fármaco oxidante; PaO₂ normal y sangre color chocolate. ¿Qué cambio químico explica el cuadro?',
  ['Oxidación del hierro del hemo a Fe³⁺','Unión del CO al hierro','Glucosilación de la HbA','Precipitación de cadenas α'],
  'Metahemoglobina: Fe²⁺ → Fe³⁺, no transporta O₂. La PaO₂ es normal porque mide el O₂ disuelto.');
@@ -118,4 +118,4 @@ Q('HB',3,'Paciente de 30 años con fiebre de 40 °C y acidosis. ¿Qué pasa con 
  'Curva a la derecha = P50 mayor. A la misma PO₂ en el tejido, la Hb queda menos saturada porque ya soltó más O₂.');
 Q('HB',2,'Fumador de 50 años con cefalea; carboxihemoglobina elevada en la gasometría. ¿Por qué su EPO puede estar alta?',
  ['El CO reduce el O₂ que llega al riñón y estimula la vía del HIF','El CO estimula directamente a la médula ósea sin pasar por EPO','El tabaco destruye la hepcidina y libera más hierro a la médula','El CO baja el 2,3-DPG y eso estimula la producción renal de EPO'],
- 'La guía incluye el tabaquismo/CO entre las situaciones que aumentan la EPO: menos O₂ disponible para el riñón → hipoxia renal → HIF → EPO.');
+ 'El tabaquismo y el CO están entre las situaciones que aumentan la EPO: menos O₂ disponible para el riñón → hipoxia renal → HIF → EPO.');

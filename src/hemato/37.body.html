@@ -22,7 +22,7 @@ svg.plq text{font:12px var(--font-body);fill:var(--fg)}svg.plq .m{font:10.5px va
   <div class="eyebrow">Módulo H4 · hemostasia y coagulación</div>
   <h1>Hemostasia y coagulación</h1>
   <p class="lede">Apaga un factor, agrega un fármaco o baja las plaquetas, y deduce qué prueba se alarga y por qué: TP, TTPa, tiempo de trombina y tiempo de sangrado son ventanas a partes distintas del mismo proceso.</p>
-  <div class="tags"><span>Hematología: guía §12–13</span><span>Perillas: factores, plaquetas, vWF, warfarina, heparina, aspirina, clopidogrel</span><span>Requiere H2</span></div>
+  <div class="tags"><span>Perillas: factores, plaquetas, vWF, warfarina, heparina, aspirina, clopidogrel</span><span>Requiere H2</span></div>
 </header>
 
 <section class="panel">
@@ -54,8 +54,8 @@ svg.plq text{font:12px var(--font-body);fill:var(--fg)}svg.plq .m{font:10.5px va
       <label class="ctl">Factor de von Willebrand: <span class="mono" id="vwfV"></span><input type="range" id="vwf" min="0.05" max="1" step="0.05" value="1"></label>
     </div>
     <div class="col">
-      <p class="note">El modelo expresa el TP como INR y el TTPa y el TT como cociente frente a un control. Los intervalos reales dependen del reactivo y del laboratorio; la guía pide no memorizarlos como cifras universales <span class="ver">VERIFICAR</span>. El tiempo de sangrado es una prueba histórica, poco usada hoy.</p>
-      <p class="note">Regla general de la guía (no absoluta): <b>TP/INR ↔ warfarina</b>; <b>TTPa ↔ heparina no fraccionada</b>.</p>
+      <p class="note">El modelo expresa el TP como INR y el TTPa y el TT como cociente frente a un control. Los intervalos reales dependen del reactivo y del laboratorio; no conviene memorizarlos como cifras universales <span class="ver">VERIFICAR</span>. El tiempo de sangrado es una prueba histórica, poco usada hoy.</p>
+      <p class="note">Regla general (no absoluta): <b>TP/INR ↔ warfarina</b>; <b>TTPa ↔ heparina no fraccionada</b>.</p>
     </div>
   </div>
 </section>
@@ -154,7 +154,7 @@ svg.plq text{font:12px var(--font-body);fill:var(--fg)}svg.plq .m{font:10.5px va
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Basado en la Guía de Hematología (apuntes del Dr. Alejandro Leal). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro/diapositivas del curso.</p>
+  <p>Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro o las diapositivas del curso.</p>
 </footer>
 </div>
 <script>
@@ -274,7 +274,7 @@ Case('case2',[
  {q:'¿Qué elementos de la tríada de Virchow tiene?',o:['Estasis (inmovilización) y lesión endotelial (cirugía)','Solo hipercoagulabilidad hereditaria','Ninguno'],a:0,e:'La inmovilización produce estasis y la cirugía lesiona el endotelio. Súbelos en el panel de Virchow.'},
  {q:'Su dímero-D sale alto. ¿Qué significa?',o:['Apoya, pero no confirma: es sensible e inespecífico','Confirma la trombosis','Descarta la trombosis'],a:0,e:'El dímero-D refleja degradación de fibrina; se interpreta con la probabilidad clínica y estudios de imagen.'},
  {q:'La disnea súbita al día siguiente sugiere:',o:['Tromboembolia pulmonar: el trombo viajó a la circulación pulmonar','Insuficiencia cardiaca crónica','Anemia ferropénica'],a:0,e:'Un trombo venoso que se desprende puede llegar a la arteria pulmonar (disnea, dolor torácico, hipoxemia).'},
- {q:'¿Qué hacen los anticoagulantes en este contexto?',o:['Previenen la extensión y la recurrencia del trombo','Disuelven de inmediato todo trombo','Aumentan las plaquetas'],a:0,e:'La guía: los anticoagulantes previenen extensión y recurrencia; los trombolíticos se reservan para casos seleccionados de alto riesgo.'}]);
+ {q:'¿Qué hacen los anticoagulantes en este contexto?',o:['Previenen la extensión y la recurrencia del trombo','Disuelven de inmediato todo trombo','Aumentan las plaquetas'],a:0,e:'Los anticoagulantes previenen extensión y recurrencia; los trombolíticos se reservan para casos seleccionados de alto riesgo.'}]);
 MiniFC('mfc',[
  ['TTPa largo, TP normal, plaquetas normales','Defecto de la vía intrínseca: VIII, IX, XI o XII (p. ej., hemofilia A o B) o heparina.'],
  ['Factores dependientes de vitamina K','II, VII, IX y X, más proteínas C y S. El TP se alarga primero por la vida media corta del VII.'],

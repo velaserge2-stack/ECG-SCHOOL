@@ -104,7 +104,7 @@ input[type=range].sm{max-width:150px}
   <div class="eyebrow">Módulo B14 · arritmias y dispositivos</div>
   <h1>Arritmias y dispositivos</h1>
   <p class="lede">Un ritmo no se juzga solo por su forma en el ECG sino por lo que cuesta al gasto cardiaco. Elige un ritmo, mueve la rigidez del ventrículo o la frecuencia y mira cómo cambian el llenado, cada volumen sistólico, la presión arterial y las ondas A en cañón.</p>
-  <div class="tags"><span>Unidad 6: 6.109–6.111 (con A5/A6: 6.97–6.108)</span><span>Acople ECG–hemodinamia: capa L7</span><span>Nivel N1–N2 (extensiones avanzadas)</span><span>Perillas: ritmo, FC, rigidez, contractilidad, RVS, precarga, retraso AV</span></div>
+  <div class="tags"><span>Acople ECG–hemodinamia: capa L7</span><span>Nivel N1–N2 (extensiones avanzadas)</span><span>Perillas: ritmo, FC, rigidez, contractilidad, RVS, precarga, retraso AV</span></div>
 </header>
 
 <section class="panel" id="bank">
@@ -148,7 +148,7 @@ input[type=range].sm{max-width:150px}
 <section class="cols2">
   <div class="panel" id="worked">
     <h3>Ejemplo trabajado: la fibrilación auricular y el ventrículo que se llena mal</h3>
-    <p class="note">Nivel intermedio · perillas: ritmo y rigidez ventricular · objetivos 6.109–6.110</p>
+    <p class="note">Nivel intermedio · perillas: ritmo y rigidez ventricular</p>
     <div class="tw"><table id="wkT"></table></div>
     <ol id="wkChain"></ol>
     <button class="btn" id="wkApply">Ver el caso rígido en el banco</button>
@@ -182,7 +182,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel" id="shock">
   <h2>Desfibrilación y cardioversión: qué rompen y cuándo</h2>
-  <p class="note">Nivel intermedio · perillas: ritmo, modo de descarga y momento del ciclo · objetivo 6.109. Conceptual: no se dan energías (VERIFICAR contra la guía de reanimación vigente).</p>
+  <p class="note">Nivel intermedio · perillas: ritmo, modo de descarga y momento del ciclo. Conceptual: no se dan energías (VERIFICAR contra la guía de reanimación vigente).</p>
   <div class="row">
     <label class="ctl" style="flex:1 1 220px">Ritmo del paciente
       <select id="shK"><option value="fv">Fibrilación ventricular (sin pulso)</option><option value="vtnp">Taquicardia ventricular sin pulso</option><option value="vtp">Taquicardia ventricular con pulso, inestable</option><option value="af">Fibrilación auricular con respuesta rápida</option><option value="flt">Flúter auricular 2 : 1</option><option value="stach">Taquicardia sinusal por fiebre (150 lpm)</option></select></label>
@@ -234,7 +234,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel" id="caso">
   <h2>Caso clínico de cierre</h2>
-  <p class="note">Nivel avanzado · objetivos 6.109–6.111 · todos los números salen del modelo.</p>
+  <p class="note">Nivel avanzado · todos los números salen del modelo.</p>
   <p id="csTxt"></p>
   <div class="chips" id="csMet"></div>
   <div id="csS1"><h3>1. ¿Qué explica que tolere tan mal esta arritmia?</h3><div class="col" id="csO1" style="gap:6px"></div><p class="fb" id="csF1"></p></div>
@@ -264,7 +264,7 @@ input[type=range].sm{max-width:150px}
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.97–6.111). Sin aval institucional.</p>
+  <p>Sin aval institucional.</p>
 </footer>
 </div>
 <script>
@@ -570,7 +570,7 @@ var RETOS=[
   txt:'La resincronización eleva el gasto '+fmt(d,1)+' % (la desincronía del ápex del VD resta eficacia de contracción), menos que el '+fmt(d2,1)+' % que ganó la sincronía AV al pasar de VVI a DDD. En la clínica el beneficio de la resincronización depende además del QRS y de la insuficiencia cardiaca (VERIFICAR).',cfg:{rhy:'ddd_avc',hr:70,avd:150,site:'biv'}}}}
 ];
 var rq=0,cal={baja:[0,0],media:[0,0],alta:[0,0]},answered=false;
-function showReto(){var r=RETOS[rq];answered=false;$('qNo').textContent='Reto '+(rq+1)+' de '+RETOS.length;$('qTag').innerHTML='<span>nivel '+r.lv+'</span><span>perillas: '+r.k+'</span><span>objetivo '+r.obj+'</span>';
+function showReto(){var r=RETOS[rq];answered=false;$('qNo').textContent='Reto '+(rq+1)+' de '+RETOS.length;$('qTag').innerHTML='<span>nivel '+r.lv+'</span><span>perillas: '+r.k+'</span>';
  $('qText').textContent=r.q;$('qOpts').innerHTML=r.opts.map(function(o,i){return '<label class="opt"><input type="radio" name="qo" value="'+i+'"> <span>'+o+'</span></label>'}).join('');$('qFb').innerHTML='';$('qTbW').hidden=true}
 function checkReto(){
  var sel=document.querySelector('input[name=qo]:checked');if(!sel){$('qFb').textContent='Elige una respuesta primero.';return}

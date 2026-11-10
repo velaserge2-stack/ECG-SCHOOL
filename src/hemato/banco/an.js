@@ -14,7 +14,7 @@ Q('AN',1,'La HCM corresponde a:',
 Q('AN',1,'Los reticulocitos son:',
  ['Eritrocitos jóvenes que conservan restos de ARN','Precursores de plaquetas','Eritrocitos viejos a punto de ser destruidos','Linfocitos inmaduros'],
  'Su recuento valora la respuesta de la médula.');
-Q('AN',1,'Según la guía, los valores de referencia de la biometría:',
+Q('AN',1,'los valores de referencia de la biometría:',
  ['Dependen del laboratorio, la edad, el sexo, el embarazo y la altitud','Son iguales en todo laboratorio y solo cambian con la edad','Dependen del sexo, pero no del embarazo ni de la altitud','Se fijan por consenso y no varían entre poblaciones'],
  'Por eso no se memorizan como cifras universales.');
 Q('AN',1,'Una anemia regenerativa se caracteriza por:',
@@ -44,9 +44,9 @@ Q('AN',2,'Mujer de 50 años con Hb de 8 g/dL. ¿Qué síntomas del síndrome an�
 Q('AN',2,'Mujer de 34 años con anemia ferropénica típica y sin inflamación. ¿Qué patrón de hierro esperas?',
  ['Hierro bajo, ferritina baja, saturación baja y transferrina/TIBC alta','Hierro bajo, ferritina alta, saturación baja y TIBC normal o baja','Hierro alto, ferritina alta, saturación alta y TIBC baja','Hierro normal, ferritina normal, saturación normal y TIBC normal'],
  'Sin reservas: el hígado aumenta la transferrina buscando hierro. La ferritina baja vale si no hay inflamación.');
-Q('AN',2,'¿Cuál es la causa más frecuente de ferropenia en una mujer en edad fértil, según las causas que lista la guía?',
+Q('AN',2,'¿Cuál es la causa más frecuente de ferropenia en una mujer en edad fértil, según las causas descritas?',
  ['Pérdida crónica de sangre menstrual','Resección ileal','Hemólisis intravascular','Insuficiencia renal'],
- 'La guía lista ingesta insuficiente, pérdida crónica (menstrual, digestiva o genitourinaria), aumento de requerimientos y malabsorción.');
+ 'Entre las causas están ingesta insuficiente, pérdida crónica (menstrual, digestiva o genitourinaria), aumento de requerimientos y malabsorción.');
 Q('AN',2,'¿Por qué la anemia ferropénica es microcítica e hipocrómica?',
  ['Sin hierro no se forma suficiente hemo y cada eritrocito lleva menos Hb','Se destruyen selectivamente los eritrocitos grandes en el bazo','Falla la síntesis de ADN y el núcleo madura más tarde','Baja la EPO y la médula produce eritrocitos más pequeños'],
  'Falla la síntesis de hemoglobina; al inicio puede ser normocítica.');
@@ -82,7 +82,7 @@ Q('AN',2,'Niña de 8 años con esferocitosis hereditaria. ¿Qué tipo de anemia 
  'Puede haber esplenomegalia y cálculos pigmentarios; el diagnóstico se apoya en frotis y pruebas de fragilidad.');
 Q('AN',2,'En la esferocitosis hereditaria, la esplenectomía:',
  ['Se considera en casos seleccionados','Es obligatoria en todos','Está contraindicada siempre','Cura el defecto de membrana'],
- 'La guía: no es automática para todos; el bazo es el sitio donde se destruyen los esferocitos.');
+ 'No es automática para todos; el bazo es el sitio donde se destruyen los esferocitos.');
 Q('AN',2,'¿En qué cromosoma están los genes de las cadenas β de globina?',
  ['11','16','X','21'],
  'α en el 16 y β en el 11.');
@@ -94,14 +94,14 @@ Q('AN',2,'Mujer de 45 años con sangrado digestivo lento y crónico. ¿Cómo tie
  'La pérdida sostenida agota las reservas de hierro.');
 Q('AN',2,'¿Qué mecanismo compensador NO forma parte de la respuesta a la anemia?',
  ['Vasoconstricción sistémica con aumento de la resistencia vascular','Aumento del gasto cardiaco y de la frecuencia cardiaca','Aumento del 2,3-DPG que desplaza la curva a la derecha','Aumento de la ventilación y de la eritropoyetina'],
- 'La guía describe disminución de la resistencia vascular sistémica y redistribución del flujo, no vasoconstricción.');
+ 'Disminuye la resistencia vascular sistémica y se redistribuye el flujo; no hay vasoconstricción.');
 Q('AN',2,'Paciente de 70 años que recibió varios litros de solución intravenosa: su Hb baja sin sangrado. ¿Qué lo explica?',
  ['La hemodilución','La deshidratación','La policitemia vera','La altitud'],
  'Más plasma diluye: debe interpretarse en contexto. La deshidratación hace lo contrario (hemoconcentración).');
 Q('AN',3,'Mujer de 30 años con menstruaciones abundantes: Hb 9, VCM 68 fL, ferritina baja, reticulocitos bajos. Además de reponer hierro, ¿qué es indispensable?',
  ['Buscar y corregir la causa de la pérdida','Transfundir siempre, sin buscar la causa','Dar vitamina B12 junto con el hierro','Indicar esplenectomía para frenar la pérdida'],
- 'La guía: reposición de hierro y búsqueda/corrección de la causa.');
-Q('AN',3,'Hombre de 65 años con anemia microcítica y ferritina baja, sin sangrado evidente. ¿Qué causa de la lista de la guía debes buscar activamente?',
+ 'Reposición de hierro y búsqueda/corrección de la causa.');
+Q('AN',3,'Hombre de 65 años con anemia microcítica y ferritina baja, sin sangrado evidente. ¿Qué causa de la lista debes buscar activamente?',
  ['Pérdida crónica de sangre por tubo digestivo','Aumento de requerimientos por embarazo','Aumento de requerimientos por la infancia','Exceso de vitamina C en la dieta habitual'],
  'En un varón adulto sin otra explicación, la pérdida digestiva crónica es la causa que hay que descartar.');
 Q('AN',3,'Paciente vegano estricto desde hace 8 años con macrocitosis, parestesias, AMM y homocisteína altos. ¿Qué paso de la B12 falla?',
@@ -118,13 +118,13 @@ Q('AN',3,'Alcohólico con dieta pobre en vegetales verdes: VCM 115, homocisteín
  'AMM normal y sin neurología: déficit de folato.');
 Q('AN',3,'Mujer de 35 años con pancitopenia, médula hipocelular con grasa, sin esplenomegalia, tras quimioterapia. ¿Cuál es el diagnóstico más probable?',
  ['Anemia aplásica','Anemia ferropénica','Esferocitosis hereditaria','Talasemia menor'],
- 'Quimioterapia es una de las causas que menciona la guía; no suele haber organomegalias.');
+ 'Quimioterapia es una de las causas descritas; no suele haber organomegalias.');
 Q('AN',3,'Hombre de 70 años con Hb 10, VCM 92, reticulocitos 0,3 % y creatinina muy elevada. ¿Qué anemia es?',
  ['Normocítica arregenerativa por falta de EPO renal','Microcítica ferropénica por pérdidas urinarias','Macrocítica por déficit de B12 por la uremia','Regenerativa por hemólisis de toxinas urémicas'],
  'Normocítica y sin respuesta medular, con el sensor de EPO dañado.');
 Q('AN',3,'Paciente que acaba de perder 1,5 L de sangre en un accidente; en la primera hora su hematocrito es casi normal. ¿Por qué?',
  ['Se perdieron eritrocitos y plasma en la misma proporción; la dilución viene después','La médula repuso en una hora los eritrocitos que se perdieron con la sangre','El bazo liberó de inmediato una reserva suficiente de eritrocitos','La hemorragia aumenta el hematocrito porque se pierde sobre todo plasma'],
- 'La guía: el Hct inicial no refleja la magnitud de la pérdida hasta la redistribución de líquidos.');
+ 'El Hct inicial no refleja la magnitud de la pérdida hasta la redistribución de líquidos.');
 Q('AN',3,'Paciente con β-talasemia mayor transfundido muchas veces. ¿Qué complicación esperas?',
  ['Sobrecarga de hierro','Déficit de hierro grave','Déficit de B12','Policitemia vera'],
  'Las transfusiones repetidas y la eritropoyesis ineficaz acumulan hierro.');

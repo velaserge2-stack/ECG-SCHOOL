@@ -81,7 +81,7 @@ svg.cpl{width:100%;height:auto;display:block}svg.cpl text{font:12px var(--font-b
   <div class="eyebrow">Módulo H5 · inmunidad y grupos sanguíneos</div>
   <h1>Inmunidad y grupos sanguíneos</h1>
   <p class="lede">Una transfusión incompatible es un problema de antígenos y anticuerpos que se encuentran donde no deben: elige donante y receptor, cambia entre eritrocitos y plasma, hereda alelos y sigue a una madre Rh negativa a lo largo de dos embarazos.</p>
-  <div class="tags"><span>Hematología: guía §10–11</span><span>Perillas: grupo ABO y Rh, componente, genotipos, reexposición, patógeno, anti-D</span><span>Requiere H2</span></div>
+  <div class="tags"><span>Perillas: grupo ABO y Rh, componente, genotipos, reexposición, patógeno, anti-D</span><span>Requiere H2</span></div>
 </header>
 
 <section class="panel">
@@ -111,7 +111,7 @@ svg.cpl{width:100%;height:auto;display:block}svg.cpl text{font:12px var(--font-b
   <h2>Controles: atajos y tabla completa</h2>
   <div class="chips" id="pre"></div>
   <details><summary>Ver la tabla de compatibilidad completa (calculada con la misma regla)</summary><div class="tw" style="margin-top:8px"><table id="mat"></table></div>
-  <p class="note">La tabla completa de la guía no se distingue bien en la extracción <span class="ver">VERIFICAR</span>; esta se deduce de la regla «antígenos del donante vs anticuerpos del receptor». En la práctica la selección también considera la pesquisa de anticuerpos y las pruebas cruzadas según el contexto.</p></details>
+  <p class="note">La tabla completa se deduce de la regla antígeno–anticuerpo <span class="ver">VERIFICAR</span>; esta se deduce de la regla «antígenos del donante vs anticuerpos del receptor». En la práctica la selección también considera la pesquisa de anticuerpos y las pruebas cruzadas según el contexto.</p></details>
 </section>
 
 <section class="grid">
@@ -227,7 +227,7 @@ svg.cpl{width:100%;height:auto;display:block}svg.cpl text{font:12px var(--font-b
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Basado en la Guía de Hematología (apuntes del Dr. Alejandro Leal). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro/diapositivas del curso.</p>
+  <p>Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro o las diapositivas del curso.</p>
 </footer>
 </div>
 <script>
@@ -370,7 +370,7 @@ function cpl(){$('cpP').innerHTML=CP.map(function(c,i){return '<button class="bt
   [['C3b: opsonización',40],['C3a, C5a: inflamación y quimiotaxis',110],['C5b–C9: lisis (MAC)',180]].forEach(function(f){s+='<path d="M256 110 L300 '+f[1]+'" stroke="'+(any?v:css('--line'))+'" stroke-width="2" fill="none"/><text x="304" y="'+(f[1]+4)+'" fill="'+(any?fg:css('--muted'))+'">'+f[0]+'</text>'});
   $('cpl').innerHTML=s;$('cpW').textContent=any?'Cualquier vía que se active converge en C3 y produce las mismas tres funciones: marcar al microbio para fagocitarlo, atraer células y perforar membranas. Las proteínas del complemento se sintetizan sobre todo en el hígado.':'Sin ninguna vía activa, el complemento no amplifica la defensa.'}
 /* Hipersensibilidad */
-var HS=[['I','IgE en mastocitos y basófilos','inmediata','Alergia; en casos graves, anafilaxia (prurito, edema, broncoconstricción).'],['II','IgG o IgM contra antígenos de células o matriz','minutos a horas','Anticuerpos contra eritrocitos: transfusión ABO incompatible o EHRN (nota: clasificación como ejemplo).'],['III','Complejos inmunes que se depositan en tejidos','horas a días','La guía no da un ejemplo específico.'],['IV','Linfocitos T','retardada (días)','La guía no da un ejemplo específico.']],HI=0;
+var HS=[['I','IgE en mastocitos y basófilos','inmediata','Alergia; en casos graves, anafilaxia (prurito, edema, broncoconstricción).'],['II','IgG o IgM contra antígenos de células o matriz','minutos a horas','Anticuerpos contra eritrocitos: transfusión ABO incompatible o EHRN (nota: clasificación como ejemplo).'],['III','Complejos inmunes que se depositan en tejidos','horas a días','Sin ejemplo específico en este módulo.'],['IV','Linfocitos T','retardada (días)','Sin ejemplo específico en este módulo.']],HI=0;
 function hs(){$('hsP').innerHTML=HS.map(function(h,i){return '<button class="btn" data-h="'+i+'" aria-pressed="'+(i===HI)+'">Tipo '+h[0]+'</button>'}).join('');
   $('hsP').querySelectorAll('button').forEach(function(b){b.onclick=function(){HI=+b.dataset.h;hs()}});var h=HS[HI];
   $('hs').innerHTML='<tr><th>Tipo</th><td>'+h[0]+'</td></tr><tr><th>Efector</th><td>'+h[1]+'</td></tr><tr><th>Tiempo</th><td>'+h[2]+'</td></tr><tr><th>Ejemplo</th><td>'+h[3]+'</td></tr>';

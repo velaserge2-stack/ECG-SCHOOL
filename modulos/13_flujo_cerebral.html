@@ -118,12 +118,12 @@ input[type=range].sm{max-width:150px}
   <div class="eyebrow">Módulo D4 · circulaciones regionales · cerebro</div>
   <h1>Flujo cerebral</h1>
   <p class="lede">El cerebro pide un flujo casi constante y el sistema se lo da con tres trucos: autorregulación, sensibilidad al CO₂ y un árbol arterial con rutas de repuesto. Mueve la presión, los gases y la posición, y mira cuándo el truco deja de alcanzar.</p>
-  <div class="tags"><span>Unidad 6: 6.236–6.240</span><span>Nivel N5</span><span>Perillas: PAM · PCO₂ · PO₂ · posición · PIC</span><span>Requiere D1</span></div>
+  <div class="tags"><span>Nivel N5</span><span>Perillas: PAM · PCO₂ · PO₂ · posición · PIC</span><span>Requiere D1</span></div>
 </header>
 
 <section class="panel">
   <h2>Curva flujo–presión</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perillas: PAM, PCO₂, PO₂, posición, PIC, reflejos</span><span>objetivos 6.237–6.240</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: PAM, PCO₂, PO₂, posición, PIC, reflejos</span></div>
   <div class="chips" id="pre"></div>
   <div class="grid">
     <div class="col">
@@ -151,13 +151,13 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Ejemplo trabajado: la presión de perfusión no es la PAM</h2>
-  <div class="meta"><span class="lv">básico</span><span>perillas: posición, PIC</span><span>objetivos 6.237, 6.240</span></div>
+  <div class="meta"><span class="lv">básico</span><span>perillas: posición, PIC</span></div>
   <ol class="chain-l" id="wk"></ol>
 </section>
 
 <section class="panel">
   <h2>Sigue la sangre: arterias y territorios</h2>
-  <div class="meta"><span class="lv">básico</span><span>perilla: oclusión de una arteria</span><span>objetivo 6.236</span></div>
+  <div class="meta"><span class="lv">básico</span><span>perilla: oclusión de una arteria</span></div>
   <p class="note">Vista desde arriba, nariz hacia arriba (la derecha del paciente queda a la derecha de la figura). El color depende del flujo real del territorio: el flujo global del panel superior multiplicado por la fracción que llega por las rutas disponibles.</p>
   <div class="grid">
     <div class="col"><canvas id="wl" role="img" aria-label="Polígono de Willis con territorios arteriales"></canvas></div>
@@ -189,7 +189,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Contraejemplo: dos mareos casi iguales</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perillas: PCO₂ vs PAM</span><span>objetivos 6.237–6.239</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: PCO₂ vs PAM</span></div>
   <div class="vs" id="ce"></div>
   <p class="why">Mismo síntoma y casi el mismo flujo, pero la causa está en perillas distintas. En uno la PAM es normal y la vasoconstricción es química; en el otro el CO₂ es normal y falta presión. El manejo es opuesto: devolver CO₂ en uno, devolver presión en el otro.</p>
 </section>
@@ -201,7 +201,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Juego: Rescata el flujo</h2>
-  <div class="meta"><span class="lv">intermedio</span><span>perillas: todas</span><span>objetivos 6.237–6.240</span></div>
+  <div class="meta"><span class="lv">intermedio</span><span>perillas: todas</span></div>
   <p class="note">Llevar el flujo a 40–60 mL/100 g/min con la menor cantidad de acciones posible. Cada acción cambia el modelo de arriba.</p>
   <div class="grid">
     <div class="col"><p id="gsc" class="why"></p><div class="chips" id="gch"></div><p class="fb" id="gfb" aria-live="polite"></p></div>
@@ -212,7 +212,7 @@ input[type=range].sm{max-width:150px}
 
 <section class="panel">
   <h2>Caso clínico de cierre</h2>
-  <div class="meta"><span class="lv">avanzado</span><span>perillas: PIC, PAM, PCO₂</span><span>objetivos 6.237–6.240</span></div>
+  <div class="meta"><span class="lv">avanzado</span><span>perillas: PIC, PAM, PCO₂</span></div>
   <div id="case"></div>
 </section>
 
@@ -237,7 +237,7 @@ input[type=range].sm{max-width:150px}
 
 <footer>
   <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-  <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia (6.236–6.240). Sin aval institucional.</p>
+  <p>Sin aval institucional.</p>
 </footer>
 </div>
 
@@ -261,7 +261,7 @@ function Quiz(el,items){
   var q=function(s){return el.querySelector(s)};
   function show(){var it=items[i];done=false;q('.qleg').innerHTML='<b>'+it.name+'</b><br>'+it.q;
     q('.qo').innerHTML=it.o.map(function(t,k){return '<label class="qopt"><input type="radio" name="'+id+'o" value="'+k+'"> <span>'+t+'</span></label>'}).join('');
-    q('.qmeta').innerHTML='<span class="lv">'+it.lv+'</span><span>perilla: '+it.knob+'</span><span>objetivos '+it.obj+'</span>';
+    q('.qmeta').innerHTML='<span class="lv">'+it.lv+'</span><span>perilla: '+it.knob+'</span>';
     q('.qfb').innerHTML=''}
   q('.qgo').onclick=function(){var r=el.querySelector('input[name='+id+'o]:checked');if(!r){q('.qfb').textContent='Elige primero una respuesta.';return}
     var it=items[i],ok=+r.value===it.a,cf=+el.querySelector('input[name='+id+'cf]:checked').value;

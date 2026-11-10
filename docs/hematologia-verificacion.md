@@ -1,7 +1,6 @@
 # Hematología (módulos 34–39): verificación
 
-Fuente única: *Guía de Hematología — versión reconstruida* (apuntes del Dr. Alejandro Leal).
-Los modelos son educativos y semicuantitativos. La **dirección** de cada efecto viene de la guía;
+Los modelos son educativos y semicuantitativos. La **dirección** de cada efecto es la descrita en la teoría;
 las **magnitudes** son ilustrativas y están marcadas VERIFICAR en cada módulo.
 
 ## Pruebas automáticas realizadas
@@ -16,7 +15,7 @@ las **magnitudes** son ilustrativas y están marcadas VERIFICAR en cada módulo.
 - IndexedDB: el Banco Hemato guarda respuestas, reanuda el simulacro y repasa con FSRS en su espacio de
   nombres `h:`; tras usarlo, el progreso del Banco Cardio queda idéntico (verificado).
 
-## Preajuste → esperado (guía) → obtenido (modelo)
+## Preajuste → esperado → obtenido (modelo)
 
 ### Módulo 34 · curva de disociación (P50 basal 26,8 mmHg)
 
@@ -57,7 +56,7 @@ las **magnitudes** son ilustrativas y están marcadas VERIFICAR en cada módulo.
 
 ### Módulo 37 · pruebas de coagulación
 
-| Escenario | Esperado (guía) | Obtenido |
+| Escenario | Esperado | Obtenido |
 |---|---|---|
 | Hemofilia A / B | TTPa ↑; TP, plaquetas y TS normales | TTPa 3,3×; resto normal |
 | Enf. de von Willebrand | TS ↑; TTPa normal o ↑ según VIII | TS 1,8×; TTPa 1,36× |
@@ -119,7 +118,7 @@ Hombre de 58 años, fumador con EPOC, que vive en altura. Son 44 preguntas en 6 
 5. La fiebre: inmunidad, choque, curva y hepcidina.
 6. El mapa completo: integración.
 
-Notas fuera de la guía:
+Notas (ampliaciones):
 - el oxímetro de pulso no detecta la carboxihemoglobina;
 - la coronaria derecha suele irrigar el nodo AV;
 - la orina roja de la hemólisis es hemoglobinuria;
@@ -167,7 +166,7 @@ positivo. Son 46 preguntas en 6 actos:
    - riesgo en el siguiente embarazo;
    - integración.
 
-Notas fuera de la guía, todas señaladas en su explicación:
+Notas (ampliaciones), todas señaladas en su explicación:
 - el mecanismo de la inmunoglobulina anti-D;
 - el nombre «eritroblastosis fetal»;
 - el Doppler fetal;
@@ -219,21 +218,19 @@ Puntos marcados **VERIFICAR**:
 - Tabla completa de compatibilidad transfusional (se deduce de la regla antígeno–anticuerpo).
 - Curvas de IgM/IgG sin unidades.
 
-## Decisiones de diseño donde la guía era ambigua
+## Decisiones de diseño
 
-- **Notas de seguridad fuera de la guía**, señaladas como «nota»: los oxímetros de pulso convencionales
+- **Notas de seguridad**, señaladas como «nota»: los oxímetros de pulso convencionales
   no distinguen la carboxihemoglobina; la carboxihemoglobina se confirma midiéndola; la anemia
   perniciosa como ejemplo de falta de factor intrínseco; las menstruaciones abundantes en la enfermedad
   de von Willebrand; el dímero-D también sube en otras situaciones con formación de fibrina; la
   talasemia se confirma con estudio de hemoglobinas.
-- **Hepatopatía vs déficit de vitamina K**: se distinguen por el factor V. No está escrito así en la guía,
-  pero se deduce de ella (el hígado sintetiza la mayoría de los factores; la vitamina K solo actúa sobre
+- **Hepatopatía vs déficit de vitamina K**: se distinguen por el factor V. Es una deducción (el hígado sintetiza la mayoría de los factores; la vitamina K solo actúa sobre
   II, VII, IX y X).
-- **Hipersensibilidad tipo II**: se usan la transfusión incompatible y la EHRN como ejemplos (nota); la
-  guía no da ejemplos para los tipos III y IV y el módulo lo dice.
+- **Hipersensibilidad tipo II**: se usan la transfusión incompatible y la EHRN como ejemplos (nota); no se dan ejemplos para los tipos III y IV y el módulo lo dice.
 - **Metahemoglobina**: el modelo solo le resta capacidad; no simula su efecto sobre la descarga de los
   hemos restantes (está en «Simplificaciones»).
-- **Anemia sideroblástica**: no está en la guía y no se incluye.
+- **Anemia sideroblástica**: no se incluye.
 - **Banco Hemato** con espacio de nombres `h:` en IndexedDB. El Banco Cardio quedó con prefijo vacío, así
   que sus datos guardados no cambian. Se generó desde el 33 con `tools/build_bank_hemato.py` para no
   duplicar el motor.
