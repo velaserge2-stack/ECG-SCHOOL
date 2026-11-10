@@ -17,7 +17,7 @@ G = [
     ('B', 'Hemodinamia', 'La bomba, los vasos y las presiones, del ciclo cardiaco al cateterismo.', ['06', '10', '32', '11', '12', '28', '14', '16', '17', '19', '22', '25', '26', '23']),
     ('D', 'Regulación y circulaciones regionales', 'Reflejos y órganos en paralelo: cómo se reparte el gasto.', ['27', '21', '13', '20', '15', '18']),
     ('E', 'Integración fisiológica', 'Un solo estado compartido para tejido, señal, contracción, circulación, control y medición.', ['24']),
-    ('H', 'Hematología', 'De la hemoglobina a la hemostasia: deduce cada hallazgo desde su mecanismo.', ['34', '35']),
+    ('H', 'Hematología', 'De la hemoglobina a la hemostasia: deduce cada hallazgo desde su mecanismo.', ['34', '35', '36']),
     ('P', 'Práctica y evaluación', 'Preguntas tipo examen con trazos de ECG, simulacros y tarjetas de repaso.', ['33']),
 ]
 
