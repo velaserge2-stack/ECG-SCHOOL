@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Entrar · ECG School</title>
 <meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#142120" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ECG School">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -133,6 +143,8 @@ var nextUrl='index.html'+(location.hash&&location.hash!=='#'?location.hash:'');
 var here=location.href.split('#')[0].split('?')[0];
 var appUrl=new URL('index.html',here).href;
 if(params.get('e')==='noautorizado')say('Tu correo no está en la lista de acceso. Si crees que es un error, pide al administrador que lo agregue.');
+if(params.get('e')==='sinconexion')say('No hay conexión para verificar tu acceso. Conéctate a internet e inicia sesión; después podrás abrir sin conexión los módulos que ya visitaste.');
+if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
 
 var recovering=false;
 SB.auth.onAuthStateChange(function(ev){if(ev==='PASSWORD_RECOVERY'){recovering=true;view('fNew')}});
@@ -151,8 +163,9 @@ function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 
 /* Entra solo si el correo sigue en la lista; si no, cierra la sesión. */
 function enter(){return SB.rpc('is_allowed').then(function(a){
+  if(a.error&&(!navigator.onLine||/fetch|network|load failed|timeout/i.test(a.error.message||''))){view('fIn');return say('No hay conexión con el servidor. Revisa tu internet.')}
   if(a.error||a.data!==true){return SB.auth.signOut().then(function(){view('fIn');say('Tu correo no está en la lista de acceso. Si crees que es un error, pide al administrador que lo agregue.')})}
-  location.replace(nextUrl)})}
+  SB.auth.getUser().then(function(u){var em=u&&u.data&&u.data.user&&u.data.user.email;if(em){try{localStorage.setItem('ecg-allowed-v1',JSON.stringify({email:em,at:Date.now()}))}catch(e){}}}).finally(function(){location.replace(nextUrl)})})}
 
 SB.auth.getSession().then(function(r){if(r.data&&r.data.session&&!recovering&&!/type=recovery/.test(location.hash)&&params.get('e')!=='noautorizado')enter()});
 

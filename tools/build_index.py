@@ -84,7 +84,7 @@ js_local = jsdump({k: {'t': v['t'], 'h': v['h']} for k, v in data.items()})
 js_web = jsdump({k: {'t': v['t'], 'f': os.path.basename(mods_by[k])} for k, v in data.items()})
 order = json.dumps([k for g in G for k in g[3]])
 
-def render(js, HEADX, BODYATTR, USERBOX, LOADER, START):
+def render(js, HEADX, BODYATTR, USERBOX, LOADER, START, EXTRA=''):
     return '''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ECG School</title>
 <meta name="description" content="Plataforma interactiva para entender el ECG y la hemodinamia como un solo sistema.">
@@ -116,6 +116,25 @@ main{min-width:0}iframe{display:block;width:100%;border:0;min-height:calc(100vh 
 @media (max-width:820px){.lay{grid-template-columns:minmax(0,1fr)}#menu{display:inline-block}nav{position:fixed;left:0;top:53px;width:min(320px,88vw);z-index:4;transform:translateX(-102%);transition:transform .2s;box-shadow:0 8px 24px rgba(0,0,0,.2)}body.open nav{transform:none}}
 a:focus-visible,button:focus-visible{outline:2px solid var(--vec);outline-offset:2px}
 [hidden]{display:none!important}
+nav a .due{margin-left:auto;align-self:center;flex:none;min-width:22px;text-align:center;background:var(--guess);color:#fff;border-radius:999px;font:700 .72rem/1.6 "JetBrains Mono",monospace;padding:0 7px}
+.duebox{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;border:1px solid var(--line);border-left:4px solid var(--guess);border-radius:10px;background:var(--panel);padding:12px 16px}
+.duebox .dn{font:800 1.6rem/1 "Bricolage Grotesque",system-ui,sans-serif;color:var(--guess)}
+.duebox a{margin-left:auto;font-weight:600;color:var(--vec);text-decoration:none}
+.duebox a:hover{text-decoration:underline}
+.inst{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translate(-50%,24px);opacity:0;transition:transform .25s,opacity .25s;width:min(440px,calc(100vw - 24px));z-index:30;display:flex;gap:12px;align-items:flex-start;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:14px 40px 12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+.inst.on{transform:translate(-50%,0);opacity:1}
+.inst img{border-radius:11px;flex:none}
+.inst #instT{display:block;font:700 1rem/1.25 "Bricolage Grotesque",system-ui,sans-serif}
+.inst p{margin:4px 0 0;font-size:.88rem;color:var(--muted)}
+.inst ol{margin:8px 0 0;padding-left:20px;font-size:.88rem;display:grid;gap:3px}
+.inst ol svg{vertical-align:-3px;color:var(--vec)}
+.inst .inote{font-size:.78rem;margin-top:8px}
+.inst .ia{display:flex;gap:8px;margin-top:10px}
+.inst .ia button{font:600 .88rem "Source Sans 3",sans-serif;border:1px solid var(--line);border-radius:7px;padding:7px 12px;background:var(--panel);color:var(--fg);cursor:pointer}
+.inst #instGo{background:var(--vec);border-color:var(--vec);color:#fff}
+.inst .ix{position:absolute;top:6px;right:6px;border:0;background:none;font-size:1.4rem;line-height:1;color:var(--muted);cursor:pointer;padding:6px 9px;border-radius:6px}
+@media (max-width:520px){.inst{gap:10px;padding:11px 34px 10px 11px;border-radius:12px}.inst img{width:38px;height:38px;border-radius:9px}.inst #instT{font-size:.93rem}.inst p{font-size:.8rem;line-height:1.35}.inst ol{font-size:.82rem;margin-top:6px;gap:1px}.inst .inote{font-size:.72rem;margin-top:6px}.inst .ia{margin-top:8px}.inst .ia button{padding:6px 10px;font-size:.82rem}}
+@media (prefers-reduced-motion:reduce){.inst{transition:none}}
 
 /* ---- inicio ---- */
 #home{max-width:1080px;margin:0 auto;padding:24px 16px 56px;display:flex;flex-direction:column;gap:44px}
@@ -178,6 +197,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--vec);outline-offset
 <div class="lay"><nav aria-label="Módulos">''' + nav + '''<p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Alineado con los objetivos de la Unidad 6 como referencia; sin aval institucional.</p></nav>
 <main>
 <div id="home">
+  <div id="duebox" class="duebox" hidden><span class="dn" id="dueN"></span><span id="dueT"></span><a href="#m33" id="dueGo">Repasar ahora →</a></div>
   <section class="hero">
     <div class="eyebrow">Fisiología cardiovascular · ECG y hemodinamia</div>
     <h2>Entiende el corazón, <em>no lo memorices</em>.</h2>
@@ -249,11 +269,28 @@ function step(d){var i=ORDER.indexOf(now);var j=i<0?(d>0?0:ORDER.length-1):(i+d+
 document.getElementById('prev').onclick=function(){step(-1)};document.getElementById('next').onclick=function(){step(1)};
 document.getElementById('menu').onclick=function(){document.body.classList.toggle('open')};
 ''' + START + '''})();
-</script></body></html>'''
-local = render(js_local, '', '', '', 'function load(n){fr.srcdoc=MODS[n].h}', 'fromHash()')
+</script>''' + EXTRA + '''</body></html>'''
+BADGE = '<script>\n/* Contador de tarjetas para repasar hoy (lee el progreso local de IndexedDB). */\n(function(){if(!window.ECGDB)return;var link=document.querySelector(\'nav a[data-n="33"]\'),box=document.getElementById(\'duebox\');\nfunction upd(){ECGDB.summary().then(function(s){var n=s.dueToday||0;\n  if(link){var b=link.querySelector(\'.due\');if(!b){b=document.createElement(\'span\');b.className=\'due\';link.appendChild(b)}b.textContent=n;b.hidden=!n;b.title=n+(n===1?\' tarjeta\':\' tarjetas\')+\' para repasar hoy\'}\n  if(box){box.hidden=!n;document.getElementById(\'dueN\').textContent=n;document.getElementById(\'dueT\').textContent=n===1?\'tarjeta para repasar hoy en el Banco Cardio\':\'tarjetas para repasar hoy en el Banco Cardio\'}}).catch(function(){})}\nECGDB.ready().then(upd);ECGDB.onChange(function(){clearTimeout(upd.t);upd.t=setTimeout(upd,300)});\ndocument.addEventListener(\'visibilitychange\',function(){if(document.visibilityState===\'visible\')upd()});setInterval(upd,60000);\nvar go=document.getElementById(\'dueGo\');if(go)go.addEventListener(\'click\',function(e){e.preventDefault();\n  ECGDB.put(\'sessions\',{id:\'vista\',v:\'repaso\',updated:Date.now()}).catch(function(){}).then(function(){if(location.hash===\'#m33\'){location.hash=\'#inicio\'}location.hash=\'#m33\'})});\n})();\n</script>'
+LIBDB = open(os.path.join(root, 'lib', 'ecg-db.js'), encoding='utf-8').read()
+local = render(js_local, '', '', '', 'function load(n){fr.srcdoc=MODS[n].h}', 'fromHash()', '<script>\n' + LIBDB + '\n</script>' + BADGE)
 open(os.path.join(root, 'index.html'), 'w', encoding='utf-8').write(local)
 
-WEB_HEAD = '''<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+WEB_HEAD = '''<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#142120" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ECG School">
+<meta name="application-name" content="ECG School">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<script src="lib/ecg-db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <style>body.gate .lay{visibility:hidden}.who{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
 @media (max-width:600px){.who{display:none}}</style>
@@ -268,12 +305,23 @@ function load(n){var my=n;if(CACHE[n]){fr.srcdoc=CACHE[n];return}fr.srcdoc=msgDo
 WEB_START = r'''if(!CFG.supabaseUrl||/TU-PROYECTO/.test(CFG.supabaseUrl)||!window.supabase){location.replace('login.html');return}
 SB=supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey);
 function out(q){location.replace('login.html'+(q||'')+(location.hash?'#'+location.hash.slice(1):''))}
-document.getElementById('logout').onclick=function(){SB.auth.signOut().then(function(){location.replace('login.html')})};
+function forgetModules(){try{localStorage.removeItem('ecg-allowed-v1')}catch(e){}try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.controller.postMessage({type:'clear-modules'});if(window.caches)caches.delete('ecg-modules')}catch(e){}}
+function rememberAllowed(em){try{localStorage.setItem('ecg-allowed-v1',JSON.stringify({email:em,at:Date.now()}))}catch(e){}}
+function allowedOffline(em){try{var c=JSON.parse(localStorage.getItem('ecg-allowed-v1')||'null');return !!(c&&em&&c.email===em&&Date.now()-c.at<30*864e5)}catch(e){return false}}
+function isNet(e){return !navigator.onLine||/fetch|network|load failed|timeout|offline/i.test((e&&(e.message||e.name))||'')}
+function storedUser(){try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var v=JSON.parse(localStorage.getItem(k));return v&&(v.user||(v.currentSession&&v.currentSession.user))}}}catch(e){}return null}
+function enterApp(email,offline){document.getElementById('who').textContent=email+(offline?' · sin conexión':'');document.body.classList.remove('gate');fromHash()}
+document.getElementById('logout').onclick=function(){forgetModules();SB.auth.signOut().then(function(){location.replace('login.html')})};
 SB.auth.onAuthStateChange(function(ev){if(ev==='SIGNED_OUT')location.replace('login.html')});
-SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(!s)return out();
-  return SB.rpc('is_allowed').then(function(a){if(a.error||a.data!==true){return SB.auth.signOut().then(function(){location.replace('login.html?e=noautorizado')})}
-    document.getElementById('who').textContent=s.user.email;document.body.classList.remove('gate');fromHash()})})'''
-web = render(js_web, WEB_HEAD, ' class="gate"', WEB_USER, WEB_LOADER, WEB_START)
+SB.auth.getSession().then(function(r){var s=r.data&&r.data.session;
+  if(!s){var u=storedUser();if(r.error&&isNet(r.error)&&u&&allowedOffline(u.email))return enterApp(u.email,true);return out()}
+  return SB.rpc('is_allowed').then(function(a){
+    /* Sin conexión: si este correo ya se verificó en los últimos 30 días, se entra con lo guardado. */
+    if(a.error&&isNet(a.error)){if(allowedOffline(s.user.email))return enterApp(s.user.email,true);return location.replace('login.html?e=sinconexion')}
+    if(a.error||a.data!==true){forgetModules();return SB.auth.signOut().then(function(){location.replace('login.html?e=noautorizado')})}
+    rememberAllowed(s.user.email);enterApp(s.user.email,false)})})'''
+INSTALL = '<div id="inst" class="inst" role="dialog" aria-labelledby="instT" aria-describedby="instD" hidden>\n<img src="icons/apple-touch-icon.png" alt="" width="48" height="48">\n<div><b id="instT">Instala nuestra aplicación en tu iPhone</b>\n<p id="instD">Agrega esta página a tu pantalla de inicio para acceder más rápido, disfrutar de una experiencia de pantalla completa y tener tus herramientas de estudio siempre disponibles.</p>\n<ol id="instIOS" hidden><li>Presiona el botón <b>Compartir</b> <svg width="16" height="18" viewBox="0 0 16 18" aria-label="(icono de Compartir)"><path d="M8 1v11M4.5 4.5 8 1l3.5 3.5M5 7H2.5v9.5h11V7H11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> <span id="instWhere">de Safari</span>.</li><li>Selecciona <b>«Agregar a pantalla de inicio»</b>.</li><li>Confirma presionando <b>«Agregar»</b>.</li></ol>\n<p class="inote" id="instNote" hidden></p>\n<div class="ia"><button id="instGo" hidden>Instalar</button><button id="instLater">Ahora no</button></div></div>\n<button class="ix" id="instX" aria-label="Cerrar">×</button>\n</div>\n<script>\n/* Service worker + anuncio de instalación.\n   iOS no tiene beforeinstallprompt: se muestran instrucciones. En Android/Chrome/Edge se usa el instalador nativo. */\n(function(){\nfunction ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}\nif(\'serviceWorker\' in navigator&&location.protocol!==\'file:\'){addEventListener(\'load\',function(){navigator.serviceWorker.register(\'sw.js\').catch(function(){})})}\nvar ua=navigator.userAgent||\'\',isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform===\'MacIntel\'&&navigator.maxTouchPoints>1),isIPad=/iPad/.test(ua)||(navigator.platform===\'MacIntel\'&&navigator.maxTouchPoints>1);\nvar standalone=(window.matchMedia&&matchMedia(\'(display-mode: standalone)\').matches)||navigator.standalone===true;\nif(standalone){ls(\'ecg-installed\',\'1\');return}\nvar box=document.getElementById(\'inst\'),home=document.getElementById(\'home\');if(!box)return;\nif(Date.now()<(+ls(\'ecg-install-until\')||0))return;\nif(!isIOS&&ls(\'ecg-installed\'))return;\nvar deferred=null,armed=false,timer=null;\nfunction onHome(){return !home.hidden&&!document.body.classList.contains(\'gate\')&&!document.body.classList.contains(\'open\')}\nfunction show(){if(armed&&box.hidden&&document.body.classList.contains("gate")){clearTimeout(timer);timer=setTimeout(show,2000);return}if(!armed||!box.hidden||!onHome())return;box.hidden=false;requestAnimationFrame(function(){requestAnimationFrame(function(){box.classList.add(\'on\')})})}\nfunction hide(days){box.classList.remove(\'on\');setTimeout(function(){box.hidden=true},260);if(days)ls(\'ecg-install-until\',String(Date.now()+days*864e5))}\nfunction arm(){if(armed)return;armed=true;timer=setTimeout(show,8000)}\n/* momento oportuno: tras unos segundos en Inicio o al volver de un módulo; nunca encima de un módulo */\naddEventListener(\'hashchange\',function(){if(!armed)return;if(onHome()){clearTimeout(timer);timer=setTimeout(show,1500)}else if(!box.hidden)hide(0)});\ndocument.getElementById(\'instX\').onclick=function(){hide(30)};\ndocument.getElementById(\'instLater\').onclick=function(){hide(7)};\nif(isIOS){\n  var safari=!/CriOS|FxiOS|EdgiOS|OPiOS|GSA\\//.test(ua);\n  document.getElementById(\'instT\').textContent=\'Instala nuestra aplicación en tu \'+(isIPad?\'iPad\':\'iPhone\');\n  document.getElementById(\'instIOS\').hidden=false;\n  if(!safari)document.getElementById(\'instWhere\').textContent=\'de tu navegador (si no aparece la opción, abre esta página en Safari)\';\n  var n=document.getElementById(\'instNote\');n.hidden=false;\n  n.textContent=\'La app instalada guarda su propio progreso, aparte del de Safari: si ya estudiaste aquí, pásalo con un respaldo (Banco Cardio › Progreso).\';\n  arm();\n}else{\n  addEventListener(\'beforeinstallprompt\',function(e){e.preventDefault();deferred=e;\n    document.getElementById(\'instT\').textContent=\'Instala ECG School en tu dispositivo\';\n    var g=document.getElementById(\'instGo\');g.hidden=false;g.onclick=function(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(r){deferred=null;if(r&&r.outcome===\'accepted\'){ls(\'ecg-installed\',\'1\');hide(0)}else hide(7)})};\n    arm()});\n}\naddEventListener(\'appinstalled\',function(){ls(\'ecg-installed\',\'1\');hide(0)});\nwindow.__install={show:function(){armed=true;show()},hide:hide};\n})();\n</script>'
+web = render(js_web, WEB_HEAD, ' class="gate"', WEB_USER, WEB_LOADER, WEB_START, BADGE + INSTALL)
 os.makedirs(os.path.join(root, 'web'), exist_ok=True)
 open(os.path.join(root, 'web', 'index.html'), 'w', encoding='utf-8').write(web)
 print(len(data), 'módulos · index.html', len(local), 'bytes · web/index.html', len(web), 'bytes')

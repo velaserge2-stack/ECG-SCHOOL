@@ -39,11 +39,17 @@ Cada módulo también existe como archivo HTML autocontenido en `modulos/`.
 | 27 | [Regulación local y humoral](modulos/27_regulacion_local_y_humoral.html) | D1 + D3 | 6.212–6.218, 6.233–6.235 |
 | 28 | [Las perillas del corazón](modulos/28_las_perillas_del_corazon.html) | B3 + F5 | 6.42–6.44, 6.136–6.144 |
 | 32 | [Ruidos cardiacos y soplos](modulos/32_ruidos_cardiacos_y_soplos.html) | B16 | 6.120–6.124, 6.145–6.149, 6.169–6.173 |
-| 33 | [Banco Cardio](modulos/33_banco_cardio.html) | Práctica y evaluación | 378 preguntas tipo examen (42 con trazo de ECG), incluidos 134 casos clínicos de hemodinamia y bases moleculares; simulacro y 112 flashcards de la Unidad 6 |
+| 33 | [Banco Cardio](modulos/33_banco_cardio.html) | Práctica y evaluación | 378 preguntas tipo examen (42 con trazo de ECG), incluidos 134 casos clínicos de hemodinamia y bases moleculares; simulacro reanudable, 112 flashcards con repaso espaciado FSRS y panel de progreso con respaldo |
 
 El módulo 24 es un laboratorio de integración fisiológica que conecta las capas L2–L8 en un mismo estado de simulación. Un cursor animado recorre un latido (con pausa, cámara lenta y desplazamiento manual) sincronizado en el mapa de activación, el ECG, el calcio, las presiones, el asa P–V y la línea temporal; los eventos mecánicos (S1, eyección, S2, apertura mitral) salen de la simulación. Tiene escenarios guiados con referencia basal superpuesta, retos de predicción cuya respuesta calcula el propio modelo y una gráfica de los dos relojes de compensación basada en la PAM con y sin barorreflejo. Incluye el escenario C2 de elevación pasiva de piernas, con comparación contra el estado basal y un desplazamiento venoso aproximado de 300 mL. Es una implementación educativa simplificada: no representa por separado los reservorios de piernas y abdomen ni la cinética completa de la maniobra, y no es un simulador clínico validado. Sus supuestos, rangos y ecuaciones requieren pruebas numéricas y revisión por especialistas.
 
 Para regenerar `index.html` tras añadir o cambiar módulos: `python3 tools/build_index.py .` (el orden y los grupos del menú están al inicio del script).
+
+## App instalable y progreso guardado
+
+La versión web se instala en la pantalla de inicio del iPhone o Android como app (PWA) y funciona sin conexión con los módulos ya visitados. El Banco Cardio guarda solo, en el navegador (IndexedDB), cada respuesta, el historial de intentos, los simulacros y el estado de cada flashcard, y repasa las tarjetas con FSRS (la biblioteca oficial ts-fsrs). Desde su pestaña «Progreso» se ve la racha, la retención y el calendario de repasos, y se puede exportar o importar un respaldo. Detalles y límites en [`docs/pwa-y-progreso.md`](docs/pwa-y-progreso.md).
+
+Si cambias algo en `lib/`, ejecuta `python3 tools/inline_libs.py .` antes de `tools/build_index.py`.
 
 ## Versión web con acceso (Supabase)
 

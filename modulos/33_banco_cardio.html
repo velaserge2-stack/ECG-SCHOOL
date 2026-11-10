@@ -124,6 +124,40 @@ details.navq[open]{display:grid;gap:10px}
 .qk{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);background:var(--bg);vertical-align:-1px}
 .qk.ok{background:var(--ok-soft);border-color:var(--ok)}.qk.bad{background:var(--bad-soft);border-color:var(--bad)}.qk.cur{outline:2px solid var(--accent)}
 footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+/* repaso FSRS y progreso */
+:root{--alt:#C2480F;--alt-soft:rgba(194,72,15,.12)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--alt:#FF9A5C;--alt-soft:rgba(255,154,92,.14)}}
+:root[data-theme="dark"]{--alt:#FF9A5C;--alt-soft:rgba(255,154,92,.14)}
+nav.tabs{overflow-x:auto;scrollbar-width:none}nav.tabs::-webkit-scrollbar{display:none}nav.tabs a{white-space:nowrap}
+.tbadge{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:var(--alt);color:#fff;font:700 12px/20px var(--f-mono);text-align:center;vertical-align:1px}
+.dbwarn{border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:10px 14px;font-size:15px}
+.retry{font-size:14px}
+.rcounts{display:flex;gap:14px;font:600 14px var(--f-mono)}.rcounts .n1{color:var(--accent)}.rcounts .n2{color:var(--bad)}.rcounts .n3{color:var(--ok)}
+.rcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px 22px;display:grid;gap:14px;text-align:center;min-height:220px;align-content:start}
+.rcard .cat{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.rcard .st{font:12px var(--f-mono);color:var(--muted)}
+.rcard .front-t{font:700 clamp(24px,5vw,34px)/1.15 var(--f-display);text-wrap:balance}
+.rcard hr{border:0;border-top:1px dashed var(--line);margin:4px 0}
+.rcard .back-t{font-size:18.5px;line-height:1.5;max-width:56ch;margin:0 auto}
+.grades{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.grades button{display:grid;gap:2px;padding:10px 6px;font-weight:700;border-width:2px}
+.grades button small{font:600 12px var(--f-mono);color:var(--muted)}
+.grades .g1{border-color:var(--bad);color:var(--bad)}.grades .g2{border-color:var(--alt);color:var(--alt)}.grades .g3{border-color:var(--ok);color:var(--ok)}.grades .g4{border-color:var(--accent);color:var(--accent)}
+.rshow{width:100%;padding:14px;font-size:17px}
+.ractions{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+.form{display:grid;gap:12px}.form label{display:grid;gap:4px;font-size:15px}.form input[type=text],.form input[type=number]{font:inherit;font-size:16px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 14px;display:grid;gap:2px}
+.kpi small{font-size:13px;color:var(--muted)}.kpi b{font:700 24px/1.15 var(--f-display)}.kpi span{font-size:13px;color:var(--muted)}
+.states{display:flex;flex-wrap:wrap;gap:8px}.states span{border:1px solid var(--line);border-radius:999px;padding:3px 12px;background:var(--surface);font-size:14px}
+svg.chart{width:100%;height:auto;display:block}svg.chart text{font:11px var(--f-mono);fill:var(--muted)}svg.chart .ax{stroke:var(--line)}svg.chart .gl{stroke:var(--line);stroke-dasharray:3 3}svg.chart .ln{fill:none;stroke-width:2}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--muted)}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:5px}
+.cd{border:1px solid var(--line);border-radius:8px;padding:4px 2px;text-align:center;display:grid;gap:0;background:color-mix(in srgb,var(--accent) calc(var(--a)*45%),var(--surface))}
+.cd small{font:10px var(--f-mono);color:var(--muted)}.cd b{font:600 14px var(--f-mono)}.cd span{font:600 11px var(--f-mono);min-height:14px}
+.cd.today{outline:2px solid var(--accent);outline-offset:1px}
+ul.susp{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.susp li{display:flex;gap:10px;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:6px 0}
+@media (max-width:520px){.grades{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion: reduce){.fc{transition:none}}
 @media (max-width:520px){.card{padding:16px}.stem{font-size:17px}nav.tabs a{padding:10px 10px}}
 </style>
@@ -140,7 +174,10 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <a href="#practica" data-v="practica">Práctica</a>
     <a href="#simulacro" data-v="simulacro">Simulacro</a>
     <a href="#flashcards" data-v="flashcards">Flashcards</a>
+    <a href="#repaso" data-v="repaso">Repaso<span class="tbadge" id="tab-due" hidden></span></a>
+    <a href="#progreso" data-v="progreso">Progreso</a>
   </nav>
+  <div class="dbwarn" id="db-warn" role="alert" hidden></div>
 
   <!-- PRÁCTICA -->
   <section id="v-practica" class="wrap" style="padding:0;max-width:none">
@@ -151,6 +188,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       </div>
       <label class="chk"><input type="checkbox" id="p-ecg"> Sólo con trazo</label>
       <label class="chk"><input type="checkbox" id="p-fail"> Sólo falladas</label>
+      <label class="chk"><input type="checkbox" id="p-pend"> Sólo pendientes</label>
       <button id="p-shuf">Barajar</button>
     </div>
     <div>
@@ -173,6 +211,11 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 
   <!-- SIMULACRO -->
   <section id="v-simulacro" hidden>
+    <div id="s-resume" class="card" hidden style="border-color:var(--accent)">
+      <div class="verdict">Simulacro en curso</div>
+      <p style="margin:0" id="s-resume-t"></p>
+      <div class="bar"><button class="primary" id="s-resume-go">Continuar simulacro</button><button id="s-resume-drop">Descartarlo</button></div>
+    </div>
     <div id="s-setup" class="card">
       <div class="verdict" style="font-size:22px">Simulacro de examen</div>
       <p style="margin:0;color:var(--muted)">Preguntas al azar sin retroalimentación hasta el final. Al terminar verás tu calificación por tema y la enseñanza de cada pregunta.</p>
@@ -213,9 +256,2400 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <div id="f-listview" class="fgrid" hidden></div>
   </section>
 
+
+  <!-- REPASO (FSRS) -->
+  <section id="v-repaso" hidden style="display:grid;gap:16px">
+    <div class="bar">
+      <select id="r-deck" aria-label="Mazo"></select>
+      <div class="rcounts" aria-label="Pendientes"><span class="n1" title="Nuevas"><span id="r-new">0</span> nuevas</span><span class="n2" title="Aprendizaje"><span id="r-learn">0</span> aprendiendo</span><span class="n3" title="Repaso"><span id="r-rev">0</span> repaso</span></div>
+      <button id="r-set-btn" aria-expanded="false">Ajustes</button>
+    </div>
+    <div id="r-set" class="card form" hidden>
+      <div class="verdict">Ajustes de repetición espaciada (FSRS)</div>
+      <label>Retención deseada: <b id="rs-ret-v"></b><input type="range" id="rs-ret" min="70" max="97" step="1"><span class="hint">Probabilidad de recordar una tarjeta cuando vuelve a aparecer. Más alta = repasos más frecuentes.</span></label>
+      <label>Tarjetas nuevas por día<input type="number" id="rs-new" min="0" max="200" inputmode="numeric"></label>
+      <label>Pasos de aprendizaje<input type="text" id="rs-ls" autocomplete="off"><span class="hint">Ej. «10m 30m»: Otra vez = 10 min, Difícil ≈ 20 min, Bien = 30 min; al terminar los pasos la tarjeta gradúa y FSRS calcula días.</span></label>
+      <label>Pasos de reaprendizaje (tras olvidar)<input type="text" id="rs-rs" autocomplete="off"></label>
+      <label>Intervalo máximo (días)<input type="number" id="rs-max" min="1" max="36500" inputmode="numeric"></label>
+      <div class="bar"><button class="primary" id="rs-save">Guardar ajustes</button><span class="hint" id="rs-msg"></span></div>
+    </div>
+    <div id="r-start" class="card">
+      <div class="verdict" style="font-size:22px">Repaso con recuerdo activo</div>
+      <p style="margin:0" id="r-start-t"></p>
+      <p class="hint" style="margin:0">Lee la pregunta, piensa la respuesta sin mirarla y después califica qué tan bien la recordaste. El algoritmo FSRS decide cuándo volverás a verla.</p>
+      <div><button class="primary" id="r-go">Empezar repaso</button></div>
+    </div>
+    <div id="r-run" hidden style="display:grid;gap:14px">
+      <div><div class="progress"><span id="r-pos"></span><span class="hint">Espacio: mostrar · 1–4: calificar · Z: deshacer</span></div><div class="meter"><i id="r-meter"></i></div></div>
+      <div class="rcard" aria-live="polite">
+        <div class="cat" id="r-cat"></div><div class="st" id="r-state"></div>
+        <div class="front-t" id="r-front"></div>
+        <div id="r-ans" hidden><hr><div class="back-t" id="r-back"></div></div>
+      </div>
+      <button class="primary rshow" id="r-show">Mostrar respuesta</button>
+      <div class="grades" id="r-grades" hidden role="group" aria-label="¿Qué tan bien la recordaste?">
+        <button class="g1" data-g="1">Otra vez<small></small></button>
+        <button class="g2" data-g="2">Difícil<small></small></button>
+        <button class="g3" data-g="3">Bien<small></small></button>
+        <button class="g4" data-g="4">Fácil<small></small></button>
+      </div>
+      <div class="ractions"><button id="r-undo">↶ Deshacer</button><button id="r-susp">Suspender tarjeta</button><button id="r-pause">Pausar</button></div>
+    </div>
+  </section>
+
+  <!-- PROGRESO -->
+  <section id="v-progreso" hidden style="display:grid;gap:16px">
+    <div class="kpis" id="g-kpi"></div>
+    <div class="card"><div class="verdict">Tus flashcards</div><div class="states" id="g-states"></div></div>
+    <div class="card"><div class="verdict">Actividad · últimos 30 días</div><div id="g-act"></div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Preguntas respondidas</span><span><i style="background:var(--alt)"></i>Tarjetas repasadas</span></div></div>
+    <div class="card"><div class="verdict">Evolución del rendimiento · 8 semanas</div><div id="g-evo"></div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>% de aciertos en preguntas</span><span><i style="background:var(--alt)"></i>% de tarjetas recordadas</span></div></div>
+    <div class="card"><div class="verdict">Calendario de repasos · próximos 30 días</div><div class="cal" id="g-cal"></div><span class="hint">Cada día muestra cuántas tarjetas vencen. Hoy incluye las atrasadas.</span></div>
+    <div class="card"><div class="verdict">Historial por tema</div><div style="overflow-x:auto"><table class="mini"><thead><tr><th>Tema</th><th style="text-align:right">Respondidas</th><th style="text-align:right">Aciertos</th><th style="text-align:right">Intentos</th><th style="text-align:right">Última vez</th></tr></thead><tbody id="g-topics"></tbody></table></div></div>
+    <div class="card"><div class="verdict">Simulacros terminados</div><div style="overflow-x:auto"><table class="mini"><thead><tr><th>Fecha</th><th style="text-align:right">Correctas</th><th style="text-align:right">Calificación</th><th style="text-align:right">Tiempo</th></tr></thead><tbody id="g-sims"></tbody></table></div></div>
+    <div class="card"><div class="verdict">Tarjetas suspendidas</div><ul class="susp" id="g-susp"></ul></div>
+    <div class="card">
+      <div class="verdict">Respaldo de tu progreso</div>
+      <p style="margin:0">Tu progreso se guarda solo, en este navegador y este dispositivo. No se sincroniza entre dispositivos y se pierde si borras los datos del sitio o el sistema libera espacio. Exporta un respaldo de vez en cuando y guárdalo fuera del navegador.</p>
+      <div class="bar"><button class="primary" id="g-exp">Exportar progreso (JSON)</button><label class="chk" style="border:1px solid var(--line);border-radius:8px;padding:8px 14px;background:var(--surface)"><input type="file" id="g-imp" accept="application/json,.json" hidden>Importar respaldo…</label></div>
+      <p class="hint" style="margin:0" id="g-bk-msg">Al importar, el respaldo se combina con lo que ya tienes: nunca se borra nada y en cada registro se conserva la versión más reciente.</p>
+      <p class="hint" style="margin:0" id="g-store"></p>
+      <div class="bar"><button id="g-wipe">Borrar progreso de tarjetas</button><span class="hint" id="g-wipe-msg"></span></div>
+    </div>
+  </section>
+
   <footer>Material de estudio para la Unidad 6; no sirve para tomar decisiones clínicas. Los trazos son esquemáticos, generados por código para practicar la lectura (frecuencia, intervalos, morfología), no registros reales. Los valores marcados VERIFICAR pueden variar según el libro de tu curso. Tu avance se guarda sólo en este navegador.</footer>
 </div>
 
+<!--LIB:ts-fsrs.umd--><script>
+/*! ts-fsrs 5.4.2 · https://github.com/open-spaced-repetition/ts-fsrs · Licencia MIT (ver lib/LICENSE-ts-fsrs.txt).
+ * Copia sin modificar de dist/index.umd.js del paquete npm ts-fsrs@5.4.2. Expone window.FSRS. */
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.FSRS = {}));
+})(this, (function (exports) { 'use strict';
+
+  class FSRSError extends Error {
+    constructor(message = "FSRS Error") {
+      var _a;
+      super(message);
+      this.name = "FSRSError";
+      (_a = Error.captureStackTrace) == null ? void 0 : _a.call(Error, this, FSRSError);
+    }
+  }
+  class FSRSValidationError extends FSRSError {
+    constructor(message) {
+      var _a;
+      super(message);
+      this.name = "FSRSValidationError";
+      (_a = Error.captureStackTrace) == null ? void 0 : _a.call(Error, this, FSRSValidationError);
+    }
+  }
+
+  var State = /* @__PURE__ */ ((State2) => {
+    State2[State2["New"] = 0] = "New";
+    State2[State2["Learning"] = 1] = "Learning";
+    State2[State2["Review"] = 2] = "Review";
+    State2[State2["Relearning"] = 3] = "Relearning";
+    return State2;
+  })(State || {});
+  var Rating = /* @__PURE__ */ ((Rating2) => {
+    Rating2[Rating2["Manual"] = 0] = "Manual";
+    Rating2[Rating2["Again"] = 1] = "Again";
+    Rating2[Rating2["Hard"] = 2] = "Hard";
+    Rating2[Rating2["Good"] = 3] = "Good";
+    Rating2[Rating2["Easy"] = 4] = "Easy";
+    return Rating2;
+  })(Rating || {});
+
+  var __defProp$6 = Object.defineProperty;
+  var __defProps$2 = Object.defineProperties;
+  var __getOwnPropDescs$2 = Object.getOwnPropertyDescriptors;
+  var __getOwnPropSymbols$2 = Object.getOwnPropertySymbols;
+  var __hasOwnProp$2 = Object.prototype.hasOwnProperty;
+  var __propIsEnum$2 = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp$6 = (obj, key, value) => key in obj ? __defProp$6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues$2 = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp$2.call(b, prop))
+        __defNormalProp$6(a, prop, b[prop]);
+    if (__getOwnPropSymbols$2)
+      for (var prop of __getOwnPropSymbols$2(b)) {
+        if (__propIsEnum$2.call(b, prop))
+          __defNormalProp$6(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __spreadProps$2 = (a, b) => __defProps$2(a, __getOwnPropDescs$2(b));
+  class TypeConvert {
+    static card(card) {
+      return __spreadProps$2(__spreadValues$2({}, card), {
+        state: TypeConvert.state(card.state),
+        due: TypeConvert.time(card.due),
+        last_review: card.last_review ? TypeConvert.time(card.last_review) : void 0
+      });
+    }
+    static rating(value) {
+      if (typeof value === "string") {
+        const firstLetter = value.charAt(0).toUpperCase();
+        const restOfString = value.slice(1).toLowerCase();
+        const ret = Rating[`${firstLetter}${restOfString}`];
+        if (ret === void 0) {
+          throw new FSRSValidationError(`Invalid rating:[${value}]`);
+        }
+        return ret;
+      } else if (typeof value === "number") {
+        return value;
+      }
+      throw new FSRSValidationError(`Invalid rating:[${value}]`);
+    }
+    static state(value) {
+      if (typeof value === "string") {
+        const firstLetter = value.charAt(0).toUpperCase();
+        const restOfString = value.slice(1).toLowerCase();
+        const ret = State[`${firstLetter}${restOfString}`];
+        if (ret === void 0) {
+          throw new FSRSValidationError(`Invalid state:[${value}]`);
+        }
+        return ret;
+      } else if (typeof value === "number") {
+        return value;
+      }
+      throw new FSRSValidationError(`Invalid state:[${value}]`);
+    }
+    static time(value) {
+      if (value instanceof Date) {
+        return value;
+      }
+      const date = new Date(value);
+      if (typeof value === "object" && value !== null && !Number.isNaN(Date.parse(value) || +date)) {
+        return date;
+      } else if (typeof value === "string") {
+        const timestamp = Date.parse(value);
+        if (!Number.isNaN(timestamp)) {
+          return new Date(timestamp);
+        } else {
+          throw new FSRSValidationError(`Invalid date:[${value}]`);
+        }
+      } else if (typeof value === "number") {
+        return new Date(value);
+      }
+      throw new FSRSValidationError(`Invalid date:[${value}]`);
+    }
+    static review_log(log) {
+      return __spreadProps$2(__spreadValues$2({}, log), {
+        due: TypeConvert.time(log.due),
+        rating: TypeConvert.rating(log.rating),
+        state: TypeConvert.state(log.state),
+        review: TypeConvert.time(log.review)
+      });
+    }
+  }
+
+  /* istanbul ignore next -- @preserve */
+  Date.prototype.scheduler = function(t, isDay) {
+    return date_scheduler(this, t, isDay);
+  };
+  /* istanbul ignore next -- @preserve */
+  Date.prototype.diff = function(pre, unit) {
+    return date_diff(this, pre, unit);
+  };
+  /* istanbul ignore next -- @preserve */
+  Date.prototype.format = function() {
+    return formatDate(this);
+  };
+  /* istanbul ignore next -- @preserve */
+  Date.prototype.dueFormat = function(last_review, unit, timeUnit) {
+    return show_diff_message(this, last_review, unit, timeUnit);
+  };
+  function date_scheduler(now, t, isDay) {
+    return new Date(
+      isDay ? TypeConvert.time(now).getTime() + t * 24 * 60 * 60 * 1e3 : TypeConvert.time(now).getTime() + t * 60 * 1e3
+    );
+  }
+  function date_diff(now, pre, unit) {
+    if (!now || !pre) {
+      throw new FSRSValidationError("Invalid date");
+    }
+    const diff = TypeConvert.time(now).getTime() - TypeConvert.time(pre).getTime();
+    let r = 0;
+    switch (unit) {
+      case "days":
+        r = Math.floor(diff / (24 * 60 * 60 * 1e3));
+        break;
+      case "minutes":
+        r = Math.floor(diff / (60 * 1e3));
+        break;
+    }
+    return r;
+  }
+  function formatDate(dateInput) {
+    const date = TypeConvert.time(dateInput);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    return `${year}-${padZero(month)}-${padZero(day)} ${padZero(hours)}:${padZero(
+    minutes
+  )}:${padZero(seconds)}`;
+  }
+  function padZero(num) {
+    return num < 10 ? `0${num}` : `${num}`;
+  }
+  const TIMEUNIT = [60, 60, 24, 31, 12];
+  const TIMEUNITFORMAT = ["second", "min", "hour", "day", "month", "year"];
+  function show_diff_message(due, last_review, unit, timeUnit = TIMEUNITFORMAT) {
+    due = TypeConvert.time(due);
+    last_review = TypeConvert.time(last_review);
+    if (timeUnit.length !== TIMEUNITFORMAT.length) {
+      timeUnit = TIMEUNITFORMAT;
+    }
+    let diff = due.getTime() - last_review.getTime();
+    let i = 0;
+    diff /= 1e3;
+    for (i = 0; i < TIMEUNIT.length; i++) {
+      if (diff < TIMEUNIT[i]) {
+        break;
+      } else {
+        diff /= TIMEUNIT[i];
+      }
+    }
+    return `${Math.floor(diff)}${unit ? timeUnit[i] : ""}`;
+  }
+  /* istanbul ignore next -- @preserve */
+  function fixDate(value) {
+    return TypeConvert.time(value);
+  }
+  /* istanbul ignore next -- @preserve */
+  function fixState(value) {
+    return TypeConvert.state(value);
+  }
+  /* istanbul ignore next -- @preserve */
+  function fixRating(value) {
+    return TypeConvert.rating(value);
+  }
+  const Grades = Object.freeze([
+    Rating.Again,
+    Rating.Hard,
+    Rating.Good,
+    Rating.Easy
+  ]);
+  const FUZZ_RANGES = [
+    {
+      start: 2.5,
+      end: 7,
+      factor: 0.15
+    },
+    {
+      start: 7,
+      end: 20,
+      factor: 0.1
+    },
+    {
+      start: 20,
+      end: Infinity,
+      factor: 0.05
+    }
+  ];
+  function get_fuzz_range(interval, elapsed_days, maximum_interval) {
+    let delta = 1;
+    for (const range of FUZZ_RANGES) {
+      delta += range.factor * Math.max(Math.min(interval, range.end) - range.start, 0);
+    }
+    interval = Math.min(interval, maximum_interval);
+    let min_ivl = Math.max(2, Math.round(interval - delta));
+    const max_ivl = Math.min(Math.round(interval + delta), maximum_interval);
+    if (interval > elapsed_days) {
+      min_ivl = Math.max(min_ivl, elapsed_days + 1);
+    }
+    min_ivl = Math.min(min_ivl, max_ivl);
+    return { min_ivl, max_ivl };
+  }
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+  function roundTo(num, decimals) {
+    const factor = 10 ** decimals;
+    return Math.round(num * factor) / factor;
+  }
+  function dateDiffInDays(last, cur) {
+    const utc1 = Date.UTC(
+      last.getUTCFullYear(),
+      last.getUTCMonth(),
+      last.getUTCDate()
+    );
+    const utc2 = Date.UTC(
+      cur.getUTCFullYear(),
+      cur.getUTCMonth(),
+      cur.getUTCDate()
+    );
+    return Math.floor(
+      (utc2 - utc1) / 864e5
+      /** 1000 * 60 * 60 * 24*/
+    );
+  }
+
+  const ConvertStepUnitToMinutes = (step) => {
+    const unit = step.slice(-1);
+    const value = parseInt(step.slice(0, -1), 10);
+    if (Number.isNaN(value) || !Number.isFinite(value) || value < 0) {
+      throw new FSRSValidationError(`Invalid step value: ${step}`);
+    }
+    switch (unit) {
+      case "m":
+        return value;
+      case "h":
+        return value * 60;
+      case "d":
+        return value * 1440;
+      default:
+        throw new FSRSValidationError(
+          `Invalid step unit: ${step}, expected m/h/d`
+        );
+    }
+  };
+  const BasicLearningStepsStrategy = (params, state, cur_step) => {
+    const learning_steps = state === State.Relearning || state === State.Review ? params.relearning_steps : params.learning_steps;
+    const steps_length = learning_steps.length;
+    if (steps_length === 0 || cur_step >= steps_length) return {};
+    const firstStep = learning_steps[0];
+    const toMinutes = ConvertStepUnitToMinutes;
+    const getAgainInterval = () => {
+      return toMinutes(firstStep);
+    };
+    const getHardInterval = () => {
+      if (steps_length === 1) return Math.round(toMinutes(firstStep) * 1.5);
+      const nextStep = learning_steps[1];
+      return Math.round((toMinutes(firstStep) + toMinutes(nextStep)) / 2);
+    };
+    const getStepInfo = (index) => {
+      if (index < 0 || index >= steps_length) {
+        return null;
+      } else {
+        return learning_steps[index];
+      }
+    };
+    const getGoodMinutes = (step) => {
+      return toMinutes(step);
+    };
+    const result = {};
+    const step_info = getStepInfo(Math.max(0, cur_step));
+    if (state === State.Review) {
+      result[Rating.Again] = {
+        scheduled_minutes: toMinutes(step_info),
+        next_step: 0
+      };
+      return result;
+    } else {
+      result[Rating.Again] = {
+        scheduled_minutes: getAgainInterval(),
+        next_step: 0
+      };
+      result[Rating.Hard] = {
+        scheduled_minutes: getHardInterval(),
+        next_step: cur_step
+      };
+      const next_info = getStepInfo(cur_step + 1);
+      if (next_info) {
+        const nextMin = getGoodMinutes(next_info);
+        if (nextMin) {
+          result[Rating.Good] = {
+            scheduled_minutes: Math.round(nextMin),
+            next_step: cur_step + 1
+          };
+        }
+      }
+    }
+    return result;
+  };
+
+  function DefaultInitSeedStrategy() {
+    const time = this.review_time.getTime();
+    const reps = this.current.reps;
+    const mul = this.current.difficulty * this.current.stability;
+    return `${time}_${reps}_${mul}`;
+  }
+  function GenSeedStrategyWithCardId(card_id_field) {
+    return function() {
+      var _a;
+      const card_id = (_a = Reflect.get(this.current, card_id_field)) != null ? _a : 0;
+      const reps = this.current.reps;
+      return String(card_id + reps || 0);
+    };
+  }
+
+  var StrategyMode = /* @__PURE__ */ ((StrategyMode2) => {
+    StrategyMode2["SCHEDULER"] = "Scheduler";
+    StrategyMode2["LEARNING_STEPS"] = "LearningSteps";
+    StrategyMode2["SEED"] = "Seed";
+    return StrategyMode2;
+  })(StrategyMode || {});
+
+  var __defProp$5 = Object.defineProperty;
+  var __defNormalProp$5 = (obj, key, value) => key in obj ? __defProp$5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$5 = (obj, key, value) => __defNormalProp$5(obj, typeof key !== "symbol" ? key + "" : key, value);
+  class AbstractScheduler {
+    // init
+    constructor(card, now, algorithm, strategies) {
+      __publicField$5(this, "last");
+      __publicField$5(this, "current");
+      __publicField$5(this, "review_time");
+      __publicField$5(this, "next", /* @__PURE__ */ new Map());
+      __publicField$5(this, "algorithm");
+      __publicField$5(this, "strategies");
+      __publicField$5(this, "elapsed_days", 0);
+      this.algorithm = algorithm;
+      this.last = TypeConvert.card(card);
+      this.current = TypeConvert.card(card);
+      this.review_time = TypeConvert.time(now);
+      this.strategies = strategies;
+      this.init();
+    }
+    checkGrade(grade) {
+      if (!Number.isFinite(grade) || grade < 1 || grade > 4) {
+        throw new FSRSValidationError(`Invalid grade "${grade}",expected 1-4`);
+      }
+    }
+    init() {
+      const { state, last_review } = this.current;
+      let interval = 0;
+      if (state !== State.New && last_review) {
+        interval = dateDiffInDays(last_review, this.review_time);
+      }
+      this.current.last_review = this.review_time;
+      this.elapsed_days = interval;
+      this.current.elapsed_days = interval;
+      this.current.reps += 1;
+      let seed_strategy = DefaultInitSeedStrategy;
+      if (this.strategies) {
+        const custom_strategy = this.strategies.get(StrategyMode.SEED);
+        if (custom_strategy) {
+          seed_strategy = custom_strategy;
+        }
+      }
+      this.algorithm.seed = seed_strategy.call(this);
+    }
+    preview() {
+      return {
+        [Rating.Again]: this.review(Rating.Again),
+        [Rating.Hard]: this.review(Rating.Hard),
+        [Rating.Good]: this.review(Rating.Good),
+        [Rating.Easy]: this.review(Rating.Easy),
+        [Symbol.iterator]: this.previewIterator.bind(this)
+      };
+    }
+    *previewIterator() {
+      for (const grade of Grades) {
+        yield this.review(grade);
+      }
+    }
+    review(grade) {
+      const { state } = this.last;
+      let item;
+      this.checkGrade(grade);
+      switch (state) {
+        case State.New:
+          item = this.newState(grade);
+          break;
+        case State.Learning:
+        case State.Relearning:
+          item = this.learningState(grade);
+          break;
+        case State.Review:
+          item = this.reviewState(grade);
+          break;
+      }
+      return item;
+    }
+    buildLog(rating) {
+      const { last_review, due, elapsed_days } = this.last;
+      return {
+        rating,
+        state: this.current.state,
+        due: last_review || due,
+        stability: this.current.stability,
+        difficulty: this.current.difficulty,
+        elapsed_days: this.elapsed_days,
+        last_elapsed_days: elapsed_days,
+        scheduled_days: this.current.scheduled_days,
+        learning_steps: this.current.learning_steps,
+        review: this.review_time
+      };
+    }
+  }
+
+  var __defProp$4 = Object.defineProperty;
+  var __defNormalProp$4 = (obj, key, value) => key in obj ? __defProp$4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$4 = (obj, key, value) => __defNormalProp$4(obj, typeof key !== "symbol" ? key + "" : key, value);
+  class Alea {
+    constructor(seed) {
+      __publicField$4(this, "c");
+      __publicField$4(this, "s0");
+      __publicField$4(this, "s1");
+      __publicField$4(this, "s2");
+      const mash = Mash();
+      this.c = 1;
+      this.s0 = mash(" ");
+      this.s1 = mash(" ");
+      this.s2 = mash(" ");
+      if (seed == null) seed = Date.now();
+      this.s0 -= mash(seed);
+      if (this.s0 < 0) this.s0 += 1;
+      this.s1 -= mash(seed);
+      if (this.s1 < 0) this.s1 += 1;
+      this.s2 -= mash(seed);
+      if (this.s2 < 0) this.s2 += 1;
+    }
+    next() {
+      const t = 2091639 * this.s0 + this.c * 23283064365386963e-26;
+      this.s0 = this.s1;
+      this.s1 = this.s2;
+      this.c = t | 0;
+      this.s2 = t - this.c;
+      return this.s2;
+    }
+    set state(state) {
+      this.c = state.c;
+      this.s0 = state.s0;
+      this.s1 = state.s1;
+      this.s2 = state.s2;
+    }
+    get state() {
+      return {
+        c: this.c,
+        s0: this.s0,
+        s1: this.s1,
+        s2: this.s2
+      };
+    }
+  }
+  function Mash() {
+    let n = 4022871197;
+    return function mash(data) {
+      data = String(data);
+      for (let i = 0; i < data.length; i++) {
+        n += data.charCodeAt(i);
+        let h = 0.02519603282416938 * n;
+        n = h >>> 0;
+        h -= n;
+        h *= n;
+        n = h >>> 0;
+        h -= n;
+        n += h * 4294967296;
+      }
+      return (n >>> 0) * 23283064365386963e-26;
+    };
+  }
+  function alea(seed) {
+    const xg = new Alea(seed);
+    const prng = () => xg.next();
+    prng.int32 = () => xg.next() * 4294967296 | 0;
+    prng.double = () => prng() + (prng() * 2097152 | 0) * 11102230246251565e-32;
+    prng.state = () => xg.state;
+    prng.importState = (state) => {
+      xg.state = state;
+      return prng;
+    };
+    return prng;
+  }
+
+  const version="5.4.2";
+
+  const default_request_retention = 0.9;
+  const default_maximum_interval = 36500;
+  const default_enable_fuzz = false;
+  const default_enable_short_term = true;
+  const default_learning_steps = Object.freeze([
+    "1m",
+    "10m"
+  ]);
+  const default_relearning_steps = Object.freeze([
+    "10m"
+  ]);
+  const FSRSVersion = `v${version} using FSRS-6.0`;
+  const S_MIN = 1e-3;
+  const S_MAX = 36500;
+  const INIT_S_MAX = 100;
+  const FSRS5_DEFAULT_DECAY = 0.5;
+  const FSRS6_DEFAULT_DECAY = 0.1542;
+  const default_w = Object.freeze([
+    0.212,
+    1.2931,
+    2.3065,
+    8.2956,
+    6.4133,
+    0.8334,
+    3.0194,
+    1e-3,
+    1.8722,
+    0.1666,
+    0.796,
+    1.4835,
+    0.0614,
+    0.2629,
+    1.6483,
+    0.6014,
+    1.8729,
+    0.5425,
+    0.0912,
+    0.0658,
+    FSRS6_DEFAULT_DECAY
+  ]);
+  const W17_W18_Ceiling = 2;
+  const CLAMP_PARAMETERS = (w17_w18_ceiling, enable_short_term = default_enable_short_term) => [
+    [S_MIN, INIT_S_MAX],
+    [S_MIN, INIT_S_MAX],
+    [S_MIN, INIT_S_MAX],
+    [S_MIN, INIT_S_MAX],
+    [1, 10],
+    [1e-3, 4],
+    [1e-3, 4],
+    [1e-3, 0.75],
+    [0, 4.5],
+    [0, 0.8],
+    [1e-3, 3.5],
+    [1e-3, 5],
+    [1e-3, 0.25],
+    [1e-3, 0.9],
+    [0, 4],
+    [0, 1],
+    [1, 6],
+    [0, w17_w18_ceiling],
+    [0, w17_w18_ceiling],
+    [
+      enable_short_term ? 0.01 : 0,
+      0.8
+    ],
+    [0.1, 0.8]
+  ];
+
+  const clipParameters = (parameters, numRelearningSteps, enableShortTerm = default_enable_short_term) => {
+    const clip = CLAMP_PARAMETERS(W17_W18_Ceiling, enableShortTerm).slice(
+      0,
+      parameters.length
+    );
+    if (Math.max(0, numRelearningSteps) > 1) {
+      const w11 = clamp(parameters[11] || 0, clip[11][0], clip[11][1]);
+      const w13 = clamp(parameters[13] || 0, clip[13][0], clip[13][1]);
+      const w14 = clamp(parameters[14] || 0, clip[14][0], clip[14][1]);
+      const value = -(Math.log(w11) + Math.log(Math.pow(2, w13) - 1) + w14 * 0.3) / numRelearningSteps;
+      const w17_w18_ceiling = clamp(
+        roundTo(Math.sqrt(Math.max(value, 0)), 8),
+        0.01,
+        W17_W18_Ceiling
+      );
+      if (clip[17]) clip[17] = [clip[17][0], w17_w18_ceiling];
+      if (clip[18]) clip[18] = [clip[18][0], w17_w18_ceiling];
+    }
+    return clip.map(
+      ([min, max], index) => clamp(parameters[index] || 0, min, max)
+    );
+  };
+  const checkParameters = (parameters) => {
+    const invalid = parameters.find((param) => !Number.isFinite(param));
+    if (invalid !== void 0) {
+      throw new FSRSValidationError(
+        `Non-finite or NaN value in parameters ${parameters}`
+      );
+    } else if (![17, 19, 21].includes(parameters.length)) {
+      throw new FSRSValidationError(
+        `Invalid parameter length: ${parameters.length}. Must be 17, 19 or 21 for FSRSv4, 5 and 6 respectively.`
+      );
+    }
+    return parameters;
+  };
+  const migrateParameters = (parameters, numRelearningSteps = 0, enableShortTerm = default_enable_short_term) => {
+    if (parameters === void 0) {
+      return [...default_w];
+    }
+    switch (parameters.length) {
+      case 21:
+        return clipParameters(
+          Array.from(parameters),
+          numRelearningSteps,
+          enableShortTerm
+        );
+      case 19:
+        console.debug("[FSRS-6]auto fill w from 19 to 21 length");
+        return clipParameters(
+          Array.from(parameters),
+          numRelearningSteps,
+          enableShortTerm
+        ).concat([0, FSRS5_DEFAULT_DECAY]);
+      case 17: {
+        const w = clipParameters(
+          Array.from(parameters),
+          numRelearningSteps,
+          enableShortTerm
+        );
+        w[4] = +(w[5] * 2 + w[4]).toFixed(8);
+        w[5] = +(Math.log(w[5] * 3 + 1) / 3).toFixed(8);
+        w[6] = +(w[6] + 0.5).toFixed(8);
+        console.debug("[FSRS-6]auto fill w from 17 to 21 length");
+        return w.concat([0, 0, 0, FSRS5_DEFAULT_DECAY]);
+      }
+      default:
+        console.warn("[FSRS]Invalid parameters length, using default parameters");
+        return [...default_w];
+    }
+  };
+  const generatorParameters = (props) => {
+    var _a, _b;
+    const learning_steps = Array.isArray(props == null ? void 0 : props.learning_steps) ? props.learning_steps : default_learning_steps;
+    const relearning_steps = Array.isArray(props == null ? void 0 : props.relearning_steps) ? props.relearning_steps : default_relearning_steps;
+    const enable_short_term = (_a = props == null ? void 0 : props.enable_short_term) != null ? _a : default_enable_short_term;
+    const w = migrateParameters(
+      props == null ? void 0 : props.w,
+      relearning_steps.length,
+      enable_short_term
+    );
+    return {
+      request_retention: (props == null ? void 0 : props.request_retention) || default_request_retention,
+      maximum_interval: (props == null ? void 0 : props.maximum_interval) || default_maximum_interval,
+      w,
+      enable_fuzz: (_b = props == null ? void 0 : props.enable_fuzz) != null ? _b : default_enable_fuzz,
+      enable_short_term,
+      learning_steps,
+      relearning_steps
+    };
+  };
+  function createEmptyCard(now, afterHandler) {
+    const emptyCard = {
+      due: now ? TypeConvert.time(now) : /* @__PURE__ */ new Date(),
+      stability: 0,
+      difficulty: 0,
+      elapsed_days: 0,
+      scheduled_days: 0,
+      reps: 0,
+      lapses: 0,
+      learning_steps: 0,
+      state: State.New,
+      last_review: void 0
+    };
+    if (afterHandler && typeof afterHandler === "function") {
+      return afterHandler(emptyCard);
+    } else {
+      return emptyCard;
+    }
+  }
+
+  var __defProp$3 = Object.defineProperty;
+  var __defNormalProp$3 = (obj, key, value) => key in obj ? __defProp$3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$3 = (obj, key, value) => __defNormalProp$3(obj, typeof key !== "symbol" ? key + "" : key, value);
+  const computeDecayFactor = (decayOrParams) => {
+    const decay = typeof decayOrParams === "number" ? -decayOrParams : -decayOrParams[20];
+    const factor = Math.exp(Math.pow(decay, -1) * Math.log(0.9)) - 1;
+    return { decay, factor: roundTo(factor, 8) };
+  };
+  function forgetting_curve(decayOrParams, elapsed_days, stability) {
+    const { decay, factor } = computeDecayFactor(decayOrParams);
+    return roundTo(Math.pow(1 + factor * elapsed_days / stability, decay), 8);
+  }
+  class FSRSAlgorithm {
+    constructor(params) {
+      __publicField$3(this, "param");
+      __publicField$3(this, "intervalModifier");
+      __publicField$3(this, "_seed");
+      __publicField$3(this, "prepare_parameters", (params) => {
+        const generated = generatorParameters(params);
+        generated.w = clipParameters(
+          Array.from(generated.w),
+          generated.relearning_steps.length,
+          generated.enable_short_term
+        );
+        return generated;
+      });
+      /**
+       * The formula used is :
+       * $$R(t,S) = (1 + \text{FACTOR} \times \frac{t}{9 \cdot S})^{\text{DECAY}}$$
+       * @param {number} elapsed_days t days since the last review
+       * @param {number} stability Stability (interval when R=90%)
+       * @return {number} r Retrievability (probability of recall)
+       */
+      __publicField$3(this, "forgetting_curve");
+      this.param = new Proxy(
+        this.prepare_parameters(params),
+        this.params_handler_proxy()
+      );
+      this.intervalModifier = this.calculate_interval_modifier(
+        this.param.request_retention
+      );
+      this.forgetting_curve = forgetting_curve.bind(this, this.param.w);
+    }
+    get interval_modifier() {
+      return this.intervalModifier;
+    }
+    set seed(seed) {
+      this._seed = seed;
+    }
+    /**
+     * @see https://github.com/open-spaced-repetition/fsrs4anki/wiki/The-Algorithm#fsrs-5
+     *
+     * The formula used is: $$I(r,s) = (r^{\frac{1}{DECAY}} - 1) / FACTOR \times s$$
+     * @param request_retention 0<request_retention<=1,Requested retention rate
+     * @throws {Error} Requested retention rate should be in the range (0,1]
+     */
+    calculate_interval_modifier(request_retention) {
+      if (request_retention <= 0 || request_retention > 1) {
+        throw new FSRSValidationError(
+          "Requested retention rate should be in the range (0,1]"
+        );
+      }
+      const { decay, factor } = computeDecayFactor(this.param.w);
+      return roundTo((Math.pow(request_retention, 1 / decay) - 1) / factor, 8);
+    }
+    /**
+     * Get the parameters of the algorithm.
+     */
+    get parameters() {
+      return this.param;
+    }
+    /**
+     * Set the parameters of the algorithm.
+     * @param params Partial<FSRSParameters>
+     */
+    set parameters(params) {
+      this.update_parameters(params);
+    }
+    params_handler_proxy() {
+      const _this = this;
+      return {
+        set: function(target, prop, value) {
+          if (prop === "request_retention" && Number.isFinite(value)) {
+            _this.intervalModifier = _this.calculate_interval_modifier(
+              Number(value)
+            );
+          } else if (prop === "w") {
+            value = migrateParameters(
+              value,
+              target.relearning_steps.length,
+              target.enable_short_term
+            );
+            value = clipParameters(
+              Array.from(value),
+              target.relearning_steps.length,
+              target.enable_short_term
+            );
+            _this.forgetting_curve = forgetting_curve.bind(this, value);
+            _this.intervalModifier = _this.calculate_interval_modifier(
+              Number(target.request_retention)
+            );
+          }
+          Reflect.set(target, prop, value);
+          return true;
+        }
+      };
+    }
+    update_parameters(params) {
+      const _params = this.prepare_parameters(params);
+      for (const key in _params) {
+        const paramKey = key;
+        this.param[paramKey] = _params[paramKey];
+      }
+    }
+    /**
+       * The formula used is :
+       * $$ S_0(G) = w_{G-1}$$
+       * $$S_0 = \max \lbrace S_0,0.1\rbrace $$
+    
+       * @param g Grade (rating at Anki) [1.again,2.hard,3.good,4.easy]
+       * @return Stability (interval when R=90%)
+       */
+    init_stability(g) {
+      return Math.max(this.param.w[g - 1], 0.1);
+    }
+    /**
+     * The formula used is :
+     * $$D_0(G) = w_4 - e^{(G-1) \cdot w_5} + 1 $$
+     * $$D_0 = \min \lbrace \max \lbrace D_0(G),1 \rbrace,10 \rbrace$$
+     * where the $$D_0(1)=w_4$$ when the first rating is good.
+     *
+     * @param {Grade} g Grade (rating at Anki) [1.again,2.hard,3.good,4.easy]
+     * @return {number} Difficulty $$D \in [1,10]$$
+     */
+    init_difficulty(g) {
+      const w = this.param.w;
+      const d = w[4] - Math.exp((g - 1) * w[5]) + 1;
+      return roundTo(d, 8);
+    }
+    /**
+     * If fuzzing is disabled or ivl is less than 2.5, it returns the original interval.
+     * @param {number} ivl - The interval to be fuzzed.
+     * @param {number} elapsed_days t days since the last review
+     * @return {number} - The fuzzed interval.
+     **/
+    apply_fuzz(ivl, elapsed_days) {
+      if (!this.param.enable_fuzz || ivl < 2.5) return Math.round(ivl);
+      const generator = alea(this._seed);
+      const fuzz_factor = generator();
+      const { min_ivl, max_ivl } = get_fuzz_range(
+        ivl,
+        elapsed_days,
+        this.param.maximum_interval
+      );
+      return Math.floor(fuzz_factor * (max_ivl - min_ivl + 1) + min_ivl);
+    }
+    /**
+     *   @see The formula used is : {@link FSRSAlgorithm.calculate_interval_modifier}
+     *   @param {number} s - Stability (interval when R=90%)
+     *   @param {number} elapsed_days t days since the last review
+     */
+    next_interval(s, elapsed_days) {
+      const newInterval = Math.min(
+        Math.max(1, Math.round(s * this.intervalModifier)),
+        this.param.maximum_interval
+      );
+      return this.apply_fuzz(newInterval, elapsed_days);
+    }
+    /**
+     * @see https://github.com/open-spaced-repetition/fsrs4anki/issues/697
+     */
+    linear_damping(delta_d, old_d) {
+      return roundTo(delta_d * (10 - old_d) / 9, 8);
+    }
+    /**
+     * The formula used is :
+     * $$\text{delta}_d = -w_6 \cdot (g - 3)$$
+     * $$\text{next}_d = D + \text{linear damping}(\text{delta}_d , D)$$
+     * $$D^\prime(D,R) = w_7 \cdot D_0(4) +(1 - w_7) \cdot \text{next}_d$$
+     * @param {number} d Difficulty $$D \in [1,10]$$
+     * @param {Grade} g Grade (rating at Anki) [1.again,2.hard,3.good,4.easy]
+     * @return {number} $$\text{next}_D$$
+     */
+    next_difficulty(d, g) {
+      const delta_d = -this.param.w[6] * (g - 3);
+      const next_d = d + this.linear_damping(delta_d, d);
+      return clamp(
+        this.mean_reversion(this.init_difficulty(Rating.Easy), next_d),
+        1,
+        10
+      );
+    }
+    /**
+     * The formula used is :
+     * $$w_7 \cdot \text{init} +(1 - w_7) \cdot \text{current}$$
+     * @param {number} init $$w_2 : D_0(3) = w_2 + (R-2) \cdot w_3= w_2$$
+     * @param {number} current $$D - w_6 \cdot (R - 2)$$
+     * @return {number} difficulty
+     */
+    mean_reversion(init, current) {
+      const w = this.param.w;
+      return roundTo(w[7] * init + (1 - w[7]) * current, 8);
+    }
+    /**
+     * The formula used is :
+     * $$S^\prime_r(D,S,R,G) = S\cdot(e^{w_8}\cdot (11-D)\cdot S^{-w_9}\cdot(e^{w_{10}\cdot(1-R)}-1)\cdot w_{15}(\text{if} G=2) \cdot w_{16}(\text{if} G=4)+1)$$
+     * @param {number} d Difficulty D \in [1,10]
+     * @param {number} s Stability (interval when R=90%)
+     * @param {number} r Retrievability (probability of recall)
+     * @param {Grade} g Grade (Rating[0.again,1.hard,2.good,3.easy])
+     * @return {number} S^\prime_r new stability after recall
+     */
+    next_recall_stability(d, s, r, g) {
+      const w = this.param.w;
+      const hard_penalty = Rating.Hard === g ? w[15] : 1;
+      const easy_bound = Rating.Easy === g ? w[16] : 1;
+      return roundTo(
+        clamp(
+          s * (1 + Math.exp(w[8]) * (11 - d) * Math.pow(s, -w[9]) * (Math.exp((1 - r) * w[10]) - 1) * hard_penalty * easy_bound),
+          S_MIN,
+          36500
+        ),
+        8
+      );
+    }
+    /**
+     * The formula used is :
+     * $$S^\prime_f(D,S,R) = w_{11}\cdot D^{-w_{12}}\cdot ((S+1)^{w_{13}}-1) \cdot e^{w_{14}\cdot(1-R)}$$
+     * enable_short_term = true : $$S^\prime_f \in \min \lbrace \max \lbrace S^\prime_f,0.01\rbrace, \frac{S}{e^{w_{17} \cdot w_{18}}} \rbrace$$
+     * enable_short_term = false : $$S^\prime_f \in \min \lbrace \max \lbrace S^\prime_f,0.01\rbrace, S \rbrace$$
+     * @param {number} d Difficulty D \in [1,10]
+     * @param {number} s Stability (interval when R=90%)
+     * @param {number} r Retrievability (probability of recall)
+     * @return {number} S^\prime_f new stability after forgetting
+     */
+    next_forget_stability(d, s, r) {
+      const w = this.param.w;
+      return roundTo(
+        clamp(
+          w[11] * Math.pow(d, -w[12]) * (Math.pow(s + 1, w[13]) - 1) * Math.exp((1 - r) * w[14]),
+          S_MIN,
+          36500
+        ),
+        8
+      );
+    }
+    /**
+     * The formula used is :
+     * $$S^\prime_s(S,G) = S \cdot e^{w_{17} \cdot (G-3+w_{18})}$$
+     * @param {number} s Stability (interval when R=90%)
+     * @param {Grade} g Grade (Rating[0.again,1.hard,2.good,3.easy])
+     */
+    next_short_term_stability(s, g) {
+      const w = this.param.w;
+      const sinc = Math.pow(s, -w[19]) * Math.exp(w[17] * (g - 3 + w[18]));
+      const maskedSinc = g >= Rating.Hard ? Math.max(sinc, 1) : sinc;
+      return roundTo(clamp(s * maskedSinc, S_MIN, 36500), 8);
+    }
+    /**
+     * Calculates the next state of memory based on the current state, time elapsed, and grade.
+     *
+     * @param memory_state - The current state of memory, which can be null.
+     * @param t - The time elapsed since the last review.
+     * @param {Rating} g Grade (Rating[0.Manual,1.Again,2.Hard,3.Good,4.Easy])
+     * @param r - Optional retrievability value. If not provided, it will be calculated.
+     * @returns The next state of memory with updated difficulty and stability.
+     */
+    next_state(memory_state, t, g, r) {
+      const { difficulty: d, stability: s } = memory_state != null ? memory_state : {
+        difficulty: 0,
+        stability: 0
+      };
+      if (t < 0) {
+        throw new FSRSValidationError(`Invalid delta_t "${t}"`);
+      }
+      if (g < 0 || g > 4) {
+        throw new FSRSValidationError(`Invalid grade "${g}"`);
+      }
+      if (d === 0 && s === 0) {
+        return {
+          difficulty: clamp(this.init_difficulty(g), 1, 10),
+          stability: this.init_stability(g)
+        };
+      }
+      if (g === 0) {
+        return {
+          difficulty: d,
+          stability: s
+        };
+      }
+      if (d < 1 || s < S_MIN) {
+        throw new FSRSValidationError(
+          `Invalid memory state { difficulty: ${d}, stability: ${s} }`
+        );
+      }
+      const w = this.param.w;
+      r = typeof r === "number" ? r : this.forgetting_curve(t, s);
+      let new_s;
+      if (t === 0 && this.param.enable_short_term) {
+        new_s = this.next_short_term_stability(s, g);
+      } else if (g === 1) {
+        const s_after_fail = this.next_forget_stability(d, s, r);
+        let [w_17, w_18] = [0, 0];
+        if (this.param.enable_short_term) {
+          w_17 = w[17];
+          w_18 = w[18];
+        }
+        const next_s_min = s / Math.exp(w_17 * w_18);
+        new_s = clamp(roundTo(next_s_min, 8), S_MIN, s_after_fail);
+      } else {
+        new_s = this.next_recall_stability(d, s, r, g);
+      }
+      const new_d = this.next_difficulty(d, g);
+      return { difficulty: new_d, stability: new_s };
+    }
+  }
+
+  var __defProp$2 = Object.defineProperty;
+  var __defNormalProp$2 = (obj, key, value) => key in obj ? __defProp$2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField$2 = (obj, key, value) => __defNormalProp$2(obj, key + "" , value);
+  class BasicScheduler extends AbstractScheduler {
+    constructor(card, now, algorithm, strategies) {
+      super(card, now, algorithm, strategies);
+      __publicField$2(this, "learningStepsStrategy");
+      let learningStepStrategy = BasicLearningStepsStrategy;
+      if (this.strategies) {
+        const custom_strategy = this.strategies.get(StrategyMode.LEARNING_STEPS);
+        if (custom_strategy) {
+          learningStepStrategy = custom_strategy;
+        }
+      }
+      this.learningStepsStrategy = learningStepStrategy;
+    }
+    getLearningInfo(card, grade) {
+      var _a, _b, _c, _d;
+      const parameters = this.algorithm.parameters;
+      card.learning_steps = card.learning_steps || 0;
+      const steps_strategy = this.learningStepsStrategy(
+        parameters,
+        card.state,
+        card.learning_steps
+      );
+      const scheduled_minutes = Math.max(
+        0,
+        (_b = (_a = steps_strategy[grade]) == null ? void 0 : _a.scheduled_minutes) != null ? _b : 0
+      );
+      const next_steps = Math.max(0, (_d = (_c = steps_strategy[grade]) == null ? void 0 : _c.next_step) != null ? _d : 0);
+      return {
+        scheduled_minutes,
+        next_steps
+      };
+    }
+    /**
+     * @description This function applies the learning steps based on the current card's state and grade.
+     */
+    applyLearningSteps(nextCard, grade, to_state) {
+      const { scheduled_minutes, next_steps } = this.getLearningInfo(
+        this.current,
+        grade
+      );
+      if (scheduled_minutes > 0 && scheduled_minutes < 1440) {
+        nextCard.learning_steps = next_steps;
+        nextCard.scheduled_days = 0;
+        nextCard.state = to_state;
+        nextCard.due = date_scheduler(
+          this.review_time,
+          Math.round(scheduled_minutes),
+          false
+          /** true:days false: minute */
+        );
+      } else {
+        nextCard.state = State.Review;
+        if (scheduled_minutes >= 1440) {
+          nextCard.learning_steps = next_steps;
+          nextCard.due = date_scheduler(
+            this.review_time,
+            Math.round(scheduled_minutes),
+            false
+            /** true:days false: minute */
+          );
+          nextCard.scheduled_days = Math.floor(scheduled_minutes / 1440);
+        } else {
+          nextCard.learning_steps = 0;
+          const interval = this.algorithm.next_interval(
+            nextCard.stability,
+            this.elapsed_days
+          );
+          nextCard.scheduled_days = interval;
+          nextCard.due = date_scheduler(this.review_time, interval, true);
+        }
+      }
+    }
+    newState(grade) {
+      const exist = this.next.get(grade);
+      if (exist) {
+        return exist;
+      }
+      const next = this.next_ds(this.elapsed_days, grade);
+      this.applyLearningSteps(next, grade, State.Learning);
+      const item = {
+        card: next,
+        log: this.buildLog(grade)
+      };
+      this.next.set(grade, item);
+      return item;
+    }
+    learningState(grade) {
+      const exist = this.next.get(grade);
+      if (exist) {
+        return exist;
+      }
+      const next = this.next_ds(this.elapsed_days, grade);
+      this.applyLearningSteps(
+        next,
+        grade,
+        this.last.state
+        /** Learning or Relearning */
+      );
+      const item = {
+        card: next,
+        log: this.buildLog(grade)
+      };
+      this.next.set(grade, item);
+      return item;
+    }
+    reviewState(grade) {
+      const exist = this.next.get(grade);
+      if (exist) {
+        return exist;
+      }
+      const interval = this.elapsed_days;
+      const retrievability = this.algorithm.forgetting_curve(
+        interval,
+        this.current.stability
+      );
+      const next_again = this.next_ds(interval, Rating.Again, retrievability);
+      const next_hard = this.next_ds(interval, Rating.Hard, retrievability);
+      const next_good = this.next_ds(interval, Rating.Good, retrievability);
+      const next_easy = this.next_ds(interval, Rating.Easy, retrievability);
+      this.next_interval(next_hard, next_good, next_easy, interval);
+      this.next_state(next_hard, next_good, next_easy);
+      this.applyLearningSteps(next_again, Rating.Again, State.Relearning);
+      next_again.lapses += 1;
+      const item_again = {
+        card: next_again,
+        log: this.buildLog(Rating.Again)
+      };
+      const item_hard = {
+        card: next_hard,
+        log: super.buildLog(Rating.Hard)
+      };
+      const item_good = {
+        card: next_good,
+        log: super.buildLog(Rating.Good)
+      };
+      const item_easy = {
+        card: next_easy,
+        log: super.buildLog(Rating.Easy)
+      };
+      this.next.set(Rating.Again, item_again);
+      this.next.set(Rating.Hard, item_hard);
+      this.next.set(Rating.Good, item_good);
+      this.next.set(Rating.Easy, item_easy);
+      return this.next.get(grade);
+    }
+    /**
+     * Review next_ds
+     */
+    next_ds(t, g, r) {
+      const next_state = this.algorithm.next_state(
+        {
+          difficulty: this.current.difficulty,
+          stability: this.current.stability
+        },
+        t,
+        g,
+        r
+      );
+      const card = TypeConvert.card(this.current);
+      card.difficulty = next_state.difficulty;
+      card.stability = next_state.stability;
+      return card;
+    }
+    /**
+     * Review next_interval
+     */
+    next_interval(next_hard, next_good, next_easy, interval) {
+      let hard_interval, good_interval;
+      hard_interval = this.algorithm.next_interval(next_hard.stability, interval);
+      good_interval = this.algorithm.next_interval(next_good.stability, interval);
+      hard_interval = Math.min(hard_interval, good_interval);
+      good_interval = Math.max(good_interval, hard_interval + 1);
+      const easy_interval = Math.max(
+        this.algorithm.next_interval(next_easy.stability, interval),
+        good_interval + 1
+      );
+      next_hard.scheduled_days = hard_interval;
+      next_hard.due = date_scheduler(this.review_time, hard_interval, true);
+      next_good.scheduled_days = good_interval;
+      next_good.due = date_scheduler(this.review_time, good_interval, true);
+      next_easy.scheduled_days = easy_interval;
+      next_easy.due = date_scheduler(this.review_time, easy_interval, true);
+    }
+    /**
+     * Review next_state
+     */
+    next_state(next_hard, next_good, next_easy) {
+      next_hard.state = State.Review;
+      next_hard.learning_steps = 0;
+      next_good.state = State.Review;
+      next_good.learning_steps = 0;
+      next_easy.state = State.Review;
+      next_easy.learning_steps = 0;
+    }
+  }
+
+  class LongTermScheduler extends AbstractScheduler {
+    newState(grade) {
+      const exist = this.next.get(grade);
+      if (exist) {
+        return exist;
+      }
+      this.current.scheduled_days = 0;
+      this.current.elapsed_days = 0;
+      const first_interval = 0;
+      const next_again = this.next_ds(first_interval, Rating.Again);
+      const next_hard = this.next_ds(first_interval, Rating.Hard);
+      const next_good = this.next_ds(first_interval, Rating.Good);
+      const next_easy = this.next_ds(first_interval, Rating.Easy);
+      this.next_interval(
+        next_again,
+        next_hard,
+        next_good,
+        next_easy,
+        first_interval
+      );
+      this.next_state(next_again, next_hard, next_good, next_easy);
+      this.update_next(next_again, next_hard, next_good, next_easy);
+      return this.next.get(grade);
+    }
+    next_ds(t, g, r) {
+      const next_state = this.algorithm.next_state(
+        {
+          difficulty: this.current.difficulty,
+          stability: this.current.stability
+        },
+        t,
+        g,
+        r
+      );
+      const card = TypeConvert.card(this.current);
+      card.difficulty = next_state.difficulty;
+      card.stability = next_state.stability;
+      return card;
+    }
+    /**
+     * @see https://github.com/open-spaced-repetition/ts-fsrs/issues/98#issuecomment-2241923194
+     */
+    learningState(grade) {
+      return this.reviewState(grade);
+    }
+    reviewState(grade) {
+      const exist = this.next.get(grade);
+      if (exist) {
+        return exist;
+      }
+      const interval = this.elapsed_days;
+      const retrievability = this.algorithm.forgetting_curve(
+        interval,
+        this.current.stability
+      );
+      const next_again = this.next_ds(interval, Rating.Again, retrievability);
+      const next_hard = this.next_ds(interval, Rating.Hard, retrievability);
+      const next_good = this.next_ds(interval, Rating.Good, retrievability);
+      const next_easy = this.next_ds(interval, Rating.Easy, retrievability);
+      this.next_interval(next_again, next_hard, next_good, next_easy, interval);
+      this.next_state(next_again, next_hard, next_good, next_easy);
+      next_again.lapses += 1;
+      this.update_next(next_again, next_hard, next_good, next_easy);
+      return this.next.get(grade);
+    }
+    /**
+     * Review/New next_interval
+     */
+    next_interval(next_again, next_hard, next_good, next_easy, interval) {
+      let again_interval, hard_interval, good_interval, easy_interval;
+      again_interval = this.algorithm.next_interval(
+        next_again.stability,
+        interval
+      );
+      hard_interval = this.algorithm.next_interval(next_hard.stability, interval);
+      good_interval = this.algorithm.next_interval(next_good.stability, interval);
+      easy_interval = this.algorithm.next_interval(next_easy.stability, interval);
+      again_interval = Math.min(again_interval, hard_interval);
+      hard_interval = Math.max(hard_interval, again_interval + 1);
+      good_interval = Math.max(good_interval, hard_interval + 1);
+      easy_interval = Math.max(easy_interval, good_interval + 1);
+      next_again.scheduled_days = again_interval;
+      next_again.due = date_scheduler(this.review_time, again_interval, true);
+      next_hard.scheduled_days = hard_interval;
+      next_hard.due = date_scheduler(this.review_time, hard_interval, true);
+      next_good.scheduled_days = good_interval;
+      next_good.due = date_scheduler(this.review_time, good_interval, true);
+      next_easy.scheduled_days = easy_interval;
+      next_easy.due = date_scheduler(this.review_time, easy_interval, true);
+    }
+    /**
+     * Review/New next_state
+     */
+    next_state(next_again, next_hard, next_good, next_easy) {
+      next_again.state = State.Review;
+      next_again.learning_steps = 0;
+      next_hard.state = State.Review;
+      next_hard.learning_steps = 0;
+      next_good.state = State.Review;
+      next_good.learning_steps = 0;
+      next_easy.state = State.Review;
+      next_easy.learning_steps = 0;
+    }
+    update_next(next_again, next_hard, next_good, next_easy) {
+      const item_again = {
+        card: next_again,
+        log: this.buildLog(Rating.Again)
+      };
+      const item_hard = {
+        card: next_hard,
+        log: super.buildLog(Rating.Hard)
+      };
+      const item_good = {
+        card: next_good,
+        log: super.buildLog(Rating.Good)
+      };
+      const item_easy = {
+        card: next_easy,
+        log: super.buildLog(Rating.Easy)
+      };
+      this.next.set(Rating.Again, item_again);
+      this.next.set(Rating.Hard, item_hard);
+      this.next.set(Rating.Good, item_good);
+      this.next.set(Rating.Easy, item_easy);
+    }
+  }
+
+  var __defProp$1 = Object.defineProperty;
+  var __defProps$1 = Object.defineProperties;
+  var __getOwnPropDescs$1 = Object.getOwnPropertyDescriptors;
+  var __getOwnPropSymbols$1 = Object.getOwnPropertySymbols;
+  var __hasOwnProp$1 = Object.prototype.hasOwnProperty;
+  var __propIsEnum$1 = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp$1 = (obj, key, value) => key in obj ? __defProp$1(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues$1 = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp$1.call(b, prop))
+        __defNormalProp$1(a, prop, b[prop]);
+    if (__getOwnPropSymbols$1)
+      for (var prop of __getOwnPropSymbols$1(b)) {
+        if (__propIsEnum$1.call(b, prop))
+          __defNormalProp$1(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __spreadProps$1 = (a, b) => __defProps$1(a, __getOwnPropDescs$1(b));
+  var __publicField$1 = (obj, key, value) => __defNormalProp$1(obj, key + "" , value);
+  class Reschedule {
+    /**
+     * Creates an instance of the `Reschedule` class.
+     * @param fsrs - An instance of the FSRS class used for scheduling.
+     */
+    constructor(fsrs) {
+      __publicField$1(this, "fsrs");
+      this.fsrs = fsrs;
+    }
+    /**
+     * Replays a review for a card and determines the next review date based on the given rating.
+     * @param card - The card being reviewed.
+     * @param reviewed - The date the card was reviewed.
+     * @param rating - The grade given to the card during the review.
+     * @returns A `RecordLogItem` containing the updated card and review log.
+     */
+    replay(card, reviewed, rating) {
+      return this.fsrs.next(card, reviewed, rating);
+    }
+    /**
+     * Processes a manual review for a card, allowing for custom state, stability, difficulty, and due date.
+     * @param card - The card being reviewed.
+     * @param state - The state of the card after the review.
+     * @param reviewed - The date the card was reviewed.
+     * @param elapsed_days - The number of days since the last review.
+     * @param stability - (Optional) The stability of the card.
+     * @param difficulty - (Optional) The difficulty of the card.
+     * @param due - (Optional) The due date for the next review.
+     * @returns A `RecordLogItem` containing the updated card and review log.
+     * @throws Will throw an error if the state or due date is not provided when required.
+     */
+    handleManualRating(card, state, reviewed, elapsed_days, stability, difficulty, due) {
+      if (typeof state === "undefined") {
+        throw new FSRSValidationError(
+          "reschedule: state is required for manual rating"
+        );
+      }
+      let log;
+      let next_card;
+      if (state === State.New) {
+        log = {
+          rating: Rating.Manual,
+          state,
+          due: due != null ? due : reviewed,
+          stability: card.stability,
+          difficulty: card.difficulty,
+          elapsed_days,
+          last_elapsed_days: card.elapsed_days,
+          scheduled_days: card.scheduled_days,
+          learning_steps: card.learning_steps,
+          review: reviewed
+        };
+        next_card = createEmptyCard(reviewed);
+        next_card.last_review = reviewed;
+      } else {
+        if (typeof due === "undefined") {
+          throw new FSRSValidationError(
+            "reschedule: due is required for manual rating"
+          );
+        }
+        const scheduled_days = date_diff(due, reviewed, "days");
+        log = {
+          rating: Rating.Manual,
+          state: card.state,
+          due: card.last_review || card.due,
+          stability: card.stability,
+          difficulty: card.difficulty,
+          elapsed_days,
+          last_elapsed_days: card.elapsed_days,
+          scheduled_days: card.scheduled_days,
+          learning_steps: card.learning_steps,
+          review: reviewed
+        };
+        next_card = __spreadProps$1(__spreadValues$1({}, card), {
+          state,
+          due,
+          last_review: reviewed,
+          stability: stability || card.stability,
+          difficulty: difficulty || card.difficulty,
+          elapsed_days,
+          scheduled_days,
+          reps: card.reps + 1
+        });
+      }
+      return { card: next_card, log };
+    }
+    /**
+     * Reschedules a card based on its review history.
+     *
+     * @param current_card - The card to be rescheduled.
+     * @param reviews - An array of review history objects.
+     * @returns An array of record log items representing the rescheduling process.
+     */
+    reschedule(current_card, reviews) {
+      const collections = [];
+      let cur_card = createEmptyCard(current_card.due);
+      for (const review of reviews) {
+        let item;
+        review.review = TypeConvert.time(review.review);
+        if (review.rating === Rating.Manual) {
+          let interval = 0;
+          if (cur_card.state !== State.New && cur_card.last_review) {
+            interval = date_diff(review.review, cur_card.last_review, "days");
+          }
+          item = this.handleManualRating(
+            cur_card,
+            review.state,
+            review.review,
+            interval,
+            review.stability,
+            review.difficulty,
+            review.due ? TypeConvert.time(review.due) : void 0
+          );
+        } else {
+          item = this.replay(cur_card, review.review, review.rating);
+        }
+        collections.push(item);
+        cur_card = item.card;
+      }
+      return collections;
+    }
+    calculateManualRecord(current_card, now, record_log_item, update_memory) {
+      if (!record_log_item) {
+        return null;
+      }
+      const { card: reschedule_card, log } = record_log_item;
+      const cur_card = TypeConvert.card(current_card);
+      if (cur_card.due.getTime() === reschedule_card.due.getTime()) {
+        return null;
+      }
+      cur_card.scheduled_days = date_diff(
+        reschedule_card.due,
+        cur_card.due,
+        "days"
+      );
+      return this.handleManualRating(
+        cur_card,
+        reschedule_card.state,
+        TypeConvert.time(now),
+        log.elapsed_days,
+        update_memory ? reschedule_card.stability : void 0,
+        update_memory ? reschedule_card.difficulty : void 0,
+        reschedule_card.due
+      );
+    }
+  }
+
+  var __defProp = Object.defineProperty;
+  var __defProps = Object.defineProperties;
+  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  function applyAfterHandler(value, afterHandler) {
+    return typeof afterHandler === "function" ? afterHandler(value) : value;
+  }
+  class FSRS extends FSRSAlgorithm {
+    constructor(param) {
+      super(param);
+      __publicField(this, "strategyHandler", /* @__PURE__ */ new Map());
+      __publicField(this, "Scheduler");
+      const { enable_short_term } = this.parameters;
+      this.Scheduler = enable_short_term ? BasicScheduler : LongTermScheduler;
+    }
+    params_handler_proxy() {
+      const _this = this;
+      return {
+        set: function(target, prop, value) {
+          if (prop === "request_retention" && Number.isFinite(value)) {
+            _this.intervalModifier = _this.calculate_interval_modifier(
+              Number(value)
+            );
+          } else if (prop === "enable_short_term") {
+            _this.Scheduler = value === true ? BasicScheduler : LongTermScheduler;
+          } else if (prop === "w") {
+            value = migrateParameters(
+              value,
+              target.relearning_steps.length,
+              target.enable_short_term
+            );
+            value = clipParameters(
+              Array.from(value),
+              target.relearning_steps.length,
+              target.enable_short_term
+            );
+            _this.forgetting_curve = forgetting_curve.bind(this, value);
+            _this.intervalModifier = _this.calculate_interval_modifier(
+              Number(target.request_retention)
+            );
+          }
+          Reflect.set(target, prop, value);
+          return true;
+        }
+      };
+    }
+    useStrategy(mode, handler) {
+      this.strategyHandler.set(mode, handler);
+      return this;
+    }
+    clearStrategy(mode) {
+      if (mode) {
+        this.strategyHandler.delete(mode);
+      } else {
+        this.strategyHandler.clear();
+      }
+      return this;
+    }
+    getScheduler(card, now) {
+      const schedulerStrategy = this.strategyHandler.get(
+        StrategyMode.SCHEDULER
+      );
+      const Scheduler = schedulerStrategy || this.Scheduler;
+      const instance = new Scheduler(card, now, this, this.strategyHandler);
+      return instance;
+    }
+    /**
+     * Display the collection of cards and logs for the four scenarios after scheduling the card at the current time.
+     * @param card Card to be processed
+     * @param now Current time or scheduled time
+     * @param afterHandler Convert the result to another type. (Optional)
+     * @example
+     * ```typescript
+     * const card: Card = createEmptyCard(new Date());
+     * const f = fsrs();
+     * const recordLog = f.repeat(card, new Date());
+     * ```
+     * @example
+     * ```typescript
+     * interface RevLogUnchecked
+     *   extends Omit<ReviewLog, "due" | "review" | "state" | "rating"> {
+     *   cid: string;
+     *   due: Date | number;
+     *   state: StateType;
+     *   review: Date | number;
+     *   rating: RatingType;
+     * }
+     *
+     * interface RepeatRecordLog {
+     *   card: CardUnChecked; //see method: createEmptyCard
+     *   log: RevLogUnchecked;
+     * }
+     *
+     * function repeatAfterHandler(recordLog: RecordLog) {
+     *     const record: { [key in Grade]: RepeatRecordLog } = {} as {
+     *       [key in Grade]: RepeatRecordLog;
+     *     };
+     *     for (const grade of Grades) {
+     *       record[grade] = {
+     *         card: {
+     *           ...(recordLog[grade].card as Card & { cid: string }),
+     *           due: recordLog[grade].card.due.getTime(),
+     *           state: State[recordLog[grade].card.state] as StateType,
+     *           last_review: recordLog[grade].card.last_review
+     *             ? recordLog[grade].card.last_review!.getTime()
+     *             : null,
+     *         },
+     *         log: {
+     *           ...recordLog[grade].log,
+     *           cid: (recordLog[grade].card as Card & { cid: string }).cid,
+     *           due: recordLog[grade].log.due.getTime(),
+     *           review: recordLog[grade].log.review.getTime(),
+     *           state: State[recordLog[grade].log.state] as StateType,
+     *           rating: Rating[recordLog[grade].log.rating] as RatingType,
+     *         },
+     *       };
+     *     }
+     *     return record;
+     * }
+     * const card: Card = createEmptyCard(new Date(), cardAfterHandler); //see method:  createEmptyCard
+     * const f = fsrs();
+     * const recordLog = f.repeat(card, new Date(), repeatAfterHandler);
+     * ```
+     */
+    repeat(card, now, afterHandler) {
+      const instance = this.getScheduler(card, now);
+      const recordLog = instance.preview();
+      return applyAfterHandler(recordLog, afterHandler);
+    }
+    /**
+     * Display the collection of cards and logs for the card scheduled at the current time, after applying a specific grade rating.
+     * @param card Card to be processed
+     * @param now Current time or scheduled time
+     * @param grade Rating of the review (Again, Hard, Good, Easy)
+     * @param afterHandler Convert the result to another type. (Optional)
+     * @example
+     * ```typescript
+     * const card: Card = createEmptyCard(new Date());
+     * const f = fsrs();
+     * const recordLogItem = f.next(card, new Date(), Rating.Again);
+     * ```
+     * @example
+     * ```typescript
+     * interface RevLogUnchecked
+     *   extends Omit<ReviewLog, "due" | "review" | "state" | "rating"> {
+     *   cid: string;
+     *   due: Date | number;
+     *   state: StateType;
+     *   review: Date | number;
+     *   rating: RatingType;
+     * }
+     *
+     * interface NextRecordLog {
+     *   card: CardUnChecked; //see method: createEmptyCard
+     *   log: RevLogUnchecked;
+     * }
+     *
+    function nextAfterHandler(recordLogItem: RecordLogItem) {
+      const recordItem = {
+        card: {
+          ...(recordLogItem.card as Card & { cid: string }),
+          due: recordLogItem.card.due.getTime(),
+          state: State[recordLogItem.card.state] as StateType,
+          last_review: recordLogItem.card.last_review
+            ? recordLogItem.card.last_review!.getTime()
+            : null,
+        },
+        log: {
+          ...recordLogItem.log,
+          cid: (recordLogItem.card as Card & { cid: string }).cid,
+          due: recordLogItem.log.due.getTime(),
+          review: recordLogItem.log.review.getTime(),
+          state: State[recordLogItem.log.state] as StateType,
+          rating: Rating[recordLogItem.log.rating] as RatingType,
+        },
+      };
+      return recordItem
+    }
+     * const card: Card = createEmptyCard(new Date(), cardAfterHandler); //see method:  createEmptyCard
+     * const f = fsrs();
+     * const recordLogItem = f.repeat(card, new Date(), Rating.Again, nextAfterHandler);
+     * ```
+     */
+    next(card, now, grade, afterHandler) {
+      const instance = this.getScheduler(card, now);
+      const g = TypeConvert.rating(grade);
+      if (g === Rating.Manual) {
+        throw new FSRSValidationError("Cannot review a manual rating");
+      }
+      const recordLogItem = instance.review(g);
+      return applyAfterHandler(recordLogItem, afterHandler);
+    }
+    /**
+     * Get the retrievability of the card
+     * @param card  Card to be processed
+     * @param now  Current time or scheduled time
+     * @param format  default:true , Convert the result to another type. (Optional)
+     * @returns  The retrievability of the card,if format is true, the result is a string, otherwise it is a number
+     */
+    get_retrievability(card, now, format = true) {
+      const processedCard = TypeConvert.card(card);
+      now = now ? TypeConvert.time(now) : /* @__PURE__ */ new Date();
+      const t = processedCard.state !== State.New ? Math.max(date_diff(now, processedCard.last_review, "days"), 0) : 0;
+      const r = processedCard.state !== State.New ? this.forgetting_curve(t, +processedCard.stability.toFixed(8)) : 0;
+      return format ? `${(r * 100).toFixed(2)}%` : r;
+    }
+    /**
+     *
+     * @param card Card to be processed
+     * @param log last review log
+     * @param afterHandler Convert the result to another type. (Optional)
+     * @example
+     * ```typescript
+     * const now = new Date();
+     * const f = fsrs();
+     * const emptyCardFormAfterHandler = createEmptyCard(now);
+     * const repeatFormAfterHandler = f.repeat(emptyCardFormAfterHandler, now);
+     * const { card, log } = repeatFormAfterHandler[Rating.Hard];
+     * const rollbackFromAfterHandler = f.rollback(card, log);
+     * ```
+     *
+     * @example
+     * ```typescript
+     * const now = new Date();
+     * const f = fsrs();
+     * const emptyCardFormAfterHandler = createEmptyCard(now, cardAfterHandler);  //see method: createEmptyCard
+     * const repeatFormAfterHandler = f.repeat(emptyCardFormAfterHandler, now, repeatAfterHandler); //see method: fsrs.repeat()
+     * const { card, log } = repeatFormAfterHandler[Rating.Hard];
+     * const rollbackFromAfterHandler = f.rollback(card, log, cardAfterHandler);
+     * ```
+     */
+    rollback(card, log, afterHandler) {
+      const processedCard = TypeConvert.card(card);
+      const processedLog = TypeConvert.review_log(log);
+      if (processedLog.rating === Rating.Manual) {
+        throw new FSRSValidationError("Cannot rollback a manual rating");
+      }
+      let last_due;
+      let last_review;
+      let last_lapses;
+      switch (processedLog.state) {
+        case State.New:
+          last_due = processedLog.due;
+          last_review = void 0;
+          last_lapses = 0;
+          break;
+        case State.Learning:
+        case State.Relearning:
+        case State.Review:
+          last_due = processedLog.review;
+          last_review = processedLog.due;
+          last_lapses = processedCard.lapses - (processedLog.rating === Rating.Again && processedLog.state === State.Review ? 1 : 0);
+          break;
+      }
+      const prevCard = __spreadProps(__spreadValues({}, processedCard), {
+        due: last_due,
+        stability: processedLog.stability,
+        difficulty: processedLog.difficulty,
+        elapsed_days: processedLog.last_elapsed_days,
+        scheduled_days: processedLog.scheduled_days,
+        reps: Math.max(0, processedCard.reps - 1),
+        lapses: Math.max(0, last_lapses),
+        learning_steps: processedLog.learning_steps,
+        state: processedLog.state,
+        last_review
+      });
+      return applyAfterHandler(prevCard, afterHandler);
+    }
+    /**
+     *
+     * @param card Card to be processed
+     * @param now Current time or scheduled time
+     * @param reset_count Should the review count information(reps,lapses) be reset. (Optional)
+     * @param afterHandler Convert the result to another type. (Optional)
+     * @example
+     * ```typescript
+     * const now = new Date();
+     * const f = fsrs();
+     * const emptyCard = createEmptyCard(now);
+     * const scheduling_cards = f.repeat(emptyCard, now);
+     * const { card, log } = scheduling_cards[Rating.Hard];
+     * const forgetCard = f.forget(card, new Date(), true);
+     * ```
+     *
+     * @example
+     * ```typescript
+     * interface RepeatRecordLog {
+     *   card: CardUnChecked; //see method: createEmptyCard
+     *   log: RevLogUnchecked; //see method: fsrs.repeat()
+     * }
+     *
+     * function forgetAfterHandler(recordLogItem: RecordLogItem): RepeatRecordLog {
+     *     return {
+     *       card: {
+     *         ...(recordLogItem.card as Card & { cid: string }),
+     *         due: recordLogItem.card.due.getTime(),
+     *         state: State[recordLogItem.card.state] as StateType,
+     *         last_review: recordLogItem.card.last_review
+     *           ? recordLogItem.card.last_review!.getTime()
+     *           : null,
+     *       },
+     *       log: {
+     *         ...recordLogItem.log,
+     *         cid: (recordLogItem.card as Card & { cid: string }).cid,
+     *         due: recordLogItem.log.due.getTime(),
+     *         review: recordLogItem.log.review.getTime(),
+     *         state: State[recordLogItem.log.state] as StateType,
+     *         rating: Rating[recordLogItem.log.rating] as RatingType,
+     *       },
+     *     };
+     * }
+     * const now = new Date();
+     * const f = fsrs();
+     * const emptyCardFormAfterHandler = createEmptyCard(now, cardAfterHandler); //see method:  createEmptyCard
+     * const repeatFormAfterHandler = f.repeat(emptyCardFormAfterHandler, now, repeatAfterHandler); //see method: fsrs.repeat()
+     * const { card } = repeatFormAfterHandler[Rating.Hard];
+     * const forgetFromAfterHandler = f.forget(card, date_scheduler(now, 1, true), false, forgetAfterHandler);
+     * ```
+     */
+    forget(card, now, reset_count = false, afterHandler) {
+      const processedCard = TypeConvert.card(card);
+      now = TypeConvert.time(now);
+      const scheduled_days = processedCard.state === State.New ? 0 : date_diff(now, processedCard.due, "days");
+      const forget_log = {
+        rating: Rating.Manual,
+        state: processedCard.state,
+        due: processedCard.due,
+        stability: processedCard.stability,
+        difficulty: processedCard.difficulty,
+        elapsed_days: 0,
+        last_elapsed_days: processedCard.elapsed_days,
+        scheduled_days,
+        learning_steps: processedCard.learning_steps,
+        review: now
+      };
+      const forget_card = __spreadProps(__spreadValues({}, processedCard), {
+        due: now,
+        stability: 0,
+        difficulty: 0,
+        elapsed_days: 0,
+        scheduled_days: 0,
+        reps: reset_count ? 0 : processedCard.reps,
+        lapses: reset_count ? 0 : processedCard.lapses,
+        learning_steps: 0,
+        state: State.New,
+        last_review: processedCard.last_review
+      });
+      const recordLogItem = { card: forget_card, log: forget_log };
+      return applyAfterHandler(recordLogItem, afterHandler);
+    }
+    /**
+     * Reschedules the current card and returns the rescheduled collections and reschedule item.
+     *
+     * @template T - The type of the record log item.
+     * @param {CardInput | Card} current_card - The current card to be rescheduled.
+     * @param {Array<FSRSHistory>} reviews - The array of FSRSHistory objects representing the reviews.
+     * @param {Partial<RescheduleOptions<T>>} options - The optional reschedule options.
+     * @returns {IReschedule<T>} - The rescheduled collections and reschedule item.
+     *
+     * @example
+     * ```typescript
+     * const f = fsrs()
+     * const grades: Grade[] = [Rating.Good, Rating.Good, Rating.Good, Rating.Good]
+     * const reviews_at = [
+     *   new Date(2024, 8, 13),
+     *   new Date(2024, 8, 13),
+     *   new Date(2024, 8, 17),
+     *   new Date(2024, 8, 28),
+     * ]
+     *
+     * const reviews: FSRSHistory[] = []
+     * for (let i = 0; i < grades.length; i++) {
+     *   reviews.push({
+     *     rating: grades[i],
+     *     review: reviews_at[i],
+     *   })
+     * }
+     *
+     * const results_short = scheduler.reschedule(
+     *   createEmptyCard(),
+     *   reviews,
+     *   {
+     *     skipManual: false,
+     *   }
+     * )
+     * console.log(results_short)
+     * ```
+     */
+    reschedule(current_card, reviews = [], options = {}) {
+      const {
+        recordLogHandler,
+        reviewsOrderBy,
+        skipManual = true,
+        now = /* @__PURE__ */ new Date(),
+        update_memory_state: updateMemoryState = false
+      } = options;
+      if (reviewsOrderBy && typeof reviewsOrderBy === "function") {
+        reviews.sort(reviewsOrderBy);
+      }
+      if (skipManual) {
+        reviews = reviews.filter((review) => review.rating !== Rating.Manual);
+      }
+      const rescheduleSvc = new Reschedule(this);
+      const collections = rescheduleSvc.reschedule(
+        options.first_card || createEmptyCard(),
+        reviews
+      );
+      const len = collections.length;
+      const cur_card = TypeConvert.card(current_card);
+      const manual_item = rescheduleSvc.calculateManualRecord(
+        cur_card,
+        now,
+        len ? collections[len - 1] : void 0,
+        updateMemoryState
+      );
+      return {
+        collections: typeof recordLogHandler === "function" ? collections.map(recordLogHandler) : collections,
+        reschedule_item: manual_item ? applyAfterHandler(manual_item, recordLogHandler) : null
+      };
+    }
+  }
+  const fsrs = (params) => {
+    return new FSRS(params || {});
+  };
+
+  exports.AbstractScheduler = AbstractScheduler;
+  exports.BasicLearningStepsStrategy = BasicLearningStepsStrategy;
+  exports.CLAMP_PARAMETERS = CLAMP_PARAMETERS;
+  exports.ConvertStepUnitToMinutes = ConvertStepUnitToMinutes;
+  exports.DefaultInitSeedStrategy = DefaultInitSeedStrategy;
+  exports.FSRS = FSRS;
+  exports.FSRS5_DEFAULT_DECAY = FSRS5_DEFAULT_DECAY;
+  exports.FSRS6_DEFAULT_DECAY = FSRS6_DEFAULT_DECAY;
+  exports.FSRSAlgorithm = FSRSAlgorithm;
+  exports.FSRSVersion = FSRSVersion;
+  exports.GenSeedStrategyWithCardId = GenSeedStrategyWithCardId;
+  exports.Grades = Grades;
+  exports.INIT_S_MAX = INIT_S_MAX;
+  exports.Rating = Rating;
+  exports.S_MAX = S_MAX;
+  exports.S_MIN = S_MIN;
+  exports.State = State;
+  exports.StrategyMode = StrategyMode;
+  exports.TypeConvert = TypeConvert;
+  exports.W17_W18_Ceiling = W17_W18_Ceiling;
+  exports.checkParameters = checkParameters;
+  exports.clamp = clamp;
+  exports.clipParameters = clipParameters;
+  exports.computeDecayFactor = computeDecayFactor;
+  exports.createEmptyCard = createEmptyCard;
+  exports.dateDiffInDays = dateDiffInDays;
+  exports.date_diff = date_diff;
+  exports.date_scheduler = date_scheduler;
+  exports.default_enable_fuzz = default_enable_fuzz;
+  exports.default_enable_short_term = default_enable_short_term;
+  exports.default_learning_steps = default_learning_steps;
+  exports.default_maximum_interval = default_maximum_interval;
+  exports.default_relearning_steps = default_relearning_steps;
+  exports.default_request_retention = default_request_retention;
+  exports.default_w = default_w;
+  exports.fixDate = fixDate;
+  exports.fixRating = fixRating;
+  exports.fixState = fixState;
+  exports.forgetting_curve = forgetting_curve;
+  exports.formatDate = formatDate;
+  exports.fsrs = fsrs;
+  exports.generatorParameters = generatorParameters;
+  exports.get_fuzz_range = get_fuzz_range;
+  exports.migrateParameters = migrateParameters;
+  exports.roundTo = roundTo;
+  exports.show_diff_message = show_diff_message;
+
+}));
+//# sourceMappingURL=index.umd.js.map
+
+</script><!--/LIB:ts-fsrs.umd-->
+<!--LIB:ecg-db--><script>
+/* ECG School · ecg-db.js — capa de almacenamiento local con IndexedDB.
+ *
+ * Guarda en el navegador del estudiante: respuestas, intentos, sesiones,
+ * resultados de cuestionarios, estado de cada flashcard (FSRS) y su historial.
+ * No sincroniza entre dispositivos: si el navegador o el sistema borran los
+ * datos del sitio, se pierden (para eso existe exportar/importar).
+ *
+ * Uso:  ECGDB.ready().then(info => ...)   info = {mode:'idb'|'memory', persisted}
+ *       ECGDB.get(store, key) · getAll(store, index?, range?) · put(store, obj)
+ *       ECGDB.putMany(store, arr) · del(store, key) · clear(store) · count(...)
+ *       ECGDB.tx(stores, 'readwrite', fn(t) => ...)   transacción multi-almacén
+ *       ECGDB.exportAll() · ECGDB.importAll(obj) · ECGDB.summary()
+ *
+ * Para ampliar el esquema: sube VERSION y agrega una función a MIGRATIONS.
+ */
+(function (root) {
+  'use strict';
+  if (root.ECGDB) return;
+
+  var DB_NAME = 'ecg-school';
+  var VERSION = 1;
+  var FORMAT = 'ecg-school-backup';
+  var DAY_ROLLOVER_HOUR = 4; // como Anki: el "día de estudio" cambia a las 4:00
+
+  /* Almacenes de la versión 1:
+   *  meta      clave-valor (ajustes, mazo, banderas de migración)
+   *  answers   última respuesta por pregunta            key: qid
+   *  attempts  historial de intentos (nunca se edita)   key: qid|ts
+   *  sessions  estado reanudable de vistas/cuestionarios key: id
+   *  results   cuestionarios terminados                  key: id
+   *  cards     estado FSRS de cada flashcard             key: cid
+   *  reviews   historial de repasos de flashcards        key: cid|ts
+   */
+  var MIGRATIONS = {
+    1: function (db) {
+      function store(name, keyPath, indexes) {
+        if (db.objectStoreNames.contains(name)) return;
+        var s = db.createObjectStore(name, { keyPath: keyPath });
+        (indexes || []).forEach(function (ix) { s.createIndex(ix, ix, { unique: false }); });
+      }
+      store('meta', 'key');
+      store('answers', 'qid', ['topic', 'ts']);
+      store('attempts', 'key', ['qid', 'ts', 'topic', 'day', 'source']);
+      store('sessions', 'id');
+      store('results', 'id', ['ts', 'source']);
+      store('cards', 'cid', ['due', 'state']);
+      store('reviews', 'key', ['cid', 'ts', 'day']);
+    }
+  };
+  var STORES = ['meta', 'answers', 'attempts', 'sessions', 'results', 'cards', 'reviews'];
+  var KEYS = { meta: 'key', answers: 'qid', attempts: 'key', sessions: 'id', results: 'id', cards: 'cid', reviews: 'key' };
+
+  var db = null, mode = 'idb', opening = null, persisted = false, lastError = null;
+  var mem = null; // respaldo en memoria si IndexedDB no está disponible
+
+  function err(where, e) {
+    lastError = (e && (e.message || e.name)) || String(e);
+    try { console.warn('[ECGDB] ' + where + ': ' + lastError); } catch (_) {}
+    return e instanceof Error ? e : new Error(lastError);
+  }
+
+  /* ---------- utilidades públicas ---------- */
+  function dayKey(ts) {
+    var d = new Date((ts == null ? Date.now() : ts) - DAY_ROLLOVER_HOUR * 3600e3);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function endOfStudyDay(ts) {
+    var d = new Date(ts == null ? Date.now() : ts);
+    var e = new Date(d.getFullYear(), d.getMonth(), d.getDate(), DAY_ROLLOVER_HOUR, 0, 0, 0);
+    if (e.getTime() <= d.getTime()) e.setDate(e.getDate() + 1);
+    return e.getTime();
+  }
+  // Identificador estable a partir del contenido (FNV-1a de 32 bits en base 36).
+  function hashId(prefix, text) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return prefix + (h >>> 0).toString(36);
+  }
+
+  /* ---------- memoria (respaldo) ---------- */
+  function memInit() {
+    mem = {};
+    STORES.forEach(function (s) { mem[s] = new Map(); });
+  }
+  function clone(o) { return o == null ? o : JSON.parse(JSON.stringify(o)); }
+
+  /* ---------- apertura con migraciones ---------- */
+  function open() {
+    if (db || mode === 'memory') return Promise.resolve();
+    if (opening) return opening;
+    opening = new Promise(function (resolve) {
+      var idb;
+      try { idb = root.indexedDB; } catch (e) { idb = null; }
+      if (!idb) { mode = 'memory'; memInit(); err('open', new Error('IndexedDB no disponible; se usa memoria')); return resolve(); }
+      var req;
+      try { req = idb.open(DB_NAME, VERSION); } catch (e) { mode = 'memory'; memInit(); err('open', e); return resolve(); }
+      req.onupgradeneeded = function (ev) {
+        var d = req.result, from = ev.oldVersion || 0;
+        for (var v = from + 1; v <= VERSION; v++) {
+          if (MIGRATIONS[v]) MIGRATIONS[v](d, req.transaction);
+        }
+      };
+      req.onblocked = function () { err('open', new Error('Otra pestaña usa una versión anterior de la base; ciérrala para actualizar.')); };
+      req.onsuccess = function () {
+        db = req.result;
+        // Si otra pestaña necesita actualizar el esquema, cerramos para no bloquearla.
+        db.onversionchange = function () { try { db.close(); } catch (_) {} db = null; opening = null; };
+        db.onclose = function () { db = null; opening = null; };
+        resolve();
+      };
+      req.onerror = function () { mode = 'memory'; memInit(); err('open', req.error); resolve(); };
+    });
+    return opening;
+  }
+
+  function ready() {
+    return open().then(function () {
+      if (mode === 'idb' && root.navigator && navigator.storage && navigator.storage.persist) {
+        return navigator.storage.persisted().then(function (p) {
+          if (p) return p;
+          return navigator.storage.persist().catch(function () { return false; });
+        }).catch(function () { return false; }).then(function (p) { persisted = !!p; });
+      }
+    }).then(function () { return { mode: mode, persisted: persisted, error: lastError }; });
+  }
+
+  /* ---------- transacciones ---------- */
+  function wrap(r) {
+    var p = new Promise(function (res, rej) { r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; });
+    p.catch(function () {}); // el error se informa por el abort de la transacción
+    return p;
+  }
+  // fn(t) recibe {get,getAll,put,del,clear,count}; todo ocurre en UNA transacción.
+  function tx(stores, rw, fn) {
+    stores = [].concat(stores);
+    return open().then(function () {
+      if (mode === 'memory') return memTx(stores, rw, fn);
+      return new Promise(function (resolve, reject) {
+        var t;
+        try { t = db.transaction(stores, rw === 'readwrite' ? 'readwrite' : 'readonly'); }
+        catch (e) { db = null; opening = null; return reject(err('tx', e)); }
+        var out, api = {
+          get: function (s, k) { return wrap(t.objectStore(s).get(k)); },
+          getAll: function (s, ix, range) { var o = t.objectStore(s); return wrap((ix ? o.index(ix) : o).getAll(range)); },
+          put: function (s, v) { return wrap(t.objectStore(s).put(v)); },
+          del: function (s, k) { return wrap(t.objectStore(s).delete(k)); },
+          clear: function (s) { return wrap(t.objectStore(s).clear()); },
+          count: function (s, ix, range) { var o = t.objectStore(s); return wrap((ix ? o.index(ix) : o).count(range)); }
+        };
+        t.oncomplete = function () { resolve(out); };
+        t.onabort = function () { reject(err('tx abort', t.error || new Error('transacción abortada'))); };
+        t.onerror = function (ev) { /* el abort trae el detalle */ };
+        try { out = fn(api); if (out && out.then) out.then(function (v) { out = v; }, function (e) { try { t.abort(); } catch (_) {} reject(err('tx fn', e)); }); }
+        catch (e) { try { t.abort(); } catch (_) {} reject(err('tx fn', e)); }
+      });
+    });
+  }
+  function inRange(v, r) { return !r || ((r.lower === undefined || (r.lowerOpen ? v > r.lower : v >= r.lower)) && (r.upper === undefined || (r.upperOpen ? v < r.upper : v <= r.upper))); }
+  function memTx(stores, rw, fn) {
+    var api = {
+      get: function (s, k) { return Promise.resolve(clone(mem[s].get(k))); },
+      getAll: function (s, ix, range) {
+        var all = Array.from(mem[s].values()).map(clone);
+        if (ix) { all = all.filter(function (o) { return o[ix] !== undefined && inRange(o[ix], range); }); all.sort(function (a, b) { return a[ix] < b[ix] ? -1 : a[ix] > b[ix] ? 1 : 0; }); }
+        else if (range) all = all.filter(function (o) { return inRange(o[KEYS[s]], range); });
+        return Promise.resolve(all);
+      },
+      put: function (s, v) { mem[s].set(v[KEYS[s]], clone(v)); return Promise.resolve(v[KEYS[s]]); },
+      del: function (s, k) { mem[s].delete(k); return Promise.resolve(); },
+      clear: function (s) { mem[s].clear(); return Promise.resolve(); },
+      count: function (s, ix, range) { return api.getAll(s, ix, range).then(function (a) { return a.length; }); }
+    };
+    return Promise.resolve().then(function () { return fn(api); });
+  }
+
+  /* ---------- CRUD ---------- */
+  function get(s, k) { return tx(s, 'readonly', function (t) { return t.get(s, k); }); }
+  function getAll(s, ix, range) { return tx(s, 'readonly', function (t) { return t.getAll(s, ix, range); }); }
+  function count(s, ix, range) { return tx(s, 'readonly', function (t) { return t.count(s, ix, range); }); }
+  function put(s, v) { return tx(s, 'readwrite', function (t) { return t.put(s, v); }).then(function (k) { notify(s); return k; }); }
+  function putMany(s, arr) { return tx(s, 'readwrite', function (t) { return Promise.all(arr.map(function (v) { return t.put(s, v); })); }).then(function (k) { notify(s); return k; }); }
+  function del(s, k) { return tx(s, 'readwrite', function (t) { return t.del(s, k); }).then(function () { notify(s); }); }
+  function clear(s) { return tx(s, 'readwrite', function (t) { return t.clear(s); }).then(function () { notify(s); }); }
+  function getMeta(k, dflt) { return get('meta', k).then(function (r) { return r ? r.value : dflt; }); }
+  function setMeta(k, v) { return put('meta', { key: k, value: v, updated: Date.now() }); }
+  function range(lo, hi) {
+    var K = root.IDBKeyRange;
+    if (mode === 'memory' || !K) return { lower: lo, upper: hi };
+    if (lo != null && hi != null) return K.bound(lo, hi);
+    if (lo != null) return K.lowerBound(lo);
+    return K.upperBound(hi);
+  }
+
+  /* ---------- avisos de cambio (para el contador de pendientes) ---------- */
+  var chan = null;
+  try { chan = new BroadcastChannel('ecg-db'); } catch (_) {}
+  var listeners = [];
+  function notify(s) {
+    var msg = { type: 'ecg-db-change', store: s, ts: Date.now() };
+    listeners.forEach(function (f) { try { f(msg); } catch (_) {} });
+    try { if (chan) chan.postMessage(msg); } catch (_) {}
+  }
+  function onChange(f) { listeners.push(f); if (chan) chan.addEventListener('message', function (e) { if (e.data && e.data.type === 'ecg-db-change') f(e.data); }); }
+
+  /* ---------- respaldo: exportar ---------- */
+  function exportAll() {
+    return tx(STORES, 'readonly', function (t) {
+      var out = {};
+      return Promise.all(STORES.map(function (s) { return t.getAll(s).then(function (a) { out[s] = a; }); })).then(function () { return out; });
+    }).then(function (data) {
+      return { format: FORMAT, schema: VERSION, app: 'ECG School', exportedAt: new Date().toISOString(), stores: data };
+    });
+  }
+
+  /* ---------- respaldo: importar con reconciliación ----------
+   * Nunca borra lo existente. Reglas por almacén:
+   *  attempts, reviews  historial inmutable: se agregan los que falten (clave única).
+   *  answers            gana el registro con fecha (ts) más reciente.
+   *  cards              gana el que tenga el repaso más reciente (o más repasos).
+   *  sessions, results  gana el más reciente (updated / ts).
+   *  meta               sólo se importan ajustes ausentes; nunca banderas internas.
+   */
+  function newer(a, b, f) { return (a && a[f] || 0) > (b && b[f] || 0); }
+  function validate(obj) {
+    if (!obj || typeof obj !== 'object') throw new Error('El archivo no es un respaldo válido.');
+    if (obj.format !== FORMAT) throw new Error('Este archivo no es un respaldo de ECG School.');
+    if (!obj.stores || typeof obj.stores !== 'object') throw new Error('El respaldo no contiene datos.');
+    if (obj.schema > VERSION) throw new Error('El respaldo viene de una versión más nueva de la app. Actualiza la página e inténtalo de nuevo.');
+    STORES.forEach(function (s) {
+      var a = obj.stores[s];
+      if (a == null) return;
+      if (!Array.isArray(a)) throw new Error('Datos dañados en «' + s + '».');
+      a.forEach(function (r) { if (!r || typeof r !== 'object' || r[KEYS[s]] == null) throw new Error('Registro sin clave en «' + s + '».'); });
+    });
+  }
+  function importAll(obj) {
+    try { validate(obj); } catch (e) { return Promise.reject(e); }
+    var rep = {};
+    return tx(STORES, 'readwrite', function (t) {
+      return Promise.all(STORES.map(function (s) {
+        var incoming = obj.stores[s] || [];
+        rep[s] = { added: 0, updated: 0, kept: 0 };
+        return t.getAll(s).then(function (cur) {
+          var byKey = new Map(cur.map(function (r) { return [r[KEYS[s]], r]; }));
+          return Promise.all(incoming.map(function (r) {
+            var k = r[KEYS[s]], have = byKey.get(k), take = false;
+            if (!have) take = true;
+            else if (s === 'answers') take = newer(r, have, 'ts');
+            else if (s === 'cards') take = newer(r, have, 'lastReview') || ((r.lastReview || 0) === (have.lastReview || 0) && (r.card && r.card.reps || 0) > (have.card && have.card.reps || 0));
+            else if (s === 'sessions') take = newer(r, have, 'updated');
+            else if (s === 'results') take = newer(r, have, 'ts');
+            if (s === 'meta' && (/^_|^migrated/.test(k))) take = false;
+            if (!take) { rep[s].kept++; return; }
+            rep[s][have ? 'updated' : 'added']++;
+            return t.put(s, r);
+          }));
+        });
+      }));
+    }).then(function () { notify('*'); return rep; });
+  }
+
+  /* ---------- resumen de repaso (lo usan el banco y el menú) ----------
+   * Pendientes hoy = aprendizaje vencido + repasos que vencen antes del fin
+   * del día de estudio + nuevas disponibles según el límite diario.
+   */
+  function summary(now) {
+    now = now || Date.now();
+    var eod = endOfStudyDay(now), today = dayKey(now);
+    return tx(['cards', 'reviews', 'meta'], 'readonly', function (t) {
+      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', 'srs-settings'), t.get('meta', 'deck')]);
+    }).then(function (r) {
+      var cards = r[0] || [], todays = r[1] || [], st = (r[2] && r[2].value) || {}, deck = (r[3] && r[3].value) || {};
+      var newPerDay = st.newPerDay != null ? st.newPerDay : 20;
+      var s = { total: deck.total || 0, seen: 0, newAvail: 0, learning: 0, review: 0, dueLearning: 0, dueReview: 0, suspended: 0, reviewedToday: 0, newToday: 0, dueToday: 0, nextDue: null };
+      var known = {};
+      cards.forEach(function (c) {
+        known[c.cid] = 1;
+        if (c.suspended) { s.suspended++; return; }
+        var st0 = c.card ? c.card.state : 0;
+        if (st0 === 0) return;
+        s.seen++;
+        var due = c.card.due;
+        if (st0 === 2) { s.review++; if (due <= eod) s.dueReview++; }
+        else { s.learning++; if (due <= now) s.dueLearning++; else if (due <= eod) s.dueLearning++; }
+        if (due > now && (s.nextDue == null || due < s.nextDue)) s.nextDue = due;
+      });
+      todays.forEach(function (v) { s.reviewedToday++; if (v.stateBefore === 0) s.newToday++; });
+      var ids = deck.ids || [];
+      // nuevas = tarjetas del mazo sin estado o en estado 0, no suspendidas
+      var byId = cardsById(cards), newCount = 0;
+      ids.forEach(function (id) { var c = byId[id]; if (!c || ((!c.card || c.card.state === 0) && !c.suspended)) newCount++; });
+      s.newAvail = Math.max(0, Math.min(newCount, newPerDay - s.newToday));
+      s.dueToday = s.dueLearning + s.dueReview + s.newAvail;
+      return s;
+    });
+  }
+  var _cbCache = null, _cbSrc = null;
+  function cardsById(cards) { if (_cbSrc !== cards) { _cbSrc = cards; _cbCache = {}; cards.forEach(function (c) { _cbCache[c.cid] = c; }); } return _cbCache; }
+
+  root.ECGDB = {
+    VERSION: VERSION, NAME: DB_NAME, STORES: STORES.slice(), FORMAT: FORMAT,
+    ready: ready, tx: tx, get: get, getAll: getAll, count: count, put: put, putMany: putMany, del: del, clear: clear,
+    getMeta: getMeta, setMeta: setMeta, range: range,
+    exportAll: exportAll, importAll: importAll, summary: summary, onChange: onChange, notify: notify,
+    dayKey: dayKey, endOfStudyDay: endOfStudyDay, hashId: hashId,
+    get mode() { return mode; }, get persisted() { return persisted; }, get lastError() { return lastError; }
+  };
+})(typeof window !== 'undefined' ? window : this);
+
+</script><!--/LIB:ecg-db-->
 <script>
 const QS=[],FS=[];
 function Q(t,d,q,o,e,s){QS.push({id:QS.length,t,d,q,o,e,s})}
@@ -1516,11 +3950,13 @@ const L='ABCDE';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-/* ───────── Almacenamiento local (sólo comodidad) ───────── */
+/* ───────── Almacenamiento ─────────
+   La fuente de verdad es IndexedDB (ver «Persistencia» más abajo); `store` es la copia en memoria
+   que usa la interfaz. Lo guardado antes en localStorage se migra una sola vez y no se borra. */
 const KEY='bancoCardio.v1';
 let store={ans:{},fc:{}};
-try{const r=localStorage.getItem(KEY);if(r)store=Object.assign(store,JSON.parse(r))}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+let legacy=null;try{const r=localStorage.getItem(KEY);if(r)legacy=JSON.parse(r)}catch(e){}
+function save(){if(window.ECGDB&&ECGDB.mode==='idb')return;/* respaldo mínimo si IndexedDB no está disponible */try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
 
 /* ───────── Azar con semilla ───────── */
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -1638,7 +4074,7 @@ const ECG=(()=>{
 })();
 
 /* ───────── Interfaz de una pregunta ───────── */
-function qHTML(q,{state,mode}){
+function qHTML(q,{state,mode,retry}){
   const order=optOrder(q);
   const answered=state&&state.choice!=null&&mode==='practica';
   const ok=answered&&state.choice===0;
@@ -1652,17 +4088,18 @@ function qHTML(q,{state,mode}){
     h+=`<li><button class="opt ${cls}" data-oi="${oi}" ${answered?'disabled':''}><b>${L[k]})</b><span>${esc(q.o[oi])}</span></button></li>`});
   h+=`</ul>`;
   if(answered){const corr=L[order.indexOf(0)];
-    h+=`<div class="teach ${ok?'ok':'bad'}" role="status"><div class="verdict">${ok?'Correcto':'Incorrecto · la respuesta es '+corr+')'}</div><h4>Enseñanza</h4><p>${esc(q.e)}</p></div>`}
+    h+=`<div class="teach ${ok?'ok':'bad'}" role="status"><div class="verdict">${ok?'Correcto':'Incorrecto · la respuesta es '+corr+')'}</div><h4>Enseñanza</h4><p>${esc(q.e)}</p></div>`;
+    if(retry)h+=`<div class="bar"><button class="retry" data-retry>Responder otra vez</button><span class="hint">Tu intento anterior queda en el historial.</span></div>`}
   return h+`</div>`;
 }
 
 /* ───────── PRÁCTICA ───────── */
-const P={list:[],i:0,lvl:0,shuffled:false,session:{}};
+const P={list:[],i:0,lvl:0,shuffled:false,session:{},retry:{},t0:0};
 function temaOptions(sel,withAll){sel.innerHTML=(withAll?'<option value="">Todos los temas</option>':'')+Object.entries(TEMAS).map(([k,v])=>`<option value="${k}">${v} (${QS.filter(q=>q.t===k).length})</option>`).join('')}
 function pFilter(keepCurrent){
-  const t=$('p-tema').value,e=$('p-ecg').checked,f=$('p-fail').checked;
+  const t=$('p-tema').value,e=$('p-ecg').checked,f=$('p-fail').checked,pd=$('p-pend').checked;
   const cur=P.list[P.i];
-  let l=QS.filter(q=>(!t||q.t===t)&&(!P.lvl||q.d===P.lvl)&&(!e||q.s)&&(!f||(store.ans[q.id]&&store.ans[q.id].ok===false)));
+  let l=QS.filter(q=>(!t||q.t===t)&&(!P.lvl||q.d===P.lvl)&&(!e||q.s)&&(!f||(store.ans[q.id]&&store.ans[q.id].ok===false))&&(!pd||!store.ans[q.id]));
   if(P.shuffled)l=shuffle(l);
   P.list=l;P.i=keepCurrent&&cur?Math.max(0,l.indexOf(cur)):0;P.session={};pRender();
 }
@@ -1675,11 +4112,15 @@ function pRender(){
   $('p-score').textContent=done?`Respondidas ${done} · aciertos ${Math.round(100*okc/done)}%`:'Aún sin respuestas en este filtro';
   $('p-meter').style.width=tot?(100*done/tot)+'%':'0';
   $('p-prev').disabled=P.i<=0;$('p-next').disabled=P.i>=tot-1;
-  if(!q){$('p-card').innerHTML=`<div class="card empty">No hay preguntas que cumplan los filtros. ${$('p-fail').checked?'Si activaste “Sólo falladas”, todavía no has fallado ninguna aquí.':''}</div>`;return}
+  if(typeof savePractice==='function'&&booted)savePractice();
+  if(!q){$('p-card').innerHTML=`<div class="card empty">No hay preguntas que cumplan los filtros. ${$('p-fail').checked?'Si activaste “Sólo falladas”, todavía no has fallado ninguna aquí.':''}${$('p-pend').checked?' Con “Sólo pendientes” se ocultan las que ya respondiste.':''}</div>`;return}
   pGrid();
-  const st=P.session[q.id];
-  $('p-card').innerHTML=qHTML(q,{state:st,mode:'practica'});
+  const saved=store.ans[q.id];
+  const st=P.retry[q.id]?null:(P.session[q.id]||(saved&&saved.choice!=null?{choice:saved.choice}:null));
+  $('p-card').innerHTML=qHTML(q,{state:st,mode:'practica',retry:true});
   $('p-card').querySelectorAll('.opt').forEach(b=>b.onclick=()=>pAnswer(q,+b.dataset.oi));
+  const rb=$('p-card').querySelector('[data-retry]');if(rb)rb.onclick=()=>{P.retry[q.id]=true;delete P.session[q.id];pRender()};
+  P.t0=Date.now();
 }
 function pGrid(){const g=$('p-grid');if(!g||!$('p-navq').open)return;
   g.innerHTML=P.list.map((x,k)=>{const a=store.ans[x.id];return `<button role="listitem" data-k="${k}" class="${a?(a.ok?'ok':'bad'):''}" ${k===P.i?'aria-current="true"':''} title="${esc(TEMAS[x.t])} · ${LVL[x.d]}">${x.id+1}</button>`}).join('');
@@ -1692,31 +4133,32 @@ function pGoto(){const n=parseInt($('p-goto').value,10),q=QS[n-1];if(!q){$('p-go
 $('p-go').onclick=pGoto;$('p-goto').onkeydown=e=>{if(e.key==='Enter')pGoto()};
 $('p-navq').addEventListener('toggle',pGrid);
 function pAnswer(q,oi){
-  if(P.session[q.id])return;
-  P.session[q.id]={choice:oi};
-  store.ans[q.id]={ok:oi===0,ts:Date.now()};save();pRender();
+  const saved=store.ans[q.id];
+  if(P.session[q.id]||(!P.retry[q.id]&&saved&&saved.choice!=null))return;
+  P.session[q.id]={choice:oi};delete P.retry[q.id];
+  recordAnswer(q,oi,'practica',P.t0?Date.now()-P.t0:null);pRender();
   const t=$('p-card').querySelector('.teach');if(t&&t.getBoundingClientRect().bottom>innerHeight)t.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 $('p-prev').onclick=()=>{if(P.i>0){P.i--;pRender()}};
 $('p-next').onclick=()=>{if(P.i<P.list.length-1){P.i++;pRender();$('p-card').scrollIntoView({block:'nearest'})}};
 $('p-shuf').onclick=()=>{P.shuffled=true;pFilter(false)};
-['p-tema','p-ecg','p-fail'].forEach(id=>$(id).onchange=()=>pFilter(false));
+['p-tema','p-ecg','p-fail','p-pend'].forEach(id=>$(id).onchange=()=>pFilter(false));
 $('p-lvl').querySelectorAll('button').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;$('p-lvl').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));pFilter(false)});
 let resetArm=false;
 $('p-reset').onclick=()=>{if(!resetArm){resetArm=true;$('p-reset').textContent='Confirmar: borrar historial';$('p-reset-msg').textContent='Vuelve a pulsar para confirmar.';return}
-  resetArm=false;store.ans={};save();P.session={};$('p-reset').textContent='Borrar mi historial de respuestas';$('p-reset-msg').textContent='Historial borrado.';pFilter(true)};
+  resetArm=false;store.ans={};save();P.session={};P.retry={};DB.run(ECGDB.tx(['answers','attempts'],'readwrite',t=>{t.clear('answers');t.clear('attempts')}).then(()=>ECGDB.notify('answers')));$('p-reset').textContent='Borrar mi historial de respuestas';$('p-reset-msg').textContent='Historial borrado.';pFilter(true)};
 
 /* ───────── SIMULACRO ───────── */
-const S={list:[],i:0,ans:{},t0:0,timer:null};
+const S={list:[],i:0,ans:{},t0:0,timer:null,startedAt:0,cfg:{}};
 $('s-start').onclick=()=>{
   const n=+$('s-n').value,t=$('s-tema').value,lv=+$('s-lvl').value;
   let pool=QS.filter(q=>(!t||q.t===t)&&(!lv||q.d===lv));
-  S.list=shuffle(pool).slice(0,n);S.i=0;S.ans={};S.t0=Date.now();
+  S.list=shuffle(pool).slice(0,n);S.i=0;S.ans={};S.t0=Date.now();S.startedAt=S.t0;S.cfg={n,tema:t,lvl:lv};$('s-resume').hidden=true;
   if(!S.list.length)return;
   $('s-setup').hidden=true;$('s-res').hidden=true;$('s-run').hidden=false;
   clearInterval(S.timer);S.timer=setInterval(sTime,1000);sTime();sRender();
 };
-function sTime(){const s=Math.round((Date.now()-S.t0)/1000);$('s-time').textContent=`Tiempo ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
+function sTime(){const s=Math.round((Date.now()-S.t0)/1000);if(s%15===0)saveSim();$('s-time').textContent=`Tiempo ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
 function sRender(){
   const q=S.list[S.i];const n=Object.keys(S.ans).length;
   $('s-pos').textContent=`Pregunta ${S.i+1} de ${S.list.length} · contestadas ${n}`;
@@ -1724,6 +4166,7 @@ function sRender(){
   $('s-prev').disabled=S.i<=0;$('s-next').disabled=S.i>=S.list.length-1;
   $('s-card').innerHTML=qHTML(q,{state:S.ans[q.id]!=null?{choice:S.ans[q.id]}:null,mode:'sim'});
   $('s-card').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{S.ans[q.id]=+b.dataset.oi;sRender()});
+  saveSim();
 }
 $('s-prev').onclick=()=>{if(S.i>0){S.i--;sRender()}};
 $('s-next').onclick=()=>{if(S.i<S.list.length-1){S.i++;sRender()}};
@@ -1735,8 +4178,8 @@ function sResults(){
   clearInterval(S.timer);
   const rows={};let ok=0;
   S.list.forEach(q=>{const a=S.ans[q.id];const good=a===0;if(good)ok++;rows[q.t]=rows[q.t]||[0,0];rows[q.t][1]++;if(good)rows[q.t][0]++;
-    if(a!=null){store.ans[q.id]={ok:good,ts:Date.now()}}});
-  save();
+    if(a!=null){store.ans[q.id]={ok:good,ts:Date.now(),choice:a}}});
+  save();finishSim(rows,ok,Date.now()-S.t0);
   const pct=Math.round(100*ok/S.list.length);
   const s=Math.round((Date.now()-S.t0)/1000);
   let h=`<div class="card"><div class="result-head"><div class="big">${pct}%</div><div>${ok} de ${S.list.length} correctas · ${Math.floor(s/60)} min ${s%60} s</div></div>
@@ -1769,7 +4212,7 @@ function fRender(){
   $('fc-cat').textContent=f.c;$('fc-cat2').textContent=f.c;$('fc-front').textContent=f.f;$('fc-back').textContent=f.b;
   $('f-prev').disabled=FC.i===0;
 }
-function fNext(mark){const f=FC.list[FC.i];if(f&&mark){store.fc[f.id]=mark;save()}
+function fNext(mark){const f=FC.list[FC.i];if(f&&mark){store.fc[f.id]=mark;saveMarks()}
   if(mark==='no'){const c=FC.list.splice(FC.i,1)[0];FC.list.splice(Math.min(FC.list.length,FC.i+4),0,c)}else FC.i=Math.min(FC.list.length-1,FC.i+1);fRender()}
 $('fc').onclick=()=>$('fc').classList.toggle('flip');
 $('fc').onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();$('fc').classList.toggle('flip')}};
@@ -1781,18 +4224,340 @@ $('f-mode').querySelectorAll('button').forEach(b=>b.onclick=()=>{FC.mode=b.datas
 new ResizeObserver(()=>{const fb=document.querySelector('.face.back'),ff=document.querySelector('.face.front');if(!fb)return;
   const h=Math.max(240,fb.scrollHeight,ff.scrollHeight);$('fc').style.minHeight=h+'px'}).observe(document.querySelector('.flash'));
 
+/* ───────── Persistencia (IndexedDB) ─────────
+   Identificadores estables por contenido: si se agregan, reordenan o insertan preguntas,
+   cada una conserva su historial. Las preguntas idénticas reciben sufijo -2, -3… */
+const QID=[],QNUM={},CID=[],CNUM={};
+(function(){const seen={};
+  QS.forEach(q=>{let id=ECGDB.hashId('q-',[q.t,q.q,q.o.join('¦'),q.s?JSON.stringify(q.s):''].join('|'));if(seen[id]){seen[id]++;id+='-'+seen[id]}else seen[id]=1;QID[q.id]=id;QNUM[id]=q.id});
+  const seenF={};
+  FS.forEach(f=>{let id=ECGDB.hashId('f-',[f.c,f.f,f.b].join('|'));if(seenF[id]){seenF[id]++;id+='-'+seenF[id]}else seenF[id]=1;CID[f.id]=id;CNUM[id]=f.id});
+})();
+const DB={info:{mode:'idb'},ok:true,
+  warn(e){DB.ok=false;const w=$('db-warn');if(w){w.hidden=false;w.textContent='No se pudo guardar tu progreso en este navegador ('+(e&&e.message||e)+'). Exporta un respaldo desde «Progreso» para no perderlo.'}},
+  run(p){return Promise.resolve(p).catch(e=>{DB.warn(e);return null})}
+};
+function nowDay(ts){return ECGDB.dayKey(ts)}
+/* guardado diferido (no bloquea la interfaz y agrupa cambios rápidos) */
+const pending={};let flushT=null;
+function saveSession(id,data){pending[id]=Object.assign({id},data,{updated:Date.now()});clearTimeout(flushT);flushT=setTimeout(flushSessions,250)}
+function flushSessions(){const arr=Object.values(pending);for(const k in pending)delete pending[k];if(!arr.length)return Promise.resolve();return DB.run(ECGDB.putMany('sessions',arr))}
+addEventListener('pagehide',flushSessions);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushSessions()});
+
+async function migrateLegacy(){
+  const flag='migrated-localstorage-'+KEY;
+  if(await ECGDB.getMeta(flag,false))return 0;
+  let n=0;
+  if(legacy&&legacy.ans){const ans=[],att=[];
+    for(const k in legacy.ans){const q=QS[+k],a=legacy.ans[k];if(!q||!a)continue;const ts=a.ts||Date.now();
+      ans.push({qid:QID[q.id],num:q.id,topic:q.t,ok:!!a.ok,choice:null,ts,legacy:true});
+      att.push({key:QID[q.id]+'|'+ts,qid:QID[q.id],num:q.id,topic:q.t,level:q.d,choice:null,ok:!!a.ok,ts,day:nowDay(ts),ms:null,source:'importado'});n++}
+    await ECGDB.tx(['answers','attempts'],'readwrite',t=>Promise.all([...ans.map(r=>t.get('answers',r.qid).then(h=>{if(!h||h.ts<r.ts)return t.put('answers',r)})),...att.map(r=>t.put('attempts',r))]));
+  }
+  if(legacy&&legacy.fc){const marks={};for(const k in legacy.fc){if(FS[+k])marks[CID[+k]]=legacy.fc[k]}
+    const cur=await ECGDB.get('sessions','flashcards');await ECGDB.put('sessions',Object.assign({id:'flashcards',marks:{}},cur||{},{marks:Object.assign({},marks,cur&&cur.marks),updated:Date.now()}))}
+  await ECGDB.setMeta(flag,{at:Date.now(),answers:n});
+  return n;
+}
+async function hydrate(){
+  store={ans:{},fc:{}};
+  const [ans,fc]=await Promise.all([ECGDB.getAll('answers'),ECGDB.get('sessions','flashcards')]);
+  ans.forEach(a=>{const n=QNUM[a.qid];if(n!=null)store.ans[n]={ok:a.ok,ts:a.ts,choice:a.choice}});
+  if(fc&&fc.marks)for(const cid in fc.marks){const n=CNUM[cid];if(n!=null)store.fc[n]=fc.marks[cid]}
+  if(ECGDB.mode==='memory'&&legacy){Object.assign(store.ans,legacy.ans||{});Object.assign(store.fc,legacy.fc||{})}
+}
+function recordAnswer(q,choice,source,ms){
+  const ts=Date.now(),ok=choice===0,qid=QID[q.id];
+  store.ans[q.id]={ok,ts,choice};save();
+  const ans={qid,num:q.id,topic:q.t,ok,choice,ts};
+  const att={key:qid+'|'+ts,qid,num:q.id,topic:q.t,level:q.d,choice,ok,ts,day:nowDay(ts),ms:ms==null?null:Math.min(ms,600000),source};
+  return DB.run(ECGDB.tx(['answers','attempts'],'readwrite',t=>{t.put('answers',ans);t.put('attempts',att)}).then(()=>ECGDB.notify('attempts')));
+}
+function saveMarks(){const marks={};for(const n in store.fc)marks[CID[n]]=store.fc[n];saveSession('flashcards',{marks,cat:$('f-cat').value,i:FC.i,mode:FC.mode});save()}
+function savePractice(){const cur=P.list[P.i];saveSession('practica',{tema:$('p-tema').value,lvl:P.lvl,ecg:$('p-ecg').checked,fail:$('p-fail').checked,pend:$('p-pend').checked,shuffled:P.shuffled,order:P.shuffled?P.list.map(q=>QID[q.id]):null,cur:cur?QID[cur.id]:null})}
+async function restorePractice(){
+  const s=await ECGDB.get('sessions','practica');if(!s)return false;
+  if(s.tema&&TEMAS[s.tema])$('p-tema').value=s.tema;$('p-ecg').checked=!!s.ecg;$('p-fail').checked=!!s.fail;$('p-pend').checked=!!s.pend;
+  P.lvl=s.lvl||0;$('p-lvl').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.l===P.lvl));
+  P.shuffled=false;pFilter(false);
+  if(s.shuffled&&Array.isArray(s.order)){const inList=new Set(P.list);const ord=s.order.map(id=>QS[QNUM[id]]).filter(q=>q&&inList.has(q));const rest=P.list.filter(q=>!ord.includes(q));P.list=ord.concat(rest);P.shuffled=true}
+  const k=s.cur!=null?P.list.findIndex(q=>QID[q.id]===s.cur):-1;P.i=k<0?0:k;pRender();
+  return true;
+}
+function saveSim(){if(!S.list.length)return;const ans={};for(const id in S.ans)ans[QID[id]]=S.ans[id];
+  saveSession('simulacro',{status:'running',ids:S.list.map(q=>QID[q.id]),i:S.i,ans,elapsed:Date.now()-S.t0,startedAt:S.startedAt,cfg:S.cfg})}
+async function restoreSim(){
+  const s=await ECGDB.get('sessions','simulacro');if(!s||s.status!=='running'||!Array.isArray(s.ids))return;
+  const list=s.ids.map(id=>QS[QNUM[id]]).filter(Boolean);if(!list.length)return;
+  const box=$('s-resume');box.hidden=false;
+  const n=Object.keys(s.ans||{}).length,min=Math.round((s.elapsed||0)/60000);
+  $('s-resume-t').textContent=`Tienes un simulacro sin terminar: ${n} de ${list.length} contestadas · ${min} min. Puedes continuarlo donde lo dejaste.`;
+  $('s-resume-go').onclick=()=>{S.list=list;S.i=Math.min(s.i||0,list.length-1);S.ans={};for(const id in s.ans||{}){const q=QS[QNUM[id]];if(q)S.ans[q.id]=s.ans[id]}
+    S.t0=Date.now()-(s.elapsed||0);S.startedAt=s.startedAt||Date.now();S.cfg=s.cfg||{};box.hidden=true;
+    $('s-setup').hidden=true;$('s-res').hidden=true;$('s-run').hidden=false;clearInterval(S.timer);S.timer=setInterval(sTime,1000);sTime();sRender()};
+  $('s-resume-drop').onclick=async()=>{box.hidden=true;await DB.run(ECGDB.del('sessions','simulacro'))};
+}
+function finishSim(rows,ok,ms){
+  const ts=Date.now(),qids=S.list.map(q=>QID[q.id]),ans={};for(const id in S.ans)ans[QID[id]]=S.ans[id];
+  const res={id:'sim-'+(S.startedAt||ts),source:'simulacro',ts,total:S.list.length,ok,ms,byTopic:rows,ids:qids,ans,cfg:S.cfg||{}};
+  const answers=[],atts=[];
+  S.list.forEach((q,k)=>{const a=S.ans[q.id];if(a==null)return;const t=ts+k;const qid=QID[q.id];
+    answers.push({qid,num:q.id,topic:q.t,ok:a===0,choice:a,ts:t});
+    atts.push({key:qid+'|'+t,qid,num:q.id,topic:q.t,level:q.d,choice:a,ok:a===0,ts:t,day:nowDay(t),ms:null,source:'simulacro'})});
+  delete pending.simulacro;
+  return DB.run(ECGDB.tx(['answers','attempts','results','sessions'],'readwrite',t=>{answers.forEach(r=>t.put('answers',r));atts.forEach(r=>t.put('attempts',r));t.put('results',res);t.del('sessions','simulacro')}).then(()=>ECGDB.notify('results')));
+}
+
+/* ───────── REPASO · repetición espaciada con FSRS ─────────
+   Usa la biblioteca oficial ts-fsrs (FSRS-6). Este código sólo decide QUÉ tarjeta mostrar
+   (cola tipo Anki); el CUÁNDO lo calcula el scheduler: estabilidad, dificultad,
+   recuperabilidad, retención deseada, pasos de aprendizaje y reaprendizaje. */
+const SRS_DEFAULT={retention:.9,newPerDay:20,learningSteps:['10m','30m'],relearningSteps:['10m'],maxInterval:36500,learnAheadMin:20,fuzz:true};
+const RV={st:Object.assign({},SRS_DEFAULT),f:null,cards:{},today:[],cur:null,preview:null,revealed:false,shownAt:0,revealAt:0,done:0,undo:null,deck:'',active:false};
+function stepOk(s){return /^\d+(\.\d+)?[mhd]$/.test(s)}
+function makeScheduler(){
+  const st=RV.st;
+  const p=FSRS.generatorParameters({request_retention:st.retention,maximum_interval:st.maxInterval,enable_fuzz:st.fuzz,enable_short_term:true,learning_steps:st.learningSteps,relearning_steps:st.relearningSteps});
+  RV.f=FSRS.fsrs(p);
+}
+function toCard(rec,now){
+  if(!rec||!rec.card)return FSRS.createEmptyCard(new Date(now));
+  const c=rec.card;return Object.assign({},c,{due:new Date(c.due),last_review:c.last_review?new Date(c.last_review):undefined});
+}
+function fromCard(c){return {due:+c.due,stability:c.stability,difficulty:c.difficulty,elapsed_days:c.elapsed_days,scheduled_days:c.scheduled_days,learning_steps:c.learning_steps,reps:c.reps,lapses:c.lapses,state:c.state,last_review:c.last_review?+c.last_review:null}}
+async function rLoad(){
+  const [st,cards,today]=await Promise.all([ECGDB.getMeta('srs-settings',null),ECGDB.getAll('cards'),ECGDB.getAll('reviews','day',ECGDB.range(nowDay(),nowDay()))]);
+  RV.st=Object.assign({},SRS_DEFAULT,st||{});makeScheduler();
+  RV.cards={};cards.forEach(c=>{RV.cards[c.cid]=c});RV.today=today;
+  await DB.run(ECGDB.setMeta('deck',{total:FS.length,ids:FS.map(f=>CID[f.id]),updated:Date.now()}));
+}
+function stateOf(cid){const r=RV.cards[cid];return r&&r.card?r.card.state:0}
+function inDeck(f){return !RV.deck||f.c===RV.deck}
+function rQueue(now){
+  const eod=ECGDB.endOfStudyDay(now),ahead=now+RV.st.learnAheadMin*60000;
+  const newToday=RV.today.filter(v=>v.stateBefore===0).length;
+  const out={learn:[],learnAhead:[],review:[],fresh:[],susp:0};
+  FS.forEach(f=>{if(!inDeck(f))return;const cid=CID[f.id],r=RV.cards[cid];
+    if(r&&r.suspended){out.susp++;return}
+    const s=stateOf(cid);
+    if(s===0){out.fresh.push(f);return}
+    const due=r.card.due;
+    if(s===2){if(due<=eod)out.review.push(f)}
+    else if(due<=now)out.learn.push(f);else if(due<=ahead)out.learnAhead.push(f)});
+  const byDue=(a,b)=>RV.cards[CID[a.id]].card.due-RV.cards[CID[b.id]].card.due;
+  out.learn.sort(byDue);out.learnAhead.sort(byDue);out.review.sort(byDue);
+  out.newLeft=Math.max(0,RV.st.newPerDay-newToday);
+  out.fresh=out.fresh.slice(0,out.newLeft);
+  return out;
+}
+function rPick(now){
+  const q=rQueue(now);
+  if(q.learn.length)return q.learn[0];
+  // intercala: una nueva cada 4 repasos cuando hay de ambas
+  if(q.review.length&&q.fresh.length)return (RV.done%5===4)?q.fresh[0]:q.review[0];
+  if(q.review.length)return q.review[0];
+  if(q.fresh.length)return q.fresh[0];
+  if(q.learnAhead.length)return q.learnAhead[0];
+  return null;
+}
+function fmtIvl(ms){const m=ms/60000;
+  if(m<1)return '<1 min';if(m<60)return Math.round(m)+' min';const h=m/60;if(h<24)return (h<10?h.toFixed(1).replace('.',','):Math.round(h))+' h';
+  const d=h/24;if(d<30)return Math.round(d)+' d';const mo=d/30.4;if(mo<12)return mo.toFixed(1).replace('.',',')+' meses';return (d/365).toFixed(1).replace('.',',')+' años'}
+const STATE_LBL={0:'Nueva',1:'Aprendiendo',2:'Repaso',3:'Reaprendiendo'};
+function rCounts(){const q=rQueue(Date.now());
+  $('r-new').textContent=q.fresh.length;$('r-learn').textContent=q.learn.length+q.learnAhead.length;$('r-rev').textContent=q.review.length;
+  const tot=q.fresh.length+q.learn.length+q.review.length;
+  const b=$('tab-due');if(b){b.textContent=tot?String(tot):'';b.hidden=!tot}
+  return q}
+function rRender(){
+  if(!RV.f)return;
+  const q=rCounts();
+  if(!RV.active){$('r-run').hidden=true;$('r-start').hidden=false;
+    const tot=q.fresh.length+q.learn.length+q.review.length;
+    $('r-start-t').textContent=tot?`Hoy te tocan ${tot} tarjeta${tot>1?'s':''}: ${q.review.length} de repaso, ${q.learn.length} en aprendizaje y ${q.fresh.length} nueva${q.fresh.length===1?'':'s'}.`:(q.learnAhead.length?`Por ahora no hay tarjetas vencidas. ${q.learnAhead.length} en aprendizaje vuelven en unos minutos.`:'No tienes tarjetas pendientes por hoy. Vuelve mañana o sube el límite de nuevas en Ajustes.');
+    $('r-go').disabled=!(tot||q.learnAhead.length);$('r-go').textContent=RV.done?'Continuar repaso':'Empezar repaso';return}
+  $('r-start').hidden=true;$('r-run').hidden=false;
+  const now=Date.now(),f=rPick(now);
+  if(!f){RV.active=false;RV.cur=null;$('r-run').hidden=true;$('r-start').hidden=false;
+    $('r-start-t').textContent=`¡Terminaste! Revisaste ${RV.done} tarjeta${RV.done===1?'':'s'} en esta sesión.`+(q.learnAhead.length?'':' Las próximas aparecerán cuando venzan.');$('r-go').disabled=!q.learnAhead.length;$('r-go').textContent='Continuar repaso';return}
+  rShow(f,q);
+}
+function rShow(f,q){
+  q=q||rQueue(Date.now());
+  RV.cur=f;RV.revealed=false;RV.preview=null;RV.shownAt=Date.now();
+  const cid=CID[f.id],s=stateOf(cid),rec=RV.cards[cid];
+  const left=q.fresh.length+q.learn.length+q.review.length;
+  $('r-pos').textContent=`Sesión: ${RV.done} revisada${RV.done===1?'':'s'} · quedan ${left}`;
+  const tot=RV.done+left;$('r-meter').style.width=tot?(100*RV.done/tot)+'%':'0';
+  $('r-cat').textContent=f.c;$('r-state').textContent=STATE_LBL[s]+(rec&&rec.card&&rec.card.reps?` · ${rec.card.reps} repaso${rec.card.reps>1?'s':''}`:'')+(rec&&rec.card&&rec.card.lapses?` · ${rec.card.lapses} olvido${rec.card.lapses>1?'s':''}`:'');
+  $('r-front').textContent=f.f;$('r-back').textContent=f.b;
+  $('r-ans').hidden=true;$('r-show').hidden=false;$('r-grades').hidden=true;
+  $('r-undo').disabled=!RV.undo;
+  try{$('r-show').focus({preventScroll:true})}catch(_){}
+}
+function rReveal(){
+  if(!RV.cur||RV.revealed)return;
+  const now=Date.now(),cid=CID[RV.cur.id];
+  RV.preview=RV.f.repeat(toCard(RV.cards[cid],now),new Date(now));RV.revealAt=now;RV.revealed=true;
+  $('r-ans').hidden=false;$('r-show').hidden=true;$('r-grades').hidden=false;
+  $('r-grades').querySelectorAll('button[data-g]').forEach(b=>{const g=+b.dataset.g;b.querySelector('small').textContent=fmtIvl(RV.preview[g].card.due-now)});
+  $('r-grades').querySelector('button[data-g="3"]').focus({preventScroll:true});
+}
+async function rRate(g){
+  if(!RV.cur||!RV.revealed||!RV.preview)return;
+  const f=RV.cur,cid=CID[f.id],prev=RV.cards[cid]?JSON.parse(JSON.stringify(RV.cards[cid])):null;
+  const out=RV.preview[g],ts=RV.revealAt,lg=out.log;
+  const rec={cid,cat:f.c,card:fromCard(out.card),suspended:prev?!!prev.suspended:false,lastReview:ts,updated:Date.now()};
+  const log={key:cid+'|'+ts,cid,cat:f.c,ts,day:nowDay(ts),rating:g,stateBefore:prev&&prev.card?prev.card.state:0,stateAfter:out.card.state,
+    due:+out.card.due,stability:out.card.stability,difficulty:out.card.difficulty,elapsedDays:lg.elapsed_days,scheduledDays:out.card.scheduled_days,ms:Math.min(ts-RV.shownAt,600000)};
+  RV.cards[cid]=rec;RV.today.push(log);RV.done++;RV.undo={cid,prev,key:log.key};RV.cur=null;
+  rRender();
+  await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>{t.put('cards',rec);t.put('reviews',log)}).then(()=>ECGDB.notify('reviews')));
+}
+async function rUndo(){
+  const u=RV.undo;if(!u)return;RV.undo=null;
+  if(u.prev)RV.cards[u.cid]=u.prev;else delete RV.cards[u.cid];
+  RV.today=RV.today.filter(v=>v.key!==u.key);RV.done=Math.max(0,RV.done-1);
+  await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>{if(u.prev)t.put('cards',u.prev);else t.del('cards',u.cid);t.del('reviews',u.key)}).then(()=>ECGDB.notify('reviews')));
+  // vuelve a mostrar esa misma tarjeta, sin respuesta
+  RV.active=true;$('r-start').hidden=true;$('r-run').hidden=false;rCounts();const f=FS[CNUM[u.cid]];if(f)rShow(f);else rRender();
+}
+async function rSuspend(){
+  if(!RV.cur)return;const f=RV.cur,cid=CID[f.id];
+  const rec=Object.assign({cid,cat:f.c,card:null},RV.cards[cid]||{},{suspended:true,updated:Date.now()});
+  RV.cards[cid]=rec;RV.undo=null;RV.cur=null;rRender();
+  await DB.run(ECGDB.put('cards',rec));
+}
+async function rUnsuspend(cid){const r=RV.cards[cid];if(!r)return;r.suspended=false;r.updated=Date.now();await DB.run(ECGDB.put('cards',r));rRender();gRender()}
+function rSettingsShow(){const s=RV.st;$('rs-ret').value=Math.round(s.retention*100);$('rs-ret-v').textContent=Math.round(s.retention*100)+' %';$('rs-new').value=s.newPerDay;
+  $('rs-ls').value=s.learningSteps.join(' ');$('rs-rs').value=s.relearningSteps.join(' ');$('rs-max').value=s.maxInterval;$('rs-msg').textContent=''}
+async function rSettingsSave(){
+  const ls=$('rs-ls').value.trim().split(/\s+/).filter(Boolean),rs=$('rs-rs').value.trim().split(/\s+/).filter(Boolean);
+  if(!ls.every(stepOk)||!rs.every(stepOk)){$('rs-msg').textContent='Escribe los pasos como 10m, 30m, 1h o 1d separados por espacios.';return}
+  const st={retention:Math.min(.97,Math.max(.7,+$('rs-ret').value/100)),newPerDay:Math.max(0,Math.min(200,parseInt($('rs-new').value,10)||0)),learningSteps:ls,relearningSteps:rs,
+    maxInterval:Math.max(1,Math.min(36500,parseInt($('rs-max').value,10)||36500)),learnAheadMin:RV.st.learnAheadMin,fuzz:RV.st.fuzz};
+  RV.st=st;makeScheduler();await DB.run(ECGDB.setMeta('srs-settings',st));$('rs-msg').textContent='Guardado. Los cambios se aplican a los próximos repasos.';rRender();
+}
+
+/* ───────── PROGRESO · estadísticas y respaldo ───────── */
+function streakFrom(days){
+  const set=new Set(days);let d=new Date(Date.now()-4*3600e3);let k=0;
+  const key=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+  if(!set.has(key(d)))d.setDate(d.getDate()-1); // la racha sigue viva si estudiaste ayer
+  while(set.has(key(d))){k++;d.setDate(d.getDate()-1)}
+  let best=0,run=0,prev=null;[...set].sort().forEach(s=>{const t=new Date(s+'T12:00:00');if(prev&&Math.round((t-prev)/864e5)===1)run++;else run=1;best=Math.max(best,run);prev=t});
+  return {cur:k,best};
+}
+function fmtMs(ms){const m=Math.round(ms/60000);if(m<60)return m+' min';return Math.floor(m/60)+' h '+(m%60)+' min'}
+function fmtDate(ts){try{return new Date(ts).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})}catch(_){return new Date(ts).toISOString().slice(0,10)}}
+function barsSVG(series,labels,colors,h){
+  const n=labels.length,W=600,H=h||140,pad=22,bw=(W-pad)/n;let mx=1;for(let i=0;i<n;i++){let s=0;series.forEach(se=>s+=se[i]||0);mx=Math.max(mx,s)}
+  let g=`<line x1="${pad}" y1="${H-18}" x2="${W}" y2="${H-18}" class="ax"/>`;
+  for(let i=0;i<n;i++){let y=H-18;series.forEach((se,k)=>{const v=se[i]||0;if(!v)return;const hh=(H-30)*v/mx;y-=hh;g+=`<rect x="${(pad+i*bw+1).toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1,bw-2).toFixed(1)}" height="${hh.toFixed(1)}" rx="1.5" style="fill:${colors[k]}"><title>${labels[i]}: ${v}</title></rect>`});
+    if(i%Math.ceil(n/6)===0)g+=`<text x="${(pad+i*bw+bw/2).toFixed(1)}" y="${H-4}" text-anchor="middle">${labels[i].slice(5)}</text>`}
+  g+=`<text x="2" y="12">${mx}</text>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfica de barras">${g}</svg>`;
+}
+function lineSVG(series,labels,colors){
+  const n=labels.length,W=600,H=140,pad=30;let g=`<line x1="${pad}" y1="${H-18}" x2="${W}" y2="${H-18}" class="ax"/>`;
+  [0,50,100].forEach(v=>{const y=H-18-(H-30)*v/100;g+=`<line x1="${pad}" y1="${y}" x2="${W}" y2="${y}" class="gl"/><text x="2" y="${y+4}">${v}%</text>`});
+  series.forEach((se,k)=>{let d='';se.forEach((v,i)=>{if(v==null)return;const x=pad+(W-pad-10)*i/Math.max(1,n-1),y=H-18-(H-30)*v/100;d+=(d?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" style="fill:${colors[k]}"><title>${labels[i]}: ${Math.round(v)}%</title></circle>`});if(d)g+=`<path d="${d}" style="stroke:${colors[k]}" class="ln"/>`});
+  labels.forEach((l,i)=>{if(i%2===0)g+=`<text x="${(pad+(W-pad-10)*i/Math.max(1,n-1)).toFixed(1)}" y="${H-4}" text-anchor="middle">${l}</text>`});
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfica de líneas">${g}</svg>`;
+}
+async function gRender(){
+  const [atts,revs,results,cards,info,est]=await Promise.all([ECGDB.getAll('attempts'),ECGDB.getAll('reviews'),ECGDB.getAll('results'),ECGDB.getAll('cards'),ECGDB.ready(),
+    (navigator.storage&&navigator.storage.estimate?navigator.storage.estimate().catch(()=>null):Promise.resolve(null))]);
+  const now=Date.now();
+  // preguntas
+  const answered=Object.keys(store.ans).length,okN=Object.values(store.ans).filter(a=>a.ok).length;
+  const msQ=atts.reduce((s,a)=>s+(a.ms||0),0)+results.reduce((s,r)=>s+(r.ms||0),0),msF=revs.reduce((s,r)=>s+(r.ms||0),0);
+  const last=Math.max(0,...atts.map(a=>a.ts),...revs.map(r=>r.ts));
+  const st=streakFrom([...atts.map(a=>a.day),...revs.map(r=>r.day)]);
+  // tarjetas
+  const sum=await ECGDB.summary(now);
+  const mature=revs.filter(r=>r.stateBefore===2&&r.ts>now-30*864e5),ret=mature.length?Math.round(100*mature.filter(r=>r.rating>1).length/mature.length):null;
+  const kp=[['Preguntas respondidas',`${answered} / ${QS.length}`,`${QS.length-answered} pendientes`],['Aciertos',answered?Math.round(100*okN/answered)+' %':'—','última respuesta de cada pregunta'],
+    ['Racha de estudio',st.cur+(st.cur===1?' día':' días'),`mejor racha: ${st.best}`],['Tiempo de estudio',fmtMs(msQ+msF),`preguntas ${fmtMs(msQ)} · tarjetas ${fmtMs(msF)}`],
+    ['Tarjetas para hoy',String(sum.dueToday),`${sum.dueReview} repaso · ${sum.dueLearning} aprendizaje · ${sum.newAvail} nuevas`],['Retención (30 días)',ret==null?'—':ret+' %',`${mature.length} repasos de tarjetas maduras`],
+    ['Total de repasos',String(revs.length),`${sum.seen} tarjetas estudiadas de ${FS.length}`],['Última actividad',last?fmtDate(last):'—',last?new Date(last).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):'']];
+  $('g-kpi').innerHTML=kp.map(k=>`<div class="kpi"><small>${k[0]}</small><b>${k[1]}</b><span>${esc(k[2])}</span></div>`).join('');
+  const fresh=FS.length-sum.seen-sum.suspended;
+  $('g-states').innerHTML=[['Nuevas',fresh],['Aprendizaje',sum.learning],['Repaso',sum.review],['Suspendidas',sum.suspended]].map(x=>`<span><b>${x[1]}</b> ${x[0]}</span>`).join('');
+  // actividad 30 días
+  const days=[];for(let i=29;i>=0;i--)days.push(nowDay(now-i*864e5));
+  const cQ=days.map(d=>atts.filter(a=>a.day===d).length),cF=days.map(d=>revs.filter(r=>r.day===d).length);
+  const css=getComputedStyle(document.documentElement),A=css.getPropertyValue('--accent').trim(),O=css.getPropertyValue('--alt').trim()||'#C2480F';
+  $('g-act').innerHTML=barsSVG([cQ,cF],days,[A,O]);
+  // evolución semanal (8 semanas): % de aciertos en preguntas y % de recuerdo en tarjetas
+  const wk=[],wl=[];for(let i=7;i>=0;i--){const a=now-(i+1)*7*864e5,b=now-i*7*864e5;wk.push([a,b]);wl.push(i?`−${i} sem`:'esta')}
+  const accQ=wk.map(([a,b])=>{const x=atts.filter(t=>t.ts>a&&t.ts<=b&&t.choice!=null);return x.length?100*x.filter(t=>t.ok).length/x.length:null});
+  const accF=wk.map(([a,b])=>{const x=revs.filter(r=>r.ts>a&&r.ts<=b&&r.stateBefore!==0);return x.length?100*x.filter(r=>r.rating>1).length/x.length:null});
+  $('g-evo').innerHTML=lineSVG([accQ,accF],wl,[A,O]);
+  // calendario de repasos: próximos 30 días
+  const fut=[];for(let i=0;i<30;i++)fut.push(nowDay(now+i*864e5));
+  const dueBy={};cards.forEach(c=>{if(c.suspended||!c.card||c.card.state===0)return;const d=c.card.due<=now?fut[0]:nowDay(c.card.due);dueBy[d]=(dueBy[d]||0)+1});
+  const mx=Math.max(1,...fut.map(d=>dueBy[d]||0));
+  $('g-cal').innerHTML=fut.map((d,i)=>{const v=dueBy[d]||0;const dt=new Date(d+'T12:00:00');return `<div class="cd${i===0?' today':''}" title="${d}: ${v} tarjeta${v===1?'':'s'}" style="--a:${v?(.18+.82*v/mx).toFixed(2):0}"><small>${dt.toLocaleDateString('es-MX',{weekday:'narrow'})}</small><b>${dt.getDate()}</b><span>${v||''}</span></div>`}).join('');
+  // por tema (historial de intentos)
+  const rows=Object.keys(TEMAS).map(t=>{const qs=QS.filter(q=>q.t===t),done=qs.filter(q=>store.ans[q.id]),ok=done.filter(q=>store.ans[q.id].ok).length,at=atts.filter(a=>a.topic===t),lt=Math.max(0,...at.map(a=>a.ts));
+    return `<tr><td>${TEMAS[t]}</td><td class="n">${done.length}/${qs.length}</td><td class="n">${done.length?Math.round(100*ok/done.length)+' %':'—'}</td><td class="n">${at.length}</td><td class="n">${lt?fmtDate(lt):'—'}</td></tr>`});
+  $('g-topics').innerHTML=rows.join('');
+  // simulacros
+  const sims=results.filter(r=>r.source==='simulacro').sort((a,b)=>b.ts-a.ts);
+  $('g-sims').innerHTML=sims.length?sims.slice(0,12).map(r=>`<tr><td>${fmtDate(r.ts)}</td><td class="n">${r.ok}/${r.total}</td><td class="n">${Math.round(100*r.ok/r.total)} %</td><td class="n">${fmtMs(r.ms||0)}</td></tr>`).join(''):'<tr><td colspan="4" class="hint">Aún no terminas ningún simulacro.</td></tr>';
+  // suspendidas
+  const sus=cards.filter(c=>c.suspended);
+  $('g-susp').innerHTML=sus.length?sus.map(c=>{const f=FS[CNUM[c.cid]];return f?`<li><span>${esc(f.f)}</span><button data-un="${c.cid}">Reactivar</button></li>`:''}).join(''):'<li class="hint">No tienes tarjetas suspendidas.</li>';
+  $('g-susp').querySelectorAll('[data-un]').forEach(b=>b.onclick=()=>rUnsuspend(b.dataset.un));
+  // almacenamiento
+  $('g-store').textContent=(info.mode==='idb'?'Guardado en este navegador (IndexedDB)':'IndexedDB no está disponible: se usa un respaldo limitado')+(info.persisted?' · almacenamiento persistente concedido':' · el navegador podría borrarlo si se queda sin espacio')+(est&&est.usage?` · ${(est.usage/1048576).toFixed(1).replace('.',',')} MB usados`:'');
+}
+async function doExport(){
+  const data=await ECGDB.exportAll(),txt=JSON.stringify(data),name='ecg-school-progreso-'+nowDay()+'.json';
+  const blob=new Blob([txt],{type:'application/json'});
+  try{const file=new File([blob],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})&&/iPhone|iPad|iPod/.test(navigator.userAgent)){await navigator.share({files:[file],title:'Respaldo ECG School'});$('g-bk-msg').textContent='Respaldo listo. Guárdalo en Archivos o envíatelo.';return}}catch(e){if(e&&e.name==='AbortError')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+  await DB.run(ECGDB.setMeta('last-export',Date.now()));
+  $('g-bk-msg').textContent=`Se descargó «${name}» (${(txt.length/1024).toFixed(0)} KB). Guárdalo fuera del navegador.`;
+}
+async function doImport(file){
+  const msg=$('g-bk-msg');msg.textContent='Leyendo respaldo…';
+  try{const txt=await file.text();let obj;try{obj=JSON.parse(txt)}catch(_){throw new Error('El archivo no es JSON válido.')}
+    const rep=await ECGDB.importAll(obj);
+    const add=k=>rep[k]?rep[k].added+rep[k].updated:0;
+    msg.textContent=`Respaldo combinado con tu progreso: ${add('answers')} respuestas, ${add('attempts')} intentos, ${add('cards')} tarjetas y ${add('reviews')} repasos nuevos o más recientes. No se borró nada de lo que ya tenías.`;
+    await hydrate();await rLoad();pFilter(true);fRender();rRender();gRender();
+  }catch(e){msg.textContent='No se importó nada: '+(e.message||e)}
+}
+let wipeArm=false;
+async function doWipeCards(){
+  if(!wipeArm){wipeArm=true;$('g-wipe').textContent='Confirmar: borrar progreso de tarjetas';$('g-wipe-msg').textContent='Esto borra el estado FSRS y el historial de repasos. Vuelve a pulsar para confirmar.';return}
+  wipeArm=false;await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>{t.clear('cards');t.clear('reviews')}));ECGDB.notify('cards');
+  $('g-wipe').textContent='Borrar progreso de tarjetas';$('g-wipe-msg').textContent='Progreso de tarjetas borrado.';await rLoad();RV.done=0;RV.undo=null;rRender();gRender();
+}
+
 /* ───────── Navegación por hash ───────── */
-const VIEWS=['practica','simulacro','flashcards'];
+const VIEWS=['practica','simulacro','flashcards','repaso','progreso'];
 let CUR=null;
 function route(force){const h=location.hash.slice(1),v=force||(VIEWS.includes(h)?h:(CUR||'practica'));CUR=v;
   VIEWS.forEach(x=>{$('v-'+x).hidden=x!==v});
   document.querySelectorAll('nav.tabs a').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  if(booted){if(v==='repaso')rRender();if(v==='progreso')gRender()}
+  if(booted)saveSession('vista',{v});
 }
 addEventListener('hashchange',()=>route());
 document.querySelectorAll('nav.tabs a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const v=a.dataset.v;try{history.replaceState(null,'','#'+v)}catch(_){}route(v);window.scrollTo(0,0)}));
 
 document.addEventListener('keydown',e=>{
-  if($('v-practica').hidden||e.target.tagName==='SELECT'||e.target.tagName==='INPUT')return;
+  if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT'||e.metaKey||e.ctrlKey||e.altKey)return;
+  if(!$('v-repaso').hidden&&!$('r-run').hidden){
+    if((e.key===' '||e.key==='Enter')&&!RV.revealed){e.preventDefault();rReveal();return}
+    if(RV.revealed&&/^[1-4]$/.test(e.key)){e.preventDefault();rRate(+e.key);return}
+    if(e.key==='z'||e.key==='Z'){rUndo();return}
+    return}
+  if($('v-practica').hidden)return;
   const k=e.key.toUpperCase();const idx=L.indexOf(k);
   if(idx>=0&&e.key.length===1){const b=$('p-card').querySelectorAll('.opt')[idx];if(b&&!b.disabled)b.click()}
   else if(e.key==='ArrowRight')$('p-next').click();else if(e.key==='ArrowLeft')$('p-prev').click();
@@ -1801,8 +4566,39 @@ document.addEventListener('keydown',e=>{
 /* ───────── Inicio ───────── */
 temaOptions($('p-tema'),true);temaOptions($('s-tema'),true);
 $('stats').innerHTML=`<span>${QS.length} preguntas</span><span>${QS.filter(q=>q.s).length} con trazo de ECG</span><span>${FS.length} flashcards</span><span>${Object.keys(TEMAS).length} temas</span>`;
-pFilter(false);fFilter(false);route();
-window.__dbg={QS,FS,ECG,optOrder};
+$('r-deck').innerHTML='<option value="">Todas las tarjetas</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');
+$('r-deck').onchange=()=>{RV.deck=$('r-deck').value;RV.cur=null;saveSession('repaso',{deck:RV.deck});rRender()};
+$('r-go').onclick=()=>{RV.active=true;rRender()};
+$('r-show').onclick=rReveal;
+$('r-grades').querySelectorAll('button[data-g]').forEach(b=>b.onclick=()=>rRate(+b.dataset.g));
+$('r-undo').onclick=rUndo;$('r-susp').onclick=rSuspend;
+$('r-pause').onclick=()=>{RV.active=false;RV.cur=null;rRender()};
+$('r-set-btn').onclick=()=>{const o=$('r-set').hidden;$('r-set').hidden=!o;$('r-set-btn').setAttribute('aria-expanded',o);if(o)rSettingsShow()};
+$('rs-ret').oninput=()=>{$('rs-ret-v').textContent=$('rs-ret').value+' %'};$('rs-save').onclick=rSettingsSave;
+$('g-exp').onclick=()=>doExport().catch(e=>{$('g-bk-msg').textContent='No se pudo exportar: '+(e.message||e)});
+$('g-imp').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)doImport(f);e.target.value=''};
+$('g-wipe').onclick=doWipeCards;
+let booted=false;
+async function boot(){
+  try{DB.info=await ECGDB.ready();if(DB.info.mode!=='idb')DB.warn(new Error('IndexedDB no está disponible en este navegador'))}catch(e){DB.warn(e)}
+  try{await migrateLegacy()}catch(e){DB.warn(e)}
+  try{await hydrate()}catch(e){DB.warn(e)}
+  try{await rLoad()}catch(e){DB.warn(e);RV.st=Object.assign({},SRS_DEFAULT);makeScheduler()}
+  let restored=false;try{restored=await restorePractice()}catch(e){}
+  if(!restored)pFilter(false);
+  try{const fcs=await ECGDB.get('sessions','flashcards');if(fcs&&fcs.cat&&cats.includes(fcs.cat))$('f-cat').value=fcs.cat}catch(e){}
+  fFilter(false);
+  try{const r=await ECGDB.get('sessions','repaso');if(r&&r.deck&&cats.includes(r.deck)){RV.deck=r.deck;$('r-deck').value=r.deck}}catch(e){}
+  try{await restoreSim()}catch(e){}
+  let v=null;try{const s=await ECGDB.get('sessions','vista');v=s&&s.v}catch(e){}
+  booted=true;
+  const h=location.hash.slice(1);route(VIEWS.includes(h)?h:(VIEWS.includes(v)?v:'practica'));
+  rCounts();
+}
+ECGDB.onChange(m=>{if(!booted)return;if(m.store==='*'){hydrate().then(rLoad).then(()=>{pRender();rCounts()})}});
+pFilter(false);fFilter(false);route('practica');
+boot();
+window.__dbg={QS,FS,ECG,optOrder,QID,CID,RV,ECGDB,store:()=>store};
 </script>
 
 </body></html>

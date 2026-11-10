@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E8C84"/><stop offset="1" stop-color="#086A65"/></linearGradient></defs>
+<rect width="512" height="512" fill="url(#g)"/>
+<g fill="none" stroke="#FFFFFF" stroke-opacity=".07" stroke-width="2"><path d="M0 0V512M0 0H512"/><path d="M32 0V512M0 32H512"/><path d="M64 0V512M0 64H512"/><path d="M96 0V512M0 96H512"/><path d="M128 0V512M0 128H512"/><path d="M160 0V512M0 160H512"/><path d="M192 0V512M0 192H512"/><path d="M224 0V512M0 224H512"/><path d="M256 0V512M0 256H512"/><path d="M288 0V512M0 288H512"/><path d="M320 0V512M0 320H512"/><path d="M352 0V512M0 352H512"/><path d="M384 0V512M0 384H512"/><path d="M416 0V512M0 416H512"/><path d="M448 0V512M0 448H512"/><path d="M480 0V512M0 480H512"/><path d="M512 0V512M0 512H512"/></g>
+<g fill="none" stroke="#FFFFFF" stroke-opacity=".12" stroke-width="3"><path d="M0 0V512M0 0H512"/><path d="M128 0V512M0 128H512"/><path d="M256 0V512M0 256H512"/><path d="M384 0V512M0 384H512"/><path d="M512 0V512M0 512H512"/></g>
+<polyline points="88 284 172 284 200 242 228 284 256 144 298 368 326 284 424 284" fill="none" stroke="#FFFFFF" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
