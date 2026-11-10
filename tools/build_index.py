@@ -52,17 +52,20 @@ def card(k):
     obj = d['o'].split('(')[0].strip()
     if len(obj) > 46:
         obj = obj[:44].rsplit(',', 1)[0] + '…'
-    return ('<a class="card" href="#m%s"><span class="cn">%s</span><span class="ce">%s</span>'
-            '<span class="ct">%s</span><span class="cl">%s</span>%s</a>'
-            % (k, k, esc(d['e']), esc(d['t']), esc(d['l']),
-               ('<span class="co">%s · %s</span>' % (esc(d['op']), esc(obj))) if obj else ''))
+    tip = d['e'] + ((' · %s · %s' % (d['op'], obj)) if obj else '')
+    return ('<a class="card" href="#m%s" title="%s"><span class="cn">%s</span>'
+            '<span class="ct">%s</span><span class="cl">%s</span></a>'
+            % (k, esc(tip), k, esc(d['t']), esc(d['l'])))
 
 
 groups = ''.join(
-    '<section class="part g%s"><div class="ph"><span class="badge">%s</span><div><h3>%s</h3><p>%s</p></div>'
-    '<span class="cnt">%d módulos</span></div><div class="cards">%s</div></section>'
-    % (L, L, esc(name), esc(desc), len(ks), ''.join(card(k) for k in ks))
+    '<section class="part g%s" data-g="%s"><div class="ph"><span class="badge">%s</span><div><h3>%s</h3><p>%s</p></div>'
+    '<span class="cnt">%d</span></div><div class="cards">%s</div></section>'
+    % (L, L, L, esc(name), esc(desc), len(ks), ''.join(card(k) for k in ks))
     for L, name, desc, ks in G)
+chips = '<button class="chip" data-f="" aria-pressed="true">Todos</button>' + ''.join(
+    '<button class="chip g%s" data-f="%s" aria-pressed="false"><i></i>%s</button>' % (L, L, esc(name.split(' y ')[0] if L == 'D' else name)) for L, name, _, _ in G)
+SIG = '<span class="sig">Created by <b>SergeV</b></span>'
 
 # Trazo de ECG decorativo (latidos sintéticos)
 def ecg_path(w=1200, h=160, beats=5):
@@ -138,93 +141,91 @@ nav a .due{margin-left:auto;align-self:center;flex:none;min-width:22px;text-alig
 @media (prefers-reduced-motion:reduce){.inst{transition:none}}
 
 /* ---- inicio ---- */
-#home{max-width:1080px;margin:0 auto;padding:24px 16px 56px;display:flex;flex-direction:column;gap:44px}
-.hero{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background-color:var(--panel);
- background-image:linear-gradient(var(--gridMajor) 1px,transparent 1px),linear-gradient(90deg,var(--gridMajor) 1px,transparent 1px),linear-gradient(var(--gridMinor) 1px,transparent 1px),linear-gradient(90deg,var(--gridMinor) 1px,transparent 1px);
- background-size:50px 50px,50px 50px,10px 10px,10px 10px;padding:44px 32px 0}
-.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,var(--panel) 30%,transparent 78%);pointer-events:none}
-.hero>*{position:relative}
-.eyebrow{font:600 .74rem "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--vec)}
-.hero h2{font:800 clamp(2.1rem,6vw,3.6rem)/1.04 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em;margin:10px 0 14px;max-width:16ch;text-wrap:balance}
+#home{max-width:1040px;margin:0 auto;padding:40px 24px 64px;display:flex;flex-direction:column;gap:72px}
+.hero{position:relative;padding:28px 0 0}
+.eyebrow{font:600 .72rem "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--vec)}
+.hero h2{font:800 clamp(2.3rem,6.4vw,4.2rem)/1.02 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.03em;margin:14px 0 18px;max-width:14ch;text-wrap:balance}
 .hero h2 em{font-style:normal;color:var(--vec)}
-.hero p.lede{max-width:60ch;color:var(--muted);font-size:1.08rem;margin:0}
-.cta{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 6px}
-.bt{display:inline-flex;align-items:center;gap:8px;font:600 .98rem "Source Sans 3",sans-serif;text-decoration:none;border-radius:6px;padding:10px 16px;border:1px solid var(--line);color:var(--fg);background:var(--panel)}
+.hero p.lede{max-width:52ch;color:var(--muted);font-size:1.12rem;line-height:1.6;margin:0}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0 0}
+.bt{display:inline-flex;align-items:center;gap:8px;font:600 .98rem "Source Sans 3",sans-serif;text-decoration:none;border-radius:999px;padding:11px 20px;border:1px solid var(--line);color:var(--fg);background:transparent;transition:border-color .15s,background .15s}
 .bt:hover{border-color:var(--vec)}.bt.pri{background:var(--vec);border-color:var(--vec);color:var(--bg)}.bt.pri:hover{filter:brightness(1.08)}
-.trace{display:block;width:100%;height:150px;margin-top:8px}
-.trace path{fill:none;stroke:var(--vec);stroke-width:2.4;stroke-linejoin:round;stroke-dasharray:4200;stroke-dashoffset:4200;animation:draw 3.2s ease-out .2s forwards}
+.trace{display:block;width:100%;height:96px;margin:44px 0 0;opacity:.85}
+.trace path{fill:none;stroke:var(--vec);stroke-width:2;stroke-linejoin:round;stroke-dasharray:4200;stroke-dashoffset:4200;animation:draw 3.2s ease-out .2s forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){.trace path{animation:none;stroke-dashoffset:0}}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);margin:0 -32px;background:var(--panel)}
-.stats div{padding:16px 20px;border-right:1px solid var(--line)}.stats div:last-child{border-right:0}
-.stats b{display:block;font:700 1.7rem "Bricolage Grotesque",sans-serif;line-height:1.1}.stats span{font-size:.86rem;color:var(--muted)}
-@media (max-width:680px){.hero{padding:30px 18px 0}.stats{grid-template-columns:repeat(2,minmax(0,1fr));margin:0 -18px}.stats div:nth-child(2){border-right:0}.stats div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
-.sh{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
-.sh h3{font:700 1.5rem "Bricolage Grotesque",sans-serif;margin:0}.sh p{margin:0;color:var(--muted);max-width:64ch}
-.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;counter-reset:s}
-.step{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;counter-increment:s;position:relative}
-.step::before{content:counter(s);display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--vec);color:var(--bg);font:700 .8rem "JetBrains Mono",monospace;margin-bottom:10px}
-.step h4{margin:0 0 4px;font:700 1.05rem "Bricolage Grotesque",sans-serif}.step p{margin:0;font-size:.92rem;color:var(--muted)}
-@media (max-width:820px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.knobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.92rem}
+.stats b{font:700 1.05rem "Bricolage Grotesque",sans-serif;color:var(--fg);margin-right:4px}
+.stats .sig{margin-left:auto}
+.sig{font:500 .74rem "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--muted);white-space:nowrap}.sig b{color:var(--vec);font-weight:600}
+.sh{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.sh h3{font:700 1.6rem "Bricolage Grotesque",sans-serif;letter-spacing:-.01em;margin:0}.sh p{margin:0;color:var(--muted);max-width:60ch}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;counter-reset:s}
+.step{counter-increment:s}
+.step::before{content:"0" counter(s);display:block;font:600 .78rem "JetBrains Mono",monospace;color:var(--vec);margin-bottom:8px;letter-spacing:.06em}
+.step h4{margin:0 0 4px;font:700 1.12rem "Bricolage Grotesque",sans-serif}.step p{margin:0;font-size:.93rem;color:var(--muted)}
+@media (max-width:820px){.steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}}
+details.more{margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+details.more summary{cursor:pointer;color:var(--muted);font-weight:600;font-size:.95rem;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"+";display:inline-block;width:1.2em;color:var(--vec);font-weight:700}
+details.more[open] summary::before{content:"−"}
+details.more .knobs{margin-top:16px}
+.knobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 @media (max-width:760px){.knobs{grid-template-columns:minmax(0,1fr)}}
-.kb{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;border-top:3px solid var(--acc)}
-.kb h4{margin:0 0 10px;font:700 1.1rem "Bricolage Grotesque",sans-serif}
-.kb ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.kb{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.kb h4{margin:0 0 10px;font:700 1.05rem "Bricolage Grotesque",sans-serif;color:var(--acc)}
+.kb ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
 .kb li{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr);gap:10px;font-size:.92rem}
 .kb li b{font-weight:600}.kb li span{color:var(--muted)}
 @media (max-width:480px){.kb li{grid-template-columns:minmax(0,1fr);gap:0}}
-.parts{display:flex;flex-direction:column;gap:28px}
-.ph{display:flex;align-items:center;gap:14px;margin-bottom:12px}
-.ph h3{margin:0;font:700 1.25rem "Bricolage Grotesque",sans-serif}.ph p{margin:0;color:var(--muted);font-size:.93rem}
-.ph .cnt{margin-left:auto;font:600 .75rem "JetBrains Mono",monospace;color:var(--muted);white-space:nowrap}
-.badge{flex:none;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:800 1.2rem "Bricolage Grotesque",sans-serif;color:var(--panel);background:var(--acc)}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.card{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 16px 14px;color:var(--fg);text-decoration:none;transition:border-color .15s,transform .15s,box-shadow .15s;overflow:hidden}
-.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);opacity:.7}
-.card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 30px}
+.chip{display:inline-flex;align-items:center;gap:7px;font:600 .88rem "Source Sans 3",sans-serif;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.chip:hover{border-color:var(--acc,var(--vec));color:var(--fg)}
+.chip[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.parts{display:flex;flex-direction:column;gap:44px}
+.ph{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.ph h3{margin:0;font:700 1.2rem "Bricolage Grotesque",sans-serif}.ph p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.ph .cnt{margin-left:auto;font:600 .75rem "JetBrains Mono",monospace;color:var(--muted)}
+.badge{flex:none;align-self:flex-start;margin-top:.55em;width:10px;height:10px;border-radius:50%;background:var(--acc);font-size:0;color:transparent}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.card{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px 18px;color:var(--fg);text-decoration:none;transition:border-color .15s,transform .15s,box-shadow .15s}
+.card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.07)}
 @media (prefers-reduced-motion:reduce){.card,.card:hover{transition:none;transform:none}}
-.cn{position:absolute;right:14px;top:12px;font:700 .8rem "JetBrains Mono",monospace;color:var(--acc)}
-.ce{font:600 .68rem "JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding-right:2.5em}
-.ct{font:700 1.12rem "Bricolage Grotesque",sans-serif;line-height:1.2}
-.cl{font-size:.88rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.co{margin-top:auto;padding-top:6px;font:400 .72rem "JetBrains Mono",monospace;color:var(--muted)}
-.fine{border-top:1px solid var(--line);padding-top:16px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
-.fine p{margin:0}
+.cn{font:600 .74rem "JetBrains Mono",monospace;color:var(--acc);letter-spacing:.04em}
+.ct{font:700 1.08rem/1.25 "Bricolage Grotesque",sans-serif}
+.cl{font-size:.88rem;line-height:1.45;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fine{border-top:1px solid var(--line);padding-top:20px;font-size:.84rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.fine p{margin:0}.fine .sig{margin-top:10px;font-size:.8rem}
+nav .sig{display:block;margin:18px 8px 0}
+@media (max-width:680px){.chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px 26px;padding:0 16px 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{flex:none}.ph p{display:none}#home{padding:24px 16px 48px;gap:56px}.hero{padding-top:8px}.trace{height:70px;margin-top:32px}.stats .sig{margin-left:0;width:100%}}
 </style></head><body''' + BODYATTR + '''>
 <header class="top"><button id="menu" aria-label="Mostrar módulos">☰</button>
 <a class="brand" href="#inicio"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><path d="M1 11h6l2-3 2 3 2-10 3 16 2-6h7" fill="none" stroke="var(--vec)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>ECG School</a>
 <span class="cur" id="cur"></span><button id="prev" aria-label="Módulo anterior">‹</button><button id="next" aria-label="Módulo siguiente">›</button>''' + USERBOX + '''</header>
-<div class="lay"><nav aria-label="Módulos">''' + nav + '''<p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Cardiovascular: alineado con los objetivos de la Unidad 6 como referencia. Hematología: basada en la guía del Dr. Alejandro Leal. Sin aval institucional.</p></nav>
+<div class="lay"><nav aria-label="Módulos">''' + nav + '''<span class="sig">Created by <b>SergeV</b></span><p style="font-size:.78rem;color:var(--muted);margin:10px 8px">Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales. Cardiovascular: alineado con los objetivos de la Unidad 6 como referencia. Hematología: basada en la guía del Dr. Alejandro Leal. Sin aval institucional.</p></nav>
 <main>
 <div id="home">
   <div id="duebox" class="duebox" hidden><span class="dn" id="dueN"></span><span id="dueT"></span><a href="#m33" id="dueGo">Repasar ahora →</a></div>
   <section class="hero">
-    <div class="eyebrow">Fisiología cardiovascular · ECG y hemodinamia</div>
+    <div class="eyebrow">ECG · Hemodinamia · Hematología</div>
     <h2>Entiende el corazón, <em>no lo memorices</em>.</h2>
-    <p class="lede">Un mismo modelo une lo eléctrico y lo mecánico. Mueve una perilla, predice qué pasará con el trazo y las presiones, y comprueba el porqué con una cadena causal, no con una regla suelta.</p>
-    <div class="cta"><a class="bt pri" href="#m''' + first + '''">Empezar con «''' + esc(data[first]['t']) + '''» →</a><a class="bt" href="#mapa">Ver los ''' + str(len(data)) + ''' módulos</a></div>
+    <p class="lede">Un mismo modelo une lo eléctrico y lo mecánico. Mueve una perilla, predice qué pasará y comprueba el porqué con una cadena causal, no con una regla suelta.</p>
+    <div class="cta"><a class="bt pri" href="#m''' + first + '''">Empezar con «''' + esc(data[first]['t']) + '''» →</a><a class="bt" href="#mapa">Ver los módulos</a></div>
     <svg class="trace" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true"><path d="''' + trace + '''"/></svg>
-    <div class="stats">
-      <div><b>''' + str(len(data)) + '''</b><span>módulos interactivos</span></div>
-      <div><b>''' + str(len(G)) + '''</b><span>partes: ''' + ' · '.join(g[0] for g in G) + '''</span></div>
-      <div><b>9</b><span>perillas causales</span></div>
-      <div><b>6.1–6.283</b><span>objetivos de referencia (Unidad 6)</span></div>
-    </div>
+    <div class="stats"><span><b>''' + str(len(data)) + '''</b>módulos interactivos</span><span><b>''' + str(len(G)) + '''</b>partes</span><span><b>2</b>bancos de preguntas</span>''' + SIG + '''</div>
   </section>
 
   <section>
-    <div class="sh"><h3>Cómo se aprende aquí</h3><p>Cada módulo repite el mismo ciclo. Lo importante no es acertar, sino saber en qué eslabón de la cadena se rompió tu razonamiento.</p></div>
+    <div class="sh"><h3>Cómo se aprende aquí</h3><p>Lo importante no es acertar, sino saber en qué eslabón se rompió tu razonamiento.</p></div>
     <div class="steps">
-      <div class="step"><h4>Predice</h4><p>Antes de tocar nada, elige qué crees que pasará y con cuánta seguridad.</p></div>
-      <div class="step"><h4>Observa</h4><p>Mueve la perilla: el ECG, las presiones y las curvas cambian a la vez.</p></div>
-      <div class="step"><h4>Explica</h4><p>Arma la cadena causal con sus «porque», paso a paso.</p></div>
-      <div class="step"><h4>Transfiere</h4><p>Resuelve un caso nuevo, un contraejemplo o un trazo desconocido.</p></div>
+      <div class="step"><h4>Predice</h4><p>Elige qué crees que pasará antes de tocar nada.</p></div>
+      <div class="step"><h4>Observa</h4><p>Mueve la perilla y mira cómo cambia todo a la vez.</p></div>
+      <div class="step"><h4>Explica</h4><p>Arma la cadena causal, paso a paso.</p></div>
+      <div class="step"><h4>Transfiere</h4><p>Resuelve un caso nuevo o un trazo desconocido.</p></div>
     </div>
-  </section>
-
-  <section>
-    <div class="sh"><h3>Las perillas que lo explican todo</h3><p>Todo cambio del trazo o de la hemodinamia se puede atribuir a una de estas preguntas físicas.</p></div>
+    <details class="more"><summary>Las perillas que lo explican todo</summary>
     <div class="knobs">
       <div class="kb gA"><h4>ECG: cuatro perillas</h4><ol>
         <li><b>Origen y secuencia</b><span>ritmo, onda P, eje, arritmias</span></li>
@@ -237,17 +238,19 @@ nav a .due{margin-left:auto;align-self:center;flex:none;min-width:22px;text-alig
         <li><b>Bomba</b><span>contractilidad y relajación, asa P–V</span></li>
         <li><b>Frecuencia, ritmo, sincronía</b><span>llenado, ondas A, gasto</span></li>
         <li><b>Estructura</b><span>válvulas, pericardio, cortocircuitos</span></li></ol></div>
-    </div>
+    </div></details>
   </section>
 
   <section id="mapa">
-    <div class="sh"><h3>Mapa de módulos</h3><p>Ruta sugerida: Fundamentos → Electrocardiograma → Hemodinamia → Regulación → Integración → Hematología, y practica con los bancos de preguntas. Puedes entrar a cualquiera; cada uno indica lo que requiere.</p></div>
+    <div class="sh"><h3>Módulos</h3><p>Ruta sugerida: de Fundamentos a Hematología, y practica con los bancos. Puedes entrar a cualquiera.</p></div>
+    <div class="chips" role="group" aria-label="Filtrar por parte">''' + chips + '''</div>
     <div class="parts">''' + groups + '''</div>
   </section>
 
   <footer class="fine">
     <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
-    <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia verificable. Sin aval institucional. Las cifras marcadas VERIFICAR deben confirmarse con el libro del curso.</p>
+    <p>Alineado con los objetivos de la Unidad 6 de Fisiología como referencia verificable. Hematología basada en la guía del Dr. Alejandro Leal. Sin aval institucional. Las cifras marcadas VERIFICAR deben confirmarse con el libro del curso.</p>
+    ''' + SIG + '''
   </footer>
 </div>
 <iframe id="fr" title="Módulo" hidden></iframe>
@@ -269,6 +272,8 @@ window.addEventListener('hashchange',fromHash);window.addEventListener('resize',
 function step(d){var i=ORDER.indexOf(now);var j=i<0?(d>0?0:ORDER.length-1):(i+d+ORDER.length)%ORDER.length;location.hash='#m'+ORDER[j]}
 document.getElementById('prev').onclick=function(){step(-1)};document.getElementById('next').onclick=function(){step(1)};
 document.getElementById('menu').onclick=function(){document.body.classList.toggle('open')};
+document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){var f=c.dataset.f;document.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',x===c)});
+  document.querySelectorAll('.part').forEach(function(p){p.hidden=!!f&&p.dataset.g!==f})}});
 ''' + START + '''})();
 </script>''' + EXTRA + '''</body></html>'''
 BADGE = '<script>\n/* Contador de tarjetas para repasar hoy en cada banco (lee el progreso local de IndexedDB). */\n(function(){if(!window.ECGDB)return;var BANKS=[[\'33\',\'\',\'Banco Cardio\'],[\'39\',\'h:\',\'Banco Hemato\']].filter(function(b){return document.querySelector(\'nav a[data-n="\'+b[0]+\'"]\')}),box=document.getElementById(\'duebox\'),best=null;\nfunction upd(){Promise.all(BANKS.map(function(b){return ECGDB.summary(null,b[1]).then(function(s){return s.dueToday||0}).catch(function(){return 0})})).then(function(ns){var tot=0;best=null;\n  BANKS.forEach(function(b,i){var n=ns[i],link=document.querySelector(\'nav a[data-n="\'+b[0]+\'"]\');tot+=n;if(n&&(!best||n>best.n))best={n:n,b:b};\n    var e=link.querySelector(\'.due\');if(!e){e=document.createElement(\'span\');e.className=\'due\';link.appendChild(e)}e.textContent=n;e.hidden=!n;e.title=n+(n===1?\' tarjeta\':\' tarjetas\')+\' para repasar hoy\'});\n  if(box){box.hidden=!tot;document.getElementById(\'dueN\').textContent=tot;var parts=BANKS.map(function(b,i){return ns[i]?b[2]+\' \'+ns[i]:\'\'}).filter(Boolean);\n    document.getElementById(\'dueT\').textContent=(tot===1?\'tarjeta para repasar hoy\':\'tarjetas para repasar hoy\')+(parts.length?\' (\'+parts.join(\' · \')+\')\':\'\')}})}\nECGDB.ready().then(upd);ECGDB.onChange(function(){clearTimeout(upd.t);upd.t=setTimeout(upd,300)});\ndocument.addEventListener(\'visibilitychange\',function(){if(document.visibilityState===\'visible\')upd()});setInterval(upd,60000);\nvar go=document.getElementById(\'dueGo\');if(go)go.addEventListener(\'click\',function(e){e.preventDefault();var b=(best&&best.b)||BANKS[0];if(!b)return;\n  ECGDB.put(\'sessions\',{id:b[1]+\'vista\',v:\'repaso\',updated:Date.now()}).catch(function(){}).then(function(){var hsh=\'#m\'+b[0];if(location.hash===hsh){location.hash=\'#inicio\'}location.hash=hsh})});\n})();\n</script>'
