@@ -2605,13 +2605,19 @@ ul.susp{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.susp li{displ
    * Pendientes hoy = aprendizaje vencido + repasos que vencen antes del fin
    * del día de estudio + nuevas disponibles según el límite diario.
    */
-  function summary(now) {
-    now = now || Date.now();
+  /* Espacios de nombres: cada banco prefija sus claves (Cardio: '' · Hemato: 'h:').
+   * El banco sin prefijo se queda con las claves que no llevan prefijo de otro banco. */
+  function belongs(key, ns) {
+    key = String(key == null ? '' : key);
+    return ns ? key.indexOf(ns) === 0 : !/^[a-z]+:/.test(key);
+  }
+  function summary(now, ns) {
+    now = now || Date.now(); ns = ns || '';
     var eod = endOfStudyDay(now), today = dayKey(now);
     return tx(['cards', 'reviews', 'meta'], 'readonly', function (t) {
-      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', 'srs-settings'), t.get('meta', 'deck')]);
+      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', ns + 'srs-settings'), t.get('meta', ns + 'deck')]);
     }).then(function (r) {
-      var cards = r[0] || [], todays = r[1] || [], st = (r[2] && r[2].value) || {}, deck = (r[3] && r[3].value) || {};
+      var cards = (r[0] || []).filter(function (c) { return belongs(c.cid, ns); }), todays = (r[1] || []).filter(function (v) { return belongs(v.cid, ns); }), st = (r[2] && r[2].value) || {}, deck = (r[3] && r[3].value) || {};
       var newPerDay = st.newPerDay != null ? st.newPerDay : 20;
       var s = { total: deck.total || 0, seen: 0, newAvail: 0, learning: 0, review: 0, dueLearning: 0, dueReview: 0, suspended: 0, reviewedToday: 0, newToday: 0, dueToday: 0, nextDue: null };
       var known = {};
@@ -2643,7 +2649,7 @@ ul.susp{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.susp li{displ
     VERSION: VERSION, NAME: DB_NAME, STORES: STORES.slice(), FORMAT: FORMAT,
     ready: ready, tx: tx, get: get, getAll: getAll, count: count, put: put, putMany: putMany, del: del, clear: clear,
     getMeta: getMeta, setMeta: setMeta, range: range,
-    exportAll: exportAll, importAll: importAll, summary: summary, onChange: onChange, notify: notify,
+    exportAll: exportAll, importAll: importAll, summary: summary, belongs: belongs, onChange: onChange, notify: notify,
     dayKey: dayKey, endOfStudyDay: endOfStudyDay, hashId: hashId,
     get mode() { return mode; }, get persisted() { return persisted; }, get lastError() { return lastError; }
   };
@@ -3953,6 +3959,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 /* ───────── Almacenamiento ─────────
    La fuente de verdad es IndexedDB (ver «Persistencia» más abajo); `store` es la copia en memoria
    que usa la interfaz. Lo guardado antes en localStorage se migra una sola vez y no se borra. */
+const BANK={id:'cardio',ns:'',name:'Banco Cardio'}; /* ns: prefijo de claves en IndexedDB ('' = sin prefijo, compatible con lo ya guardado) */
+const SID=id=>BANK.ns+id,MK=k=>BANK.ns+k,mine=k=>ECGDB.belongs(k,BANK.ns);
 const KEY='bancoCardio.v1';
 let store={ans:{},fc:{}};
 let legacy=null;try{const r=localStorage.getItem(KEY);if(r)legacy=JSON.parse(r)}catch(e){}
@@ -4146,7 +4154,7 @@ $('p-shuf').onclick=()=>{P.shuffled=true;pFilter(false)};
 $('p-lvl').querySelectorAll('button').forEach(b=>b.onclick=()=>{P.lvl=+b.dataset.l;$('p-lvl').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));pFilter(false)});
 let resetArm=false;
 $('p-reset').onclick=()=>{if(!resetArm){resetArm=true;$('p-reset').textContent='Confirmar: borrar historial';$('p-reset-msg').textContent='Vuelve a pulsar para confirmar.';return}
-  resetArm=false;store.ans={};save();P.session={};P.retry={};DB.run(ECGDB.tx(['answers','attempts'],'readwrite',t=>{t.clear('answers');t.clear('attempts')}).then(()=>ECGDB.notify('answers')));$('p-reset').textContent='Borrar mi historial de respuestas';$('p-reset-msg').textContent='Historial borrado.';pFilter(true)};
+  resetArm=false;store.ans={};save();P.session={};P.retry={};DB.run(ECGDB.tx(['answers','attempts'],'readwrite',t=>Promise.all([t.getAll('answers'),t.getAll('attempts')]).then(([x,y])=>{x.forEach(r=>{if(mine(r.qid))t.del('answers',r.qid)});y.forEach(r=>{if(mine(r.qid))t.del('attempts',r.key)})})).then(()=>ECGDB.notify('answers')));$('p-reset').textContent='Borrar mi historial de respuestas';$('p-reset-msg').textContent='Historial borrado.';pFilter(true)};
 
 /* ───────── SIMULACRO ───────── */
 const S={list:[],i:0,ans:{},t0:0,timer:null,startedAt:0,cfg:{}};
@@ -4229,9 +4237,9 @@ new ResizeObserver(()=>{const fb=document.querySelector('.face.back'),ff=documen
    cada una conserva su historial. Las preguntas idénticas reciben sufijo -2, -3… */
 const QID=[],QNUM={},CID=[],CNUM={};
 (function(){const seen={};
-  QS.forEach(q=>{let id=ECGDB.hashId('q-',[q.t,q.q,q.o.join('¦'),q.s?JSON.stringify(q.s):''].join('|'));if(seen[id]){seen[id]++;id+='-'+seen[id]}else seen[id]=1;QID[q.id]=id;QNUM[id]=q.id});
+  QS.forEach(q=>{let id=BANK.ns+ECGDB.hashId('q-',[q.t,q.q,q.o.join('¦'),q.s?JSON.stringify(q.s):''].join('|'));if(seen[id]){seen[id]++;id+='-'+seen[id]}else seen[id]=1;QID[q.id]=id;QNUM[id]=q.id});
   const seenF={};
-  FS.forEach(f=>{let id=ECGDB.hashId('f-',[f.c,f.f,f.b].join('|'));if(seenF[id]){seenF[id]++;id+='-'+seenF[id]}else seenF[id]=1;CID[f.id]=id;CNUM[id]=f.id});
+  FS.forEach(f=>{let id=BANK.ns+ECGDB.hashId('f-',[f.c,f.f,f.b].join('|'));if(seenF[id]){seenF[id]++;id+='-'+seenF[id]}else seenF[id]=1;CID[f.id]=id;CNUM[id]=f.id});
 })();
 const DB={info:{mode:'idb'},ok:true,
   warn(e){DB.ok=false;const w=$('db-warn');if(w){w.hidden=false;w.textContent='No se pudo guardar tu progreso en este navegador ('+(e&&e.message||e)+'). Exporta un respaldo desde «Progreso» para no perderlo.'}},
@@ -4240,7 +4248,7 @@ const DB={info:{mode:'idb'},ok:true,
 function nowDay(ts){return ECGDB.dayKey(ts)}
 /* guardado diferido (no bloquea la interfaz y agrupa cambios rápidos) */
 const pending={};let flushT=null;
-function saveSession(id,data){pending[id]=Object.assign({id},data,{updated:Date.now()});clearTimeout(flushT);flushT=setTimeout(flushSessions,250)}
+function saveSession(id,data){id=SID(id);pending[id]=Object.assign({id},data,{updated:Date.now()});clearTimeout(flushT);flushT=setTimeout(flushSessions,250)}
 function flushSessions(){const arr=Object.values(pending);for(const k in pending)delete pending[k];if(!arr.length)return Promise.resolve();return DB.run(ECGDB.putMany('sessions',arr))}
 addEventListener('pagehide',flushSessions);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushSessions()});
 
@@ -4255,13 +4263,13 @@ async function migrateLegacy(){
     await ECGDB.tx(['answers','attempts'],'readwrite',t=>Promise.all([...ans.map(r=>t.get('answers',r.qid).then(h=>{if(!h||h.ts<r.ts)return t.put('answers',r)})),...att.map(r=>t.put('attempts',r))]));
   }
   if(legacy&&legacy.fc){const marks={};for(const k in legacy.fc){if(FS[+k])marks[CID[+k]]=legacy.fc[k]}
-    const cur=await ECGDB.get('sessions','flashcards');await ECGDB.put('sessions',Object.assign({id:'flashcards',marks:{}},cur||{},{marks:Object.assign({},marks,cur&&cur.marks),updated:Date.now()}))}
+    const cur=await ECGDB.get('sessions',SID('flashcards'));await ECGDB.put('sessions',Object.assign({id:'flashcards',marks:{}},cur||{},{marks:Object.assign({},marks,cur&&cur.marks),updated:Date.now()}))}
   await ECGDB.setMeta(flag,{at:Date.now(),answers:n});
   return n;
 }
 async function hydrate(){
   store={ans:{},fc:{}};
-  const [ans,fc]=await Promise.all([ECGDB.getAll('answers'),ECGDB.get('sessions','flashcards')]);
+  const [ans,fc]=await Promise.all([ECGDB.getAll('answers'),ECGDB.get('sessions',SID('flashcards'))]);
   ans.forEach(a=>{const n=QNUM[a.qid];if(n!=null)store.ans[n]={ok:a.ok,ts:a.ts,choice:a.choice}});
   if(fc&&fc.marks)for(const cid in fc.marks){const n=CNUM[cid];if(n!=null)store.fc[n]=fc.marks[cid]}
   if(ECGDB.mode==='memory'&&legacy){Object.assign(store.ans,legacy.ans||{});Object.assign(store.fc,legacy.fc||{})}
@@ -4276,7 +4284,7 @@ function recordAnswer(q,choice,source,ms){
 function saveMarks(){const marks={};for(const n in store.fc)marks[CID[n]]=store.fc[n];saveSession('flashcards',{marks,cat:$('f-cat').value,i:FC.i,mode:FC.mode});save()}
 function savePractice(){const cur=P.list[P.i];saveSession('practica',{tema:$('p-tema').value,lvl:P.lvl,ecg:$('p-ecg').checked,fail:$('p-fail').checked,pend:$('p-pend').checked,shuffled:P.shuffled,order:P.shuffled?P.list.map(q=>QID[q.id]):null,cur:cur?QID[cur.id]:null})}
 async function restorePractice(){
-  const s=await ECGDB.get('sessions','practica');if(!s)return false;
+  const s=await ECGDB.get('sessions',SID('practica'));if(!s)return false;
   if(s.tema&&TEMAS[s.tema])$('p-tema').value=s.tema;$('p-ecg').checked=!!s.ecg;$('p-fail').checked=!!s.fail;$('p-pend').checked=!!s.pend;
   P.lvl=s.lvl||0;$('p-lvl').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.l===P.lvl));
   P.shuffled=false;pFilter(false);
@@ -4287,7 +4295,7 @@ async function restorePractice(){
 function saveSim(){if(!S.list.length)return;const ans={};for(const id in S.ans)ans[QID[id]]=S.ans[id];
   saveSession('simulacro',{status:'running',ids:S.list.map(q=>QID[q.id]),i:S.i,ans,elapsed:Date.now()-S.t0,startedAt:S.startedAt,cfg:S.cfg})}
 async function restoreSim(){
-  const s=await ECGDB.get('sessions','simulacro');if(!s||s.status!=='running'||!Array.isArray(s.ids))return;
+  const s=await ECGDB.get('sessions',SID('simulacro'));if(!s||s.status!=='running'||!Array.isArray(s.ids))return;
   const list=s.ids.map(id=>QS[QNUM[id]]).filter(Boolean);if(!list.length)return;
   const box=$('s-resume');box.hidden=false;
   const n=Object.keys(s.ans||{}).length,min=Math.round((s.elapsed||0)/60000);
@@ -4295,17 +4303,17 @@ async function restoreSim(){
   $('s-resume-go').onclick=()=>{S.list=list;S.i=Math.min(s.i||0,list.length-1);S.ans={};for(const id in s.ans||{}){const q=QS[QNUM[id]];if(q)S.ans[q.id]=s.ans[id]}
     S.t0=Date.now()-(s.elapsed||0);S.startedAt=s.startedAt||Date.now();S.cfg=s.cfg||{};box.hidden=true;
     $('s-setup').hidden=true;$('s-res').hidden=true;$('s-run').hidden=false;clearInterval(S.timer);S.timer=setInterval(sTime,1000);sTime();sRender()};
-  $('s-resume-drop').onclick=async()=>{box.hidden=true;await DB.run(ECGDB.del('sessions','simulacro'))};
+  $('s-resume-drop').onclick=async()=>{box.hidden=true;await DB.run(ECGDB.del('sessions',SID('simulacro')))};
 }
 function finishSim(rows,ok,ms){
   const ts=Date.now(),qids=S.list.map(q=>QID[q.id]),ans={};for(const id in S.ans)ans[QID[id]]=S.ans[id];
-  const res={id:'sim-'+(S.startedAt||ts),source:'simulacro',ts,total:S.list.length,ok,ms,byTopic:rows,ids:qids,ans,cfg:S.cfg||{}};
+  const res={id:BANK.ns+'sim-'+(S.startedAt||ts),source:'simulacro',ts,total:S.list.length,ok,ms,byTopic:rows,ids:qids,ans,cfg:S.cfg||{}};
   const answers=[],atts=[];
   S.list.forEach((q,k)=>{const a=S.ans[q.id];if(a==null)return;const t=ts+k;const qid=QID[q.id];
     answers.push({qid,num:q.id,topic:q.t,ok:a===0,choice:a,ts:t});
     atts.push({key:qid+'|'+t,qid,num:q.id,topic:q.t,level:q.d,choice:a,ok:a===0,ts:t,day:nowDay(t),ms:null,source:'simulacro'})});
-  delete pending.simulacro;
-  return DB.run(ECGDB.tx(['answers','attempts','results','sessions'],'readwrite',t=>{answers.forEach(r=>t.put('answers',r));atts.forEach(r=>t.put('attempts',r));t.put('results',res);t.del('sessions','simulacro')}).then(()=>ECGDB.notify('results')));
+  delete pending[SID('simulacro')];
+  return DB.run(ECGDB.tx(['answers','attempts','results','sessions'],'readwrite',t=>{answers.forEach(r=>t.put('answers',r));atts.forEach(r=>t.put('attempts',r));t.put('results',res);t.del('sessions',SID('simulacro'))}).then(()=>ECGDB.notify('results')));
 }
 
 /* ───────── REPASO · repetición espaciada con FSRS ─────────
@@ -4326,10 +4334,10 @@ function toCard(rec,now){
 }
 function fromCard(c){return {due:+c.due,stability:c.stability,difficulty:c.difficulty,elapsed_days:c.elapsed_days,scheduled_days:c.scheduled_days,learning_steps:c.learning_steps,reps:c.reps,lapses:c.lapses,state:c.state,last_review:c.last_review?+c.last_review:null}}
 async function rLoad(){
-  const [st,cards,today]=await Promise.all([ECGDB.getMeta('srs-settings',null),ECGDB.getAll('cards'),ECGDB.getAll('reviews','day',ECGDB.range(nowDay(),nowDay()))]);
+  const [st,cards,today]=await Promise.all([ECGDB.getMeta(MK('srs-settings'),null),ECGDB.getAll('cards'),ECGDB.getAll('reviews','day',ECGDB.range(nowDay(),nowDay()))]);
   RV.st=Object.assign({},SRS_DEFAULT,st||{});makeScheduler();
-  RV.cards={};cards.forEach(c=>{RV.cards[c.cid]=c});RV.today=today;
-  await DB.run(ECGDB.setMeta('deck',{total:FS.length,ids:FS.map(f=>CID[f.id]),updated:Date.now()}));
+  RV.cards={};cards.forEach(c=>{if(mine(c.cid))RV.cards[c.cid]=c});RV.today=today.filter(v=>mine(v.cid));
+  await DB.run(ECGDB.setMeta(MK('deck'),{total:FS.length,ids:FS.map(f=>CID[f.id]),updated:Date.now()}));
 }
 function stateOf(cid){const r=RV.cards[cid];return r&&r.card?r.card.state:0}
 function inDeck(f){return !RV.deck||f.c===RV.deck}
@@ -4436,7 +4444,7 @@ async function rSettingsSave(){
   if(!ls.every(stepOk)||!rs.every(stepOk)){$('rs-msg').textContent='Escribe los pasos como 10m, 30m, 1h o 1d separados por espacios.';return}
   const st={retention:Math.min(.97,Math.max(.7,+$('rs-ret').value/100)),newPerDay:Math.max(0,Math.min(200,parseInt($('rs-new').value,10)||0)),learningSteps:ls,relearningSteps:rs,
     maxInterval:Math.max(1,Math.min(36500,parseInt($('rs-max').value,10)||36500)),learnAheadMin:RV.st.learnAheadMin,fuzz:RV.st.fuzz};
-  RV.st=st;makeScheduler();await DB.run(ECGDB.setMeta('srs-settings',st));$('rs-msg').textContent='Guardado. Los cambios se aplican a los próximos repasos.';rRender();
+  RV.st=st;makeScheduler();await DB.run(ECGDB.setMeta(MK('srs-settings'),st));$('rs-msg').textContent='Guardado. Los cambios se aplican a los próximos repasos.';rRender();
 }
 
 /* ───────── PROGRESO · estadísticas y respaldo ───────── */
@@ -4466,8 +4474,9 @@ function lineSVG(series,labels,colors){
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfica de líneas">${g}</svg>`;
 }
 async function gRender(){
-  const [atts,revs,results,cards,info,est]=await Promise.all([ECGDB.getAll('attempts'),ECGDB.getAll('reviews'),ECGDB.getAll('results'),ECGDB.getAll('cards'),ECGDB.ready(),
+  const [atts0,revs0,results0,cards0,info,est]=await Promise.all([ECGDB.getAll('attempts'),ECGDB.getAll('reviews'),ECGDB.getAll('results'),ECGDB.getAll('cards'),ECGDB.ready(),
     (navigator.storage&&navigator.storage.estimate?navigator.storage.estimate().catch(()=>null):Promise.resolve(null))]);
+  const atts=atts0.filter(r=>mine(r.qid)),revs=revs0.filter(r=>mine(r.cid)),results=results0.filter(r=>mine(r.id)),cards=cards0.filter(r=>mine(r.cid));
   const now=Date.now();
   // preguntas
   const answered=Object.keys(store.ans).length,okN=Object.values(store.ans).filter(a=>a.ok).length;
@@ -4475,7 +4484,7 @@ async function gRender(){
   const last=Math.max(0,...atts.map(a=>a.ts),...revs.map(r=>r.ts));
   const st=streakFrom([...atts.map(a=>a.day),...revs.map(r=>r.day)]);
   // tarjetas
-  const sum=await ECGDB.summary(now);
+  const sum=await ECGDB.summary(now,BANK.ns);
   const mature=revs.filter(r=>r.stateBefore===2&&r.ts>now-30*864e5),ret=mature.length?Math.round(100*mature.filter(r=>r.rating>1).length/mature.length):null;
   const kp=[['Preguntas respondidas',`${answered} / ${QS.length}`,`${QS.length-answered} pendientes`],['Aciertos',answered?Math.round(100*okN/answered)+' %':'—','última respuesta de cada pregunta'],
     ['Racha de estudio',st.cur+(st.cur===1?' día':' días'),`mejor racha: ${st.best}`],['Tiempo de estudio',fmtMs(msQ+msF),`preguntas ${fmtMs(msQ)} · tarjetas ${fmtMs(msF)}`],
@@ -4519,7 +4528,7 @@ async function doExport(){
   try{const file=new File([blob],name,{type:'application/json'});
     if(navigator.canShare&&navigator.canShare({files:[file]})&&/iPhone|iPad|iPod/.test(navigator.userAgent)){await navigator.share({files:[file],title:'Respaldo ECG School'});$('g-bk-msg').textContent='Respaldo listo. Guárdalo en Archivos o envíatelo.';return}}catch(e){if(e&&e.name==='AbortError')return}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
-  await DB.run(ECGDB.setMeta('last-export',Date.now()));
+  await DB.run(ECGDB.setMeta(MK('last-export'),Date.now()));
   $('g-bk-msg').textContent=`Se descargó «${name}» (${(txt.length/1024).toFixed(0)} KB). Guárdalo fuera del navegador.`;
 }
 async function doImport(file){
@@ -4534,7 +4543,7 @@ async function doImport(file){
 let wipeArm=false;
 async function doWipeCards(){
   if(!wipeArm){wipeArm=true;$('g-wipe').textContent='Confirmar: borrar progreso de tarjetas';$('g-wipe-msg').textContent='Esto borra el estado FSRS y el historial de repasos. Vuelve a pulsar para confirmar.';return}
-  wipeArm=false;await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>{t.clear('cards');t.clear('reviews')}));ECGDB.notify('cards');
+  wipeArm=false;await DB.run(ECGDB.tx(['cards','reviews'],'readwrite',t=>Promise.all([t.getAll('cards'),t.getAll('reviews')]).then(([x,y])=>{x.forEach(r=>{if(mine(r.cid))t.del('cards',r.cid)});y.forEach(r=>{if(mine(r.cid))t.del('reviews',r.key)})})));ECGDB.notify('cards');
   $('g-wipe').textContent='Borrar progreso de tarjetas';$('g-wipe-msg').textContent='Progreso de tarjetas borrado.';await rLoad();RV.done=0;RV.undo=null;rRender();gRender();
 }
 
@@ -4586,11 +4595,11 @@ async function boot(){
   try{await rLoad()}catch(e){DB.warn(e);RV.st=Object.assign({},SRS_DEFAULT);makeScheduler()}
   let restored=false;try{restored=await restorePractice()}catch(e){}
   if(!restored)pFilter(false);
-  try{const fcs=await ECGDB.get('sessions','flashcards');if(fcs&&fcs.cat&&cats.includes(fcs.cat))$('f-cat').value=fcs.cat}catch(e){}
+  try{const fcs=await ECGDB.get('sessions',SID('flashcards'));if(fcs&&fcs.cat&&cats.includes(fcs.cat))$('f-cat').value=fcs.cat}catch(e){}
   fFilter(false);
-  try{const r=await ECGDB.get('sessions','repaso');if(r&&r.deck&&cats.includes(r.deck)){RV.deck=r.deck;$('r-deck').value=r.deck}}catch(e){}
+  try{const r=await ECGDB.get('sessions',SID('repaso'));if(r&&r.deck&&cats.includes(r.deck)){RV.deck=r.deck;$('r-deck').value=r.deck}}catch(e){}
   try{await restoreSim()}catch(e){}
-  let v=null;try{const s=await ECGDB.get('sessions','vista');v=s&&s.v}catch(e){}
+  let v=null;try{const s=await ECGDB.get('sessions',SID('vista'));v=s&&s.v}catch(e){}
   booted=true;
   const h=location.hash.slice(1);route(VIEWS.includes(h)?h:(VIEWS.includes(v)?v:'practica'));
   rCounts();

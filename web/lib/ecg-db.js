@@ -263,13 +263,19 @@
    * Pendientes hoy = aprendizaje vencido + repasos que vencen antes del fin
    * del día de estudio + nuevas disponibles según el límite diario.
    */
-  function summary(now) {
-    now = now || Date.now();
+  /* Espacios de nombres: cada banco prefija sus claves (Cardio: '' · Hemato: 'h:').
+   * El banco sin prefijo se queda con las claves que no llevan prefijo de otro banco. */
+  function belongs(key, ns) {
+    key = String(key == null ? '' : key);
+    return ns ? key.indexOf(ns) === 0 : !/^[a-z]+:/.test(key);
+  }
+  function summary(now, ns) {
+    now = now || Date.now(); ns = ns || '';
     var eod = endOfStudyDay(now), today = dayKey(now);
     return tx(['cards', 'reviews', 'meta'], 'readonly', function (t) {
-      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', 'srs-settings'), t.get('meta', 'deck')]);
+      return Promise.all([t.getAll('cards'), t.getAll('reviews', 'day', range(today, today)), t.get('meta', ns + 'srs-settings'), t.get('meta', ns + 'deck')]);
     }).then(function (r) {
-      var cards = r[0] || [], todays = r[1] || [], st = (r[2] && r[2].value) || {}, deck = (r[3] && r[3].value) || {};
+      var cards = (r[0] || []).filter(function (c) { return belongs(c.cid, ns); }), todays = (r[1] || []).filter(function (v) { return belongs(v.cid, ns); }), st = (r[2] && r[2].value) || {}, deck = (r[3] && r[3].value) || {};
       var newPerDay = st.newPerDay != null ? st.newPerDay : 20;
       var s = { total: deck.total || 0, seen: 0, newAvail: 0, learning: 0, review: 0, dueLearning: 0, dueReview: 0, suspended: 0, reviewedToday: 0, newToday: 0, dueToday: 0, nextDue: null };
       var known = {};
@@ -301,7 +307,7 @@
     VERSION: VERSION, NAME: DB_NAME, STORES: STORES.slice(), FORMAT: FORMAT,
     ready: ready, tx: tx, get: get, getAll: getAll, count: count, put: put, putMany: putMany, del: del, clear: clear,
     getMeta: getMeta, setMeta: setMeta, range: range,
-    exportAll: exportAll, importAll: importAll, summary: summary, onChange: onChange, notify: notify,
+    exportAll: exportAll, importAll: importAll, summary: summary, belongs: belongs, onChange: onChange, notify: notify,
     dayKey: dayKey, endOfStudyDay: endOfStudyDay, hashId: hashId,
     get mode() { return mode; }, get persisted() { return persisted; }, get lastError() { return lastError; }
   };

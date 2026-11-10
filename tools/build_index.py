@@ -17,6 +17,7 @@ G = [
     ('B', 'Hemodinamia', 'La bomba, los vasos y las presiones, del ciclo cardiaco al cateterismo.', ['06', '10', '32', '11', '12', '28', '14', '16', '17', '19', '22', '25', '26', '23']),
     ('D', 'Regulación y circulaciones regionales', 'Reflejos y órganos en paralelo: cómo se reparte el gasto.', ['27', '21', '13', '20', '15', '18']),
     ('E', 'Integración fisiológica', 'Un solo estado compartido para tejido, señal, contracción, circulación, control y medición.', ['24']),
+    ('H', 'Hematología', 'De la hemoglobina a la hemostasia: deduce cada hallazgo desde su mecanismo.', ['34']),
     ('P', 'Práctica y evaluación', 'Preguntas tipo examen con trazos de ECG, simulacros y tarjetas de repaso.', ['33']),
 ]
 
@@ -28,9 +29,9 @@ for p in mods:
     h = open(p, encoding='utf-8').read()
     t = re.search(r'<title>([^<]*)', h).group(1)
     e = re.search(r'class="eyebrow">([^<]*)', h).group(1)
-    o = re.search(r'<span>Unidad 6: ([^<]*)</span>', h)
+    o = re.search(r'<span>(Unidad 6|Hematología): ([^<]*)</span>', h)
     lede = re.search(r'<p class="(?:[^"]*\s)?(?:lede|sub)(?:\s[^"]*)?">([^<]*)</p>', h)
-    data[n] = {'t': t, 'e': e, 'h': h, 'o': o.group(1) if o else '', 'l': lede.group(1) if lede else ''}
+    data[n] = {'t': t, 'e': e, 'h': h, 'o': o.group(2) if o else '', 'op': o.group(1) if o else '', 'l': lede.group(1) if lede else ''}
 assert sum(len(g[3]) for g in G) == len(data), 'Hay módulos sin grupo en G'
 assert set(k for g in G for k in g[3]) == set(data), 'Hay módulos duplicados o fuera de grupo'
 
@@ -54,7 +55,7 @@ def card(k):
     return ('<a class="card" href="#m%s"><span class="cn">%s</span><span class="ce">%s</span>'
             '<span class="ct">%s</span><span class="cl">%s</span>%s</a>'
             % (k, k, esc(d['e']), esc(d['t']), esc(d['l']),
-               ('<span class="co">Unidad 6 · %s</span>' % esc(obj)) if obj else ''))
+               ('<span class="co">%s · %s</span>' % (esc(d['op']), esc(obj))) if obj else ''))
 
 
 groups = ''.join(
@@ -97,7 +98,7 @@ def render(js, HEADX, BODYATTR, USERBOX, LOADER, START, EXTRA=''):
 :root[data-theme="dark"]{--bg:#0D1514;--panel:#142120;--fg:#E5EFEC;--muted:#98ADA8;--line:#2A3C39;--vec:#3FD0C6;--vecSoft:rgba(63,208,198,.14);
  --blood:#E27A7A;--guess:#FF9A5C;--slate:#9DB2E8;--gridMinor:rgba(255,125,135,.09);--gridMajor:rgba(255,125,135,.2);color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--fg);font:16px/1.5 "Source Sans 3","Segoe UI",system-ui,sans-serif}
-.gF{--acc:var(--slate)}.gA{--acc:var(--vec)}.gB{--acc:var(--blood)}.gD{--acc:var(--guess)}.gE{--acc:var(--vec)}.gP{--acc:var(--guess)}
+.gF{--acc:var(--slate)}.gA{--acc:var(--vec)}.gB{--acc:var(--blood)}.gD{--acc:var(--guess)}.gE{--acc:var(--vec)}.gP{--acc:var(--guess)}.gH{--acc:var(--blood)}
 .top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);height:53px}
 .brand{display:flex;align-items:center;gap:8px;color:var(--fg);text-decoration:none;font:700 1.15rem "Bricolage Grotesque",system-ui,sans-serif;white-space:nowrap}
 .brand svg{flex:none}
@@ -270,7 +271,7 @@ document.getElementById('prev').onclick=function(){step(-1)};document.getElement
 document.getElementById('menu').onclick=function(){document.body.classList.toggle('open')};
 ''' + START + '''})();
 </script>''' + EXTRA + '''</body></html>'''
-BADGE = '<script>\n/* Contador de tarjetas para repasar hoy (lee el progreso local de IndexedDB). */\n(function(){if(!window.ECGDB)return;var link=document.querySelector(\'nav a[data-n="33"]\'),box=document.getElementById(\'duebox\');\nfunction upd(){ECGDB.summary().then(function(s){var n=s.dueToday||0;\n  if(link){var b=link.querySelector(\'.due\');if(!b){b=document.createElement(\'span\');b.className=\'due\';link.appendChild(b)}b.textContent=n;b.hidden=!n;b.title=n+(n===1?\' tarjeta\':\' tarjetas\')+\' para repasar hoy\'}\n  if(box){box.hidden=!n;document.getElementById(\'dueN\').textContent=n;document.getElementById(\'dueT\').textContent=n===1?\'tarjeta para repasar hoy en el Banco Cardio\':\'tarjetas para repasar hoy en el Banco Cardio\'}}).catch(function(){})}\nECGDB.ready().then(upd);ECGDB.onChange(function(){clearTimeout(upd.t);upd.t=setTimeout(upd,300)});\ndocument.addEventListener(\'visibilitychange\',function(){if(document.visibilityState===\'visible\')upd()});setInterval(upd,60000);\nvar go=document.getElementById(\'dueGo\');if(go)go.addEventListener(\'click\',function(e){e.preventDefault();\n  ECGDB.put(\'sessions\',{id:\'vista\',v:\'repaso\',updated:Date.now()}).catch(function(){}).then(function(){if(location.hash===\'#m33\'){location.hash=\'#inicio\'}location.hash=\'#m33\'})});\n})();\n</script>'
+BADGE = '<script>\n/* Contador de tarjetas para repasar hoy en cada banco (lee el progreso local de IndexedDB). */\n(function(){if(!window.ECGDB)return;var BANKS=[[\'33\',\'\',\'Banco Cardio\'],[\'39\',\'h:\',\'Banco Hemato\']].filter(function(b){return document.querySelector(\'nav a[data-n="\'+b[0]+\'"]\')}),box=document.getElementById(\'duebox\'),best=null;\nfunction upd(){Promise.all(BANKS.map(function(b){return ECGDB.summary(null,b[1]).then(function(s){return s.dueToday||0}).catch(function(){return 0})})).then(function(ns){var tot=0;best=null;\n  BANKS.forEach(function(b,i){var n=ns[i],link=document.querySelector(\'nav a[data-n="\'+b[0]+\'"]\');tot+=n;if(n&&(!best||n>best.n))best={n:n,b:b};\n    var e=link.querySelector(\'.due\');if(!e){e=document.createElement(\'span\');e.className=\'due\';link.appendChild(e)}e.textContent=n;e.hidden=!n;e.title=n+(n===1?\' tarjeta\':\' tarjetas\')+\' para repasar hoy\'});\n  if(box){box.hidden=!tot;document.getElementById(\'dueN\').textContent=tot;var parts=BANKS.map(function(b,i){return ns[i]?b[2]+\' \'+ns[i]:\'\'}).filter(Boolean);\n    document.getElementById(\'dueT\').textContent=(tot===1?\'tarjeta para repasar hoy\':\'tarjetas para repasar hoy\')+(parts.length?\' (\'+parts.join(\' · \')+\')\':\'\')}})}\nECGDB.ready().then(upd);ECGDB.onChange(function(){clearTimeout(upd.t);upd.t=setTimeout(upd,300)});\ndocument.addEventListener(\'visibilitychange\',function(){if(document.visibilityState===\'visible\')upd()});setInterval(upd,60000);\nvar go=document.getElementById(\'dueGo\');if(go)go.addEventListener(\'click\',function(e){e.preventDefault();var b=(best&&best.b)||BANKS[0];if(!b)return;\n  ECGDB.put(\'sessions\',{id:b[1]+\'vista\',v:\'repaso\',updated:Date.now()}).catch(function(){}).then(function(){var hsh=\'#m\'+b[0];if(location.hash===hsh){location.hash=\'#inicio\'}location.hash=hsh})});\n})();\n</script>'
 LIBDB = open(os.path.join(root, 'lib', 'ecg-db.js'), encoding='utf-8').read()
 local = render(js_local, '', '', '', 'function load(n){fr.srcdoc=MODS[n].h}', 'fromHash()', '<script>\n' + LIBDB + '\n</script>' + BADGE)
 open(os.path.join(root, 'index.html'), 'w', encoding='utf-8').write(local)
