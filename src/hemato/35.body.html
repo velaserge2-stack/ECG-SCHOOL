@@ -1,0 +1,313 @@
+<!--file: 35_vida_del_eritrocito_hierro_y_bilirrubina.html-->
+<!--title: Vida del eritrocito, hierro y bilirrubina-->
+<!--desc: Del nacimiento a la destrucción del eritrocito: bilirrubina indirecta y directa, ictericias pre, intra y posthepática, lazo de la eritropoyetina, hepcidina y ferroportina, G6PD, esferocitosis e ictericia neonatal.-->
+<!--css
+svg.flow{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:6px}
+svg.flow text{font:12px var(--font-body);fill:var(--fg)}svg.flow .m{font:10.5px var(--font-mono);fill:var(--muted)}
+svg.flow rect.nd{fill:var(--panel);stroke:var(--line);stroke-width:1.5}svg.flow rect.nd.hot{stroke:var(--guess);stroke-width:2.5}svg.flow rect.nd.bad{stroke:var(--bad);stroke-width:2.5}
+svg.flow path.fx{fill:none;stroke:var(--vec);stroke-linecap:round}svg.flow path.fx.dir{stroke:var(--guess)}svg.flow path.fx.blk{stroke:var(--bad);stroke-dasharray:4 4}
+.sw2{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:middle;margin-right:6px}
+.det{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.det div{border:1px solid var(--line);border-radius:5px;padding:8px 10px;background:var(--bg);font-size:.88rem}.det b{display:block;font-family:var(--font-mono)}
+svg.life{width:100%;height:auto;display:block}
+svg.life text{font:11px var(--font-body);fill:var(--fg)}svg.life .m{font:10px var(--font-mono);fill:var(--muted)}
+-->
+<div class="wrap">
+<header>
+  <div class="eyebrow">Módulo H2 · eritrocito, hierro y bilirrubina</div>
+  <h1>Vida del eritrocito, hierro y bilirrubina</h1>
+  <p class="lede">Sigue al eritrocito desde la médula hasta el macrófago: bloquea un paso del recorrido de la bilirrubina, rompe el lazo de la eritropoyetina o sube la hepcidina, y deduce qué aparece en la sangre, la orina y las heces.</p>
+  <div class="tags"><span>Hematología: guía §2, §4.2–4.4, §5 y §7</span><span>Perillas: hemólisis, daño hepático, obstrucción, EPO, IL-6, reservas de hierro</span><span>Requiere H1</span></div>
+</header>
+
+<section class="panel">
+  <h2>Antes de empezar, intenta responder</h2>
+  <ul>
+    <li>¿Por qué la ictericia por hemólisis no oscurece la orina y la obstructiva sí?</li>
+    <li>¿Por qué las heces pierden color (acolia) en una obstrucción biliar, pero no en la hemólisis?</li>
+    <li>¿Por qué en la inflamación hay hierro en el cuerpo pero no llega a la médula?</li>
+    <li>¿Por qué la policitemia vera tiene la EPO baja y la del fumador o del que vive en la altura la tiene alta?</li>
+  </ul>
+</section>
+
+<section class="panel">
+  <h2>El recorrido de la bilirrubina</h2>
+  <svg class="flow" id="flow" viewBox="0 0 760 330" role="img" aria-label="Diagrama del recorrido de la bilirrubina: eritrocito, macrófago, bilirrubina indirecta unida a albúmina, hepatocito, bilis, intestino, heces y orina; el grosor de cada flecha indica el flujo"></svg>
+  <div class="chips" id="read"></div>
+  <div class="chain" id="chain"></div>
+  <p class="why" id="why" aria-live="polite"></p>
+</section>
+
+<section class="panel">
+  <h2>Controles: bloquea un paso</h2>
+  <div class="chips" id="pre"></div>
+  <div class="grid">
+    <div class="col">
+      <label class="ctl">Hemólisis (producción de bilirrubina): <span class="mono" id="hemV"></span><input type="range" id="hem" min="1" max="4" step="0.1" value="1"></label>
+      <label class="ctl">Daño hepatocelular (captación, conjugación y excreción): <span class="mono" id="dmgV"></span><input type="range" id="dmg" min="0" max="100" step="5" value="0"></label>
+    </div>
+    <div class="col">
+      <label class="ctl">Obstrucción de la vía biliar: <span class="mono" id="obsV"></span><input type="range" id="obs" min="0" max="100" step="5" value="0"></label>
+      <p class="note">Las cifras están en múltiplos de lo normal (unidades relativas): la guía no da intervalos fijos, que dependen del laboratorio. El umbral de ictericia visible del modelo es ≈ 2,5 × lo normal <span class="ver">VERIFICAR</span>.</p>
+    </div>
+  </div>
+  <div class="formula">BI ∝ producción / captación hepática · BD ∝ conjugada que no logra salir a la bilis</div>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>Traduce el esquema a fisiología</h2>
+    <ol class="steps">
+      <li><b>Causa:</b> un eritrocito viejo (≈ 120 días) es retirado por un macrófago del bazo, hígado o médula.</li>
+      <li><b>Mecanismo:</b> la globina vuelve a aminoácidos, el hierro se recupera y el anillo del hemo pasa a biliverdina y luego a bilirrubina <b>indirecta</b> (no conjugada, liposoluble), que viaja unida a albúmina.</li>
+      <li><b>Hígado:</b> el hepatocito la conjuga con ácido glucurónico (bilirrubina <b>directa</b>, hidrosoluble) y la secreta a la bilis por MRP2.</li>
+      <li><b>Intestino:</b> las bacterias la convierten en urobilinógeno → estercobilina (color marrón de las heces); una parte se reabsorbe (circulación enterohepática) y una fracción pequeña sale por la orina.</li>
+      <li><b>Lo que distingue cada ictericia:</b> solo la directa es hidrosoluble y puede pasar a la orina (coluria); solo si no llega bilis al intestino se pierde el color de las heces (acolia).</li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h2>Contraejemplo: el mismo color amarillo, cuatro causas</h2>
+    <p class="note">Los tres primeros renglones salen del modelo de arriba.</p>
+    <div class="tw"><table id="cx"></table></div>
+    <p class="why" id="cxW"></p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Detective de ictericias</h2>
+  <p class="note">Recibes un panel de laboratorio generado por el modelo. Clasifícalo y después mira el razonamiento paso a paso.</p>
+  <div class="det" id="det"></div>
+  <div class="row"><button class="btn" data-d="pre">Prehepática</button><button class="btn" data-d="hep">Hepática</button><button class="btn" data-d="post">Posthepática</button><button class="btn primary" id="detNew">Otro caso</button></div>
+  <p class="why" id="detW" aria-live="polite">Elige una clasificación.</p>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>El lazo de la eritropoyetina</h2>
+    <canvas id="epo" role="img" aria-label="Serie temporal de hemoglobina, EPO y reticulocitos durante 120 días según el escenario"></canvas>
+    <div class="legend"><span><i class="sw" style="background:var(--blood)"></i>Hemoglobina (g/dL)</span><span><i class="sw" style="background:var(--vec)"></i>EPO (× normal)</span><span><i class="sw" style="background:var(--guess)"></i>Producción de eritrocitos (× normal)</span></div>
+    <div class="chips" id="epoS"></div>
+    <div class="chain" id="epoChain"></div>
+    <p class="why" id="epoW"></p>
+    <p class="note">Lazo: hipoxia renal → HIF → EPO (≈ 90 % renal) → eritropoyesis (≈ 5–7 días) → más Hb → menos hipoxia. Las constantes del modelo son ilustrativas <span class="ver">VERIFICAR</span>.</p>
+  </div>
+  <div class="panel">
+    <h2>Hepcidina y ferroportina: hay hierro, pero ¿sale?</h2>
+    <div class="chips" id="feP"></div>
+    <label class="ctl">Inflamación (IL-6): <span class="mono" id="ilV"></span><input type="range" id="il" min="0" max="100" step="5" value="0"></label>
+    <label class="ctl">Reservas de hierro: <span class="mono" id="stV"></span><input type="range" id="st" min="10" max="200" step="5" value="100"></label>
+    <label class="ctl">Demanda eritropoyética: <span class="mono" id="dmV"></span><input type="range" id="dm" min="50" max="250" step="5" value="100"></label>
+    <div class="bars col" id="feB" style="gap:6px"></div>
+    <p class="why" id="feW"></p>
+    <p class="note">Ferritina = reservas (y sube con la inflamación, según la guía: «ferritina baja si no hay inflamación concomitante»). El comportamiento de la TIBC en la inflamación no viene en la guía; el modelo la deja depender solo de las reservas <span class="ver">VERIFICAR</span>.</p>
+  </div>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h2>120 días de vida: energía y defensa antioxidante</h2>
+    <div class="chips" id="lifeP"></div>
+    <canvas id="life" role="img" aria-label="Fracción de eritrocitos que sobreviven frente a los días de vida, según membrana normal, esferocitosis o déficit de G6PD con estrés oxidativo"></canvas>
+    <svg class="life" id="met" viewBox="0 0 460 120" role="img" aria-label="Metabolismo del eritrocito: glucólisis anaerobia produce ATP; la vía de la G6PD produce NADPH que mantiene el glutatión reducido"></svg>
+    <p class="why" id="lifeW"></p>
+    <p class="note">Supervivencia de cada trastorno ilustrativa <span class="ver">VERIFICAR</span>.</p>
+  </div>
+  <div class="panel">
+    <h2>Ictericia neonatal</h2>
+    <canvas id="neo" role="img" aria-label="Bilirrubina relativa frente a horas de vida: curva fisiológica, curva que empieza antes de 24 horas y efecto de la fototerapia"></canvas>
+    <div class="chips" id="neoP"></div>
+    <label class="ctl" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="foto"> Aplicar fototerapia desde las 60 h</label>
+    <p class="why" id="neoW"></p>
+    <p class="note">Escala relativa: la guía no da umbrales numéricos y en la práctica se usan nomogramas por horas de vida <span class="ver">VERIFICAR</span>.</p>
+  </div>
+</section>
+
+@@QUIZ@@
+
+<section class="panel">
+  <h2>Caso clínico guiado: orina oscura y heces claras</h2>
+  <p>Mujer de 52 años con ictericia de una semana, prurito, orina color «refresco de cola» y heces de color masilla. Dolor previo en hipocondrio derecho.</p>
+  <div id="case1" class="col"></div>
+</section>
+<section class="panel">
+  <h2>Caso clínico guiado: hay hierro, pero no sale</h2>
+  <p>Hombre de 60 años con artritis reumatoide activa y anemia leve. Hierro sérico bajo, saturación de transferrina baja, ferritina elevada.</p>
+  <div id="case2" class="col"></div>
+</section>
+
+<section class="cols2">
+  <div class="panel"><h3>Errores comunes que desmonta</h3><ul>
+    <li>«Toda ictericia oscurece la orina»: la bilirrubina indirecta va unida a albúmina y no se filtra; en la hemólisis no hay coluria.</li>
+    <li>«Hemólisis = heces claras»: al contrario, llega más pigmento al intestino; la acolia indica que no llega bilis.</li>
+    <li>«Ferritina normal descarta ferropenia»: la inflamación la eleva; la guía dice «ferritina baja si no hay inflamación concomitante».</li>
+    <li>«Más EPO siempre es bueno»: si la policitemia es primaria, la EPO está baja porque la médula produce sola.</li>
+    <li>«Piel amarilla = ictericia»: la carotenemia tiñe palmas y plantas pero suele respetar las escleras.</li>
+    <li>«Toda ictericia neonatal es fisiológica»: la que aparece en las primeras 24 h debe considerarse potencialmente patológica.</li></ul></div>
+  <div class="panel"><h3>Simplificaciones de este modelo</h3><ul>
+    <li>Balance de bilirrubina en estado estable y en unidades relativas; no simula la cinética día a día.</li>
+    <li>Un solo control de «daño hepatocelular» resume captación, conjugación y excreción, que en la realidad pueden fallar por separado.</li>
+    <li>El lazo de la EPO usa una respuesta exponencial a la hipoxia y un retraso fijo de maduración.</li>
+    <li>El eje hepcidina–ferroportina es cualitativo: no calcula balances diarios de absorción.</li>
+    <li>Las curvas de supervivencia y de ictericia neonatal son esquemáticas.</li></ul></div>
+</section>
+
+<section class="panel">
+  <h2>Mini-repaso</h2>
+  <p class="note">Estas 5 tarjetas también están en el Banco Hemato (módulo 39), donde se repasan con FSRS.</p>
+  <div class="mfgrid" id="mfc"></div>
+</section>
+
+<footer>
+  <p>Contenido educativo. No sirve para tomar decisiones clínicas en pacientes reales.</p>
+  <p>Basado en la Guía de Hematología (apuntes del Dr. Alejandro Leal). Sin aval institucional. Cifras marcadas VERIFICAR: confírmalas con el libro/diapositivas del curso.</p>
+</footer>
+</div>
+<script>
+(function(){
+@@COMMON@@
+/* ── Bilirrubina: balance en estado estable (múltiplos de lo normal) ── */
+var BASE={hem:1,dmg:0,obs:0},S=Object.assign({},BASE);
+var PRE=[{n:'Normal',o:{}},{n:'Hemólisis (prehepática)',o:{hem:3}},{n:'Hepatitis (hepática)',o:{dmg:60}},{n:'Coledocolitiasis (posthepática)',o:{obs:85}}];
+function bili(s){var P=s.hem,d=s.dmg/100,o=s.obs/100,up=1-0.6*d,ex=(1-o)*(1-0.55*d);
+  var BI=0.8*P/up,toBile=P*ex,reflux=P*(1-ex),BD=0.2+1.6*reflux,BT=BI+BD,uro=toBile,urU=uro*(1+3*d),stool=uro;
+  return{BI:BI,BD:BD,BT:BT,uro:uro,urU:urU,stool:stool,col:BD>0.6,acol:stool<0.35,hypo:stool<0.7,ict:BT>2.5,dirFrac:BD/BT,toBile:toBile,reflux:reflux,up:up,ex:ex}}
+var B0=bili(BASE);
+function clsJ(b){if(!b.ict&&b.BT<1.6)return 'none';if(b.dirFrac>0.5&&b.acol)return 'post';if(b.dirFrac<0.3&&!b.hypo)return 'pre';return 'hep'}
+var JN={none:'sin ictericia',pre:'prehepática',hep:'hepática',post:'posthepática'};
+function stoolTxt(b){return b.acol?'acólicas (claras)':b.hypo?'hipocólicas':b.stool>1.5?'oscuras (más pigmento)':'color normal'}
+function urineTxt(b){return b.col?'coluria (oscura)':'amarilla normal'}
+function lvl(v){return v>1.25?'↑':v<0.75?'↓':'≈'}
+function drawFlow(){var b=bili(S),v=css('--vec'),W=function(f){return clamp(2+4*f,1.5,14)};
+  var N=[['erit',15,20,'Eritrocito','120 días'],['mac',200,20,'Macrófago','bazo · hígado · médula'],['bi',385,20,'B. indirecta','+ albúmina (sangre)'],['hep',570,20,'Hepatocito','captación · conjugación'],
+         ['bil',570,150,'Bilis (MRP2)','bilirrubina directa'],['int',385,150,'Intestino','urobilinógeno'],['hec',200,150,'Heces','estercobilina'],['ori',15,250,'Orina','urobilina · BD'],['bd',570,250,'BD en sangre','reflujo si no sale']];
+  var hot={bi:b.BI>1.3,bd:b.BD>0.6,hec:b.acol,ori:b.col||b.urU>1.5,hep:S.dmg>0,bil:S.obs>0,erit:S.hem>1.2};
+  var s='';function nd(n){var k=n[0],cl=(k==='hep'&&S.dmg>0)||(k==='bil'&&S.obs>0)?' bad':(hot[k]?' hot':'');return '<rect class="nd'+cl+'" x="'+n[1]+'" y="'+n[2]+'" width="165" height="52" rx="6"/><text x="'+(n[1]+10)+'" y="'+(n[2]+22)+'">'+n[3]+'</text><text class="m" x="'+(n[1]+10)+'" y="'+(n[2]+40)+'">'+n[4]+'</text>'}
+  function ar(d,f,cls){return '<path class="fx '+(cls||'')+'" stroke-width="'+W(f).toFixed(1)+'" d="'+d+'"/>'}
+  s+=ar('M180 46 H198',S.hem)+ar('M365 46 H383',S.hem)+ar('M550 46 H568',S.hem*b.up+0.2)+ar('M640 72 V148',b.toBile,S.obs>0?'blk':'')+ar('M570 176 H552',b.toBile,S.obs>.5?'blk':'')+ar('M385 176 H367',b.stool)+ar('M430 202 Q300 262 182 272',b.urU*.6)+ar('M720 72 V248',b.reflux*1.5+0.1,'dir')+ar('M570 280 H182',b.col?b.BD*.6:0.15,'dir')+ar('M500 150 Q540 110 600 72',b.uro*.3);
+  N.forEach(function(n){s+=nd(n)});
+  s+='<text class="m" x="648" y="118">'+(S.obs>0?'obstrucción '+S.obs+' %':'')+'</text><text class="m" x="520" y="104" text-anchor="end">enterohepática</text>';
+  $('flow').innerHTML=s}
+function render(){['hem','dmg','obs'].forEach(function(k){$(k+'V').textContent=k==='hem'?fmt(S[k],1)+' × normal':S[k]+' %'});var b=bili(S),c=clsJ(b);
+  $('read').innerHTML=chip('B. indirecta',fmt(b.BI,1)+' ×',b.BI>1.3?'wn':'ok')+chip('B. directa',fmt(b.BD/B0.BD,1)+' ×',b.BD>0.6?'no':'ok')+chip('B. total',fmt(b.BT/B0.BT,1)+' ×',b.ict?'no':b.BT/B0.BT>1.4?'wn':'ok',b.ict?'ictericia':'')+
+    chip('Orina',urineTxt(b),b.col?'no':'ok')+chip('Heces',stoolTxt(b),b.acol?'no':b.hypo?'wn':'ok')+chip('Urobilinógeno urinario',lvl(b.urU/B0.urU),Math.abs(b.urU/B0.urU-1)>.25?'wn':'ok');
+  var steps=[['Causa',S.hem>1.2?'↑ hemólisis':S.obs>20?'obstrucción biliar':S.dmg>20?'daño hepatocelular':'normal'],['BI',lvl(b.BI/B0.BI)],['BD',lvl(b.BD/B0.BD)],['Orina',b.col?'coluria':'normal'],['Heces',stoolTxt(b)],['Tipo',JN[c]]];
+  $('chain').innerHTML=steps.map(function(s,i){return (i?'<i>→</i>':'')+'<span class="'+(i===steps.length-1?'on':'')+'"><b>'+s[0]+':</b> '+s[1]+'</span>'}).join('');
+  var w={none:'Recorrido normal: el hígado capta y conjuga todo lo que se produce, la bilis llega al intestino y da color a las heces.',
+    pre:'Prehepática: se produce más bilirrubina de la que el hígado capta a tiempo → predomina la <b>indirecta</b>. Como va unida a albúmina, no pasa a la orina (sin coluria); llega más pigmento al intestino, así que las heces no se aclaran y el urobilinógeno urinario puede subir.',
+    hep:'Hepática: el hepatocito capta, conjuga y excreta peor → sube la <b>indirecta</b> y la <b>directa</b>. La directa que refluye a la sangre puede dar coluria; las heces pueden ser hipocólicas. El urobilinógeno urinario sube porque el hígado no lo recapta.',
+    post:'Posthepática: la bilis no sale → la <b>directa</b> refluye a la sangre, es hidrosoluble y aparece en la orina (coluria). Casi no llega pigmento al intestino: heces acólicas y urobilinógeno urinario bajo.'};
+  $('why').innerHTML=w[c];drawFlow();cx()}
+['hem','dmg','obs'].forEach(function(k){$(k).addEventListener('input',function(){S[k]=+this.value;render()})});
+function set(o){S=Object.assign({},BASE,o);['hem','dmg','obs'].forEach(function(k){$(k).value=S[k]});render()}
+$('pre').innerHTML=PRE.map(function(p,i){return '<button class="btn" data-i="'+i+'">'+p.n+'</button>'}).join('');
+$('pre').querySelectorAll('button').forEach(function(b){b.onclick=function(){set(PRE[+b.dataset.i].o)}});
+function cx(){var rows=[['Hemólisis',{hem:3}],['Hepatitis',{dmg:60}],['Obstrucción',{obs:85}]],h='<tr><th>Causa</th><th>Predomina</th><th>Orina</th><th>Heces</th><th>Escleras</th></tr>';
+  rows.forEach(function(r){var b=bili(Object.assign({},BASE,r[1]));h+='<tr><td>'+r[0]+'</td><td>'+(b.dirFrac>0.5?'directa':b.dirFrac<0.3?'indirecta':'ambas')+'</td><td>'+urineTxt(b)+'</td><td>'+stoolTxt(b)+'</td><td>amarillas</td></tr>'});
+  h+='<tr><td>Carotenemia</td><td>sin aumento de bilirrubina</td><td>normal</td><td>normal</td><td>suelen respetarse</td></tr>';
+  $('cx').innerHTML=h;$('cxW').textContent='Para separar las causas mira dos datos baratos: la orina (¿hay bilirrubina directa?) y las heces (¿llega bilis al intestino?). Y antes, las escleras: si están blancas, piensa en carotenemia.'}
+/* Detective */
+var DET=null;
+function newCase(){var t=['pre','hep','post'][Math.floor(Math.random()*3)],o=t==='pre'?{hem:2.2+Math.random()*1.6}:t==='hep'?{dmg:45+Math.random()*45}:{obs:70+Math.random()*30};
+  var b=bili(Object.assign({},BASE,o));DET={t:clsJ(b),b:b};
+  $('det').innerHTML=[['B. total',fmt(b.BT/B0.BT,1)+' × normal'],['B. directa',fmt(b.BD/B0.BD,1)+' × normal'],['B. indirecta',fmt(b.BI,1)+' × normal'],['Orina',urineTxt(b)],['Heces',stoolTxt(b)],['Urobilinógeno urinario',{'↑':'aumentado','↓':'disminuido','≈':'normal'}[lvl(b.urU/B0.urU)]]].map(function(x){return '<div>'+x[0]+'<b>'+x[1]+'</b></div>'}).join('');
+  $('detW').textContent='Elige una clasificación.'}
+document.querySelectorAll('button[data-d]').forEach(function(bt){bt.onclick=function(){if(!DET)return;var ok=bt.dataset.d===DET.t,b=DET.b;
+  $('detW').innerHTML=(ok?'<span class="ok"><b>Correcto.</b></span> ':'<span class="no"><b>No.</b></span> Es <b>'+JN[DET.t]+'</b>. ')+'Paso 1: predomina la '+(b.dirFrac>0.5?'directa → el problema está en sacar la bilirrubina ya conjugada.':b.dirFrac<0.3?'indirecta → sobra producción o falla la captación.':'mezcla de ambas → el hepatocito falla en varios pasos.')+' Paso 2: '+(b.col?'hay coluria → hay directa en sangre.':'sin coluria → la que sobra es indirecta (va con albúmina).')+' Paso 3: '+(b.acol?'heces acólicas → no llega bilis al intestino.':'las heces tienen pigmento → la bilis sí llega.')}});
+$('detNew').onclick=newCase;
+/* ── Lazo de la EPO ── */
+var EPOS=[{n:'Normal',o:{}},{n:'Hemorragia aguda',o:{hb0:9}},{n:'Gran altitud',o:{sat:.86}},{n:'Insuficiencia renal',o:{ren:.3}},{n:'Policitemia vera',o:{auto:.9}},{n:'Eritrocitosis secundaria (hipoxemia crónica)',o:{sat:.82,hb0:15}}],ES=0;
+function epoSim(o){var p=Object.assign({hb0:15,sat:.97,ren:1,auto:0},o),hb=p.hb0,dt=1,hist=[],out=[],delay=6;
+  for(var d=0;d<=120;d++){var q=(hb/15)*(p.sat/.97),epo=p.ren*Math.exp(2.4*(1-q));epo=clamp(epo,0,12);hist.push(epo);var e=hist[Math.max(0,hist.length-1-delay)];
+    var prod=clamp(Math.pow(e,0.5),0,4)*(1-p.auto*0.85)+p.auto*1.7;out.push({d:d,hb:hb,epo:epo,prod:prod});hb+=dt*(15/120*prod-hb/120)}
+  return out}
+function drawEpo(){var c=$('epo'),W=cw(c,460),H=Math.round(clamp(W*.62,220,290)),x=fit(c,W,H),r={x:40,y:10,w:W-78,h:H-44},sim=epoSim(EPOS[ES].o),last=sim[sim.length-1];x.clearRect(0,0,W,H);
+  axes(x,r,[0,120],[0,22],[0,30,60,90,120],[0,5,10,15,20],'días','Hb (g/dL)');
+  var mx=Math.max(4,Math.ceil(Math.max.apply(null,sim.map(function(s){return Math.max(s.epo,s.prod)}))));
+  x.fillStyle=css('--muted');x.font='10px '+css('--font-mono');x.textAlign='left';x.fillText(mx+'×',r.x+r.w+4,r.y+6);x.fillText('0',r.x+r.w+4,r.y+r.h);
+  line(x,r,[0,120],[0,mx],function(t){return sim[Math.round(t)].epo},css('--vec'),2,null,120);
+  line(x,r,[0,120],[0,mx],function(t){return sim[Math.round(t)].prod},css('--guess'),2,[4,3],120);
+  line(x,r,[0,120],[0,22],function(t){return sim[Math.round(t)].hb},css('--blood'),2.6,null,120);
+  $('epoS').innerHTML=EPOS.map(function(p,i){return '<button class="btn" data-e="'+i+'" aria-pressed="'+(i===ES)+'">'+p.n+'</button>'}).join('');
+  $('epoS').querySelectorAll('button').forEach(function(b){b.onclick=function(){ES=+b.dataset.e;drawEpo()}});
+  var o=EPOS[ES].o,lk=[['Hipoxia renal',o.sat?'↑ (falta O₂)':o.hb0&&o.hb0<15?'↑ (falta Hb)':'normal',o.sat||o.hb0<15],['EPO',fmt(last.epo,1)+' ×',o.ren||o.auto],['Médula',o.auto?'autónoma':fmt(last.prod,1)+' ×',o.auto],['Hb a 120 d',fmt(last.hb,1)+' g/dL',false]];
+  $('epoChain').innerHTML=lk.map(function(s,i){return (i?'<i>→</i>':'')+'<span class="'+(s[2]?'bad':'')+'"><b>'+s[0]+':</b> '+s[1]+'</span>'}).join('');
+  var W2={0:'Lazo cerrado y en reposo: la EPO justa mantiene la Hb estable.',1:'Tras la pérdida, la hipoxia renal dispara la EPO en horas; la producción sube con unos días de retraso y la Hb se recupera en semanas mientras la EPO vuelve a bajar.',
+    2:'En la altitud falta presión de O₂, no Hb: la EPO sube y se estabiliza con una Hb más alta que compensa la menor saturación.',3:'El riñón dañado no produce EPO suficiente: aunque haya hipoxia, la señal no sale. Resultado: anemia con EPO inapropiadamente baja.',
+    4:'En la policitemia vera la médula produce sin pedir permiso: la Hb sube, la hipoxia desaparece y la EPO cae por debajo de lo normal. EPO baja + Hb alta = primaria.',5:'Hipoxemia crónica: la EPO se mantiene alta y la Hb sube (eritrocitosis secundaria). EPO alta + Hb alta = secundaria.'};
+  $('epoW').textContent=W2[ES]}
+/* ── Hepcidina ── */
+var FEP=[{n:'Normal',o:{}},{n:'Ferropenia',o:{st:20}},{n:'Inflamación',o:{il:80}},{n:'Inflamación + ferropenia',o:{il:70,st:35}},{n:'Recuperación tras hemorragia',o:{dm:220,st:70}}],F0={il:0,st:100,dm:100},FS=Object.assign({},F0);
+function fe(s){var il=s.il/100,st=s.st/100,dm=s.dm/100,hep=Math.pow(st,0.7)*(1+2.2*il)/Math.pow(dm,0.9),fpn=1/hep,avail=Math.min(1.3,Math.pow(st,1.3));
+  var fe_=clamp(fpn*avail/Math.sqrt(dm),0,3),tibc=clamp(1/Math.pow(st,0.35),0.6,2),sat=fe_/tibc,ferr=st*(1+1.5*il);return{hep:hep,fpn:fpn,fe:fe_,tibc:tibc,sat:sat,ferr:ferr}}
+var FE0=fe(F0);
+function feBar(l,v){var w=clamp(v/3,0,1)*100;return '<div class="bar" style="display:grid;grid-template-columns:150px 1fr 60px;gap:8px;align-items:center;font-size:.85rem"><span>'+l+'</span><span style="height:12px;background:var(--bg);border:1px solid var(--line);border-radius:3px;position:relative;overflow:hidden"><i style="position:absolute;left:0;top:0;bottom:0;width:'+w.toFixed(1)+'%;background:'+(v<0.7?'var(--bad)':v>1.4?'var(--guess)':'var(--vec)')+'"></i><b style="position:absolute;left:33.3%;top:0;bottom:0;width:2px;background:var(--fg);opacity:.5"></b></span><span class="mono" style="text-align:right">'+fmt(v,1)+'×</span></div>'}
+function renderFe(){['il','st','dm'].forEach(function(k){$(k+'V').textContent=FS[k]+' %'});var f=fe(FS);
+  $('feB').innerHTML=feBar('Hepcidina',f.hep)+feBar('Ferroportina activa',f.fpn)+feBar('Hierro sérico',f.fe/FE0.fe)+feBar('Saturación de transferrina',f.sat/FE0.sat)+feBar('TIBC / transferrina',f.tibc/FE0.tibc)+feBar('Ferritina',f.ferr/FE0.ferr);
+  var w;if(FS.il>=40&&FS.st>=60)w='Inflamación: la IL-6 sube la hepcidina, que internaliza la ferroportina. El hierro queda atrapado en macrófagos y enterocitos: ferritina alta (hay reservas) pero hierro sérico y saturación bajos (no sale). «Hay hierro pero no llega a la médula».';
+  else if(FS.st<40&&FS.il<40)w='Ferropenia: con reservas bajas la hepcidina baja y la ferroportina trabaja al máximo, pero no hay hierro que exportar: ferritina baja, hierro y saturación bajos, transferrina/TIBC alta.';
+  else if(FS.st<60&&FS.il>=40)w='Inflamación y ferropenia juntas: la ferritina puede verse «normal» porque la inflamación la eleva aunque las reservas sean bajas. Por eso la guía dice «ferritina baja si no hay inflamación concomitante».';
+  else if(FS.dm>150)w='Más eritropoyesis baja la hepcidina para liberar hierro hacia la médula: más ferroportina activa y más hierro disponible.';
+  else w='Equilibrio: la hepcidina ajusta la ferroportina para que entre y salga el hierro que se necesita.';$('feW').textContent=w}
+['il','st','dm'].forEach(function(k){$(k).addEventListener('input',function(){FS[k]=+this.value;renderFe()})});
+function setFe(o){FS=Object.assign({},F0,o);['il','st','dm'].forEach(function(k){$(k).value=FS[k]});renderFe()}
+$('feP').innerHTML=FEP.map(function(p,i){return '<button class="btn" data-i="'+i+'">'+p.n+'</button>'}).join('');
+$('feP').querySelectorAll('button').forEach(function(b){b.onclick=function(){setFe(FEP[+b.dataset.i].o)}});
+/* ── Vida del eritrocito ── */
+var LIFE=[{n:'Membrana y enzimas normales',k:'n'},{n:'Esferocitosis hereditaria',k:'esf'},{n:'Déficit de G6PD + oxidante (día 60)',k:'g6'}],LI=0;
+function surv(k,d){if(k==='n')return d<100?1-0.05*d/100:Math.max(0,0.95*(1-(d-100)/25));if(k==='esf')return Math.max(0,Math.exp(-d/22));
+  var s=surv('n',d);return d<60?s:s*Math.max(0.25,1-0.75*clamp((d-60)/4,0,1))*(1)}
+function drawLife(){var c=$('life'),W=cw(c,460),H=Math.round(clamp(W*.5,170,230)),x=fit(c,W,H),r={x:40,y:10,w:W-52,h:H-42},k=LIFE[LI].k;x.clearRect(0,0,W,H);
+  axes(x,r,[0,130],[0,100],[0,30,60,90,120],[0,50,100],'días de vida','% vivos');
+  line(x,r,[0,130],[0,100],function(d){return 100*surv('n',d)},css('--muted'),1.6,[5,4]);
+  if(k!=='n')line(x,r,[0,130],[0,100],function(d){return 100*surv(k,d)},css('--blood'),2.6);
+  $('lifeP').innerHTML=LIFE.map(function(p,i){return '<button class="btn" data-l="'+i+'" aria-pressed="'+(i===LI)+'">'+p.n+'</button>'}).join('');
+  $('lifeP').querySelectorAll('button').forEach(function(b){b.onclick=function(){LI=+b.dataset.l;drawLife()}});
+  var bad=k==='g6'?'g6':k==='esf'?'esf':'',g=css('--good'),bd=css('--bad'),fg=css('--fg');
+  $('met').innerHTML='<rect x="5" y="10" width="140" height="40" rx="5" fill="none" stroke="'+fg+'" stroke-opacity=".3"/><text x="15" y="34">Glucosa</text>'+
+   '<rect x="170" y="10" width="130" height="40" rx="5" fill="none" stroke="'+fg+'" stroke-opacity=".3"/><text x="180" y="28">Glucólisis anaerobia</text><text x="180" y="43" class="m">sin mitocondrias</text>'+
+   '<rect x="320" y="10" width="135" height="40" rx="5" fill="none" stroke="'+(bad==='esf'?bd:g)+'"/><text x="330" y="28">ATP</text><text x="330" y="43" class="m">'+(bad==='esf'?'membrana sin espectrina':'bombas · membrana')+'</text>'+
+   '<rect x="170" y="70" width="130" height="40" rx="5" fill="none" stroke="'+(bad==='g6'?bd:g)+'" stroke-width="'+(bad==='g6'?2.5:1)+'"/><text x="180" y="88">G6PD → NADPH</text><text x="180" y="103" class="m">'+(bad==='g6'?'deficiente':'vía de la pentosa')+'</text>'+
+   '<rect x="320" y="70" width="135" height="40" rx="5" fill="none" stroke="'+(bad==='g6'?bd:g)+'"/><text x="330" y="88">Glutatión reducido</text><text x="330" y="103" class="m">'+(bad==='g6'?'se agota: cuerpos de Heinz':'protege del oxidante')+'</text>'+
+   '<path d="M145 30H168M300 30H318M235 50V68M300 90H318" stroke="'+fg+'" stroke-opacity=".5" fill="none" stroke-width="1.5"/>';
+  $('lifeW').textContent={n:'Sin núcleo ni mitocondrias, el eritrocito vive ≈ 120 días con la energía de la glucólisis anaerobia (ATP para bombas y membrana) y se protege del oxidante con NADPH y glutatión. Al envejecer, lo retiran los macrófagos.',
+    esf:'Esferocitosis: falta espectrina o anquirina, la célula pierde membrana y se vuelve esférica, rígida; el bazo la atrapa mucho antes de los 120 días. Hemólisis con reticulocitos altos, esplenomegalia y a veces cálculos pigmentarios.',
+    g6:'Déficit de G6PD (ligado al X): sin estrés no pasa nada; al exponerse a un oxidante (infección, ciertos fármacos o alimentos) no hay NADPH para regenerar glutatión y se destruye de golpe una fracción de eritrocitos (crisis hemolítica; cuerpos de Heinz y células mordidas).'}[k]}
+/* ── Ictericia neonatal ── */
+var NEO=[{n:'Fisiológica',k:'f'},{n:'Aparece antes de 24 h',k:'p'}],NI=0;
+function neo(k,h,ft){var v=k==='f'?(h<24?0.15+h/24*0.15:0.3+0.9*Math.exp(-Math.pow((h-84)/48,2))*(h<84?1:1)):(0.1+h/12*0.45);if(k==='p')v=Math.min(v,0.1+2.6*(1-Math.exp(-h/40)));if(ft&&h>60)v=v*Math.exp(-(h-60)/50);return v}
+function drawNeo(){var c=$('neo'),W=cw(c,460),H=Math.round(clamp(W*.55,190,250)),x=fit(c,W,H),r={x:40,y:10,w:W-52,h:H-42},k=NEO[NI].k,ft=$('foto').checked;x.clearRect(0,0,W,H);
+  var X=function(h){return r.x+h/168*r.w};x.fillStyle=css('--bloodSoft');x.fillRect(r.x,r.y,X(24)-r.x,r.h);
+  axes(x,r,[0,168],[0,3],[0,24,48,72,96,120,144,168],[0,1,2,3],'horas de vida','bilirrubina (relativa)');
+  x.fillStyle=css('--bad');x.font='10px '+css('--font-mono');x.textAlign='left';x.fillText('< 24 h',r.x+4,r.y+12);
+  line(x,r,[0,168],[0,3],function(h){return neo(k,h,ft)},k==='p'?css('--blood'):css('--guess'),2.6,null,168);
+  $('neoP').innerHTML=NEO.map(function(p,i){return '<button class="btn" data-n="'+i+'" aria-pressed="'+(i===NI)+'">'+p.n+'</button>'}).join('');
+  $('neoP').querySelectorAll('button').forEach(function(b){b.onclick=function(){NI=+b.dataset.n;drawNeo()}});
+  $('neoW').textContent=(k==='f'?'Fisiológica: aparece después de las 24 h por el mayor recambio eritrocitario y la conjugación hepática inmadura, y baja conforme el hígado madura.':'Aparece en las primeras 24 h y sube rápido: debe considerarse potencialmente patológica (por ejemplo, hemólisis) y requiere valoración clínica.')+' La bilirrubina indirecta elevada puede cruzar la barrera hematoencefálica (kernícterus).'+(ft?' La fototerapia la convierte en fotoisómeros más fáciles de eliminar: la curva baja.':'')}
+$('foto').onchange=drawNeo;
+Quiz([
+ {q:'Hemólisis importante con hígado sano. ¿Qué esperas en la orina?',o:['Sin coluria, porque la bilirrubina que sobra es indirecta','Coluria intensa','Orina sin urobilinógeno'],a:0,ap:function(){set({hem:3})},e:function(){var b=bili(S);return 'El modelo da BI '+fmt(b.BI,1)+' × y BD '+fmt(b.BD/B0.BD,1)+' ×: la que sube es la indirecta, unida a albúmina, que no se filtra. Orina: '+urineTxt(b)+'; urobilinógeno urinario '+lvl(b.urU/B0.urU)+'.'}},
+ {q:'Un cálculo obstruye por completo el colédoco. ¿Cómo son las heces?',o:['Acólicas: no llega bilis al intestino','Más oscuras por exceso de pigmento','Normales'],a:0,ap:function(){set({obs:95})},e:function(){var b=bili(S);return 'Heces '+stoolTxt(b)+', orina '+urineTxt(b)+' y urobilinógeno urinario '+lvl(b.urU/B0.urU)+': la directa refluye a la sangre y no llega pigmento al intestino.'}},
+ {q:'Sube la inflamación (IL-6) con reservas de hierro normales. ¿Qué pasa con el hierro sérico y la ferritina?',o:['Hierro sérico bajo y ferritina alta','Ambos bajos','Ambos altos','Hierro sérico alto y ferritina baja'],a:0,ap:function(){setFe({il:80})},e:function(){var f=fe(FS);return 'Hepcidina '+fmt(f.hep,1)+' ×, hierro sérico '+fmt(f.fe/FE0.fe,1)+' × y ferritina '+fmt(f.ferr/FE0.ferr,1)+' ×: la hepcidina bloquea la ferroportina, el hierro queda guardado y no sale.'}},
+ {q:'Insuficiencia renal crónica. ¿Qué esperas de la EPO y la Hb a largo plazo?',o:['EPO inapropiadamente baja y anemia','EPO muy alta y policitemia','EPO alta y Hb normal'],a:0,ap:function(){ES=3;drawEpo()},e:function(){var s=epoSim(EPOS[3].o),l=s[s.length-1];return 'A los 120 días: EPO '+fmt(l.epo,1)+' × y Hb '+fmt(l.hb,1)+' g/dL. El sensor de hipoxia está en el riñón dañado: la señal no sale.'}},
+ {q:'Paciente con Hb alta. ¿Qué EPO apunta a policitemia vera?',o:['EPO baja','EPO alta','EPO normal siempre'],a:0,ap:function(){ES=4;drawEpo()},e:function(){var s=epoSim(EPOS[4].o),l=s[s.length-1];return 'Policitemia vera en el modelo: Hb '+fmt(l.hb,1)+' g/dL con EPO '+fmt(l.epo,2)+' ×. La médula produce sola y la falta de hipoxia apaga la EPO; en la secundaria la EPO está alta.'}},
+ {q:'Varón con déficit de G6PD recibe un fármaco oxidante. ¿Qué falla primero?',o:['La regeneración de glutatión por falta de NADPH','La producción de ATP','La espectrina de la membrana'],a:0,ap:function(){LI=2;drawLife()},e:function(){return 'Sin G6PD no hay NADPH suficiente para mantener el glutatión reducido: el oxidante daña la Hb y la membrana (cuerpos de Heinz) y hay hemólisis aguda. En el modelo cae ≈ '+fmt(100*(surv('n',70)-surv('g6',70)),0)+' % de las células en pocos días.'}}]);
+Case('case1',[
+ {q:'Con orina oscura y heces claras, ¿qué bilirrubina predomina?',o:['Directa (conjugada)','Indirecta (no conjugada)','Ninguna: es carotenemia'],a:0,e:'La coluria indica bilirrubina directa en sangre (hidrosoluble); la acolia indica que la bilis no llega al intestino.'},
+ {q:'¿Dónde está el problema?',o:['Después del hepatocito: obstrucción de la vía biliar','Antes del hígado: hemólisis','En la médula ósea'],a:0,e:'La bilirrubina ya fue conjugada (el hígado trabaja) pero no sale: ictericia posthepática. El dolor previo y la coledocolitiasis encajan.'},
+ {q:'¿Qué esperas del urobilinógeno urinario?',o:['Disminuido','Aumentado','Sin cambio'],a:0,e:'Si no llega bilirrubina al intestino, las bacterias no forman urobilinógeno y baja también el que se elimina por la orina. Compruébalo con el preajuste «Coledocolitiasis».'}]);
+Case('case2',[
+ {q:'¿Qué hormona explica el patrón?',o:['Hepcidina elevada por la inflamación (IL-6)','Eritropoyetina elevada','Falta de vitamina C'],a:0,e:'La IL-6 sube la hepcidina; la hepcidina se une a la ferroportina y bloquea la salida de hierro.'},
+ {q:'¿Por qué la ferritina está alta si el hierro sérico es bajo?',o:['Hay reservas, pero quedan atrapadas; además la inflamación eleva la ferritina','Porque tiene sobrecarga de hierro por transfusiones','Porque la ferritina mide el hierro circulante'],a:0,e:'La ferritina refleja reservas y sube con la inflamación: por eso una ferritina normal o alta no descarta por sí sola falta de hierro disponible.'},
+ {q:'¿Qué la distingue de una ferropenia pura?',o:['En la ferropenia la ferritina es baja (sin inflamación)','En la ferropenia el hierro sérico es alto','No se pueden distinguir'],a:0,e:'Ferropenia: ferritina baja, transferrina/TIBC alta. Inflamación: hierro bajo con ferritina alta. Pruébalo en el panel de hepcidina.'}]);
+MiniFC('mfc',[
+ ['Bilirrubina indirecta vs directa','Indirecta: no conjugada, liposoluble, va con albúmina, no pasa a la orina. Directa: conjugada, hidrosoluble, puede dar coluria.'],
+ ['Coluria + acolia','Ictericia posthepática (obstructiva): la directa refluye a la sangre y no llega bilis al intestino.'],
+ ['Hemólisis: ¿orina y heces?','Sin coluria (sobra indirecta) y sin acolia; el urobilinógeno urinario puede aumentar.'],
+ ['Hepcidina','Hormona hepática que bloquea la ferroportina: menos hierro sale a la sangre. La sube la IL-6 y la baja la eritropoyesis aumentada.'],
+ ['Policitemia vera vs secundaria','Vera: EPO baja (la médula produce sola). Secundaria a hipoxia: EPO alta.']]);
+set({});newCase();drawEpo();renderFe();drawLife();drawNeo();
+onRedraw(function(){drawFlow();drawEpo();drawLife();drawNeo()});
+window.__model={bili:bili,fe:fe,epoSim:epoSim,clsJ:clsJ,BASE:BASE,PRE:PRE,EPOS:EPOS,FEP:FEP};
+})();
+</script>
+</body></html>
